@@ -330,10 +330,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		IJ.runPlugIn("Dosimetry.Dosimetry_v2", "");
 
-		
-		
-		
-		
 		Utility.debugDeiPoveri("CHE STORIA !!!!");
 
 		Utility.endLog(pathPermanente);
@@ -1128,8 +1124,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 		genericDialog3.setCancelLabel("INIZIALIZZA");
 		genericDialog3.showDialog();
 		if (genericDialog3.wasCanceled()) {
+			IJ.log("LP00 - true PREMUTO INIZIALIZZA");
 			return true; // EBBENE SI, DA BENE COSI'
 		} else {
+			IJ.log("LP00 - false PREMUTO MANTIENI");
 			return false;
 		}
 	}
@@ -1140,25 +1138,30 @@ public class Dosimetria_Lu177 implements PlugIn {
 		nonBlockingGenericDialog.addMessage(
 				"Are you sure to delete all files in the following folder?\nThis action is irreversible.\n" + str20,
 				this.defaultFont);
-		nonBlockingGenericDialog.setCancelLabel("Annulla");
+		nonBlockingGenericDialog.setCancelLabel("ANNULLA");
 		nonBlockingGenericDialog.showDialog();
 		if (nonBlockingGenericDialog.wasCanceled()) {
+			IJ.log("LP01 - false PREMUTO ANNULLA");
 			return false;
 		} else {
+			IJ.log("LP01 - true PREMUTO OK");
 			return true;
 		}
 	}
 
 	boolean dialogSelection_LP02() {
+		IJ.log("dialogo LP02");
 		GenericDialog genericDialog = new GenericDialog("LP02 - Select images Folder");
 		genericDialog.addMessage("24h Folder Selection", this.titleFont);
 		genericDialog.addMessage("Select folder of the 24h acquisition", this.defaultFont);
-		genericDialog.setOKLabel("Browse");
-		genericDialog.setCancelLabel("Quit");
+		genericDialog.setOKLabel("BROWSE");
+		genericDialog.setCancelLabel("QUIT");
 		genericDialog.showDialog();
 		if (genericDialog.wasCanceled()) {
+			IJ.log("LP02 - true PREMUTO QUIT");
 			return true;
 		} else {
+			IJ.log("LP02 - false PREMUTO BROWSE");
 			genericDialog.dispose();
 			return false;
 		}
@@ -1186,12 +1189,14 @@ public class Dosimetria_Lu177 implements PlugIn {
 		genericDialog1.addMessage(str48, this.defaultFont);
 		genericDialog1.addMessage("120h folder path:", this.textFont);
 		genericDialog1.addMessage(str120, this.defaultFont);
-		genericDialog1.setOKLabel("Confirm");
-		genericDialog1.setCancelLabel("Quit");
+		genericDialog1.setOKLabel("CONFIRM");
+		genericDialog1.setCancelLabel("QUIT");
 		genericDialog1.showDialog();
 		if (genericDialog1.wasCanceled()) {
+			IJ.log("LP03 - false PREMUTO QUIT");
 			return false;
 		} else {
+			IJ.log("LP03 - true PREMUTO CONFIRM");
 			genericDialog1.dispose();
 			return true;
 		}
@@ -1534,7 +1539,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 		Dimension screen = IJ.getScreenSize();
 
 		NonBlockingGenericDialog gd1 = new NonBlockingGenericDialog("LP30 - Dialog Close");
-		gd1.addMessage("Trova le lesioni su PET-CT Viewer su tutte e tre le \nimmagini 24h, 48h e 120h, poi premi OK", this.defaultFont);
+		gd1.addMessage("Trova le lesioni su PET-CT Viewer su tutte e tre le \nimmagini 24h, 48h e 120h, poi premi OK",
+				this.defaultFont);
 		gd1.setLocation(screen.width * 2 / 3, screen.height * 1 / 3);
 		gd1.showDialog();
 		return true;
