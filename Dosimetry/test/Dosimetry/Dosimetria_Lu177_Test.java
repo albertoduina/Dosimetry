@@ -31,8 +31,8 @@ public class Dosimetria_Lu177_Test {
 		for (String aux : out1) {
 			IJ.log("" + aux);
 		}
-
-		Utility.debugDeiPoveri("SPETTA");
+		Utility.debugDeiPoveri("SPETTA ");
+		assertTrue(true);
 	}
 
 	@Test
