@@ -10,7 +10,7 @@ import ij.plugin.PlugIn;
  * @version v3
  * @author Date 05 dec 2022
  */
-public class MirdDosimetry_v1 implements PlugIn {
+public class MirdDosimetry_v1222 implements PlugIn {
 
 	// =================================================================================
 	// =================================================================================
@@ -21,6 +21,7 @@ public class MirdDosimetry_v1 implements PlugIn {
 		String desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
 		String pathPermanente = desktopPath + File.separator + "DosimetryFolder" + File.separator + "permanente.txt";
 		String pathVolatile = desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
+
 		boolean compresso = true;
 		String[] tutteStringhe1 = Utility.readLog(pathPermanente, compresso);
 		String[] tutteStringhe2 = Utility.readLog(pathVolatile, compresso);
@@ -33,8 +34,26 @@ public class MirdDosimetry_v1 implements PlugIn {
 			IJ.log(aux);
 		}
 		Utility.nonImageToFront("Log");
-	}
 
+		// =====================================================
+		// 24h
+		// =====================================================
+		// per ora metto le variabili come string, poi le tipizzo
+
+		String[] vetDurata = { "#038#", "#048#", "#058#" };
+
+		for (int i1 = 0; i1 < 3; i1++) {
+
+			int durataAcquisizione = Utility.parseInt(Utility.readFromLog(pathPermanente, vetDurata[i1], "="));
+
+			int deltaT = 0;
+			String vol = null;
+			String fatCal = null;
+			String attivita = null;
+			String[][] tabellina = null;
+
+		}
+	}
 	// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 	// =================================================================================
 	// OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO

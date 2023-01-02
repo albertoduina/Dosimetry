@@ -50,7 +50,9 @@ public class Dosimetry_v2 implements PlugIn {
 
 	public void run(String arg) {
 
+		IJ.log("============================");
 		IJ.log("START Dosimetry_v2");
+		IJ.log("============================");
 		FontUtil fu = new FontUtil();
 		String fontStyle = "Arial";
 		Font titleFont = fu.getFont(fontStyle, 1, 18);
@@ -757,6 +759,9 @@ public class Dosimetry_v2 implements PlugIn {
 			IJ.log("FINE LOOP LIVELLO ZERO");
 		} while (!okk);
 		IJ.log("FUORI LOOP LIVELLO ZERO");
+		IJ.log("============================");
+		IJ.log("END Dosimetry_v2");
+		IJ.log("============================");
 
 	}
 

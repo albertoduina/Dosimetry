@@ -17,6 +17,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import ij.IJ;
@@ -230,6 +231,30 @@ public class Utility {
 		}
 		return out1;
 	}
+	
+	/**
+	 * Restituisce l'intera linea del parametro
+	 * 
+	 * @param path1
+	 * @param code1
+	 * @return
+	 */
+	static String readFromLog(String path1, String code1) {
+
+		// leggo una stringa dal log
+		String[] vetText = Utility.readLog(path1);
+		String[] vetAux1;
+		String out1 = null;
+		if (vetText.length > 0) {
+			for (int i1 = 0; i1 < vetText.length; i1++) {
+				if (vetText[i1].contains(code1)) {
+					out1 = vetText[i1];
+				}
+			}
+		}
+		return out1;
+	}
+
 
 	/**
 	 * Test per data valida
@@ -424,5 +449,184 @@ public class Utility {
 		return dicomImage1;
 
 	}
+	
+	/**
+	 * Legge un intero da una stringa.
+	 * 
+	 * @param tmp1
+	 * @return
+	 */
+	static int parseInt(String tmp1) {
+		int ret1 = 0;
+		double dbl1;
+		if (tmp1 != null && !tmp1.isEmpty()) {
+			try {
+				dbl1 = Double.parseDouble(tmp1);
+				ret1 = (int) dbl1;
+			} catch (Exception e) {
+				ret1 = 0;
+			}
+		}
+		return ret1;
+	}
+
+	/**
+	 * Calcolo delta T in millisecondi
+	 * 
+	 * @param dateTime0
+	 * @param dateTime24
+	 * @return
+	 */
+	static long CalcoloDeltaT(Date dateTime0, Date dateTime24) {
+
+//		IJ.log("dateTime0= " +dateTime0);
+//		IJ.log("dateTime24= " +dateTime24);
+		long diff = dateTime24.getTime() - dateTime0.getTime();
+//		IJ.log("difference= " + diff / (1000 * 60 * 60) + " hours");
+//		IJ.log("difference= " + diff / (1000 * 60 * 60 * 24) + " days");
+		return diff;
+	}
+
+	
+	static double[][] matTable() {
+		double[][] myTable = { { 0.3, 0.4, 0.5 }, { 2.0050800, 1.4416900, 1.1119950 },
+				{ 1.0008740, 1.0009900, 1.0016370 }, { 0.0838640, 0.1330990, 0.1528385 } };
+		return myTable;
+	}
+
+	/**
+	 * Ricava i dati dai file permanente e volatile, calcolando i parametri di
+	 * plottaggio di un punto
+	 * 
+	 * @param pathVolatile
+	 * @param pathPermanente
+	 */
+	static double[] puntoGrafico(String pathVolatile, String pathPermanente, double[] in1) {
+
+//		double durata = Double.parseDouble(Utility.readFromLog(pathPermanente, "#028#", "="));
+//		double conteggio = Double.parseDouble(Utility.readFromLog(pathVolatile, "#112#", "="));
+//		double activity = Double.parseDouble(Utility.readFromLog(pathVolatile, "#102#", "="));
+//		double threshold = Double.parseDouble(Utility.readFromLog(pathVolatile, "#118#", "="));
+
+		double durata = in1[0];
+		double conteggio = in1[1];
+		double activity = in1[2];
+		double threshold = in1[3];
+
+		double[][] myMatTable = matTable();
+		double t1 = 0;
+		double a1 = 0;
+		double b1 = 0;
+		double c1 = 0;
+
+		if (threshold <= 0.30) {
+			t1 = myMatTable[0][0];
+			a1 = myMatTable[1][0];
+			b1 = myMatTable[2][0];
+			c1 = myMatTable[3][0];
+		} else if (threshold > 0.30 && threshold <= 0.50) {
+			t1 = myMatTable[0][1];
+			a1 = myMatTable[1][1];
+			b1 = myMatTable[2][1];
+			c1 = myMatTable[3][1];
+		} else {
+			t1 = myMatTable[0][2];
+			a1 = myMatTable[1][2];
+			b1 = myMatTable[2][2];
+			c1 = myMatTable[3][2];
+		}
+
+		double vol = conteggio * (Math.pow(4.43, 3) / 1000.);
+		double fatCal = a1 * Math.pow(b1, vol) * Math.pow(vol, c1);
+		double attiv = conteggio / (durata * fatCal);
+		double[] out1 = new double[3];
+		out1[0] = vol;
+		out1[1] = fatCal;
+		out1[2] = attiv;
+
+		return out1;
+
+	}
+
+	static void battezzaLesioni(String pathVolatile, String pathPermanente) {
+		// alla fine del nostro reiterativo lavoro decidiamo che dobbiamo salvare il
+		// tutto CHE COSA POTRA'MAI ANDARE STORTO???
+		GenericDialog compliments1 = new GenericDialog("DD07 - Compliments1");
+		compliments1.addMessage("COMPLIMENTI, HAI COMPLETATO L'ANALISI DELLA LESIONE");
+		compliments1.addMessage("SENZA SCLERARE TROPPO");
+		compliments1.addStringField("NomeLesione per memorizzazione", "");
+		compliments1.showDialog();
+		String lesionName = compliments1.getNextString();
+		IJ.log("lesionName= " + lesionName);
+
+		// ora i nostri dati verrano battezzati col nome fornito dal ... PADRINO !!!
+		// il nome del nuovo file diverra' lesionName.txt, non occorre un controllo che
+		// l'operatore non ci abbia CASUALMENTE fornito lo stesso nome di una altra
+		// lesione, in tal caso gli verra'cantata tutta la canzone "Il gorilla" di
+		// Fabrizio de Andre', ovviamente con esempio pratico.
+
+		int pos = pathVolatile.lastIndexOf(File.separator);
+		IJ.log("pathVolatile= " + pathVolatile);
+		IJ.log("pos= " + pos);
+		String pathBase = pathVolatile.substring(0, pos);
+		IJ.log("pathBase= " + pathBase);
+		String pathLesione = pathBase + File.separator + lesionName + ".txt";
+
+		Utility.moveLog(pathLesione, pathVolatile);
+		Utility.initLog(pathVolatile);
+
+	}
+
+	void altroDistretto() {
+		IJ.log("DD08_altroDistretto");
+		GenericDialog finished1 = new GenericDialog("DD08 - Finished1");
+		finished1.addMessage("HAI TERMINATO ANALISI DISTRETTO?");
+		finished1.addMessage("se rispondi ALTRA LESIONE vuoi analizzare un altra lesione");
+		finished1.addMessage(
+				"se rispondi FINITO vuoi passare in LoadPatient e caricare un altro distretto anatomico OPPURE HAI TERMINATO");
+		finished1.setOKLabel("FINITO");
+		finished1.setCancelLabel("ALTRA LESIONE");
+
+		finished1.showDialog();
+		boolean avanti = finished1.wasCanceled();
+		boolean finito = finished1.wasOKed();
+
+	}
+
+	/**
+	 * Copia i dati somministrazione in volatile da permanente
+	 * 
+	 */
+	static void copiaSomministrazione(String pathPermanente, String pathDestinazione) {
+		
+		String aux1="";
+		Utility.appendLog(pathDestinazione, "-- SOMMINISTRAZIONE --");
+		aux1 = readFromLog(pathPermanente, "#100#");
+		Utility.appendLog(pathDestinazione, aux1);
+		aux1 = readFromLog(pathPermanente, "#101#");
+		Utility.appendLog(pathDestinazione, aux1);
+		aux1 = readFromLog(pathPermanente, "#102#");
+		Utility.appendLog(pathDestinazione, aux1);
+		Utility.appendLog(pathDestinazione, "-------------------");
+
+	}
+
+	/**
+	 * Cancella tutti i file con estensione ".txt" presenti nella cartella
+	 * 
+	 * @param pathDir
+	 */
+	public static void deleteAllLogs(String pathDir) {
+
+		File folder = new File(pathDir);
+		File fList[] = folder.listFiles();
+		for (File f1 : fList) {
+			if (f1.getName().endsWith(".txt")) {
+				f1.delete();
+			}
+		}
+
+	}
+
 
 }
