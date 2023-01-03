@@ -428,6 +428,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 		yp[1] = out48[2];
 		xp[2] = 120.0;
 		yp[2] = out120[2];
+		
+		double[] outCF = Utility.MIRD_curveFitter(xp, yp);
+
 
 		// le accentate ce le sogniamo, si mette l'apostrofo come 40 anni fa'
 		Plot plot = new Plot("Punti", "ore dalla somministrazione", "attivita' MBq");
@@ -436,7 +439,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		plot.add("circle", xp, yp);
 		plot.show();
 
-		double[] outCF = Utility.MIRD_curveFitter(xp, yp);
 
 		Utility.debugDeiPoveri("---- CHE BELLIZZIMO GRAFICO -----");
 		// ==========================================================================
