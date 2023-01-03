@@ -605,17 +605,21 @@ public class Utility {
 	 * @param vetX
 	 * @param vetY
 	 */
-	static void MIRD_curveFitter(double[] vetX, double[] vetY) {
+	static double[]  MIRD_curveFitter(double[] vetX, double[] vetY) {
 
 		CurveFitter cf1 = new CurveFitter(vetX, vetY);
 		cf1.doFit(CurveFitter.EXPONENTIAL);
 		double[] params = cf1.getParams();
 		double goodness = cf1.getFitGoodness();
-
+		String aux1 = "";
+		double[] out1= new double[4];
 		for (int i1 = 0; i1 < params.length; i1++) {
 			IJ.log("MIRD FIT param " + i1 + " =" + params[i1]);
+			out1[i1]= params[i1];
 		}
 		IJ.log("MIRD FIT goodness=  " + goodness);
+		out1[3]= goodness;
+		return out1;
 	}
 
 	/**

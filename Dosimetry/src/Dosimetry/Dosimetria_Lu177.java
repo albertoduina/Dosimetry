@@ -436,7 +436,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		plot.add("circle", xp, yp);
 		plot.show();
 
-		Utility.MIRD_curveFitter(xp, yp);
+		double[] outCF = Utility.MIRD_curveFitter(xp, yp);
 
 		Utility.debugDeiPoveri("---- CHE BELLIZZIMO GRAFICO -----");
 		// ==========================================================================
@@ -478,6 +478,15 @@ public class Dosimetria_Lu177 implements PlugIn {
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal120 =" + out120[1];
 		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120 =" + out120[2];
+		Utility.appendLog(pathVolatile, aux5);
+		count5 = 260;
+		aux5 = "#" + String.format("%03d", count5++) + "#\t----- MIRD FIT RESULTS --------";
+		Utility.appendLog(pathVolatile, aux5);
+		for (int i1 = 0; i1 < 3; i1++) {
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FIT param " + i1 + "= " + outCF[i1];
+			Utility.appendLog(pathVolatile, aux5);
+		}
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FITgoodness =" + outCF[3];
 		Utility.appendLog(pathVolatile, aux5);
 
 		Utility.battezzaLesioni(pathVolatile);
