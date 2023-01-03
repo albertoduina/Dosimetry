@@ -26,6 +26,7 @@ import ij.gui.GenericDialog;
 import ij.gui.ImageWindow;
 import ij.gui.NonBlockingGenericDialog;
 import ij.gui.WaitForUserDialog;
+import ij.measure.CurveFitter;
 
 //
 // DATI SOMMINISTRAZIONE 			#001#-#009# 
@@ -53,73 +54,73 @@ public class Utility {
 		return out2;
 	}
 
-	/**
-	 * Legge il log e mette in un vettore le stringhe, salta le vuote
-	 * 
-	 * @param path1     indirizzo log da leggere
-	 * @param compress1 eliminare linee vuote
-	 * @return
-	 */
-	public static String[] readLog(String path1, boolean compress1) {
+//	/**
+//	 * Legge il log e mette in un vettore le stringhe, salta le vuote
+//	 * 
+//	 * @param path1     indirizzo log da leggere
+//	 * @param compress1 eliminare linee vuote
+//	 * @return
+//	 */
+//	public static String[] readLog(String path1, boolean compress1) {
+//
+//		String[] out1 = readLogCompress(path1, compress1);
+//		return out1;
+//	}
+//
+//	/**
+//	 * Legge il log e mette in un vettore tutte le strinhe
+//	 * 
+//	 * @param path indirizzo log da leggere
+//	 */
+//	public static String[] readLog(String path1) {
+//
+//		String[] out1 = readLogCompress(path1, false);
+//		return out1;
+//	}
 
-		String[] out1 = readLogCompress(path1, compress1);
-		return out1;
-	}
-
-	/**
-	 * Legge il log e mette in un vettore tutte le strinhe
-	 * 
-	 * @param path indirizzo log da leggere
-	 */
-	public static String[] readLog(String path1) {
-
-		String[] out1 = readLogCompress(path1, false);
-		return out1;
-	}
-
-	/**
-	 * Legge il log e mette in un vettore le stringhe, salta le vuote
-	 * 
-	 * @param path     indirizzo log da leggere
-	 * @param compress eliminare linee vuote
-	 * @return
-	 */
-	public static String[] readLogCompress(String path, boolean compress) {
-
-		ArrayList<String> inArrayList = new ArrayList<String>();
-		IJ.log("sono in readLogCompress per cercare di leggere " + path);
-		BufferedReader br = null;
-		try {
-			br = new BufferedReader(new FileReader(path));
-			IJ.log("br= " + br.toString());
-			while (br.ready()) {
-				String line = br.readLine();
-				IJ.log("readLogCompress legge line= " + line);
-				inArrayList.add(line);
-			}
-			br.close();
-		} catch (IOException e) {
-			IJ.log("errore non leggo " + path);
-			e.printStackTrace();
-		}
-
-		IJ.log("001");
-
-		ArrayList<String> outArrayList = new ArrayList<String>();
-		String aux11 = "";
-		for (int i1 = 0; i1 < inArrayList.size(); i1++) {
-			aux11 = inArrayList.get(i1);
-			if (!aux11.isEmpty()) {
-				outArrayList.add(aux11);
-			}
-		}
-		Object[] objArray = outArrayList.toArray();
-		String[] vetOut = new String[objArray.length];
-		for (int i1 = 0; i1 < objArray.length; i1++) {
-			vetOut[i1] = objArray[i1].toString();
-		}
-		return vetOut;
-	}
+//	/**
+//	 * Legge il log e mette in un vettore le stringhe, salta le vuote
+//	 * 
+//	 * @param path     indirizzo log da leggere
+//	 * @param compress eliminare linee vuote
+//	 * @return
+//	 */
+//	public static String[] readLogCompress(String path, boolean compress) {
+//
+//		ArrayList<String> inArrayList = new ArrayList<String>();
+//		IJ.log("sono in readLogCompress per cercare di leggere " + path);
+//		BufferedReader br = null;
+//		try {
+//			br = new BufferedReader(new FileReader(path));
+//			IJ.log("br= " + br.toString());
+//			while (br.ready()) {
+//				String line = br.readLine();
+//				IJ.log("readLogCompress legge line= " + line);
+//				inArrayList.add(line);
+//			}
+//			br.close();
+//		} catch (IOException e) {
+//			IJ.log("errore non leggo " + path);
+//			e.printStackTrace();
+//		}
+//
+//		IJ.log("001");
+//
+//		ArrayList<String> outArrayList = new ArrayList<String>();
+//		String aux11 = "";
+//		for (int i1 = 0; i1 < inArrayList.size(); i1++) {
+//			aux11 = inArrayList.get(i1);
+//			if (!aux11.isEmpty()) {
+//				outArrayList.add(aux11);
+//			}
+//		}
+//		Object[] objArray = outArrayList.toArray();
+//		String[] vetOut = new String[objArray.length];
+//		for (int i1 = 0; i1 < objArray.length; i1++) {
+//			vetOut[i1] = objArray[i1].toString();
+//		}
+//		return vetOut;
+//	}
 
 	/**
 	 * Inizializza il file di log
@@ -254,7 +255,7 @@ public class Utility {
 	static String readFromLog(String path1, String code1, String separator) {
 
 		// leggo una stringa dal log
-		String[] vetText = Utility.readLog(path1);
+		String[] vetText = Utility.readSimpleText(path1);
 		String[] vetAux1;
 		String out1 = null;
 		if (vetText.length > 0) {
@@ -268,15 +269,15 @@ public class Utility {
 		return out1;
 	}
 
-	static void copyInfo2(String pathSorgente, String pathDestinazione, String[] vetTag) {
-
-		String aux1 = "";
-		for (int i1 = 0; i1 < vetTag.length; i1++) {
-			aux1 = readFromLog(pathSorgente, vetTag[i1]);
-			Utility.appendLog(pathDestinazione, aux1);
-		}
-
-	}
+//	static void copyInfo2(String pathSorgente, String pathDestinazione, String[] vetTag) {
+//
+//		String aux1 = "";
+//		for (int i1 = 0; i1 < vetTag.length; i1++) {
+//			aux1 = readFromLog(pathSorgente, vetTag[i1]);
+//			Utility.appendLog(pathDestinazione, aux1);
+//		}
+//
+//	}
 
 	static void copyInfo(String pathSorgente, String pathDestinazione, int start, int end) {
 
@@ -286,25 +287,24 @@ public class Utility {
 			aux1 = "#" + String.format("%03d", i1) + "#";
 			aux2 = readFromLog(pathSorgente, aux1);
 			if (aux2 != null) {
-				IJ.log("copio " + aux2);
 				Utility.appendLog(pathDestinazione, aux2);
 			}
 		}
 
 	}
 
-	static void copyImageInfo(String pathSorgente, String pathDestinazione) {
-
-		String[] vetInfo = { "#010", "#011", "#012#", "#012#", "#013#", "#014#", "#015#", "#016#", "#017#", "#018#",
-				"#030#", "#031#", "#032#", "#033#", "#034#", "#035#", "#036#", "#037#", "#038#", "#050#", "#051#",
-				"#052#", "#053#", "#054#", "#055#", "#056#", "#057#", "#058#", };
-		String aux1 = "";
-		for (int i1 = 0; i1 < vetInfo.length; i1++) {
-			aux1 = readFromLog(pathSorgente, vetInfo[i1]);
-			Utility.appendLog(pathDestinazione, aux1);
-		}
-
-	}
+//	static void copyImageInfo(String pathSorgente, String pathDestinazione) {
+//
+//		String[] vetInfo = { "#010", "#011", "#012#", "#012#", "#013#", "#014#", "#015#", "#016#", "#017#", "#018#",
+//				"#030#", "#031#", "#032#", "#033#", "#034#", "#035#", "#036#", "#037#", "#038#", "#050#", "#051#",
+//				"#052#", "#053#", "#054#", "#055#", "#056#", "#057#", "#058#", };
+//		String aux1 = "";
+//		for (int i1 = 0; i1 < vetInfo.length; i1++) {
+//			aux1 = readFromLog(pathSorgente, vetInfo[i1]);
+//			Utility.appendLog(pathDestinazione, aux1);
+//		}
+//
+//	}
 
 	/**
 	 * Restituisce l'intera linea del log per il tag
@@ -600,6 +600,25 @@ public class Utility {
 	}
 
 	/**
+	 * Inizio a guardare come fare il fit esponenziale
+	 * 
+	 * @param vetX
+	 * @param vetY
+	 */
+	static void MIRD_curveFitter(double[] vetX, double[] vetY) {
+
+		CurveFitter cf1 = new CurveFitter(vetX, vetY);
+		cf1.doFit(CurveFitter.EXPONENTIAL);
+		double[] params = cf1.getParams();
+		double goodness = cf1.getFitGoodness();
+
+		for (int i1 = 0; i1 < params.length; i1++) {
+			IJ.log("MIRD FIT param " + i1 + " =" + params[i1]);
+		}
+		IJ.log("MIRD FIT goodness=  " + goodness);
+	}
+
+	/**
 	 * Assegnazione nome alle lesioni
 	 * 
 	 * @param pathVolatile
@@ -620,7 +639,7 @@ public class Utility {
 		// il nome del nuovo file diverra' lesionName.txt, non occorre un controllo che
 		// l'operatore non ci abbia CASUALMENTE fornito lo stesso nome di una altra
 		// lesione, in tal caso gli verra'cantata tutta la canzone "Il gorilla" di
-		// Fabrizio de Andre', ovviamente con esempio pratico.
+		// Fabrizio de Andre', ovviamente con esempi pratici.
 
 		int pos = pathVolatile.lastIndexOf(File.separator);
 		IJ.log("pathVolatile= " + pathVolatile);

@@ -47,8 +47,6 @@ import ij.util.FontUtil;
 //PATIENT-DOSIMETRY INFO 24 h		#160#-#199#
 //
 
-
-
 public class Dosimetry_v2 implements PlugIn {
 
 	private ImagePlus dicomImage = null;
@@ -104,9 +102,9 @@ public class Dosimetry_v2 implements PlugIn {
 		pathVolatile = desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
 
 		// leggo in volatile.txt i dati scritti da Load_Patient
-		String[] vetLogList = Utility.readLog(pathPermanente);
+//		String[] vetLogList = Utility.readLog(pathPermanente);
 		String[] vetPath = new String[3];
-		for (int i1 = 0; i1 < vetLogList.length; i1++) {
+		for (int i1 = 0; i1 < 3; i1++) {
 			vetPath[0] = Utility.readFromLog(pathPermanente, "24h=", "=");
 			vetPath[1] = Utility.readFromLog(pathPermanente, "48h=", "=");
 			vetPath[2] = Utility.readFromLog(pathPermanente, "120h=", "=");
@@ -570,7 +568,7 @@ public class Dosimetry_v2 implements PlugIn {
 							// ==========================================================================
 
 							IJ.log("ESEGUO MemorizeResults con point1= " + point1);
-							aux1= "#"+count++ +"#\t--- PATIENT INFO " + aux2 + " ---";
+							aux1 = "#" + count++ + "#\t--- PATIENT INFO " + aux2 + " ---";
 							Utility.appendLog(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tPatient MachineName= "
 									+ DicomTools.getTag(dicomImage, "0010,0010");
@@ -579,7 +577,7 @@ public class Dosimetry_v2 implements PlugIn {
 									+ DicomTools.getTag(dicomImage, "0010,0030");
 							Utility.appendLog(pathVolatile, aux1);
 							count = count + 10;
-							aux1= "#"+count++ +"#\t--- DOSIMETRY INFO " + aux2 + " ---";
+							aux1 = "#" + count++ + "#\t--- DOSIMETRY INFO " + aux2 + " ---";
 							Utility.appendLog(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tMaximum lesion count= " + (int) roiMax;
 							Utility.appendLog(pathVolatile, aux1);
@@ -598,9 +596,8 @@ public class Dosimetry_v2 implements PlugIn {
 							Utility.appendLog(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tOver threshold count integral= " + integrale;
 							Utility.appendLog(pathVolatile, aux1);
-							//Utility.appendLog(pathVolatile, "++++");
+							// Utility.appendLog(pathVolatile, "++++");
 
-		
 							IJ.log("eseguito reset005");
 							IJ.run("Select None");
 							IJ.run("Remove Overlay");

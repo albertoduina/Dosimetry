@@ -96,6 +96,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		Date myDate0 = null;
 		boolean nuovoPaziente = false;
 		boolean nuovoDistretto = false;
+		boolean nuovaLaboriosa = false;
 		File[] arrayOfFile2 = null;
 
 		// ===========================================================
@@ -121,7 +122,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 				nuovoDistretto = dialogDistretto_LP07();
 			}
 		}
-		if (nuovoPaziente) {
+		if (nuovoPaziente) { // nuovo paziente
+			nuovaLaboriosa = true;
 			IJ.log("NUOVO PAZIENTE, TRASFERIMENTO IMMAGINI");
 			arrayOfFile2 = desktopImagesFolderFill();
 			IJ.log("NUOVO PAZIENTE, INIZIALIZZAZIONE LOG E RICHIESTA DATI SOMMINISTRAZIONE");
@@ -150,15 +152,19 @@ public class Dosimetria_Lu177 implements PlugIn {
 			Utility.appendLog(pathVolatile, aux1);
 			aux1 = "#003#\tActivity= " + activitySomministrazione;
 			Utility.appendLog(pathVolatile, aux1);
+			// copia da volatile a permanente i dati di SOMMINISTRAZIONE
 			Utility.copyInfo(pathVolatile, pathPermanente, 0, 3);
 			myDate0 = getDateTime(dataToDicom(dataSomministrazione), oraToDicom(oraSomministrazione));
 			raccoltaDati(arrayOfFile2, myDate0);
+			// copia da volatile a permanente i dati di IMAGE INFO 24-48-120
 			Utility.copyInfo(pathVolatile, pathPermanente, 10, 60);
 
-		} else if (nuovoDistretto) {
+		} else if (nuovoDistretto) { // stesso paziente nuovo distretto nuova lesione
 			IJ.log("NUOVO DISTRETTO, CARICAMENTO IMMAGINI E \nRECUPERO DATI SOMMINISTRAZIONE DA PERMANENTE");
 			arrayOfFile2 = desktopImagesFolderFill();
+			// copia da volatile a permanente i dati di IMAGE INFO 24-48-120
 			Utility.copyInfo(pathPermanente, pathVolatile, 0, 3);
+			// copia da permanente a volatile i dati di IMAGE INFO 24-48-120
 			Utility.copyInfo(pathPermanente, pathVolatile, 10, 60);
 			dataSomministrazione = Utility.readFromLog(pathVolatile, "#001#", "=");
 			oraSomministrazione = Utility.readFromLog(pathVolatile, "#002#", "=");
@@ -167,9 +173,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 			IJ.log("dataSomministrazione= " + dataSomministrazione);
 			IJ.log("oraSomministrazione= " + oraSomministrazione);
 
-		} else {
+		} else { // stesso paziente stesso distretto, nuova lesione
 			IJ.log("NUOVA LESIONE, RECUPERO DATI SOMMINISTRAZIONE DA PERMANENTE");
+			// copia da volatile a permanente i dati di IMAGE INFO 24-48-120
 			Utility.copyInfo(pathPermanente, pathVolatile, 0, 3);
+			// copia da permanente a volatile i dati di IMAGE INFO 24-48-120
 			Utility.copyInfo(pathPermanente, pathVolatile, 10, 60);
 			dataSomministrazione = Utility.readFromLog(pathVolatile, "#001#", "=");
 			oraSomministrazione = Utility.readFromLog(pathVolatile, "#002#", "=");
@@ -210,8 +218,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 		imp1.show();
 		int slice1 = 1;
 		String meta1 = getMeta(slice1, imp1);
-		petctviewerTitle = stringaLaboriosa(meta1);
-		Utility.appendLog(pathPermanente, "24h=" + petctviewerTitle);
+		if (nuovaLaboriosa) {
+			petctviewerTitle = stringaLaboriosa(meta1);
+			Utility.appendLog(pathPermanente, "24h=" + petctviewerTitle);
+		}
 
 		String petUID1 = DicomTools.getTag(imp1, "0020,000E");
 		petUID1 = petUID1.trim();
@@ -227,7 +237,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		for (File file2a : result2) {
 			list2[j2++] = file2a.getPath();
 		}
-
 		ImagePlus imp2 = readStackFiles(startingDir2);
 
 		String tit2 = imp2.getTitle();
@@ -265,8 +274,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 		imp3.setTitle(tit3);
 		imp3.show();
 		String meta3 = getMeta(slice1, imp3);
-		petctviewerTitle = stringaLaboriosa(meta3);
-		Utility.appendLog(pathPermanente, "48h=" + petctviewerTitle);
+		if (nuovaLaboriosa) {
+			petctviewerTitle = stringaLaboriosa(meta3);
+			Utility.appendLog(pathPermanente, "48h=" + petctviewerTitle);
+		}
 
 		String petUID3 = DicomTools.getTag(imp3, "0020,000E");
 		petUID3 = petUID3.trim();
@@ -317,8 +328,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 		imp5.setTitle(tit5);
 		imp5.show();
 		String meta5 = getMeta(slice1, imp5);
-		petctviewerTitle = stringaLaboriosa(meta5);
-		Utility.appendLog(pathPermanente, "120h=" + petctviewerTitle);
+		if (nuovaLaboriosa) {
+			petctviewerTitle = stringaLaboriosa(meta5);
+			Utility.appendLog(pathPermanente, "120h=" + petctviewerTitle);
+		}
 
 		String petUID5 = DicomTools.getTag(imp5, "0020,000E");
 		petUID5 = petUID5.trim();
@@ -381,6 +394,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 		in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
 		in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#115#", "=")); // threshold
 		double[] out24 = Utility.MIRD_point(in1);
+		double MIRD_vol24 = out24[0];
+		double MIRD_fatCal24 = out24[1];
+		double MIRD_attiv24 = out24[2];
 
 		// 48h
 		// Utility.appendLog(pathVolatile, aux1);
@@ -389,6 +405,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 		in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
 		in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#145#", "=")); // threshold
 		double[] out48 = Utility.MIRD_point(in1);
+		double MIRD_vol48 = out48[0];
+		double MIRD_fatCal48 = out48[1];
+		double MIRD_attiv48 = out48[2];
 
 		// 120h
 		// Utility.appendLog(pathVolatile, aux1);
@@ -397,6 +416,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 		in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
 		in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#175#", "=")); // threshold
 		double[] out120 = Utility.MIRD_point(in1);
+		double MIRD_vol120 = out120[0];
+		double MIRD_fatCal120 = out120[1];
+		double MIRD_attiv120 = out120[2];
 
 		double[] xp = new double[3];
 		double[] yp = new double[3];
@@ -414,11 +436,49 @@ public class Dosimetria_Lu177 implements PlugIn {
 		plot.add("circle", xp, yp);
 		plot.show();
 
+		Utility.MIRD_curveFitter(xp, yp);
+
 		Utility.debugDeiPoveri("---- CHE BELLIZZIMO GRAFICO -----");
 		// ==========================================================================
 		// PARTE REVIEW CHE DEVE RITORNARE INDIETRO PER RIFARE UNO O PIU'DEI CALCOLI
 		// FINALMENTE SAREMO FELICI E GORGOGLIONI DELLE NOSTRE ELABORAZIONI
 		// ==========================================================================
+
+		// ============================================================================
+		// UNA VOLTA CHE THE MOUTAINEER (L'UOMO DEL MONTE) HA DETTO SI, SCRIVIAMO TUTA
+		// LA MONNEZZA IN VOLATILE, IN ATTESA DI CONOSCERE IL NOME CHE DARANNO ALLA
+		// LESIONE
+		// ============================================================================
+
+		int count5 = 200;
+		String aux5 = "";
+
+		aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD CALCULATION 24h ----";
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol24 =" + out24[0];
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal24 =" + out24[1];
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv24 =" + out24[2];
+		Utility.appendLog(pathVolatile, aux5);
+		count5 = 220;
+		aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD CALCULATION 48h ----";
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol48 =" + out48[0];
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal48 =" + out48[1];
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv48 =" + out48[2];
+		Utility.appendLog(pathVolatile, aux5);
+		count5 = 240;
+		aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD CALCULATION 120h ----";
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol120 =" + out120[0];
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal120 =" + out120[1];
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120 =" + out120[2];
+		Utility.appendLog(pathVolatile, aux5);
 
 		Utility.battezzaLesioni(pathVolatile);
 
