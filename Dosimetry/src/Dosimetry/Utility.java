@@ -10,11 +10,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.DateFormat;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -28,7 +27,31 @@ import ij.gui.ImageWindow;
 import ij.gui.NonBlockingGenericDialog;
 import ij.gui.WaitForUserDialog;
 
+//
+// DATI SOMMINISTRAZIONE 			#001#-#009# 
+// IMAGE INFO 24h 					#010#-#029#
+// IMAGE INFO 48 h					#030#-#049#
+// IMAGE INFO 120 h					#050#-#069#
+// PATIENT-DOSIMETRY INFO 24 h		#100#-#129#
+// PATIENT-DOSIMETRY INFO 48 h		#130#-#159#
+// PATIENT-DOSIMETRY INFO 24 h		#160#-#199#
+//
+
 public class Utility {
+
+	public static String[] readSimpleText(String path1) {
+
+		List<String> out1 = null;
+		try {
+			out1 = Files.readAllLines(Paths.get(path1));
+			// IJ.log("lette= " + out1.size() + " linee");
+		} catch (IOException e) {
+			IJ.log("errore lettura " + path1);
+			e.printStackTrace();
+		}
+		String[] out2 = out1.toArray(new String[0]);
+		return out2;
+	}
 
 	/**
 	 * Legge il log e mette in un vettore le stringhe, salta le vuote
@@ -64,19 +87,24 @@ public class Utility {
 	public static String[] readLogCompress(String path, boolean compress) {
 
 		ArrayList<String> inArrayList = new ArrayList<String>();
-
+		IJ.log("sono in readLogCompress per cercare di leggere " + path);
 		BufferedReader br = null;
 		try {
 			br = new BufferedReader(new FileReader(path));
+			IJ.log("br= " + br.toString());
 			while (br.ready()) {
 				String line = br.readLine();
+				IJ.log("readLogCompress legge line= " + line);
 				inArrayList.add(line);
 			}
 			br.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			IJ.log("errore non leggo " + path);
 			e.printStackTrace();
 		}
+
+		IJ.log("001");
+
 		ArrayList<String> outArrayList = new ArrayList<String>();
 		String aux11 = "";
 		for (int i1 = 0; i1 < inArrayList.size(); i1++) {
@@ -144,7 +172,7 @@ public class Utility {
 		try {
 			out = new BufferedWriter(new FileWriter(permFile, true));
 			in = new BufferedReader(new FileReader(tmpFile));
-			out.newLine();
+			// out.newLine();
 			while ((str = in.readLine()) != null) {
 				out.write(str);
 				out.newLine();
@@ -215,6 +243,14 @@ public class Utility {
 		window.setLocationAndSize(0, 0, (int) (((double) screen.height) / 2), (int) (((double) screen.height) / 2));
 	}
 
+	/**
+	 * Lettura di un tag dal log
+	 * 
+	 * @param path1
+	 * @param code1
+	 * @param separator
+	 * @return
+	 */
 	static String readFromLog(String path1, String code1, String separator) {
 
 		// leggo una stringa dal log
@@ -231,9 +267,47 @@ public class Utility {
 		}
 		return out1;
 	}
-	
+
+	static void copyInfo2(String pathSorgente, String pathDestinazione, String[] vetTag) {
+
+		String aux1 = "";
+		for (int i1 = 0; i1 < vetTag.length; i1++) {
+			aux1 = readFromLog(pathSorgente, vetTag[i1]);
+			Utility.appendLog(pathDestinazione, aux1);
+		}
+
+	}
+
+	static void copyInfo(String pathSorgente, String pathDestinazione, int start, int end) {
+
+		String aux1 = "";
+		String aux2 = "";
+		for (int i1 = start; i1 <= end; i1++) {
+			aux1 = "#" + String.format("%03d", i1) + "#";
+			aux2 = readFromLog(pathSorgente, aux1);
+			if (aux2 != null) {
+				IJ.log("copio " + aux2);
+				Utility.appendLog(pathDestinazione, aux2);
+			}
+		}
+
+	}
+
+	static void copyImageInfo(String pathSorgente, String pathDestinazione) {
+
+		String[] vetInfo = { "#010", "#011", "#012#", "#012#", "#013#", "#014#", "#015#", "#016#", "#017#", "#018#",
+				"#030#", "#031#", "#032#", "#033#", "#034#", "#035#", "#036#", "#037#", "#038#", "#050#", "#051#",
+				"#052#", "#053#", "#054#", "#055#", "#056#", "#057#", "#058#", };
+		String aux1 = "";
+		for (int i1 = 0; i1 < vetInfo.length; i1++) {
+			aux1 = readFromLog(pathSorgente, vetInfo[i1]);
+			Utility.appendLog(pathDestinazione, aux1);
+		}
+
+	}
+
 	/**
-	 * Restituisce l'intera linea del parametro
+	 * Restituisce l'intera linea del log per il tag
 	 * 
 	 * @param path1
 	 * @param code1
@@ -242,22 +316,18 @@ public class Utility {
 	static String readFromLog(String path1, String code1) {
 
 		// leggo una stringa dal log
-		String[] vetText = Utility.readLog(path1);
-		String[] vetAux1;
-		String out1 = null;
+		String[] vetText = Utility.readSimpleText(path1);
 		if (vetText.length > 0) {
 			for (int i1 = 0; i1 < vetText.length; i1++) {
-				if (vetText[i1].contains(code1)) {
-					out1 = vetText[i1];
-				}
+				if (vetText[i1].contains(code1))
+					return vetText[i1];
 			}
 		}
-		return out1;
+		return null;
 	}
 
-
 	/**
-	 * Test per data valida
+	 * Test per validazione data
 	 * 
 	 * @param date
 	 * @return
@@ -277,7 +347,7 @@ public class Utility {
 	}
 
 	/**
-	 * Test per data valida
+	 * Test per validazione ora
 	 * 
 	 * @param date
 	 * @return
@@ -297,7 +367,7 @@ public class Utility {
 	}
 
 	/**
-	 * Test per data ora valide
+	 * Test per validazione dataora
 	 * 
 	 * @param timestamp
 	 * @return
@@ -449,7 +519,7 @@ public class Utility {
 		return dicomImage1;
 
 	}
-	
+
 	/**
 	 * Legge un intero da una stringa.
 	 * 
@@ -471,23 +541,10 @@ public class Utility {
 	}
 
 	/**
-	 * Calcolo delta T in millisecondi
+	 * Generazione tabella
 	 * 
-	 * @param dateTime0
-	 * @param dateTime24
 	 * @return
 	 */
-	static long CalcoloDeltaT(Date dateTime0, Date dateTime24) {
-
-//		IJ.log("dateTime0= " +dateTime0);
-//		IJ.log("dateTime24= " +dateTime24);
-		long diff = dateTime24.getTime() - dateTime0.getTime();
-//		IJ.log("difference= " + diff / (1000 * 60 * 60) + " hours");
-//		IJ.log("difference= " + diff / (1000 * 60 * 60 * 24) + " days");
-		return diff;
-	}
-
-	
 	static double[][] matTable() {
 		double[][] myTable = { { 0.3, 0.4, 0.5 }, { 2.0050800, 1.4416900, 1.1119950 },
 				{ 1.0008740, 1.0009900, 1.0016370 }, { 0.0838640, 0.1330990, 0.1528385 } };
@@ -495,18 +552,12 @@ public class Utility {
 	}
 
 	/**
-	 * Ricava i dati dai file permanente e volatile, calcolando i parametri di
-	 * plottaggio di un punto
+	 * Calcola i parametri di plottaggio di un punto
 	 * 
 	 * @param pathVolatile
 	 * @param pathPermanente
 	 */
-	static double[] puntoGrafico(String pathVolatile, String pathPermanente, double[] in1) {
-
-//		double durata = Double.parseDouble(Utility.readFromLog(pathPermanente, "#028#", "="));
-//		double conteggio = Double.parseDouble(Utility.readFromLog(pathVolatile, "#112#", "="));
-//		double activity = Double.parseDouble(Utility.readFromLog(pathVolatile, "#102#", "="));
-//		double threshold = Double.parseDouble(Utility.readFromLog(pathVolatile, "#118#", "="));
+	static double[] MIRD_point(double[] in1) {
 
 		double durata = in1[0];
 		double conteggio = in1[1];
@@ -536,19 +587,25 @@ public class Utility {
 			c1 = myMatTable[3][2];
 		}
 
-		double vol = conteggio * (Math.pow(4.43, 3) / 1000.);
-		double fatCal = a1 * Math.pow(b1, vol) * Math.pow(vol, c1);
-		double attiv = conteggio / (durata * fatCal);
-		double[] out1 = new double[3];
-		out1[0] = vol;
-		out1[1] = fatCal;
-		out1[2] = attiv;
+		double MIRD_vol = conteggio * (Math.pow(4.43, 3) / 1000.);
+		double MIRD_fatCal = a1 * Math.pow(b1, MIRD_vol) * Math.pow(MIRD_vol, c1);
+		double MIRD_attiv = conteggio / (durata * MIRD_fatCal);
+		double[] MIRD_out1 = new double[3];
+		MIRD_out1[0] = MIRD_vol;
+		MIRD_out1[1] = MIRD_fatCal;
+		MIRD_out1[2] = MIRD_attiv;
 
-		return out1;
+		return MIRD_out1;
 
 	}
 
-	static void battezzaLesioni(String pathVolatile, String pathPermanente) {
+	/**
+	 * Assegnazione nome alle lesioni
+	 * 
+	 * @param pathVolatile
+	 * @param pathPermanente
+	 */
+	static void battezzaLesioni(String pathVolatile) {
 		// alla fine del nostro reiterativo lavoro decidiamo che dobbiamo salvare il
 		// tutto CHE COSA POTRA'MAI ANDARE STORTO???
 		GenericDialog compliments1 = new GenericDialog("DD07 - Compliments1");
@@ -572,11 +629,16 @@ public class Utility {
 		IJ.log("pathBase= " + pathBase);
 		String pathLesione = pathBase + File.separator + lesionName + ".txt";
 
+		Utility.endLog(pathVolatile);
 		Utility.moveLog(pathLesione, pathVolatile);
 		Utility.initLog(pathVolatile);
 
 	}
 
+	/**
+	 * Selezione altro distretto anatomico
+	 * 
+	 */
 	void altroDistretto() {
 		IJ.log("DD08_altroDistretto");
 		GenericDialog finished1 = new GenericDialog("DD08 - Finished1");
@@ -590,24 +652,6 @@ public class Utility {
 		finished1.showDialog();
 		boolean avanti = finished1.wasCanceled();
 		boolean finito = finished1.wasOKed();
-
-	}
-
-	/**
-	 * Copia i dati somministrazione in volatile da permanente
-	 * 
-	 */
-	static void copiaSomministrazione(String pathPermanente, String pathDestinazione) {
-		
-		String aux1="";
-		Utility.appendLog(pathDestinazione, "-- SOMMINISTRAZIONE --");
-		aux1 = readFromLog(pathPermanente, "#100#");
-		Utility.appendLog(pathDestinazione, aux1);
-		aux1 = readFromLog(pathPermanente, "#101#");
-		Utility.appendLog(pathDestinazione, aux1);
-		aux1 = readFromLog(pathPermanente, "#102#");
-		Utility.appendLog(pathDestinazione, aux1);
-		Utility.appendLog(pathDestinazione, "-------------------");
 
 	}
 
@@ -627,6 +671,5 @@ public class Utility {
 		}
 
 	}
-
 
 }

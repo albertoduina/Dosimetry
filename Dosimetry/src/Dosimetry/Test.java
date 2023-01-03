@@ -9,6 +9,12 @@ import ij.io.Opener;
 import ij.plugin.DICOM;
 import ij.plugin.PlugIn;
 
+/**
+ * Test 
+ * 
+ * @author Alberto
+ *
+ */
 public class Test implements PlugIn {
 
 	public void run(String arg) {

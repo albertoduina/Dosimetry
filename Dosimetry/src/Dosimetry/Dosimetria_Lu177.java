@@ -33,7 +33,19 @@ import ij.process.ImageProcessor;
 import ij.util.DicomTools;
 import ij.util.FontUtil;
 
+//
+//DATI SOMMINISTRAZIONE 			#001#-#009# 
+//IMAGE INFO 24h 					#010#-#029#
+//IMAGE INFO 48 h					#030#-#049#
+//IMAGE INFO 120 h					#050#-#069#
+//PATIENT-DOSIMETRY INFO 24 h		#100#-#129#
+//PATIENT-DOSIMETRY INFO 48 h		#130#-#159#
+//PATIENT-DOSIMETRY INFO 24 h		#160#-#199#
+//
+
 /**
+ * Programma main di dosimetria per Lu177
+ * 
  * @version v3 ccc
  * @author
  * @since 05 dec 2022
@@ -75,7 +87,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		desktopDosimetryFolderPath = desktopPath + File.separator + "DosimetryFolder";
 		desktopImagesSubfolderPath = desktopDosimetryFolderPath + File.separator + "ImagesFolder";
 
-		Utility.appendLog(pathVolatile, "---- LOADPATIENT -----");
+//		Utility.appendLog(pathVolatile, "#077#	---- LOADPATIENT -----");
 
 		String petctviewerTitle = "";
 		Double activitySomministrazione;
@@ -129,37 +141,39 @@ public class Dosimetria_Lu177 implements PlugIn {
 			dataSomministrazione = datiSomministrazione[0];
 			oraSomministrazione = datiSomministrazione[1];
 			activitySomministrazione = Double.parseDouble(datiSomministrazione[2]);
-
-			IJ.log("NUOVO PAZIENTE, SCRITTURA DATI SOMMINISTRAZIONE DA PERMANENTE");
-			Utility.appendLog(pathPermanente, "-- SOMMINISTRAZIONE --");
+			IJ.log("NUOVO PAZIENTE, SCRITTURA DATI SOMMINISTRAZIONE SU VOLATILE");
+			Utility.appendLog(pathVolatile, "#000#\t-- SOMMINISTRAZIONE --");
 			String aux1 = "";
-			aux1 = "#100#\tData= " + dataSomministrazione;
-			Utility.appendLog(pathPermanente, aux1);
-			aux1 = "#101#\tOra= " + oraSomministrazione;
-			Utility.appendLog(pathPermanente, aux1);
-			aux1 = "#102#\tActivity= " + activitySomministrazione;
-			Utility.appendLog(pathPermanente, aux1);
-			Utility.appendLog(pathPermanente, "--------------------");
-			Utility.copiaSomministrazione(pathPermanente, pathVolatile);
+			aux1 = "#001#\tData= " + dataSomministrazione;
+			Utility.appendLog(pathVolatile, aux1);
+			aux1 = "#002#\tOra= " + oraSomministrazione;
+			Utility.appendLog(pathVolatile, aux1);
+			aux1 = "#003#\tActivity= " + activitySomministrazione;
+			Utility.appendLog(pathVolatile, aux1);
+			Utility.copyInfo(pathVolatile, pathPermanente, 0, 3);
 			myDate0 = getDateTime(dataToDicom(dataSomministrazione), oraToDicom(oraSomministrazione));
 			raccoltaDati(arrayOfFile2, myDate0);
+			Utility.copyInfo(pathVolatile, pathPermanente, 10, 60);
+
 		} else if (nuovoDistretto) {
 			IJ.log("NUOVO DISTRETTO, CARICAMENTO IMMAGINI E \nRECUPERO DATI SOMMINISTRAZIONE DA PERMANENTE");
 			arrayOfFile2 = desktopImagesFolderFill();
-			Utility.copiaSomministrazione(pathPermanente, pathVolatile);
-			dataSomministrazione = Utility.readFromLog(pathVolatile, "#100#", "=");
-			oraSomministrazione = Utility.readFromLog(pathVolatile, "#101#", "=");
-			activitySomministrazione = Double.parseDouble(Utility.readFromLog(pathVolatile, "#102#", "="));
+			Utility.copyInfo(pathPermanente, pathVolatile, 0, 3);
+			Utility.copyInfo(pathPermanente, pathVolatile, 10, 60);
+			dataSomministrazione = Utility.readFromLog(pathVolatile, "#001#", "=");
+			oraSomministrazione = Utility.readFromLog(pathVolatile, "#002#", "=");
+			activitySomministrazione = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "="));
 			myDate0 = getDateTime(dataToDicom(dataSomministrazione), oraToDicom(oraSomministrazione));
 			IJ.log("dataSomministrazione= " + dataSomministrazione);
 			IJ.log("oraSomministrazione= " + oraSomministrazione);
 
 		} else {
 			IJ.log("NUOVA LESIONE, RECUPERO DATI SOMMINISTRAZIONE DA PERMANENTE");
-			Utility.copiaSomministrazione(pathPermanente, pathVolatile);
-			dataSomministrazione = Utility.readFromLog(pathVolatile, "#100#", "=");
-			oraSomministrazione = Utility.readFromLog(pathVolatile, "#101#", "=");
-			activitySomministrazione = Double.parseDouble(Utility.readFromLog(pathVolatile, "#102#", "="));
+			Utility.copyInfo(pathPermanente, pathVolatile, 0, 3);
+			Utility.copyInfo(pathPermanente, pathVolatile, 10, 60);
+			dataSomministrazione = Utility.readFromLog(pathVolatile, "#001#", "=");
+			oraSomministrazione = Utility.readFromLog(pathVolatile, "#002#", "=");
+			activitySomministrazione = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "="));
 			myDate0 = getDateTime(dataToDicom(dataSomministrazione), oraToDicom(oraSomministrazione));
 			IJ.log("dataSomministrazione= " + dataSomministrazione);
 			IJ.log("oraSomministrazione= " + oraSomministrazione);
@@ -197,7 +211,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		int slice1 = 1;
 		String meta1 = getMeta(slice1, imp1);
 		petctviewerTitle = stringaLaboriosa(meta1);
-		Utility.appendLog(pathVolatile, "24h=" + petctviewerTitle);
+		Utility.appendLog(pathPermanente, "24h=" + petctviewerTitle);
 
 		String petUID1 = DicomTools.getTag(imp1, "0020,000E");
 		petUID1 = petUID1.trim();
@@ -252,7 +266,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		imp3.show();
 		String meta3 = getMeta(slice1, imp3);
 		petctviewerTitle = stringaLaboriosa(meta3);
-		Utility.appendLog(pathVolatile, "48h=" + petctviewerTitle);
+		Utility.appendLog(pathPermanente, "48h=" + petctviewerTitle);
 
 		String petUID3 = DicomTools.getTag(imp3, "0020,000E");
 		petUID3 = petUID3.trim();
@@ -304,7 +318,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		imp5.show();
 		String meta5 = getMeta(slice1, imp5);
 		petctviewerTitle = stringaLaboriosa(meta5);
-		Utility.appendLog(pathVolatile, "120h=" + petctviewerTitle);
+		Utility.appendLog(pathPermanente, "120h=" + petctviewerTitle);
 
 		String petUID5 = DicomTools.getTag(imp5, "0020,000E");
 		petUID5 = petUID5.trim();
@@ -358,28 +372,31 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// PARTE GRAFICA
 		// ==========================================================================================
 
-		double[] in1 = new double[4];
+		// String aux1 = "";
 		// 24h
-		in1[0] = Double.parseDouble(Utility.readFromLog(pathPermanente, "#038#", "=")); // durata
-		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#112#", "=")); // conteggio
-		in1[2] = Double.parseDouble(Utility.readFromLog(pathPermanente, "#102#", "=")); // activity
-		in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#108#", "=")); // threshold
+		// Utility.appendLog(pathVolatile, aux1);
+		double[] in1 = new double[4];
+		in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#018#", "=")); // durata
+		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#119#", "=")); // conteggio
+		in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
+		in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#115#", "=")); // threshold
+		double[] out24 = Utility.MIRD_point(in1);
 
-		double[] out24 = Utility.puntoGrafico(pathVolatile, pathPermanente, in1);
 		// 48h
-		in1[0] = Double.parseDouble(Utility.readFromLog(pathPermanente, "#048#", "=")); // durata
-		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#122#", "=")); // conteggio
-		in1[2] = Double.parseDouble(Utility.readFromLog(pathPermanente, "#102#", "=")); // activity
-		in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#118#", "=")); // threshold
+		// Utility.appendLog(pathVolatile, aux1);
+		in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#038#", "=")); // durata
+		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#149#", "=")); // conteggio
+		in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
+		in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#145#", "=")); // threshold
+		double[] out48 = Utility.MIRD_point(in1);
 
-		double[] out48 = Utility.puntoGrafico(pathVolatile, pathPermanente, in1);
 		// 120h
-		in1[0] = Double.parseDouble(Utility.readFromLog(pathPermanente, "#058#", "=")); // durata
-		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#132#", "=")); // conteggio
-		in1[2] = Double.parseDouble(Utility.readFromLog(pathPermanente, "#102#", "=")); // activity
-		in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#128#", "=")); // threshold
-
-		double[] out120 = Utility.puntoGrafico(pathVolatile, pathPermanente, in1);
+		// Utility.appendLog(pathVolatile, aux1);
+		in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#058#", "=")); // durata
+		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#179#", "=")); // conteggio
+		in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
+		in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#175#", "=")); // threshold
+		double[] out120 = Utility.MIRD_point(in1);
 
 		double[] xp = new double[3];
 		double[] yp = new double[3];
@@ -403,7 +420,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// FINALMENTE SAREMO FELICI E GORGOGLIONI DELLE NOSTRE ELABORAZIONI
 		// ==========================================================================
 
-		Utility.battezzaLesioni(pathVolatile, pathPermanente);
+		Utility.battezzaLesioni(pathVolatile);
 
 //		dialogReview_LP05(aList);
 
@@ -952,15 +969,15 @@ public class Dosimetria_Lu177 implements PlugIn {
 	 * @param imp1 immagine da analizzare
 	 * @return durata
 	 */
-	int CalcoloDurataAcquisizione(ImagePlus imp1) {
+	int MIRD_CalcoloDurataAcquisizione(ImagePlus imp1) {
 
 		int numFrames = Utility.parseInt(DicomTools.getTag(imp1, "0054,0053"));
 		int durationFrame = Utility.parseInt(DicomTools.getTag(imp1, "0018,1242"));
 		int durata = numFrames * (durationFrame / 1000);
 //		IJ.log("numberOfFrames= " + numFrames + " durationFrame= " + durationFrame + " durata= " + durata);
-		String aux1 = "";
-		aux1 = "#110#\tMird durata acquisuizione= " + durata;
-		Utility.appendLog(pathPermanente, aux1);
+//		String aux1 = "";
+//		aux1 = "#110#\tMird durata acquisuizione= " + durata;
+//		Utility.appendLog(pathPermanente, aux1);
 
 		return durata;
 	}
@@ -1124,6 +1141,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 	}
 
+	/**
+	 * Dialogo che mostra dati immagini del dosimetryFolder
+	 * 
+	 * @return
+	 */
 	boolean dialogInitialize_LP00() {
 
 		IJ.log("dialogInitialize_LP00");
@@ -1142,6 +1164,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 		}
 	}
 
+	/**
+	 * Dialogo cancellazione immagini e dati paziente precedente
+	 * 
+	 * @param str20
+	 * @return
+	 */
 	boolean dialogNonBlockingDelete_LP01(String str20) {
 
 		IJ.log("dialogNonBlockingDelete_LP01");
@@ -1161,6 +1189,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 		}
 	}
 
+	/**
+	 * Dialo selezione cartella 24h nuovo paziente
+	 * 
+	 * @return
+	 */
 	boolean dialogSelection_LP02() {
 
 		IJ.log("dialogSelection_LP02");
@@ -1180,6 +1213,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 		}
 	}
 
+	/**
+	 * Selezione cartella immagini
+	 * 
+	 * @return
+	 */
 	String directorySelection_LP_20() {
 
 		IJ.log("directorySelection_LP_20");
@@ -1195,6 +1233,14 @@ public class Dosimetria_Lu177 implements PlugIn {
 		return str3;
 	}
 
+	/**
+	 * Conferma cartelle selezionate
+	 * 
+	 * @param str24
+	 * @param str48
+	 * @param str120
+	 * @return
+	 */
 	boolean dialogConfirmFolder_LP03(String str24, String str48, String str120) {
 
 		IJ.log("dialogConfirmFolder_LP03");
@@ -1221,6 +1267,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 	}
 
+	/**
+	 * Inizializzazione dei file di log
+	 * 
+	 * @param init
+	 */
 	void initializeLogs(boolean init) {
 		// --------------------------------------------------------------------------------------
 		// definisco ed inizializzo (se richiesto) i file log di esportazione dati
@@ -1229,7 +1280,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		SimpleDateFormat dateformat = new SimpleDateFormat("dd MMM yyyy - HH:mm.ss");
 		Utility.initLog(pathVolatile);
 		Utility.appendLog(pathVolatile, "INITIALIZED " + dateformat.format(now));
-		Utility.appendLog(pathVolatile, "---------------------");
 		File f1 = new File(pathPermanente);
 		if (init || !f1.exists()) {
 			Utility.initLog(pathPermanente);
@@ -1238,10 +1288,16 @@ public class Dosimetria_Lu177 implements PlugIn {
 			Utility.appendLog(pathPermanente, "PRESERVED " + dateformat.format(now));
 		}
 
-		Utility.appendLog(pathPermanente, "--- LOAD PATIENT---");
-
 	}
 
+	/**
+	 * Copia delle immagini dalla cartella sorgente al dosimetryFolder
+	 * 
+	 * @param arrayOfFile1
+	 * @param arrayOfFile2
+	 * @param arrayOfBoolean
+	 * @param desktopImagesSubfolderPath
+	 */
 	void copyFilesToDesktopDosimetryFolder(File[] arrayOfFile1, File[] arrayOfFile2, boolean[] arrayOfBoolean,
 			String desktopImagesSubfolderPath) {
 		// ----------------------------------------
@@ -1493,12 +1549,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 		ArrayList<Long> eList = new ArrayList<Long>();
 		for (byte b3 = 0; b3 < arrayOfString.length; b3++) {
 			ImagePlus imp8 = IJ.openImage(vetFile[b3].getAbsolutePath());
-			int durata = CalcoloDurataAcquisizione(imp8);
+			int durata = MIRD_CalcoloDurataAcquisizione(imp8);
 			String acqDate = DicomTools.getTag(imp8, "0008,0022").trim();
 			String acqTime = DicomTools.getTag(imp8, "0008,0032").trim();
 			// IJ.log("getDateTime: date= " + acqDate + " time=" + acqTime);
 			Date myDate1 = getDateTime(acqDate, acqTime);
-			long myDelta1 = Utility.CalcoloDeltaT(myDate0, myDate1);
+			long myDelta1 = MIRD_CalcoloDeltaT(myDate0, myDate1);
 			eList.add(myDelta1);
 			ArrayList<String> bList = new ArrayList<String>();
 			bList.add("\tImage Name= " + vetFile[b3].getName());
@@ -1513,7 +1569,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			aList.add(bList);
 		}
 		// --------------------------------------------------------------------------------------
-		// Nel file permanente vengono scritti dal seguente loop:
+		// Nel file volatile vengono scritti dal seguente loop:
 		// #031#,#032#,#033#,#034#,#035#,#036#,#037#,#038#,
 		// #041#,#042#,#043#,#044#,#045#,#046#,#047#,#048#,
 		// #051#,#052#,#053#,#054#,#055#,#056#,#057#,#058#,
@@ -1523,27 +1579,34 @@ public class Dosimetria_Lu177 implements PlugIn {
 		String aux3 = "";
 		int count2 = 0;
 		for (int a4 = 0; a4 < aList.size(); a4++) {
-			count2 = a4 * 10 + 30;
-			aux1 = "====== " + arrayOfString[a4] + " =======";
-			Utility.appendLog(pathPermanente, aux1);
+			count2 = a4 * 20 + 10;
+//			aux1 = "#010#\t---- IMAGE INFO " + arrayOfString[a4] + " ----";
+			aux2 = "#" + String.format("%03d", count2++) + "#\t---- IMAGE INFO " + arrayOfString[a4] + " ----";
+			Utility.appendLog(pathVolatile, aux2);
 			String str22 = "";
 			ArrayList<String> cList = aList.get(a4);
 			for (int b4 = 0; b4 < cList.size(); b4++) {
-				aux2 = "#" + String.format("%03d", ++count2) + "#";
+				aux2 = "#" + String.format("%03d", count2++) + "#";
 				String str9 = cList.get(b4);
 				str22 = aux2 + str9;
-				Utility.appendLog(pathPermanente, str22);
+				Utility.appendLog(pathVolatile, str22);
 			}
-			aux3 = "#" + String.format("%03d", ++count2) + "#" + "\tDeltaT= " + (double) eList.get(a4) / (1000 * 60 * 60);
-			Utility.appendLog(pathPermanente, aux3);
+			aux3 = "#" + String.format("%03d", count2++) + "#" + "\tDeltaT= "
+					+ (double) eList.get(a4) / (1000 * 60 * 60);
+			Utility.appendLog(pathVolatile, aux3);
 		}
 	}
 
+	/**
+	 * Dialogo non modale selezione immagini 24/48/120
+	 * 
+	 * @return
+	 */
 	boolean dialogSelection_LP30() {
 
 		IJ.log("dialogSelection_LP30");
 		Dimension screen = IJ.getScreenSize();
-		NonBlockingGenericDialog gd1 = new NonBlockingGenericDialog("LP30 - Dialog Close");
+		NonBlockingGenericDialog gd1 = new NonBlockingGenericDialog("LP30 - Dialog selection");
 		gd1.addMessage("Trova le lesioni su PET-CT Viewer su tutte e tre le \nimmagini 24h, 48h e 120h, poi premi OK",
 				this.defaultFont);
 		gd1.setLocation(screen.width * 2 / 3, screen.height * 1 / 3);
@@ -1552,6 +1615,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 		return true;
 	}
 
+	/**
+	 * Dialogo non modale di selezione
+	 * 
+	 * @return
+	 */
 	boolean dialogSelection_LP31() {
 
 		IJ.log("dialogSelection_LP31");
@@ -1560,6 +1628,23 @@ public class Dosimetria_Lu177 implements PlugIn {
 		gd1.showDialog();
 		IJ.log("LP31 - true PREMUTO OK");
 		return true;
+	}
+
+	/**
+	 * Calcolo delta T in millisecondi
+	 * 
+	 * @param dateTime0
+	 * @param dateTime24
+	 * @return
+	 */
+	static long MIRD_CalcoloDeltaT(Date dateTime0, Date dateTime24) {
+
+//		IJ.log("dateTime0= " +dateTime0);
+//		IJ.log("dateTime24= " +dateTime24);
+		long diff = dateTime24.getTime() - dateTime0.getTime();
+//		IJ.log("difference= " + diff / (1000 * 60 * 60) + " hours");
+//		IJ.log("difference= " + diff / (1000 * 60 * 60 * 24) + " days");
+		return diff;
 	}
 
 }

@@ -1,0 +1,7 @@
+#010#	Image Name= TOMOaddome24h_EM001_DS.dcm
+#010#	Image Name= TOMOaddome24h_EM001_DS.dcm
+#011#	Acquisition Date= 20220818
+#012#	Acquisition Time= 151722.00
+#013#	Isotope=  Lu177 SC[208 and 166] 
+#014#	Collimator=  MEGP
+#015#	Number of frames=  60

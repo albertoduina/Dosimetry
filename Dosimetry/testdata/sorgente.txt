@@ -1,0 +1,69 @@
+---- INIZIO ---------
+-- SOMMINISTRAZIONE --
+#001#	Data= 03-01-2023
+#002#	Ora= 12:00:00
+#003#	Activity= 1.234
+---- IMAGE INFO 24h ----
+#010#	Image Name= TOMOaddome24h_EM001_DS.dcm
+#011#	Acquisition Date= 20220818
+#012#	Acquisition Time= 151722.00
+#013#	Isotope=  Lu177 SC[208 and 166] 
+#014#	Collimator=  MEGP
+#015#	Number of frames=  60
+#016#	Actual frame duration=  20000 
+#017#	Acquisition duration= 1200
+#018#	DeltaT= -3309.7104933333335
+---- IMAGE INFO 48h ----
+#030#	Image Name= TOMOaddome48h_EM001_DS.dcm
+#031#	Acquisition Date= 20220819
+#032#	Acquisition Time= 154103.00
+#033#	Isotope=  Lu177 SC[208 and 166] 
+#034#	Collimator=  MEGP
+#035#	Number of frames=  60
+#036#	Actual frame duration=  25000 
+#037#	Acquisition duration= 1500
+#038#	DeltaT= -3285.315988888889
+---- IMAGE INFO 120h ----
+#050#	Image Name= TOMOaddome120h_EM001_DS.dcm
+#051#	Acquisition Date= 20220822
+#052#	Acquisition Time= 142301.00
+#053#	Isotope=  Lu177 SC[208 and 166] 
+#054#	Collimator=  MEGP
+#055#	Number of frames=  60
+#056#	Actual frame duration=  30000 
+#057#	Acquisition duration= 1800
+#058#	DeltaT= -3214.6165030555558
+--- PATIENT INFO 24h ---
+#100#	Patient MachineName=  COVTI^GIAN CAVLO
+#101#	Patient birth date=  19470623
+---- DOSIMETRY INFO 24h-----
+#112#	Maximum lesion count= 353
+#113#	Contouring threshold level= 0.4
+#114#	Contouring count threshold level= 141
+#115#	Processed Slices Position= 94 (92-100)
+#116#	Pet-Ct Viewer slice= 35 (37-29)
+#117#	Pixel number over threshold= 416
+#118#	Over threshold count integral= 89723
+--- PATIENT INFO 48h ---
+#130#	Patient MachineName=  COSTI^GIAN CARLO
+#131#	Patient birth date=  19470623
+---- DOSIMETRY INFO 48h-----
+#142#	Maximum lesion count= 400
+#143#	Contouring threshold level= 0.4
+#144#	Contouring count threshold level= 160
+#145#	Processed Slices Position= 93 (92-100)
+#146#	Pet-Ct Viewer slice= 36 (37-29)
+#147#	Pixel number over threshold= 385
+#148#	Over threshold count integral= 95316
+--- PATIENT INFO 120h ---
+#160#	Patient MachineName=  COSTI^GIAN CARLO
+#161#	Patient birth date=  19470623
+---- DOSIMETRY INFO 120h-----
+#172#	Maximum lesion count= 327
+#173#	Contouring threshold level= 0.4
+#174#	Contouring count threshold level= 130
+#175#	Processed Slices Position= 93 (92-96)
+#176#	Pet-Ct Viewer slice= 36 (37-33)
+#177#	Pixel number over threshold= 106
+#178#	Over threshold count integral= 21935
+---- FINE ---------

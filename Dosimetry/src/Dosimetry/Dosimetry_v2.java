@@ -37,6 +37,18 @@ import ij.process.ImageProcessor;
 import ij.util.DicomTools;
 import ij.util.FontUtil;
 
+//
+//DATI SOMMINISTRAZIONE 			#001#-#009# 
+//IMAGE INFO 24h 					#010#-#029#
+//IMAGE INFO 48 h					#030#-#049#
+//IMAGE INFO 120 h					#050#-#069#
+//PATIENT-DOSIMETRY INFO 24 h		#100#-#129#
+//PATIENT-DOSIMETRY INFO 48 h		#130#-#159#
+//PATIENT-DOSIMETRY INFO 24 h		#160#-#199#
+//
+
+
+
 public class Dosimetry_v2 implements PlugIn {
 
 	private ImagePlus dicomImage = null;
@@ -92,12 +104,12 @@ public class Dosimetry_v2 implements PlugIn {
 		pathVolatile = desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
 
 		// leggo in volatile.txt i dati scritti da Load_Patient
-		String[] vetLogList = Utility.readLog(pathVolatile);
+		String[] vetLogList = Utility.readLog(pathPermanente);
 		String[] vetPath = new String[3];
 		for (int i1 = 0; i1 < vetLogList.length; i1++) {
-			vetPath[0] = Utility.readFromLog(pathVolatile, "24h=", "=");
-			vetPath[1] = Utility.readFromLog(pathVolatile, "48h=", "=");
-			vetPath[2] = Utility.readFromLog(pathVolatile, "120h=", "=");
+			vetPath[0] = Utility.readFromLog(pathPermanente, "24h=", "=");
+			vetPath[1] = Utility.readFromLog(pathPermanente, "48h=", "=");
+			vetPath[2] = Utility.readFromLog(pathPermanente, "120h=", "=");
 		}
 
 		// ======================================================
@@ -536,7 +548,7 @@ public class Dosimetry_v2 implements PlugIn {
 						if (prosegui) {
 							IJ.log("ricontorna= " + ricontorna + " prosegui= " + prosegui);
 
-							int count = point1 * 10 + 100;
+							int count = point1 * 30 + 100;
 							String aux1 = "";
 							String aux2 = "";
 							switch (point1) {
@@ -558,19 +570,17 @@ public class Dosimetry_v2 implements PlugIn {
 							// ==========================================================================
 
 							IJ.log("ESEGUO MemorizeResults con point1= " + point1);
-
-							Utility.appendLog(pathVolatile, "--- PATIENT INFO " + aux2 + " ---");
+							aux1= "#"+count++ +"#\t--- PATIENT INFO " + aux2 + " ---";
+							Utility.appendLog(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tPatient MachineName= "
 									+ DicomTools.getTag(dicomImage, "0010,0010");
 							Utility.appendLog(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tPatient birth date= "
 									+ DicomTools.getTag(dicomImage, "0010,0030");
 							Utility.appendLog(pathVolatile, aux1);
-
-							Utility.appendLog(pathVolatile, "---- DOSIMETRY INFO " + aux2 + "-----");
-							// Utility.appendLog(pathVolatile, "#020#\tAcquisizione= " + sTime);
-							count = count + 5;
-
+							count = count + 10;
+							aux1= "#"+count++ +"#\t--- DOSIMETRY INFO " + aux2 + " ---";
+							Utility.appendLog(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tMaximum lesion count= " + (int) roiMax;
 							Utility.appendLog(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tContouring threshold level= " + threshold;
@@ -588,9 +598,9 @@ public class Dosimetry_v2 implements PlugIn {
 							Utility.appendLog(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tOver threshold count integral= " + integrale;
 							Utility.appendLog(pathVolatile, aux1);
+							//Utility.appendLog(pathVolatile, "++++");
 
-							Utility.appendLog(pathVolatile, "-----------------------");
-	
+		
 							IJ.log("eseguito reset005");
 							IJ.run("Select None");
 							IJ.run("Remove Overlay");

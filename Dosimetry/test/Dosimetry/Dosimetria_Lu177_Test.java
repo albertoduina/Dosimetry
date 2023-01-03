@@ -25,6 +25,10 @@ public class Dosimetria_Lu177_Test {
 		// new WaitForUserDialog("Do something, then click OK.").show();
 
 	}
+	
+	
+	
+	
 
 	@Test
 	public final void test_getDateTime() {
@@ -64,7 +68,7 @@ public class Dosimetria_Lu177_Test {
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
 		boolean ok = dosimetria_Lu177.dialogSelection_LP31();
 		Utility.debugDeiPoveri("SPETTA");
-		assertTrue(true);
+		assertTrue(ok);
 	}
 
 	@Test
@@ -73,7 +77,7 @@ public class Dosimetria_Lu177_Test {
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
 		boolean ok = dosimetria_Lu177.dialogSelection_LP30();
 		Utility.debugDeiPoveri("SPETTA");
-		assertTrue(true);
+		assertTrue(ok);
 	}
 
 	@Test
@@ -83,7 +87,7 @@ public class Dosimetria_Lu177_Test {
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
 		boolean ok = dosimetria_Lu177.dialogImmaginiPazientePrecedente_LP21(in1);
 		Utility.debugDeiPoveri("SPETTA");
-		assertTrue(true);
+		assertTrue(ok);
 	}
 
 	@Test
