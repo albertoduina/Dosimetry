@@ -1469,7 +1469,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 	 */
 	String[] inspector(String path1) {
 
-		IJ.log("INSPECTOR");
+		IJ.log("INSPECTOR cerca nel folder= " + path1);
 		File file1 = new File(path1);
 		File file2 = new File(path1 + File.separator + "ImagesFolder");
 		List<File> list1 = null;
@@ -1485,6 +1485,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 				IJ.log("INSPECTOR return null MANCA IMAGES_FOLDER");
 			} else if (list1.size() == 0) {
 				IJ.log("INSPECTOR list1 vuota NESSUNA IMMAGINE");
+			} else {
+				for (int i1 = 0; i1 < list1.size(); i1++) {
+					IJ.log("INSPECTOR ha trovato " + list1.get(i1).toString());
+				}
 			}
 		} else {
 			IJ.log("INSPECTOR return null MANCA IMAGES_FOLDER");
