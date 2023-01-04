@@ -7,6 +7,7 @@ import java.awt.Window;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -161,12 +162,26 @@ public class Utility {
 		}
 	}
 
-	public static void replaceLineLog(String path1, String modification) {
+	public static void replaceLineLog(String path1, String tag, String newline) {
 
 		try {
 			BufferedReader file = new BufferedReader(new FileReader(path1));
+			StringBuffer inputBuffer = new StringBuffer();
+			String line;
+			// lettura
+			while ((line = file.readLine()) != null) {
+				inputBuffer.append(line);
+				inputBuffer.append('\n');
+			}
+			file.close();
+
+			// riscrittura
+			FileOutputStream fileOut = new FileOutputStream(path1);
+			fileOut.write(inputBuffer.toString().getBytes());
+			fileOut.close();
 
 		} catch (Exception e) {
+			System.out.println("errore lettura/scrittura file " + path1);
 		}
 
 	}
@@ -575,6 +590,7 @@ public class Utility {
 		double conteggio = in1[1]; // #119# // pixel number over threshold
 		double activity = in1[2]; // #003# activity
 		double threshold = in1[3]; // #115# contouring threshold level
+		double integral = in1[4]; // #120# over threshold count integral
 
 		double[][] myMatTable = matTable();
 		double t1 = 0;
@@ -601,7 +617,7 @@ public class Utility {
 
 		double MIRD_vol = conteggio * Math.pow(4.42, 3) / 1000.;
 		double MIRD_fatCal = a1 * Math.pow(b1, MIRD_vol) * Math.pow(MIRD_vol, c1);
-		double MIRD_attiv = conteggio / (durata * MIRD_fatCal);
+		double MIRD_attiv = integral / (durata * MIRD_fatCal);
 		double[] MIRD_out1 = new double[3];
 		MIRD_out1[0] = MIRD_vol; // #201# MIRD_vol24
 		MIRD_out1[1] = MIRD_fatCal; // #202# MIRD_fatCal24

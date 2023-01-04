@@ -163,7 +163,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 		} else if (nuovoDistretto) { // stesso paziente nuovo distretto nuova lesione
 			IJ.log("NUOVO DISTRETTO, CARICAMENTO IMMAGINI E \nRECUPERO DATI SOMMINISTRAZIONE DA PERMANENTE");
 			arrayOfFile2 = desktopImagesFolderFill();
-			// copia da volatile a permanente i dati di IMAGE INFO 24-48-120
+			Utility.initLog(pathVolatile);
+			// copia da permanente a volatile i dati di SOMMINISTRAZIONE
 			Utility.copyInfo(pathPermanente, pathVolatile, 0, 3);
 			// copia da permanente a volatile i dati di IMAGE INFO 24-48-120
 			Utility.copyInfo(pathPermanente, pathVolatile, 10, 60);
@@ -176,7 +177,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		} else { // stesso paziente stesso distretto, nuova lesione
 			IJ.log("NUOVA LESIONE, RECUPERO DATI SOMMINISTRAZIONE DA PERMANENTE");
-			// copia da volatile a permanente i dati di IMAGE INFO 24-48-120
+			Utility.initLog(pathVolatile);
+			// copia da permanente a volatile i dati di IMAGE INFO 24-48-120
 			Utility.copyInfo(pathPermanente, pathVolatile, 0, 3);
 			// copia da permanente a volatile i dati di IMAGE INFO 24-48-120
 			Utility.copyInfo(pathPermanente, pathVolatile, 10, 60);
@@ -421,11 +423,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// String aux1 = "";
 			// 24h
 			// Utility.appendLog(pathVolatile, aux1);
-			double[] in1 = new double[4];
+			double[] in1 = new double[5];
 			in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#018#", "=")); // acquisition duration 
 			in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#119#", "=")); // pixel number over threshold
 			in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
 			in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#115#", "=")); // contouring threshold level
+			in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#120#", "=")); // over threshold count integral
 			out24 = Utility.MIRD_point(in1);
 			double MIRD_vol24 = out24[0];
 			double MIRD_fatCal24 = out24[1];
@@ -437,6 +440,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#149#", "=")); // pixel number over threshold
 			in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
 			in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#145#", "=")); // contouring threshold level
+			in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#150#", "=")); // over threshold count integral
 			out48 = Utility.MIRD_point(in1);
 			double MIRD_vol48 = out48[0];
 			double MIRD_fatCal48 = out48[1];
@@ -448,6 +452,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#179#", "=")); // pixel number over threshold
 			in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
 			in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#175#", "=")); // contouring threshold level
+			in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#180#", "=")); // over threshold count integral
 			out120 = Utility.MIRD_point(in1);
 			double MIRD_vol120 = out120[0];
 			double MIRD_fatCal120 = out120[1];
