@@ -423,7 +423,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// Utility.appendLog(pathVolatile, aux1);
 			double[] in1 = new double[4];
 			in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#018#", "=")); // acquisition duration 
-			in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#120#", "=")); // over threshold count integral
+			in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#119#", "=")); // pixel number over threshold
 			in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
 			in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#115#", "=")); // contouring threshold level
 			out24 = Utility.MIRD_point(in1);
@@ -434,7 +434,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// 48h
 			// Utility.appendLog(pathVolatile, aux1);
 			in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#038#", "=")); // acquisition duration
-			in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#150#", "=")); // over threshold count integral
+			in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#149#", "=")); // pixel number over threshold
 			in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
 			in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#145#", "=")); // contouring threshold level
 			out48 = Utility.MIRD_point(in1);
@@ -445,7 +445,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// 120h
 			// Utility.appendLog(pathVolatile, aux1);
 			in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#058#", "=")); // acquisition duration
-			in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#180#", "=")); // over threshold count integral
+			in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#179#", "=")); // pixel number over threshold
 			in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
 			in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#175#", "=")); // contouring threshold level
 			out120 = Utility.MIRD_point(in1);

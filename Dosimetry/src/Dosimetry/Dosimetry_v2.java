@@ -746,21 +746,29 @@ public class Dosimetry_v2 implements PlugIn {
 			// ======================================================
 			// PARTE NUOVA
 			// ======================================================
-
+			String aux1="";
 			// gestisco proposta automatica e colorazione verde
 			if (point1 == 0) {
 				ok24 = true;
+				aux1 = "#901#\tok24= true";
+				Utility.appendLog(pathPermanente, aux1);
 			}
 			if (point1 == 1) {
 				ok48 = true;
+				aux1 = "#902#\tok48= true";
+				Utility.appendLog(pathPermanente, aux1);
 			}
 			if (point1 == 2) {
 				ok120 = true;
+				aux1 = "#903#\tok120= true";
+				Utility.appendLog(pathPermanente, aux1);
 			}
 
 			// mi rimane da stabilire se abbiamo completato 24/48/120
 			if (ok24 && ok48 && ok120) {
 				okk = true;
+				aux1 = "#904#\tokk= true";
+				Utility.appendLog(pathPermanente, aux1);
 			}
 
 			IJ.log("FINE LOOP LIVELLO ZERO");

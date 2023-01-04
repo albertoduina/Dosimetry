@@ -161,6 +161,16 @@ public class Utility {
 		}
 	}
 
+	public static void replaceLineLog(String path1, String modification) {
+
+		try {
+			BufferedReader file = new BufferedReader(new FileReader(path1));
+
+		} catch (Exception e) {
+		}
+
+	}
+
 	/**
 	 * Copia i dati dal log volatile.txt al log permanente.txt
 	 * 
@@ -562,7 +572,7 @@ public class Utility {
 	static double[] MIRD_point(double[] in1) {
 
 		double durata = in1[0]; // #018# acquisition duration
-		double conteggio = in1[1]; // #120# over threshold count integral
+		double conteggio = in1[1]; // #119# // pixel number over threshold
 		double activity = in1[2]; // #003# activity
 		double threshold = in1[3]; // #115# contouring threshold level
 
@@ -589,9 +599,9 @@ public class Utility {
 			c1 = myMatTable[3][2];
 		}
 
-		double MIRD_vol = conteggio * (Math.pow(4.42, 3) / 1000.);
+		double MIRD_vol = conteggio * Math.pow(4.42, 3) / 1000.;
 		double MIRD_fatCal = a1 * Math.pow(b1, MIRD_vol) * Math.pow(MIRD_vol, c1);
-		double MIRD_attiv = durata / (conteggio * MIRD_fatCal);
+		double MIRD_attiv = conteggio / (durata * MIRD_fatCal);
 		double[] MIRD_out1 = new double[3];
 		MIRD_out1[0] = MIRD_vol; // #201# MIRD_vol24
 		MIRD_out1[1] = MIRD_fatCal; // #202# MIRD_fatCal24
