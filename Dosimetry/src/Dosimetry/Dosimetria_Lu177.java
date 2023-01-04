@@ -88,8 +88,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		desktopDosimetryFolderPath = desktopPath + File.separator + "DosimetryFolder";
 		desktopImagesSubfolderPath = desktopDosimetryFolderPath + File.separator + "ImagesFolder";
 
-//		Utility.appendLog(pathVolatile, "#077#	---- LOADPATIENT -----");
-
 		String petctviewerTitle = "";
 		Double activitySomministrazione;
 		String dataSomministrazione;
@@ -174,6 +172,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			myDate0 = getDateTime(dataToDicom(dataSomministrazione), oraToDicom(oraSomministrazione));
 			IJ.log("dataSomministrazione= " + dataSomministrazione);
 			IJ.log("oraSomministrazione= " + oraSomministrazione);
+			azzeraFlags(pathPermanente);
 
 		} else { // stesso paziente stesso distretto, nuova lesione
 			IJ.log("NUOVA LESIONE, RECUPERO DATI SOMMINISTRAZIONE DA PERMANENTE");
@@ -188,6 +187,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			myDate0 = getDateTime(dataToDicom(dataSomministrazione), oraToDicom(oraSomministrazione));
 			IJ.log("dataSomministrazione= " + dataSomministrazione);
 			IJ.log("oraSomministrazione= " + oraSomministrazione);
+			azzeraFlags(pathPermanente);
 		}
 
 		// ===========================================================================
@@ -218,173 +218,163 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// ELABORAZIONE 24h ed apertura PetCtViewer
 		// ===========================================================================
 
-		// do {
-
-
-		if (scelta == 0 || scelta == 1) {
-			List<File> result1 = Utility.getFileListing(new File(startingDir1));
-			if (result1 == null) {
-				IJ.error("getFileListing.result1==null");
-			}
-			int len2 = result1.size();
-			if (len2 != 1)
-				return;
-			File fil1 = result1.get(0);
-			String path1 = fil1.getAbsolutePath();
-			imp1 = openImage(path1);
-			String tit1 = imp1.getTitle();
-			tit1 = "A024 ## " + tit1;
-			imp1.setTitle(tit1);
-			imp1.show();
-			String meta1 = getMeta(slice1, imp1);
-			if (nuovaLaboriosa) {
-				petctviewerTitle = stringaLaboriosa(meta1);
-				Utility.appendLog(pathPermanente, "24h=" + petctviewerTitle);
-			}
-
-			String petUID1 = DicomTools.getTag(imp1, "0020,000E");
-			petUID1 = petUID1.trim();
-
-			String startingDir2 = str1 + "24h" + File.separator + "CT";
-
-			List<File> result2 = Utility.getFileListing(new File(startingDir2));
-			if (result2 == null) {
-				IJ.error("getFileListing.result2==null");
-			}
-			String[] list2 = new String[result2.size()];
-			int j2 = 0;
-			for (File file2a : result2) {
-				list2[j2++] = file2a.getPath();
-			}
-			imp2 = readStackFiles(startingDir2);
-
-			String tit2 = imp2.getTitle();
-			tit2 = "B024 ## " + tit2;
-			imp2.setTitle(tit2);
-			imp2.show();
-
-			String ctUID2 = DicomTools.getTag(imp2, "0020,000E");
-			ctUID2 = ctUID2.trim();
-
-			// possiamo passare a petCtViewer una stringa con gli UID delle immagini PET e
-			// CT da aprire
-			String seriesUID1 = petUID1 + ", " + ctUID2;
-			IJ.runPlugIn("Pet_Ct_Viewer", seriesUID1);
-			IJ.wait(2000);
+		List<File> result1 = Utility.getFileListing(new File(startingDir1));
+		if (result1 == null) {
+			IJ.error("getFileListing.result1==null");
 		}
+		int len2 = result1.size();
+		if (len2 != 1)
+			return;
+		File fil1 = result1.get(0);
+		String path1 = fil1.getAbsolutePath();
+		imp1 = openImage(path1);
+		String tit1 = imp1.getTitle();
+		tit1 = "A024 ## " + tit1;
+		imp1.setTitle(tit1);
+		imp1.show();
+		String meta1 = getMeta(slice1, imp1);
+		if (nuovaLaboriosa) {
+			petctviewerTitle = stringaLaboriosa(meta1);
+			Utility.appendLog(pathPermanente, "24h=" + petctviewerTitle);
+		}
+
+		String petUID1 = DicomTools.getTag(imp1, "0020,000E");
+		petUID1 = petUID1.trim();
+
+		String startingDir2 = str1 + "24h" + File.separator + "CT";
+
+		List<File> result2 = Utility.getFileListing(new File(startingDir2));
+		if (result2 == null) {
+			IJ.error("getFileListing.result2==null");
+		}
+		String[] list2 = new String[result2.size()];
+		int j2 = 0;
+		for (File file2a : result2) {
+			list2[j2++] = file2a.getPath();
+		}
+		imp2 = readStackFiles(startingDir2);
+
+		String tit2 = imp2.getTitle();
+		tit2 = "B024 ## " + tit2;
+		imp2.setTitle(tit2);
+		imp2.show();
+
+		String ctUID2 = DicomTools.getTag(imp2, "0020,000E");
+		ctUID2 = ctUID2.trim();
+
+		// possiamo passare a petCtViewer una stringa con gli UID delle immagini PET e
+		// CT da aprire
+		String seriesUID1 = petUID1 + ", " + ctUID2;
+		IJ.runPlugIn("Pet_Ct_Viewer", seriesUID1);
+		IJ.wait(2000);
+
 		// ===========================================================================
 		// ELABORAZIONE 48h ed apertura PetCtViewer
 		// ===========================================================================
 
-		if (scelta == 0 || scelta == 2) {
-			String startingDir3 = str1 + "48h" + File.separator + "SPECT";
-			List<File> result3 = Utility.getFileListing(new File(startingDir3));
-			if (result3 == null) {
-				IJ.error("getFileListing.result3==null");
-			}
-			int len3 = result3.size();
-			if (len3 != 1)
-				return;
-
-			File fil3 = result3.get(0);
-			String path3 = fil3.getAbsolutePath();
-			imp3 = openImage(path3);
-			String tit3 = imp3.getTitle();
-			tit3 = "A048 ## " + tit3;
-			imp3.setTitle(tit3);
-			imp3.show();
-			String meta3 = getMeta(slice1, imp3);
-			if (nuovaLaboriosa) {
-				petctviewerTitle = stringaLaboriosa(meta3);
-				Utility.appendLog(pathPermanente, "48h=" + petctviewerTitle);
-			}
-
-			String petUID3 = DicomTools.getTag(imp3, "0020,000E");
-			petUID3 = petUID3.trim();
-
-			String startingDir4 = str1 + "48h" + File.separator + "CT";
-			List<File> result4 = Utility.getFileListing(new File(startingDir4));
-			if (result4 == null) {
-				IJ.error("getFileListing.result4==null");
-			}
-			String[] list4 = new String[result4.size()];
-			int j4 = 0;
-			for (File file4a : result4) {
-				list4[j4++] = file4a.getPath();
-			}
-
-			imp4 = readStackFiles(startingDir4);
-			String tit4 = imp4.getTitle();
-			tit4 = "B048 ## " + tit4;
-			imp4.setTitle(tit4);
-			// IJ.log("tit4= " + imp4.getTitle());
-			imp4.show();
-
-			String ctUID4 = DicomTools.getTag(imp4, "0020,000E");
-			ctUID4 = ctUID4.trim();
-
-			String seriesUID3 = petUID3 + ", " + ctUID4;
-			IJ.runPlugIn("Pet_Ct_Viewer", seriesUID3);
-			IJ.wait(2000);
+		String startingDir3 = str1 + "48h" + File.separator + "SPECT";
+		List<File> result3 = Utility.getFileListing(new File(startingDir3));
+		if (result3 == null) {
+			IJ.error("getFileListing.result3==null");
 		}
+		int len3 = result3.size();
+		if (len3 != 1)
+			return;
+
+		File fil3 = result3.get(0);
+		String path3 = fil3.getAbsolutePath();
+		imp3 = openImage(path3);
+		String tit3 = imp3.getTitle();
+		tit3 = "A048 ## " + tit3;
+		imp3.setTitle(tit3);
+		imp3.show();
+		String meta3 = getMeta(slice1, imp3);
+		if (nuovaLaboriosa) {
+			petctviewerTitle = stringaLaboriosa(meta3);
+			Utility.appendLog(pathPermanente, "48h=" + petctviewerTitle);
+		}
+
+		String petUID3 = DicomTools.getTag(imp3, "0020,000E");
+		petUID3 = petUID3.trim();
+
+		String startingDir4 = str1 + "48h" + File.separator + "CT";
+		List<File> result4 = Utility.getFileListing(new File(startingDir4));
+		if (result4 == null) {
+			IJ.error("getFileListing.result4==null");
+		}
+		String[] list4 = new String[result4.size()];
+		int j4 = 0;
+		for (File file4a : result4) {
+			list4[j4++] = file4a.getPath();
+		}
+
+		imp4 = readStackFiles(startingDir4);
+		String tit4 = imp4.getTitle();
+		tit4 = "B048 ## " + tit4;
+		imp4.setTitle(tit4);
+		imp4.show();
+
+		String ctUID4 = DicomTools.getTag(imp4, "0020,000E");
+		ctUID4 = ctUID4.trim();
+
+		String seriesUID3 = petUID3 + ", " + ctUID4;
+		IJ.runPlugIn("Pet_Ct_Viewer", seriesUID3);
+		IJ.wait(2000);
 
 		// ===========================================================================
 		// ELABORAZIONE 120h ed apertura PetCtViewer
 		// ===========================================================================
 
-		if (scelta == 0 || scelta == 2) {
-			String startingDir5 = str1 + "120h" + File.separator + "SPECT";
-			List<File> result5 = Utility.getFileListing(new File(startingDir5));
-			if (result5 == null) {
-				IJ.error("getFileListing.result5==null");
-			}
-			int len5 = result5.size();
-			if (len5 != 1)
-				return;
-
-			File fil5 = result5.get(0);
-			String path5 = fil5.getAbsolutePath();
-			imp5 = openImage(path5);
-			String tit5 = imp5.getTitle();
-			tit5 = "A120 ## " + tit5;
-			imp5.setTitle(tit5);
-			imp5.show();
-			String meta5 = getMeta(slice1, imp5);
-			if (nuovaLaboriosa) {
-				petctviewerTitle = stringaLaboriosa(meta5);
-				Utility.appendLog(pathPermanente, "120h=" + petctviewerTitle);
-			}
-
-			String petUID5 = DicomTools.getTag(imp5, "0020,000E");
-			petUID5 = petUID5.trim();
-
-			String startingDir6 = str1 + "120h" + File.separator + "CT";
-			List<File> result6 = Utility.getFileListing(new File(startingDir6));
-			if (result6 == null) {
-				IJ.error("getFileListing.result6==null");
-			}
-			String[] list6 = new String[result6.size()];
-			int j6 = 0;
-			for (File file6 : result6) {
-				list6[j6++] = file6.getPath();
-			}
-
-			imp6 = readStackFiles(startingDir6);
-			String tit6 = imp6.getTitle();
-			tit6 = "B120 ## " + tit6;
-			imp6.setTitle(tit6);
-			// IJ.log("tit6= " + imp6.getTitle());
-			imp6.show();
-
-			// ==================================================
-
-			String ctUID6 = DicomTools.getTag(imp6, "0020,000E");
-			ctUID6 = ctUID6.trim();
-
-			String seriesUID5 = petUID5 + ", " + ctUID6;
-			IJ.runPlugIn("Pet_Ct_Viewer", seriesUID5);
-			IJ.wait(2000);
+		String startingDir5 = str1 + "120h" + File.separator + "SPECT";
+		List<File> result5 = Utility.getFileListing(new File(startingDir5));
+		if (result5 == null) {
+			IJ.error("getFileListing.result5==null");
 		}
+		int len5 = result5.size();
+		if (len5 != 1)
+			return;
+
+		File fil5 = result5.get(0);
+		String path5 = fil5.getAbsolutePath();
+		imp5 = openImage(path5);
+		String tit5 = imp5.getTitle();
+		tit5 = "A120 ## " + tit5;
+		imp5.setTitle(tit5);
+		imp5.show();
+		String meta5 = getMeta(slice1, imp5);
+		if (nuovaLaboriosa) {
+			petctviewerTitle = stringaLaboriosa(meta5);
+			Utility.appendLog(pathPermanente, "120h=" + petctviewerTitle);
+		}
+
+		String petUID5 = DicomTools.getTag(imp5, "0020,000E");
+		petUID5 = petUID5.trim();
+
+		String startingDir6 = str1 + "120h" + File.separator + "CT";
+		List<File> result6 = Utility.getFileListing(new File(startingDir6));
+		if (result6 == null) {
+			IJ.error("getFileListing.result6==null");
+		}
+		String[] list6 = new String[result6.size()];
+		int j6 = 0;
+		for (File file6 : result6) {
+			list6[j6++] = file6.getPath();
+		}
+
+		imp6 = readStackFiles(startingDir6);
+		String tit6 = imp6.getTitle();
+		tit6 = "B120 ## " + tit6;
+		imp6.setTitle(tit6);
+		imp6.show();
+
+		// ==================================================
+
+		String ctUID6 = DicomTools.getTag(imp6, "0020,000E");
+		ctUID6 = ctUID6.trim();
+
+		String seriesUID5 = petUID5 + ", " + ctUID6;
+		IJ.runPlugIn("Pet_Ct_Viewer", seriesUID5);
+		IJ.wait(2000);
 
 		// ===========================================================================
 		imp2.close();
@@ -397,18 +387,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// la scelta immagini di dosimetry_v2 finisce inevitabilmente dietro le finestre
 		// di petctviewer, ho provato a metterlo in coordinate 0,0 in modo che rimanga
 		// comunquie visibile e trasportabile sullo schermo
-
-		// dialogSelection_LP31();
-
-		// ====================================================================================================
-		// ====================================================================================================
-		// ====================================================================================================
-		// QUESTO E'IL PUNTO IN CUI DEVO RIENTRARE PER IL REVIEW DI UNA ANALISI, ALTRO
-		// CHE BAUBAU MICIOMICIO !!!
-		// ====================================================================================================
-		// ====================================================================================================
-		// ====================================================================================================
-		// ====================================================================================================
 
 		do {
 			IJ.runPlugIn("Dosimetry.Dosimetry_v2", "");
@@ -468,6 +446,15 @@ public class Dosimetria_Lu177 implements PlugIn {
 			yp[1] = out48[2];
 			xp[2] = 120.0;
 			yp[2] = out120[2];
+			
+// ALLA FINE ANDREBBE FORSE INSERITO QUELLO QUI SOTTO; che usa il deltaT calcolato e non 24,48,120
+//
+//			xp[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#019#", "=")); // deltaT
+//			yp[0] = out24[2];
+//			xp[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#039#", "=")); // deltaT
+//			yp[1] = out48[2];
+//			xp[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#059#", "=")); // deltaT
+//			yp[2] = out120[2];
 
 			outCF = Utility.MIRD_curveFitter(xp, yp);
 
@@ -1829,6 +1816,20 @@ public class Dosimetria_Lu177 implements PlugIn {
 //		IJ.log("difference= " + diff / (1000 * 60 * 60) + " hours");
 //		IJ.log("difference= " + diff / (1000 * 60 * 60 * 24) + " days");
 		return diff;
+	}
+
+	void azzeraFlags(String path) {
+
+		String aux1 = "";
+		aux1 = "#901#\tokk= false";
+		Utility.modifyLog(path, "#901#", aux1);
+		aux1 = "#902#\tokk= false";
+		Utility.modifyLog(path, "#902#", aux1);
+		aux1 = "#903#\tokk= false";
+		Utility.modifyLog(path, "#903#", aux1);
+		aux1 = "#904#\tokk= false";
+		Utility.modifyLog(path, "#904#", aux1);
+
 	}
 
 }
