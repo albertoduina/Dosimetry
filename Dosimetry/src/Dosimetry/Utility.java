@@ -553,17 +553,18 @@ public class Utility {
 	}
 
 	/**
-	 * Calcola i parametri di plottaggio di un punto
+	 * Calcola i parametri di plottaggio di un punto, modificato come indicato in
+	 * "FORMULE CORREZIONE" del 040123
 	 * 
 	 * @param pathVolatile
 	 * @param pathPermanente
 	 */
 	static double[] MIRD_point(double[] in1) {
 
-		double durata = in1[0];
-		double conteggio = in1[1];
-		double activity = in1[2];
-		double threshold = in1[3];
+		double durata = in1[0]; // #018# acquisition duration
+		double conteggio = in1[1]; // #120# over threshold count integral
+		double activity = in1[2]; // #003# activity
+		double threshold = in1[3]; // #115# contouring threshold level
 
 		double[][] myMatTable = matTable();
 		double t1 = 0;
@@ -576,7 +577,7 @@ public class Utility {
 			a1 = myMatTable[1][0];
 			b1 = myMatTable[2][0];
 			c1 = myMatTable[3][0];
-		} else if (threshold > 0.30 && threshold <= 0.50) {
+		} else if (threshold > 0.30 && threshold < 0.50) {
 			t1 = myMatTable[0][1];
 			a1 = myMatTable[1][1];
 			b1 = myMatTable[2][1];
@@ -588,13 +589,13 @@ public class Utility {
 			c1 = myMatTable[3][2];
 		}
 
-		double MIRD_vol = conteggio * (Math.pow(4.43, 3) / 1000.);
+		double MIRD_vol = conteggio * (Math.pow(4.42, 3) / 1000.);
 		double MIRD_fatCal = a1 * Math.pow(b1, MIRD_vol) * Math.pow(MIRD_vol, c1);
-		double MIRD_attiv = conteggio / (durata * MIRD_fatCal);
+		double MIRD_attiv = durata / (conteggio * MIRD_fatCal);
 		double[] MIRD_out1 = new double[3];
-		MIRD_out1[0] = MIRD_vol;
-		MIRD_out1[1] = MIRD_fatCal;
-		MIRD_out1[2] = MIRD_attiv;
+		MIRD_out1[0] = MIRD_vol; // #201# MIRD_vol24
+		MIRD_out1[1] = MIRD_fatCal; // #202# MIRD_fatCal24
+		MIRD_out1[2] = MIRD_attiv; // #203# MIRD_attiv24
 
 		return MIRD_out1;
 
