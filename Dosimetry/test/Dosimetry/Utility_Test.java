@@ -65,4 +65,18 @@ public class Utility_Test {
 
 	}
 
+	@Test
+	public final void test_MIRD_curveFitter() {
+
+		String pathSorgente = "testdata/sorgente.txt";
+
+		double[] vetX= {24, 48, 120};
+		double[] vetY= {2.345, 4.897, 9.456};
+		
+		Utility.MIRD_curveFitter(vetX, vetY);
+
+		Utility.debugDeiPoveri("SPETTA");
+
+	}
+
 }

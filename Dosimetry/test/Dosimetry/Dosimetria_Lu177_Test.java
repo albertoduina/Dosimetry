@@ -25,30 +25,26 @@ public class Dosimetria_Lu177_Test {
 		// new WaitForUserDialog("Do something, then click OK.").show();
 
 	}
-	
-	
-	
-	
 
 	@Test
 	public final void test_getDateTime() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
 		String in1 = "20230102";
-		String in2= "143834.0";
+		String in2 = "143834.0";
 		Date out1 = dosimetria_Lu177.getDateTime(in1, in2);
-		String out2= out1.toString();
-		String exp1= "Mon Jan 02 14:38:34 CET 2023";
+		String out2 = out1.toString();
+		String exp1 = "Mon Jan 02 14:38:34 CET 2023";
 		assertEquals(exp1, out2);
 	}
-	
+
 	@Test
 	public final void test_dataToDicom() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
 		String in1 = "02-01-2023";
 		String out1 = dosimetria_Lu177.dataToDicom(in1);
-		String exp1= "20230102";
+		String exp1 = "20230102";
 		assertEquals(exp1, out1);
 	}
 
@@ -58,8 +54,27 @@ public class Dosimetria_Lu177_Test {
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
 		String in1 = "14:38:33";
 		String out1 = dosimetria_Lu177.oraToDicom(in1);
-		String exp1= "143833";
+		String exp1 = "143833";
 		assertEquals(exp1, out1);
+	}
+
+	@Test
+	public final void test_LP33_DialogYesNoCancel() {
+
+		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
+		dosimetria_Lu177.dialogYNC_LP33();
+		Utility.debugDeiPoveri("SPETTA");
+		assertTrue(true);
+	}
+
+	@Test
+	public final void test_LP32_DialogReview() {
+
+		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
+		String selection = dosimetria_Lu177.dialogReview_LP32();
+		IJ.log("LP32 restituisce " + selection);
+		Utility.debugDeiPoveri("SPETTA");
+		assertTrue(true);
 	}
 
 	@Test
