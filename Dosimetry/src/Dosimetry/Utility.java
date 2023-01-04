@@ -162,15 +162,32 @@ public class Utility {
 		}
 	}
 
-	public static void replaceLineLog(String path1, String tag, String newline) {
+	/**
+	 * Se nel file esiste gia'una linea col tag, essa viene sostituita, se la linea
+	 * non esiste, essa viene aggiunta alla fine
+	 * 
+	 * @param path1
+	 * @param tag
+	 * @param newline
+	 */
+	public static void modifyLog(String path1, String tag, String newline) {
 
+		boolean ok = true;
 		try {
 			BufferedReader file = new BufferedReader(new FileReader(path1));
 			StringBuffer inputBuffer = new StringBuffer();
 			String line;
 			// lettura
 			while ((line = file.readLine()) != null) {
+				if (line.contains(tag)) {
+					line = newline;
+					ok = false;
+				}
 				inputBuffer.append(line);
+				inputBuffer.append('\n');
+			}
+			if (ok) {
+				inputBuffer.append(newline);
 				inputBuffer.append('\n');
 			}
 			file.close();
@@ -637,8 +654,12 @@ public class Utility {
 
 		CurveFitter cf1 = new CurveFitter(vetX, vetY);
 		cf1.doFit(CurveFitter.EXPONENTIAL);
+		String status = cf1.getStatusString();
+		IJ.log("STATUS del fit= " + status);
 		double[] params = cf1.getParams();
+		int numParams = cf1.getNumParams();
 		double goodness = cf1.getFitGoodness();
+		String res1 = cf1.getResultString();
 		Plot zz = cf1.getPlot(128);
 		zz.setLineWidth(2);
 		zz.show();
@@ -650,6 +671,8 @@ public class Utility {
 			out1[i1] = params[i1];
 		}
 		IJ.log("MIRD FIT goodness=  " + goodness);
+		IJ.log("MIRD FIT numParams=  " + numParams);
+		IJ.log("MIRD FIT resultString=  " + res1);
 		out1[3] = goodness;
 		return out1;
 	}

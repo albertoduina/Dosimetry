@@ -220,7 +220,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		// do {
 
-		Utility.debugDeiPoveri("scelta= " + scelta);
 
 		if (scelta == 0 || scelta == 1) {
 			List<File> result1 = Utility.getFileListing(new File(startingDir1));
@@ -424,11 +423,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// 24h
 			// Utility.appendLog(pathVolatile, aux1);
 			double[] in1 = new double[5];
-			in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#018#", "=")); // acquisition duration 
+			in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#018#", "=")); // acquisition duration
 			in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#119#", "=")); // pixel number over threshold
 			in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
 			in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#115#", "=")); // contouring threshold level
-			in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#120#", "=")); // over threshold count integral
+			in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#120#", "=")); // over threshold count
+																							// integral
 			out24 = Utility.MIRD_point(in1);
 			double MIRD_vol24 = out24[0];
 			double MIRD_fatCal24 = out24[1];
@@ -440,7 +440,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 			in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#149#", "=")); // pixel number over threshold
 			in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
 			in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#145#", "=")); // contouring threshold level
-			in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#150#", "=")); // over threshold count integral
+			in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#150#", "=")); // over threshold count
+																							// integral
 			out48 = Utility.MIRD_point(in1);
 			double MIRD_vol48 = out48[0];
 			double MIRD_fatCal48 = out48[1];
@@ -452,7 +453,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 			in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#179#", "=")); // pixel number over threshold
 			in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
 			in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#175#", "=")); // contouring threshold level
-			in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#180#", "=")); // over threshold count integral
+			in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#180#", "=")); // over threshold count
+																							// integral
 			out120 = Utility.MIRD_point(in1);
 			double MIRD_vol120 = out120[0];
 			double MIRD_fatCal120 = out120[1];
@@ -483,15 +485,28 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// ==========================================================================
 
 			selection = dialogReview_LP32();
+			String aux1 = "";
 			switch (selection) {
 			case "24h":
 				scelta = 1;
+				aux1 = "#901#\tok24= false";
+				Utility.modifyLog(pathPermanente, "#901#", aux1);
+				aux1 = "#904#\tokk= false";
+				Utility.modifyLog(pathPermanente, "#904#", aux1);
 				break;
 			case "48h":
 				scelta = 2;
+				aux1 = "#902#\tok48= false";
+				Utility.modifyLog(pathPermanente, "#902#", aux1);
+				aux1 = "#904#\tokk= false";
+				Utility.modifyLog(pathPermanente, "#904#", aux1);
 				break;
 			case "120h":
 				scelta = 3;
+				aux1 = "#903#\tok120= false";
+				Utility.modifyLog(pathPermanente, "#903#", aux1);
+				aux1 = "#904#\tokk= false";
+				Utility.modifyLog(pathPermanente, "#904#", aux1);
 				break;
 			case "FATTO":
 				scelta = 4;

@@ -1,0 +1,43 @@
+---- INIZIO ---------
+#000#	-- SOMMINISTRAZIONE --
+#001#	Data= 04-01-2023
+#002#	Ora= 14:25:00
+#003#	Activity= 1.234
+#010#	---- IMAGE INFO 24h ----
+#011#	Image Name= TOMOaddome24h_EM001_DS.dcm
+#012#	Acquisition Date= 20220818
+#013#	Acquisition Time= 151722.00
+#014#	Isotope=  Lu177 SC[208 and 166] 
+#015#	Collimator=  MEGP
+#016#	Number of frames=  60
+#017#	Actual frame duration=  20000 
+#018#	Acquisition duration= 1200
+#019#	DeltaT= -3336.127214722222
+#030#	---- IMAGE INFO 48h ----
+#031#	Image Name= TOMOaddome48h_EM001_DS.dcm
+#032#	Acquisition Date= 20220819
+#033#	Acquisition Time= 154103.00
+#034#	Isotope=  Lu177 SC[208 and 166] 
+#035#	Collimator=  MEGP
+#036#	Number of frames=  60
+#037#	Actual frame duration=  25000 
+#038#	Acquisition duration= 1500
+#039#	DeltaT= -3311.7324844444443
+#050#	---- IMAGE INFO 120h ----
+#051#	Image Name= TOMOaddome120h_EM001_DS.dcm
+#052#	Acquisition Date= 20220822
+#053#	Acquisition Time= 142301.00
+#054#	Isotope=  Lu177 SC[208 and 166] 
+#055#	Collimator=  MEGP
+#056#	Number of frames=  60
+#057#	Actual frame duration=  30000 
+#058#	Acquisition duration= 1800
+#059#	DeltaT= -3241.033036111111
+24h=Pet-Ct: COVTI,GIAN CAVLO   2075y   p10776224   Aug 26, 4022   Lu177 dosimetria   addome 24hresults
+48h=Pet-Ct: COSTI,GIAN CARLO   75y   p10776224   Aug 26, 2022   Lu177 dosimetria   affome 48h revults
+120h=Pet-Ct: COSTI,GIAN CARLO   75y   p10776224   Aug 26, 2022   Lu177 dosimetria   addome 120h results
+#901#	ok24= true
+#902#	ok48= true
+#903#	ok120= true
+#904#	okk= true
+---- FINE ---------

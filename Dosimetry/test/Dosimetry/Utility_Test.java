@@ -41,6 +41,24 @@ public class Utility_Test {
 	}
 
 	@Test
+	public final void test_modifyLogEsistente() {
+
+		String pathPermanente = "testdata/permanente.txt";
+		Utility.modifyLog(pathPermanente, "#030#", "#030# !!!!!!!!!!!!!!!");
+		Utility.debugDeiPoveri("SPETTA");
+
+	}
+
+	@Test
+	public final void test_modifyLogMancante() {
+
+		String pathPermanente = "testdata/permanente.txt";
+		Utility.modifyLog(pathPermanente, "#730#", "#730# !!!!!!!!!!!!!!!");
+		Utility.debugDeiPoveri("SPETTA");
+
+	}
+
+	@Test
 	public final void test_readSimpleText() {
 
 		String pathSorgente = "testdata/sorgente.txt";
@@ -70,9 +88,9 @@ public class Utility_Test {
 
 		String pathSorgente = "testdata/sorgente.txt";
 
-		double[] vetX= {24, 48, 120};
-		double[] vetY= {2.345, 4.897, 9.456};
-		
+		double[] vetX = { 24, 48, 120 };
+		double[] vetY = { 2.345, 4.897, 9.456 };
+
 		Utility.MIRD_curveFitter(vetX, vetY);
 
 		Utility.debugDeiPoveri("SPETTA");
