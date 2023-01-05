@@ -232,7 +232,7 @@ public class Utility {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Copia da log sorgente a destinazione un range di tag
 	 * 
@@ -670,6 +670,19 @@ public class Utility {
 			}
 		}
 
+	}
+
+	static void chiudiTutto() {
+
+		ImagePlus imp1 = null;
+		while (WindowManager.getCurrentImage() != null) {
+			imp1 = WindowManager.getCurrentImage();
+			imp1.changes = false;
+			imp1.close();
+		}
+		for (final Window w : WindowManager.getAllNonImageWindows()) {
+			w.dispose();
+		}
 	}
 
 }

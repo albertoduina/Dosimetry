@@ -563,6 +563,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// ==============================================================
 		Utility.battezzaLesioni(pathVolatile);
 
+		Utility.chiudiTutto();
+		
 //		dialogReview_LP05(aList);
 
 	}
@@ -830,7 +832,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 	}
 
 	/**
-	 * Prende i dati header
+	 * Legge i dati header
 	 * 
 	 * @param slice
 	 * @param img1
@@ -891,7 +893,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 	}
 
 	/**
-	 * Lettura di un dato Dicom da headere immagine
+	 * Lettura di un dato Dicom da header immagine
 	 * 
 	 * @param meta
 	 * @param key1
@@ -956,6 +958,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 	}
 
 	/**
+	 * Restituisce solo se riceve stringa non vuota
 	 * 
 	 * @param in1
 	 * @return
@@ -1073,6 +1076,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 	}
 
 	/**
+	 * Modifiche per adattarsi a quello che viene fatto in Pet-Ct-Viewer
 	 * 
 	 * @param in1
 	 * @return
@@ -1099,6 +1103,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 		return ret1;
 	}
 
+	/**
+	 * Impone il formato data da usare
+	 * 
+	 * @param inDate
+	 * @return
+	 */
 	static String UsaDateFormat(Date inDate) {
 		if (inDate == null)
 			return "";
@@ -1225,10 +1235,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		String data11 = in1[0];
 		String ora11 = in1[1];
 		String activity11 = in1[2];
-
-		IJ.log(in1[0]);
-		IJ.log(in1[1]);
-		IJ.log(in1[2]);
 
 		GenericDialog conf11 = new GenericDialog("LP10 - CONFIRM");
 
