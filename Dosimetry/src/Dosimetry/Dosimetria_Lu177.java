@@ -468,20 +468,14 @@ public class Dosimetria_Lu177 implements PlugIn {
 //			xp[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#059#", "=")); // deltaT
 //			yp[2] = out120[2];
 
+			//========================================================================
+			// FIT E PLOT DECISIONALI
+			//========================================================================
+			
 			outCF = Utility.MIRD_curveFitter(xp, yp);
 			Utility.MIRD_curvePlotter(xp, yp);
 			MIRD_display_LP66(MIRD_vol24, MIRD_vol48, MIRD_vol120);
 
-
-//			// le accentate ce le sogniamo, si mette l'apostrofo come 40 anni fa'
-//			Plot plot1 = new Plot("Punti", "ore dalla somministrazione", "attivita' MBq");
-//			plot1.setLineWidth(2);
-//			plot1.setColor(Color.red);
-//			plot1.add("circle", xp, yp);
-//			plot1.setOptions("addhspace=10, addvspace=10");
-//			plot1.show();
-
-			Utility.debugDeiPoveri("---- CHE BELLIZZIMO GRAFICO -----");
 			// ==========================================================================
 			// PARTE REVIEW CHE DEVE RITORNARE INDIETRO PER RIFARE UNO O PIU'DEI CALCOLI
 			// FINALMENTE SAREMO FELICI E GORGOGLIONI DELLE NOSTRE ELABORAZIONI

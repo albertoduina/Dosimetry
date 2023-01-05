@@ -191,26 +191,21 @@ public class Dosimetry_v2 implements PlugIn {
 				/// FUNZIONA ANCORA !!!!
 				Utility.imageToFront(title1);
 				Utility.nonImageToFront(vetPath[point1]);
-				
-				GenericDialog gdlg = new GenericDialog("DD012 ISTRUZIONI");
-				gdlg.addMessage("PER CONTORNAMENTO CON THRESHOLD:\nda Edit-BrownFatROI visualizzare numero di fetta in cui ci si trova e ricordarselo.\n"
-								+ "PER CONTORNAMENTO CON ROI:\nDisegnare ROI da Edit-BrownFatROI");
-				gdlg.showDialog();
-				if (gdlg.wasOKed()) {
-					IJ.log("DD012 - true PREMUTO OK");
-				} 
-				
-				
 
-				
-				
-//				WaitForUserDialog waitForUserDialog = new WaitForUserDialog("DD12 OPERATORE",
+//				NonBlockingGenericDialog gdlg = new NonBlockingGenericDialog("DD012 ISTRUZIONI");
+//				gdlg.addMessage(
 //						"PER CONTORNAMENTO CON THRESHOLD:\nda Edit-BrownFatROI visualizzare numero di fetta in cui ci si trova e ricordarselo.\n"
 //								+ "PER CONTORNAMENTO CON ROI:\nDisegnare ROI da Edit-BrownFatROI");
-//				waitForUserDialog.show();
-//				
-				
-				
+//				gdlg.showDialog();
+//				if (gdlg.wasOKed()) {
+//					IJ.log("DD012 - true PREMUTO OK");
+//				}
+
+				WaitForUserDialog waitForUserDialog = new WaitForUserDialog("DD12 ISTRUZIONI",
+						"PER CONTORNAMENTO CON THRESHOLD:\nda Edit-BrownFatROI visualizzare numero di fetta in cui ci si trova e ricordarselo.\n"
+								+ "PER CONTORNAMENTO CON ROI:\nDisegnare ROI da Edit-BrownFatROI");
+				waitForUserDialog.show();
+
 				Utility.imageToFront(title1);
 
 				// ======================================================
@@ -319,7 +314,9 @@ public class Dosimetry_v2 implements PlugIn {
 				dialog.setFont(defaultFont);
 				dialog.setCancelLabel("Quit");
 				dialog.setOKLabel("Next");
+				dialog.setLocation(screen.width / 3, screen.height / 3);
 				dialog.showDialog();
+				
 
 				if (!dialog.wasOKed()) {
 					IJ.log("eseguito reset003");

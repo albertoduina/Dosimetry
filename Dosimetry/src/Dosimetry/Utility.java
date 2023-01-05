@@ -288,7 +288,7 @@ public class Utility {
 		IJ.wait(100);
 		Dimension screen = IJ.getScreenSize();
 		ImageWindow window = WindowManager.getCurrentWindow();
-		window.setLocationAndSize(0, 0, (int) (((double) screen.height) / 2), (int) (((double) screen.height) / 2));
+		window.setLocationAndSize(0, 0, (int) (((double) screen.height) / 1.5), (int) (((double) screen.height) / 1.5));
 	}
 
 	/**
