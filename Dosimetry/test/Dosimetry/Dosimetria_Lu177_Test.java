@@ -23,7 +23,6 @@ public class Dosimetria_Lu177_Test {
 	@After
 	public void tearDown() throws Exception {
 		// new WaitForUserDialog("Do something, then click OK.").show();
-
 	}
 
 	@Test
@@ -56,17 +55,6 @@ public class Dosimetria_Lu177_Test {
 		String out1 = dosimetria_Lu177.oraToDicom(in1);
 		String exp1 = "143833";
 		assertEquals(exp1, out1);
-	}
-
-	
-	
-	@Test
-	public final void test_LP33_DialogYesNoCancel() {
-
-		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
-		dosimetria_Lu177.dialogYNC_LP33();
-		Utility.debugDeiPoveri("SPETTA");
-		assertTrue(true);
 	}
 
 	@Test

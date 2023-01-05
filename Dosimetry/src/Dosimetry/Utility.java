@@ -17,7 +17,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import ij.IJ;
@@ -42,6 +41,13 @@ import ij.measure.CurveFitter;
 
 public class Utility {
 
+	/**
+	 * Legge tutte le linee di un file testo e le restituisce come vettore di
+	 * stringhe
+	 * 
+	 * @param path1 path del file, completo di nome
+	 * @return vettore stringhe
+	 */
 	public static String[] readSimpleText(String path1) {
 
 		List<String> out1 = null;
@@ -56,76 +62,8 @@ public class Utility {
 		return out2;
 	}
 
-//	/**
-//	 * Legge il log e mette in un vettore le stringhe, salta le vuote
-//	 * 
-//	 * @param path1     indirizzo log da leggere
-//	 * @param compress1 eliminare linee vuote
-//	 * @return
-//	 */
-//	public static String[] readLog(String path1, boolean compress1) {
-//
-//		String[] out1 = readLogCompress(path1, compress1);
-//		return out1;
-//	}
-//
-//	/**
-//	 * Legge il log e mette in un vettore tutte le strinhe
-//	 * 
-//	 * @param path indirizzo log da leggere
-//	 */
-//	public static String[] readLog(String path1) {
-//
-//		String[] out1 = readLogCompress(path1, false);
-//		return out1;
-//	}
-
-//	/**
-//	 * Legge il log e mette in un vettore le stringhe, salta le vuote
-//	 * 
-//	 * @param path     indirizzo log da leggere
-//	 * @param compress eliminare linee vuote
-//	 * @return
-//	 */
-//	public static String[] readLogCompress(String path, boolean compress) {
-//
-//		ArrayList<String> inArrayList = new ArrayList<String>();
-//		IJ.log("sono in readLogCompress per cercare di leggere " + path);
-//		BufferedReader br = null;
-//		try {
-//			br = new BufferedReader(new FileReader(path));
-//			IJ.log("br= " + br.toString());
-//			while (br.ready()) {
-//				String line = br.readLine();
-//				IJ.log("readLogCompress legge line= " + line);
-//				inArrayList.add(line);
-//			}
-//			br.close();
-//		} catch (IOException e) {
-//			IJ.log("errore non leggo " + path);
-//			e.printStackTrace();
-//		}
-//
-//		IJ.log("001");
-//
-//		ArrayList<String> outArrayList = new ArrayList<String>();
-//		String aux11 = "";
-//		for (int i1 = 0; i1 < inArrayList.size(); i1++) {
-//			aux11 = inArrayList.get(i1);
-//			if (!aux11.isEmpty()) {
-//				outArrayList.add(aux11);
-//			}
-//		}
-//		Object[] objArray = outArrayList.toArray();
-//		String[] vetOut = new String[objArray.length];
-//		for (int i1 = 0; i1 < objArray.length; i1++) {
-//			vetOut[i1] = objArray[i1].toString();
-//		}
-//		return vetOut;
-//	}
-
 	/**
-	 * Inizializza il file di log
+	 * Inizializza il file di log cancellando se esiste e scrivendoci INIZIO
 	 * 
 	 * @param path indirizzo log da utilizzare
 	 */
@@ -200,11 +138,10 @@ public class Utility {
 		} catch (Exception e) {
 			System.out.println("errore lettura/scrittura file " + path1);
 		}
-
 	}
 
 	/**
-	 * Copia i dati dal log volatile.txt al log permanente.txt
+	 * Copia tutti i dati dal log volatile.txt al log permanente.txt
 	 * 
 	 * @param permFile indirizzo log permanente da utilizzare
 	 * @param tmpFile  indirizzo log temporaneo da utilizzare
@@ -228,7 +165,6 @@ public class Utility {
 			e.printStackTrace();
 		}
 		deleteLog(tmpFile);
-
 	}
 
 	/**
@@ -248,6 +184,73 @@ public class Utility {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Lettura di un tag dal log
+	 * 
+	 * @param path1
+	 * @param code1
+	 * @param separator
+	 * @return
+	 */
+	static String readFromLog(String path1, String code1, String separator) {
+
+		// leggo una stringa dal log
+		String[] vetText = Utility.readSimpleText(path1);
+		String[] vetAux1;
+		String out1 = null;
+		if (vetText.length > 0) {
+			for (int i1 = 0; i1 < vetText.length; i1++) {
+				if (vetText[i1].contains(code1)) {
+					vetAux1 = vetText[i1].split(separator);
+					out1 = vetAux1[1].trim();
+				}
+			}
+		}
+		return out1;
+	}
+
+	/**
+	 * Restituisce l'intera linea del log per il tag
+	 * 
+	 * @param path1
+	 * @param code1
+	 * @return
+	 */
+	static String readFromLog(String path1, String code1) {
+
+		// leggo una stringa dal log
+		String[] vetText = Utility.readSimpleText(path1);
+		if (vetText.length > 0) {
+			for (int i1 = 0; i1 < vetText.length; i1++) {
+				if (vetText[i1].contains(code1))
+					return vetText[i1];
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Copia da log sorgente a destinazione un range di tag
+	 * 
+	 * @param pathSorgente
+	 * @param pathDestinazione
+	 * @param start
+	 * @param end
+	 */
+	static void copyLogInfo(String pathSorgente, String pathDestinazione, int start, int end) {
+
+		String aux1 = "";
+		String aux2 = "";
+		for (int i1 = start; i1 <= end; i1++) {
+			aux1 = "#" + String.format("%03d", i1) + "#";
+			aux2 = readFromLog(pathSorgente, aux1);
+			if (aux2 != null) {
+				Utility.appendLog(pathDestinazione, aux2);
+			}
 		}
 
 	}
@@ -285,88 +288,6 @@ public class Utility {
 		Dimension screen = IJ.getScreenSize();
 		ImageWindow window = WindowManager.getCurrentWindow();
 		window.setLocationAndSize(0, 0, (int) (((double) screen.height) / 2), (int) (((double) screen.height) / 2));
-	}
-
-	/**
-	 * Lettura di un tag dal log
-	 * 
-	 * @param path1
-	 * @param code1
-	 * @param separator
-	 * @return
-	 */
-	static String readFromLog(String path1, String code1, String separator) {
-
-		// leggo una stringa dal log
-		String[] vetText = Utility.readSimpleText(path1);
-		String[] vetAux1;
-		String out1 = null;
-		if (vetText.length > 0) {
-			for (int i1 = 0; i1 < vetText.length; i1++) {
-				if (vetText[i1].contains(code1)) {
-					vetAux1 = vetText[i1].split(separator);
-					out1 = vetAux1[1].trim();
-				}
-			}
-		}
-		return out1;
-	}
-
-//	static void copyInfo2(String pathSorgente, String pathDestinazione, String[] vetTag) {
-//
-//		String aux1 = "";
-//		for (int i1 = 0; i1 < vetTag.length; i1++) {
-//			aux1 = readFromLog(pathSorgente, vetTag[i1]);
-//			Utility.appendLog(pathDestinazione, aux1);
-//		}
-//
-//	}
-
-	static void copyInfo(String pathSorgente, String pathDestinazione, int start, int end) {
-
-		String aux1 = "";
-		String aux2 = "";
-		for (int i1 = start; i1 <= end; i1++) {
-			aux1 = "#" + String.format("%03d", i1) + "#";
-			aux2 = readFromLog(pathSorgente, aux1);
-			if (aux2 != null) {
-				Utility.appendLog(pathDestinazione, aux2);
-			}
-		}
-
-	}
-
-//	static void copyImageInfo(String pathSorgente, String pathDestinazione) {
-//
-//		String[] vetInfo = { "#010", "#011", "#012#", "#012#", "#013#", "#014#", "#015#", "#016#", "#017#", "#018#",
-//				"#030#", "#031#", "#032#", "#033#", "#034#", "#035#", "#036#", "#037#", "#038#", "#050#", "#051#",
-//				"#052#", "#053#", "#054#", "#055#", "#056#", "#057#", "#058#", };
-//		String aux1 = "";
-//		for (int i1 = 0; i1 < vetInfo.length; i1++) {
-//			aux1 = readFromLog(pathSorgente, vetInfo[i1]);
-//			Utility.appendLog(pathDestinazione, aux1);
-//		}
-//
-//	}
-
-	/**
-	 * Restituisce l'intera linea del log per il tag
-	 * 
-	 * @param path1
-	 * @param code1
-	 * @return
-	 */
-	static String readFromLog(String path1, String code1) {
-
-		// leggo una stringa dal log
-		String[] vetText = Utility.readSimpleText(path1);
-		if (vetText.length > 0) {
-			for (int i1 = 0; i1 < vetText.length; i1++) {
-				if (vetText[i1].contains(code1))
-					return vetText[i1];
-			}
-		}
-		return null;
 	}
 
 	/**
@@ -482,6 +403,11 @@ public class Utility {
 			return true;
 	}
 
+	/**
+	 * Cancella tutti i file contenuti nella directory
+	 * 
+	 * @param dir
+	 */
 	public static void purgeDirectory(File dir) {
 		for (File file : dir.listFiles()) {
 			if (!file.isDirectory())
@@ -560,7 +486,6 @@ public class Utility {
 		scelta1.showDialog();
 		ImagePlus dicomImage1 = scelta1.getNextImage();
 		return dicomImage1;
-
 	}
 
 	/**
@@ -641,7 +566,6 @@ public class Utility {
 		MIRD_out1[2] = MIRD_attiv; // #203# MIRD_attiv24
 
 		return MIRD_out1;
-
 	}
 
 	/**
@@ -710,7 +634,6 @@ public class Utility {
 		Utility.endLog(pathVolatile);
 		Utility.moveLog(pathLesione, pathVolatile);
 		Utility.initLog(pathVolatile);
-
 	}
 
 	/**
@@ -730,7 +653,6 @@ public class Utility {
 		finished1.showDialog();
 		boolean avanti = finished1.wasCanceled();
 		boolean finito = finished1.wasOKed();
-
 	}
 
 	/**

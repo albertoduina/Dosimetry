@@ -34,7 +34,7 @@ public class Utility_Test {
 		int start = 10;
 		int end = 15;
 
-		Utility.copyInfo(pathSorgente, pathDestinazione, start, end);
+		Utility.copyLogInfo(pathSorgente, pathDestinazione, start, end);
 
 		Utility.debugDeiPoveri("SPETTA");
 

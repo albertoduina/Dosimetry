@@ -110,7 +110,12 @@ public class Dosimetry_v2 implements PlugIn {
 			vetPath[2] = Utility.readFromLog(pathPermanente, "120h=", "=");
 		}
 
-		// leggo lo status delle operazioni
+		// ==========================================================================
+		// Questi tag dal #901#, #902#, #903#, #904# scrittio e letti da permanente.txt
+		// sono quelli che permettono di scambiare informazioni tra Dosimetria_Lu177 e
+		// Dosimetry_v2. In particolare sono utilizzati per comunicare di quale immagine
+		// vogliamo effettuare nuovamente l'analisi, dopo avere preso visione del plot
+		// ==========================================================================
 		ok24 = Boolean.parseBoolean(Utility.readFromLog(pathPermanente, "#901#", "="));
 		ok48 = Boolean.parseBoolean(Utility.readFromLog(pathPermanente, "#902#", "="));
 		ok120 = Boolean.parseBoolean(Utility.readFromLog(pathPermanente, "#903#", "="));

@@ -121,7 +121,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 				nuovoDistretto = dialogDistretto_LP07();
 			}
 		}
-		if (nuovoPaziente) { // nuovo paziente
+		if (nuovoPaziente) {
+			// ============================================
+			// NUOVO PAZIENTE
+			// ============================================
 			nuovaLaboriosa = true;
 			IJ.log("NUOVO PAZIENTE, TRASFERIMENTO IMMAGINI");
 			arrayOfFile2 = desktopImagesFolderFill();
@@ -152,20 +155,22 @@ public class Dosimetria_Lu177 implements PlugIn {
 			aux1 = "#003#\tActivity= " + activitySomministrazione;
 			Utility.appendLog(pathVolatile, aux1);
 			// copia da volatile a permanente i dati di SOMMINISTRAZIONE
-			Utility.copyInfo(pathVolatile, pathPermanente, 0, 3);
+			Utility.copyLogInfo(pathVolatile, pathPermanente, 0, 3);
 			myDate0 = getDateTime(dataToDicom(dataSomministrazione), oraToDicom(oraSomministrazione));
 			raccoltaDati(arrayOfFile2, myDate0);
 			// copia da volatile a permanente i dati di IMAGE INFO 24-48-120
-			Utility.copyInfo(pathVolatile, pathPermanente, 10, 60);
-
+			Utility.copyLogInfo(pathVolatile, pathPermanente, 10, 60);
 		} else if (nuovoDistretto) { // stesso paziente nuovo distretto nuova lesione
+			// ============================================
+			// STESSO PAZIENTE, NUOVO DISTRETTO, NUOVA LESIONE
+			// ============================================
 			IJ.log("NUOVO DISTRETTO, CARICAMENTO IMMAGINI E \nRECUPERO DATI SOMMINISTRAZIONE DA PERMANENTE");
 			arrayOfFile2 = desktopImagesFolderFill();
 			Utility.initLog(pathVolatile);
 			// copia da permanente a volatile i dati di SOMMINISTRAZIONE
-			Utility.copyInfo(pathPermanente, pathVolatile, 0, 3);
+			Utility.copyLogInfo(pathPermanente, pathVolatile, 0, 3);
 			// copia da permanente a volatile i dati di IMAGE INFO 24-48-120
-			Utility.copyInfo(pathPermanente, pathVolatile, 10, 60);
+			Utility.copyLogInfo(pathPermanente, pathVolatile, 10, 60);
 			dataSomministrazione = Utility.readFromLog(pathVolatile, "#001#", "=");
 			oraSomministrazione = Utility.readFromLog(pathVolatile, "#002#", "=");
 			activitySomministrazione = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "="));
@@ -173,14 +178,16 @@ public class Dosimetria_Lu177 implements PlugIn {
 			IJ.log("dataSomministrazione= " + dataSomministrazione);
 			IJ.log("oraSomministrazione= " + oraSomministrazione);
 			azzeraFlags(pathPermanente);
-
-		} else { // stesso paziente stesso distretto, nuova lesione
+		} else {
+			// ============================================
+			// STESSO PAZIENTE, STESSO DISTRETTO, NUOVA LESIONE
+			// ============================================
 			IJ.log("NUOVA LESIONE, RECUPERO DATI SOMMINISTRAZIONE DA PERMANENTE");
 			Utility.initLog(pathVolatile);
 			// copia da permanente a volatile i dati di IMAGE INFO 24-48-120
-			Utility.copyInfo(pathPermanente, pathVolatile, 0, 3);
+			Utility.copyLogInfo(pathPermanente, pathVolatile, 0, 3);
 			// copia da permanente a volatile i dati di IMAGE INFO 24-48-120
-			Utility.copyInfo(pathPermanente, pathVolatile, 10, 60);
+			Utility.copyLogInfo(pathPermanente, pathVolatile, 10, 60);
 			dataSomministrazione = Utility.readFromLog(pathVolatile, "#001#", "=");
 			oraSomministrazione = Utility.readFromLog(pathVolatile, "#002#", "=");
 			activitySomministrazione = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "="));
@@ -214,6 +221,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		ImagePlus imp4 = null;
 		ImagePlus imp5 = null;
 		ImagePlus imp6 = null;
+
 		// ===========================================================================
 		// ELABORAZIONE 24h ed apertura PetCtViewer
 		// ===========================================================================
@@ -389,6 +397,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// comunquie visibile e trasportabile sullo schermo
 
 		do {
+			// ==========================================================================================
+			// il do qui sopra serve per permettere la review di qualche elaborazione, vista
+			// in base al plot dei punti ottenuti dai contornamenti per 24,48 e 120
+			// ==========================================================================================
 			IJ.runPlugIn("Dosimetry.Dosimetry_v2", "");
 
 			Utility.endLog(pathPermanente);
@@ -446,7 +458,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			yp[1] = out48[2];
 			xp[2] = 120.0;
 			yp[2] = out120[2];
-			
+
 // ALLA FINE ANDREBBE FORSE INSERITO QUELLO QUI SOTTO; che usa il deltaT calcolato e non 24,48,120
 //
 //			xp[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#019#", "=")); // deltaT
@@ -546,6 +558,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FITgoodness= " + outCF[3];
 		Utility.appendLog(pathVolatile, aux5);
 
+		// ==============================================================
+		// BATTESIMO DELLA LESIONE
+		// ==============================================================
 		Utility.battezzaLesioni(pathVolatile);
 
 //		dialogReview_LP05(aList);
@@ -614,7 +629,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 	/**
 	 * Legge le immagini da una cartella e le inserisce in uno stack. Copiato da
-	 * https://github.com/ilan/fijiPlugins (Ilan Tal) Class: Read_CD
+	 * https://github.com/ilan/fijiPlugins (Ilan Tal) Class: Read_CD. Ho disattivato
+	 * alcune parti di codice riguardanti tipi di immagini di cui non disponiamo
 	 * 
 	 * @param myPath
 	 * @return ImagePlus (stack)
@@ -1100,10 +1116,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		int numFrames = Utility.parseInt(DicomTools.getTag(imp1, "0054,0053"));
 		int durationFrame = Utility.parseInt(DicomTools.getTag(imp1, "0018,1242"));
 		int durata = numFrames * (durationFrame / 1000);
-//		IJ.log("numberOfFrames= " + numFrames + " durationFrame= " + durationFrame + " durata= " + durata);
-//		String aux1 = "";
-//		aux1 = "#110#\tMird durata acquisuizione= " + durata;
-//		Utility.appendLog(pathPermanente, aux1);
 
 		return durata;
 	}
@@ -1156,21 +1168,21 @@ public class Dosimetria_Lu177 implements PlugIn {
 		gd11.setCancelLabel("Annulla");
 		gd11.showDialog();
 		if (gd11.wasCanceled()) {
-			IJ.error("Cancel");
+			IJ.log("LP04 null ANNULLA");
 			return null;
 		}
 
 		data0 = gd11.getNextString();
 		boolean ok1 = Utility.isValidDate(data0, format11);
 		if (!ok1) {
-			IJ.error("Data sbagliata");
+			IJ.log("LP04 null Data sbagliata");
 			return null;
 		}
 
 		ora0 = gd11.getNextString();
 		boolean ok2 = Utility.isValidTime(ora0, format12);
 		if (!ok2) {
-			IJ.error("Ora sbagliata");
+			IJ.log("LP04 null Ora sbagliata");
 			return null;
 		}
 
@@ -1481,7 +1493,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 	}
 
 	/**
-	 * Ispeziona DosimetryFolder/ImagesFolder
+	 * Ispeziona DosimetryFolder/ImagesFolder per leggere i dati Dicom di una delle
+	 * immagini. Verrano restituiti seriesDescription e nome paziente, oppure null,
+	 * in caso di immagine non trovata.
 	 * 
 	 * @param path1
 	 * @return
@@ -1513,6 +1527,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 			IJ.log("INSPECTOR return null MANCA IMAGES_FOLDER");
 			return null;
 		}
+		if (list1.size() == 0)
+			return null;
 		String path2 = list1.get(0).toString();
 		ImagePlus imp2 = openImage(path2);
 		if (imp2 == null)
@@ -1766,27 +1782,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 	}
 
 	/**
-	 * Dialogo YES/NO/CANCEL mi sta diludendo profondamente e poi non credo serva, a
-	 * noi occorre tornare all'apertura immagine/i da rianalizzare
-	 * 
-	 * @return
-	 */
-	String dialogYNC_LP33() {
-
-		IJ.log("dialogYNC_LP33");
-		String title = "DIALOG LP33";
-		String msg = "MESSAGGIO";
-		String yeslabel = "PUNTI";
-		String nolabel = "CONTORNO";
-
-		YesNoCancelDialog dlg1 = new YesNoCancelDialog(null, title, msg, yeslabel, nolabel);
-
-		dlg1.show();
-		IJ.log("LP32 - true PREMUTO OK");
-		return null;
-	}
-
-	/**
 	 * Dialogo non modale di selezione
 	 * 
 	 * @return
@@ -1818,6 +1813,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 		return diff;
 	}
 
+	/**
+	 * SErve ad azzerare, mettendoli a false i tag #901#, #902#, #903 e #904#,
+	 * utilizzati per comunicare tra Dosimetria_Lu17 e Dosimetry_v2,
+	 * 
+	 * @param path
+	 */
 	void azzeraFlags(String path) {
 
 		String aux1 = "";
