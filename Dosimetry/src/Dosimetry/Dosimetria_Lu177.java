@@ -469,13 +469,17 @@ public class Dosimetria_Lu177 implements PlugIn {
 //			yp[2] = out120[2];
 
 			outCF = Utility.MIRD_curveFitter(xp, yp);
+			Utility.MIRD_curvePlotter(xp, yp);
+			MIRD_display_LP66(MIRD_vol24, MIRD_vol48, MIRD_vol120);
 
-			// le accentate ce le sogniamo, si mette l'apostrofo come 40 anni fa'
-			Plot plot = new Plot("Punti", "ore dalla somministrazione", "attivita' MBq");
-			plot.setLineWidth(2);
-			plot.setColor(Color.red);
-			plot.add("circle", xp, yp);
-			plot.show();
+
+//			// le accentate ce le sogniamo, si mette l'apostrofo come 40 anni fa'
+//			Plot plot1 = new Plot("Punti", "ore dalla somministrazione", "attivita' MBq");
+//			plot1.setLineWidth(2);
+//			plot1.setColor(Color.red);
+//			plot1.add("circle", xp, yp);
+//			plot1.setOptions("addhspace=10, addvspace=10");
+//			plot1.show();
 
 			Utility.debugDeiPoveri("---- CHE BELLIZZIMO GRAFICO -----");
 			// ==========================================================================
@@ -564,7 +568,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		Utility.battezzaLesioni(pathVolatile);
 
 		Utility.chiudiTutto();
-		
+
 //		dialogReview_LP05(aList);
 
 	}
@@ -1836,6 +1840,25 @@ public class Dosimetria_Lu177 implements PlugIn {
 		Utility.modifyLog(path, "#903#", aux1);
 		aux1 = "#904#\tokk= false";
 		Utility.modifyLog(path, "#904#", aux1);
+
+	}
+
+	void MIRD_display_LP66(double vol24, double vol48, double vol120) {
+
+		String aux24 = "MIRD volume24= " + vol24;
+		String aux48 = "MIRD volume48= " + vol48;
+		String aux120 = "MIRD volume120= " + vol120;
+
+		IJ.log("MIRD_display_LP66");
+		NonBlockingGenericDialog gd1 = new NonBlockingGenericDialog("LP66 - VOLUMI CALCOLATI");
+
+		gd1.addMessage(aux24, this.defaultFont);
+		gd1.addMessage(aux48, this.defaultFont);
+		gd1.addMessage(aux120, this.defaultFont);
+
+		gd1.showDialog();
+		IJ.log("LP32 - true PREMUTO OK");
+		return;
 
 	}
 

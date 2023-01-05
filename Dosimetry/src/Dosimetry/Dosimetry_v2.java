@@ -191,10 +191,26 @@ public class Dosimetry_v2 implements PlugIn {
 				/// FUNZIONA ANCORA !!!!
 				Utility.imageToFront(title1);
 				Utility.nonImageToFront(vetPath[point1]);
+				
+				GenericDialog gdlg = new GenericDialog("DD012 ISTRUZIONI");
+				gdlg.addMessage("PER CONTORNAMENTO CON THRESHOLD:\nda Edit-BrownFatROI visualizzare numero di fetta in cui ci si trova e ricordarselo.\n"
+								+ "PER CONTORNAMENTO CON ROI:\nDisegnare ROI da Edit-BrownFatROI");
+				gdlg.showDialog();
+				if (gdlg.wasOKed()) {
+					IJ.log("DD012 - true PREMUTO OK");
+				} 
+				
+				
 
-				WaitForUserDialog waitForUserDialog = new WaitForUserDialog("OPERATORE",
-						"Localizza la nuova lesione in PET-CT Viewer, vedi il numero di slice attivando Edit/BrownFatRoi e ricordalo, poi quando sei soddisfatto premi OK");
-				waitForUserDialog.show();
+				
+				
+//				WaitForUserDialog waitForUserDialog = new WaitForUserDialog("DD12 OPERATORE",
+//						"PER CONTORNAMENTO CON THRESHOLD:\nda Edit-BrownFatROI visualizzare numero di fetta in cui ci si trova e ricordarselo.\n"
+//								+ "PER CONTORNAMENTO CON ROI:\nDisegnare ROI da Edit-BrownFatROI");
+//				waitForUserDialog.show();
+//				
+				
+				
 				Utility.imageToFront(title1);
 
 				// ======================================================

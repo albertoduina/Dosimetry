@@ -28,6 +28,7 @@ import ij.gui.NonBlockingGenericDialog;
 import ij.gui.Plot;
 import ij.gui.WaitForUserDialog;
 import ij.measure.CurveFitter;
+import ij.util.Tools;
 
 //
 // DATI SOMMINISTRAZIONE 			#001#-#009# 
@@ -584,10 +585,10 @@ public class Utility {
 		int numParams = cf1.getNumParams();
 		double goodness = cf1.getFitGoodness();
 		String res1 = cf1.getResultString();
-		Plot zz = cf1.getPlot(128);
-		zz.setLineWidth(2);
-		zz.show();
-		Utility.debugDeiPoveri("SPETTA");
+//		Plot zz = cf1.getPlot(128);
+//		zz.setLineWidth(2);
+//		zz.show();
+//		Utility.debugDeiPoveri("SPETTA");
 		String aux1 = "";
 		double[] out1 = new double[4];
 		for (int i1 = 0; i1 < params.length; i1++) {
@@ -599,6 +600,34 @@ public class Utility {
 		IJ.log("MIRD FIT resultString=  " + res1);
 		out1[3] = goodness;
 		return out1;
+	}
+
+	/**
+	 * Inizio a guardare come fare il fit esponenziale
+	 * 
+	 * @param vetX
+	 * @param vetY
+	 */
+
+	
+	
+	static void MIRD_curvePlotter(double[] vetX, double[] vetY) {
+
+		double[] minMaxX = Tools.getMinMax(vetX);
+		double[] minMaxY = Tools.getMinMax(vetY);
+		double xmin = 0;
+		double xmax = minMaxX[1] * 1.1;
+		double ymin = -1.0;
+		double ymax = minMaxY[1] * 1.1;
+
+		Plot plot1 = new Plot("Punti", "ore dalla somministrazione", "attivita' MBq");
+		plot1.setLineWidth(2);
+		plot1.setColor(Color.red);
+		plot1.add("circle", vetX, vetY);
+		plot1.setLimits(xmin, xmax, ymin, ymax);
+//		plot1.setOptions("addhspace=50, addvspace=50");
+		plot1.show();
+
 	}
 
 	/**
@@ -672,6 +701,9 @@ public class Utility {
 
 	}
 
+	/**
+	 * Ammazza tutte le finestre aperte: in pratica un teppista col tirasassi!
+	 */
 	static void chiudiTutto() {
 
 		ImagePlus imp1 = null;
