@@ -3,6 +3,9 @@ package Dosimetry;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -94,7 +97,29 @@ public class Utility_Test {
 		Utility.MIRD_curveFitter(vetX, vetY);
 
 		Utility.debugDeiPoveri("SPETTA");
+	}
 
+	@Test
+	public final void test_dedupeLog() {
+
+		String path1 = "testdata/volatile.txt";
+		String path2 = "testdata/volatile3.txt";
+//		String path3 = "testdata/nuovo1.txt";
+		File file1 = new File(path1);
+		File file2 = new File(path2);
+
+		new File(path2).delete();
+		try {
+			Files.copy(file1.toPath(), file2.toPath());
+		} catch (IOException e) {
+			IJ.log("errore 001");
+			e.printStackTrace();
+		}
+		Utility.debugDeiPoveri("SPETTA");
+
+		Utility.dedupeLog(path2);
+
+		Utility.debugDeiPoveri("SPETTA");
 	}
 
 }

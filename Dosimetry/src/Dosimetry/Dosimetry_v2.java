@@ -131,7 +131,7 @@ public class Dosimetry_v2 implements PlugIn {
 			IJ.log("LOOP ESTERNO LIVELLO ZERO");
 
 			String[] lista1 = WindowManager.getImageTitles();
-			ImagePlus selectedImage = Utility.sceltaAutomaticaImmagine(ok24, ok48, ok120, defaultFont);
+			ImagePlus selectedImage = Utility.sceltaAutomaticaImmagine_DD10(ok24, ok48, ok120, defaultFont);
 //		Utility.nonImageToFront("DD10 - Immagine da analizzare");
 
 			// cerco di determinare che scelta hanno fatto

@@ -17,7 +17,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -98,6 +100,57 @@ public class Utility {
 		}
 		if (f1.exists()) {
 			debugDeiPoveri("NON RIESCO A CANCELLARE " + path);
+		}
+	}
+
+	/**
+	 * Elimina i tag duplicati nel file
+	 * 
+	 * @param path1
+	 */
+	static void dedupeLog(String path1) {
+		ArrayList<String> inArrayList = new ArrayList<String>();
+		ArrayList<String> outArrayList = new ArrayList<String>();
+		String line1 = "";
+		String line2 = "";
+		String line4 = "";
+		String tag1 = "";
+		String tag2 = "";
+
+		IJ.log("eseguo dedupeLog");
+		try {
+			BufferedReader file1 = new BufferedReader(new FileReader(path1));
+			while ((line1 = file1.readLine()) != null) {
+				inArrayList.add(line1);
+			}
+			file1.close();
+			new File(path1).delete();
+			// questo si chiama ALGORITMO DEL TROGLODITA, IN QUESTO CASO UN INGENNIERE BRAO
+			// FESS avrebbe usato una HashList
+			for (int i1 = inArrayList.size() - 1; i1 >= 0; i1--) {
+				line2 = inArrayList.get(i1);
+				tag1 = line2.substring(0, 5);
+				boolean dupe = false;
+				for (String line3 : outArrayList) {
+					tag2 = line3.substring(0, 5);
+					if (tag1.equals(tag2)) {
+						dupe = true;
+					}
+				}
+				if (!dupe) {
+					outArrayList.add(line2);
+				}
+			}
+			BufferedWriter out = new BufferedWriter(new FileWriter(path1, true));
+			for (int i1 = outArrayList.size() - 1; i1 >= 0; i1--) {
+				line4 = outArrayList.get(i1);
+				out.write(line4);
+				out.newLine();
+			}
+			out.close();
+		} catch (Exception e) {
+			IJ.log("dedupe DISASTER");
+			System.out.println("DEDUPE errore lettura/scrittura file " + path1);
 		}
 	}
 
@@ -440,7 +493,7 @@ public class Utility {
 	 * @param defaultFont
 	 * @return
 	 */
-	static ImagePlus sceltaAutomaticaImmagine(boolean ok24, boolean ok48, boolean ok120, Font defaultFont) {
+	static ImagePlus sceltaAutomaticaImmagine_DD10(boolean ok24, boolean ok48, boolean ok120, Font defaultFont) {
 
 		boolean[] choice = new boolean[3];
 		String default1 = "";
@@ -570,7 +623,7 @@ public class Utility {
 	}
 
 	/**
-	 * Inizio a guardare come fare il fit esponenziale
+	 * Calcolo Fit esponenziale
 	 * 
 	 * @param vetX
 	 * @param vetY
@@ -589,7 +642,6 @@ public class Utility {
 //		zz.setLineWidth(2);
 //		zz.show();
 //		Utility.debugDeiPoveri("SPETTA");
-		String aux1 = "";
 		double[] out1 = new double[4];
 		for (int i1 = 0; i1 < params.length; i1++) {
 			IJ.log("MIRD FIT param " + i1 + " =" + params[i1]);
@@ -603,14 +655,12 @@ public class Utility {
 	}
 
 	/**
-	 * Inizio a guardare come fare il fit esponenziale
+	 * Effettua il plot dei punti trovati, SENZA mostrare alcun fit
 	 * 
 	 * @param vetX
 	 * @param vetY
 	 */
 
-	
-	
 	static void MIRD_curvePlotter(double[] vetX, double[] vetY) {
 
 		double[] minMaxX = Tools.getMinMax(vetX);
@@ -625,7 +675,6 @@ public class Utility {
 		plot1.setColor(Color.red);
 		plot1.add("circle", vetX, vetY);
 		plot1.setLimits(xmin, xmax, ymin, ymax);
-//		plot1.setOptions("addhspace=50, addvspace=50");
 		plot1.show();
 
 	}
@@ -636,7 +685,7 @@ public class Utility {
 	 * @param pathVolatile
 	 * @param pathPermanente
 	 */
-	static void battezzaLesioni(String pathVolatile) {
+	static void battezzaLesioni_DD07(String pathVolatile) {
 		// alla fine del nostro reiterativo lavoro decidiamo che dobbiamo salvare il
 		// tutto CHE COSA POTRA'MAI ANDARE STORTO???
 		GenericDialog compliments1 = new GenericDialog("DD07 - Compliments1");
@@ -645,7 +694,7 @@ public class Utility {
 		compliments1.addStringField("NomeLesione per memorizzazione", "");
 		compliments1.showDialog();
 		String lesionName = compliments1.getNextString();
-		IJ.log("lesionName= " + lesionName);
+		IJ.log("eseguo battezzaLesioni con DD07 lesionName= " + lesionName);
 
 		// ora i nostri dati verrano battezzati col nome fornito dal ... PADRINO !!!
 		// il nome del nuovo file diverra' lesionName.txt, non occorre un controllo che
@@ -654,10 +703,7 @@ public class Utility {
 		// Fabrizio de Andre', ovviamente con esempi pratici.
 
 		int pos = pathVolatile.lastIndexOf(File.separator);
-		IJ.log("pathVolatile= " + pathVolatile);
-		IJ.log("pos= " + pos);
 		String pathBase = pathVolatile.substring(0, pos);
-		IJ.log("pathBase= " + pathBase);
 		String pathLesione = pathBase + File.separator + lesionName + ".txt";
 
 		Utility.endLog(pathVolatile);
@@ -669,7 +715,7 @@ public class Utility {
 	 * Selezione altro distretto anatomico
 	 * 
 	 */
-	void altroDistretto() {
+	void altroDistretto_DD08() {
 		IJ.log("DD08_altroDistretto");
 		GenericDialog finished1 = new GenericDialog("DD08 - Finished1");
 		finished1.addMessage("HAI TERMINATO ANALISI DISTRETTO?");
@@ -706,6 +752,7 @@ public class Utility {
 	 */
 	static void chiudiTutto() {
 
+		IJ.log("eseguo chiudiTutto");
 		ImagePlus imp1 = null;
 		while (WindowManager.getCurrentImage() != null) {
 			imp1 = WindowManager.getCurrentImage();

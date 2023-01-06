@@ -468,10 +468,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 //			xp[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#059#", "=")); // deltaT
 //			yp[2] = out120[2];
 
-			//========================================================================
+			// ========================================================================
 			// FIT E PLOT DECISIONALI
-			//========================================================================
-			
+			// ========================================================================
+
 			outCF = Utility.MIRD_curveFitter(xp, yp);
 			Utility.MIRD_curvePlotter(xp, yp);
 			MIRD_display_LP66(MIRD_vol24, MIRD_vol48, MIRD_vol120);
@@ -559,8 +559,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// ==============================================================
 		// BATTESIMO DELLA LESIONE
 		// ==============================================================
-		Utility.battezzaLesioni(pathVolatile);
-
+		Utility.dedupeLog(pathVolatile);
+		Utility.battezzaLesioni_DD07(pathVolatile);
 		Utility.chiudiTutto();
 
 //		dialogReview_LP05(aList);
