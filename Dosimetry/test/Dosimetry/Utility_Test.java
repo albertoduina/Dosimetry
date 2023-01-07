@@ -94,7 +94,7 @@ public class Utility_Test {
 		double[] vetX = { 24, 48, 120 };
 		double[] vetY = { 2.345, 4.897, 9.456 };
 
-		Utility.MIRD_curveFitter(vetX, vetY);
+		Utility.MIRD_curveFitterImageJ(vetX, vetY);
 
 		Utility.debugDeiPoveri("SPETTA");
 	}

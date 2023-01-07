@@ -21,6 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import flanagan.analysis.Regression;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
@@ -628,8 +629,9 @@ public class Utility {
 	 * @param vetX
 	 * @param vetY
 	 */
-	static double[] MIRD_curveFitter(double[] vetX, double[] vetY) {
+	static double[] MIRD_curveFitterImageJ(double[] vetX, double[] vetY) {
 
+		IJ.log("=== CURVE FITTER IMAGEJ ====");
 		CurveFitter cf1 = new CurveFitter(vetX, vetY);
 		cf1.doFit(CurveFitter.EXPONENTIAL);
 		String status = cf1.getStatusString();
@@ -638,20 +640,57 @@ public class Utility {
 		int numParams = cf1.getNumParams();
 		double goodness = cf1.getFitGoodness();
 		String res1 = cf1.getResultString();
-//		Plot zz = cf1.getPlot(128);
-//		zz.setLineWidth(2);
-//		zz.show();
-//		Utility.debugDeiPoveri("SPETTA");
+		int iterations = cf1.getIterations();
+		double sumResidualSqr1 = cf1.getSumResidualsSqr();
+
+		Plot zz = cf1.getPlot(128);
+		zz.setLineWidth(2);
+		zz.show();
+		Utility.debugDeiPoveri("SPETTA");
 		double[] out1 = new double[4];
 		for (int i1 = 0; i1 < params.length; i1++) {
 			IJ.log("MIRD FIT param " + i1 + " =" + params[i1]);
 			out1[i1] = params[i1];
 		}
+		IJ.log("MIRD FIT iterations= " + iterations);
 		IJ.log("MIRD FIT goodness=  " + goodness);
+		IJ.log("MIRD FIT sumResidualSqr=  " + sumResidualSqr1);
 		IJ.log("MIRD FIT numParams=  " + numParams);
 		IJ.log("MIRD FIT resultString=  " + res1);
 		out1[3] = goodness;
+		IJ.log("=====================");
 		return out1;
+	}
+
+	/**
+	 * Calcolo Fit esponenziale
+	 * 
+	 * @param vetX
+	 * @param vetY
+	 */
+	static double[] MIRD_curveFitterFlanagan(double[] vetX, double[] vetY) {
+
+		IJ.log("=== CURVE FITTER FLANAGAN ====");
+
+		Regression reg = new Regression(vetX, vetY);
+
+		// reg.exponentialSimple();
+		reg.exponentialSimplePlot();
+		Utility.debugDeiPoveri("SPETTA");
+		double[] bestEstimates = reg.getBestEstimates();
+		for (double est : bestEstimates) {
+			IJ.log("FLANAGAN bestEstimates= " + est);
+		}
+		IJ.log("--------------");
+		double[] bestEstErrors = reg.getBestEstimatesErrors();
+		for (double err : bestEstErrors) {
+			IJ.log("FLANAGAN bestErrors= " + err);
+		}
+		Utility.debugDeiPoveri("SPETTA");
+
+		IJ.log("===============");
+
+		return null;
 	}
 
 	/**

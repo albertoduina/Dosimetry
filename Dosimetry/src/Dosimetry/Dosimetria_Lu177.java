@@ -23,6 +23,7 @@ import ij.WindowManager;
 import ij.gui.GenericDialog;
 import ij.gui.NonBlockingGenericDialog;
 import ij.gui.Plot;
+import ij.gui.WaitForUserDialog;
 import ij.gui.YesNoCancelDialog;
 import ij.io.DirectoryChooser;
 import ij.io.FileInfo;
@@ -472,9 +473,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// FIT E PLOT DECISIONALI
 			// ========================================================================
 
-			outCF = Utility.MIRD_curveFitter(xp, yp);
+			outCF = Utility.MIRD_curveFitterImageJ(xp, yp);
 			Utility.MIRD_curvePlotter(xp, yp);
 			MIRD_display_LP66(MIRD_vol24, MIRD_vol48, MIRD_vol120);
+
+			double[] outFla = Utility.MIRD_curveFitterFlanagan(xp, yp);
 
 			// ==========================================================================
 			// PARTE REVIEW CHE DEVE RITORNARE INDIETRO PER RIFARE UNO O PIU'DEI CALCOLI
@@ -562,8 +565,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		Utility.dedupeLog(pathVolatile);
 		Utility.battezzaLesioni_DD07(pathVolatile);
 		Utility.chiudiTutto();
-
-//		dialogReview_LP05(aList);
+		IJ.showMessage("FINE LAVORO");
 
 	}
 

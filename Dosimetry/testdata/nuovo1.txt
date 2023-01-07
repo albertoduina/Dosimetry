@@ -1,0 +1,85 @@
+#150#	Over threshold count integral= 53511
+#149#	Pixel number over threshold= 213
+#148#	Pet-Ct Viewer slice= 36 (37-31)
+#147#	Processed Slices Position= 93 (92-98)
+#146#	Contouring count threshold level= 160
+#145#	Contouring threshold level= 0.4
+#144#	Maximum lesion count= 400
+#143#	--- DOSIMETRY INFO 48h ---
+#132#	Patient birth date=  19470623
+#131#	Patient MachineName=  COSTI^GIAN CARLO
+#130#	--- PATIENT INFO 48h ---
+#180#	Over threshold count integral= 21935
+#179#	Pixel number over threshold= 106
+#178#	Pet-Ct Viewer slice= 36 (37-33)
+#177#	Processed Slices Position= 93 (92-96)
+#176#	Contouring count threshold level= 130
+#175#	Contouring threshold level= 0.4
+#174#	Maximum lesion count= 327
+#173#	--- DOSIMETRY INFO 120h ---
+#162#	Patient birth date=  19470623
+#161#	Patient MachineName=  COSTI^GIAN CARLO
+#160#	--- PATIENT INFO 120h ---
+#180#	Over threshold count integral= 21935
+#179#	Pixel number over threshold= 106
+#178#	Pet-Ct Viewer slice= 36 (37-33)
+#177#	Processed Slices Position= 93 (92-96)
+#176#	Contouring count threshold level= 130
+#175#	Contouring threshold level= 0.4
+#174#	Maximum lesion count= 327
+#173#	--- DOSIMETRY INFO 120h ---
+#162#	Patient birth date=  19470623
+#161#	Patient MachineName=  COSTI^GIAN CARLO
+#160#	--- PATIENT INFO 120h ---
+#150#	Over threshold count integral= 53511
+#149#	Pixel number over threshold= 213
+#148#	Pet-Ct Viewer slice= 36 (37-31)
+#147#	Processed Slices Position= 93 (92-98)
+#146#	Contouring count threshold level= 160
+#145#	Contouring threshold level= 0.4
+#144#	Maximum lesion count= 400
+#143#	--- DOSIMETRY INFO 48h ---
+#132#	Patient birth date=  19470623
+#131#	Patient MachineName=  COSTI^GIAN CARLO
+#130#	--- PATIENT INFO 48h ---
+#120#	Over threshold count integral= 89723
+#119#	Pixel number over threshold= 416
+#118#	Pet-Ct Viewer slice= 35 (37-29)
+#117#	Processed Slices Position= 94 (92-100)
+#116#	Contouring count threshold level= 141
+#115#	Contouring threshold level= 0.4
+#114#	Maximum lesion count= 353
+#113#	--- DOSIMETRY INFO 24h ---
+#102#	Patient birth date=  19470623
+#101#	Patient MachineName=  COVTI^GIAN CAVLO
+#100#	--- PATIENT INFO 24h ---
+#059#	DeltaT= -3272.6162058333334
+#058#	Acquisition duration= 1800
+#057#	Actual frame duration=  30000 
+#056#	Number of frames=  60
+#055#	Collimator=  MEGP
+#054#	Isotope=  Lu177 SC[208 and 166] 
+#053#	Acquisition Time= 142301.00
+#052#	Acquisition Date= 20220822
+#051#	Image Name= TOMOaddome120h_EM001_DS.dcm
+#050#	---- IMAGE INFO 120h ----
+#039#	DeltaT= -3343.3156908333335
+#038#	Acquisition duration= 1500
+#037#	Actual frame duration=  25000 
+#036#	Number of frames=  60
+#035#	Collimator=  MEGP
+#034#	Isotope=  Lu177 SC[208 and 166] 
+#033#	Acquisition Time= 154103.00
+#032#	Acquisition Date= 20220819
+#031#	Image Name= TOMOaddome48h_EM001_DS.dcm
+#030#	CC ---- IMAGE INFO 48h ----
+#019#	CC DeltaT= -3367.710485277778
+#018#	CC Acquisition duration= 1200
+#017#	CC Actual frame duration=  20000 
+#016#	CC Number of frames=  60
+#015#	CC Collimator=  MEGP
+#014#	CC Isotope=  Lu177 SC[208 and 166] 
+#013#	CC Acquisition Time= 151722.00
+#012#	CC Acquisition Date= 20220818
+#011#	CC Image Name= TOMOaddome24h_EM001_DS.dcm
+#010#	CC ---- IMAGE INFO 24h ----

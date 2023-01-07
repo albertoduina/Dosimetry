@@ -33,6 +33,7 @@
 	<!--property name="pluginsDir" location="${disk}/Repository/git/imagej/plugins/qualityACR" />
 	<echo message="pluginsDir= ${pluginsDir}" /-->
 
+
 	<property name="output" location="build" />
 	<echo message="output= ${output}" />
 
@@ -40,7 +41,8 @@
 	<echo message="source= ${source}" />
 
 	<property name="lib" location="lib" />
-	<property name="dist" location="dist" />
+	<property name="pathFlanagan" location="lib/flanagan.jar" />
+	<!--property name="dist" location="dist" /-->
 	<property name="distribuzione" location="distribuzione" />
 	<property name="data" location="data" />
 	<property name="test" location="test/Dosimetry" />
@@ -62,7 +64,7 @@
 	<!-- ##############			MAIN ROUTINE 		############## -->
 	<target name="main" depends="init, 
 		compile, 
-		move1,    
+		move1,  
 		jar,
 		zipdistribution, 
 		cond_WIN7">
@@ -104,7 +106,7 @@
 		<echo message="Eseguo COMPILE" />
 		<!-- Build everything; add debug="on" to debug -->
 		<!--javac srcdir="${source}" destdir="${output}" optimize="on" target="1.5" encoding="iso8859-1" debug="on" classpath="${pathImageJ};${pathJfreechart};${pathJcommon}" /-->
-		<javac srcdir="${source}" destdir="${output}" optimize="on" includeAntRuntime="yes" target="1.8" source="1.8" encoding="iso8859-1" debug="on" classpath="${pathImageJ}" />
+		<javac srcdir="${source}" destdir="${output}" optimize="on" includeAntRuntime="yes" target="1.8" source="1.8" encoding="iso8859-1" debug="on" classpath="${pathImageJ};${pathFlanagan}" />
 	</target>
 
 
@@ -116,6 +118,11 @@
 		</copy>
 	</target >
 
+	<!-- Copia le librerie addizionali per la distribuzione >
+	<target name="lib1" description="copy the external libraries">
+		<echo message="Copio le librerie necessarie" />
+		<copy file="${pathFlanagan}" todir="${distribuzione}" />
+	</target-->
 
 
 
@@ -158,16 +165,17 @@
 	</target-->
 
 
-	<target name="zipp2" description="Zip executable files">
+	<!-- target name="zipp2" description="Zip executable files">
 		<echo message="Eseguo ZIPP2" />
 		<zip destfile="${output}/Dosimetry_b${build.number}.zip">
 			<fileset dir="${lib}">
+				<include name="flanagan.jar" />
 			</fileset>
 			<fileset dir="${output}">
 				<include name="Dosimetry_b${build.number}.jar" />
 			</fileset>
 		</zip>
-	</target>
+	</target-->
 
 	<target name="zipdistribution" description="Zip file per commit su Github">
 		<echo message=">>>> destfile=${output}/DosimetryjarsDistribution.zip" />
@@ -176,6 +184,10 @@
 			<fileset dir="${output}">
 				<include name="*.jar" />
 			</fileset>
+			<fileset dir="${lib}">
+				<include name="flanagan.jar" />
+			</fileset>
+
 		</zip>
 	</target>
 
@@ -205,8 +217,8 @@
 			<fileset dir="${output}" includes="*.jar" />
 		</copy>
 	</target-->
-	
-	
+
+
 	<target name="cond_WIN7" depends="init" if="win7">
 		<echo message="Eseguo cond_WIN7" />
 
@@ -217,8 +229,13 @@
 		</delete>
 
 		<copy todir="${productDirWIN7}/Dosimetry">
-				<fileset dir="${output}" includes="*.jar" />
+			<fileset dir="${output}" includes="*.jar" />
+			<fileset dir="lib" includes="flanagan.jar" />
+		<!--/copy>
+		<copy todir="${productDirWin7}/Dosimetry">
+			<fileset dir="lib" includes="flanagan.jar" /-->
 		</copy>
+
 	</target>
 
 	<!--target name="cond_FIJI" depends="init" if="win7">
