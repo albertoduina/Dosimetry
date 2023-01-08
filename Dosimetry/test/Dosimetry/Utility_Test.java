@@ -1,20 +1,17 @@
 package Dosimetry;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Date;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import flanagan.analysis.Regression;
 import ij.IJ;
 import ij.ImageJ;
+import ij.measure.CurveFitter;
 
 public class Utility_Test {
 
@@ -100,6 +97,44 @@ public class Utility_Test {
 	}
 
 	@Test
+	public final void test_specialMIRD_curveFitterImageJ() {
+
+		double[] vetX = { 24, 48, 120 };
+		double[] vetY = { 35.921969407999995, 18.392739144, 9.153194127999999 };
+
+		CurveFitter cf = Utility.MIRD_curveFitterSpecialImageJ(vetX, vetY);
+		Utility.MIRD_curvePlotterSpecialImageJ(cf);
+
+		Utility.debugDeiPoveri("SPETTA");
+	}
+
+	@Test
+	public final void test_specialMIRD_curveFitterCOMBINED() {
+
+		double[] vetX = { 24, 48, 120 };
+		double[] vetY = { 35.921969407999995, 18.392739144, 9.153194127999999 };
+
+		CurveFitter cf = Utility.MIRD_curveFitterSpecialImageJ(vetX, vetY);
+		Regression reg = Utility.MIRD_curveFitterSpecialFlanagan(vetX, vetY);
+		Utility.MIRD_curvePlotterSpecialCombined(cf, reg, vetX, vetY);
+
+		Utility.debugDeiPoveri("SPETTA");
+	}
+
+	@Test
+	public final void test_specialMIRD_curveFitterFlanagan() {
+
+		double[] vetX = { 24, 48, 120 };
+		double[] vetY = { 35.921969407999995, 18.392739144, 9.153194127999999 };
+
+		Regression reg = Utility.MIRD_curveFitterSpecialFlanagan(vetX, vetY);
+		Utility.MIRD_curvePlotterSpecialFlanagan(reg, vetX, vetY);
+
+		Utility.debugDeiPoveri("SPETTA");
+	}
+
+
+	@Test
 	public final void test_dedupeLog() {
 
 		String path1 = "testdata/volatile.txt";
@@ -120,6 +155,17 @@ public class Utility_Test {
 		Utility.dedupeLog(path2);
 
 		Utility.debugDeiPoveri("SPETTA");
+	}
+
+	@Test
+	public final void test_MIRD_curvePlotter() {
+
+		double[] xp = { 24.0, 48.0, 120.0 };
+		double[] yp = { 31.07396764774879, 16.491215792454124, 6.2384313914105185 };
+
+		Utility.MIRD_curvePlotter(xp, yp);
+		Utility.debugDeiPoveri("SPETTA");
+
 	}
 
 }

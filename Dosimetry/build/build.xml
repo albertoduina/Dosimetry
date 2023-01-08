@@ -1,8 +1,9 @@
 <!-- ============================================== -->
-<!-- Ant makefile for qualityACR 2022-12-02  		-->
+<!-- Ant makefile per qualityACR 2022-12-02  		-->
 <!-- Presuppone che qualityACR sia sotto git 		-->
 <!-- ed anche imagej sia sotto git                  -->
 <!-- ============================================== -->
+
 <project name="Dosimetry" default="main">
 	<echo message="------------------------------" />
 	<echo message="project= ${ant.project.name}" />
@@ -30,9 +31,6 @@
 	<echo message="DEVE ESSERE= C:\Users\Alberto\Repository\git\imagej1\imagej1\ij.jar" />
 
 	<property name="productDir" location="${disk}/Programmi2/ImageJ/Plugins/Dosimetry" />
-	<!--property name="pluginsDir" location="${disk}/Repository/git/imagej/plugins/qualityACR" />
-	<echo message="pluginsDir= ${pluginsDir}" /-->
-
 
 	<property name="output" location="build" />
 	<echo message="output= ${output}" />
@@ -41,15 +39,14 @@
 	<echo message="source= ${source}" />
 
 	<property name="lib" location="lib" />
+
+	<!-- aggiunto 07-01-2023 per test del fit con le librerie flanagan.jar -->
 	<property name="pathFlanagan" location="lib/flanagan.jar" />
-	<!--property name="dist" location="dist" /-->
+
 	<property name="distribuzione" location="distribuzione" />
 	<property name="data" location="data" />
 	<property name="test" location="test/Dosimetry" />
 	<property name="html" location="html" />
-
-
-	<!--echo message="++++ C:\Users\Alberto\eclipse-workspace\imagej\ij.jar ++++" / -->
 
 	<property name="eclipse-home" value="${basedir}\..\.." />
 	<echo message="eclipse-home= ${eclipse-home}" />
@@ -81,23 +78,11 @@
 		<delete dir="${distribuzione}" />
 		<mkdir dir="${distribuzione}" />
 		<delete dir="${dist}" />
-		<!--mkdir dir="${dist}" /-->
-
-		<!--property name="productDirINSIDE" location="${work}\imagej\Plugins" />
-		<available file="${productDirINSIDE}" type="dir" property="ins" />
-		<echo message="ins=${ins}" />
-
-		<property name="productDirOLD" location="${disk}/Programmi\ImageJ\Plugins" />
-		<available file="${productDirOLD}" type="dir" property="old" />
-		<echo message="oldS=${old}" /-->
 
 		<property name="productDirWIN7" location="${disk}/Programmi2\ImageJ\plugins" />
 		<available file="${productDirWIN7}" type="dir" property="win7" />
 		<echo message="win7=${win7}" />
 
-		<!--property name="productDirFIJI" location="${disk}/Programmi2\FIJI\fiji-win64\Fiji.app\plugins" />
-		<available file="${productDirFIJI}" type="dir" property="win7" />
-		<echo message="FIJI=${win7}" /-->
 
 	</target>
 
@@ -118,13 +103,6 @@
 		</copy>
 	</target >
 
-	<!-- Copia le librerie addizionali per la distribuzione >
-	<target name="lib1" description="copy the external libraries">
-		<echo message="Copio le librerie necessarie" />
-		<copy file="${pathFlanagan}" todir="${distribuzione}" />
-	</target-->
-
-
 
 	<!-- Create MANIFEST and JARS application  -->
 	<target name="jar" description="JARs the Task">
@@ -141,9 +119,6 @@
 			<fileset dir="${output}" />
 		</jar>
 		<delete dir="${output}/Dosimetry" />
-		<!-- copy todir="${dist}">
-			<fileset dir="${output}" includes="*.jar" />
-		</copy-->
 	</target>
 
 	<!--WIPE2 Delete the jar files into production  -->
@@ -154,28 +129,6 @@
 	</target>
 
 
-	<!--target name="zipp1" description="Zip HTML">
-		<echo message="Eseguo ZIPP1" />
-		<zip destfile="${output}/html.zip">
-			<fileset dir="${html}">
-				<include name="*.*" />
-				<include name="*.txt" />
-			</fileset>
-			</zip>
-	</target-->
-
-
-	<!-- target name="zipp2" description="Zip executable files">
-		<echo message="Eseguo ZIPP2" />
-		<zip destfile="${output}/Dosimetry_b${build.number}.zip">
-			<fileset dir="${lib}">
-				<include name="flanagan.jar" />
-			</fileset>
-			<fileset dir="${output}">
-				<include name="Dosimetry_b${build.number}.jar" />
-			</fileset>
-		</zip>
-	</target-->
 
 	<target name="zipdistribution" description="Zip file per commit su Github">
 		<echo message=">>>> destfile=${output}/DosimetryjarsDistribution.zip" />
@@ -184,39 +137,16 @@
 			<fileset dir="${output}">
 				<include name="*.jar" />
 			</fileset>
+			
+			<!-- aggiunte le librerie Flanagan al zip file di distribuzione, 
+				non so se vada bene con i copyright,
+				ma sicuramente permette di non avere problemi di funzionamento -->
 			<fileset dir="${lib}">
 				<include name="flanagan.jar" />
 			</fileset>
 
 		</zip>
 	</target>
-
-
-
-
-	<!--target name="cond_INS" depends="init" if="ins">
-		<echo message="Eseguo cond_INS" />
-		<delete failonerror="false" verbose="true">
-			<fileset dir="${output}">
-				<include name="*.jar" />
-			</fileset>
-		</delete>
-		<copy todir="${productDirINSIDE}/QujalityACR">
-			<fileset dir="${output}" includes="*.jar" />
-		</copy>
-	</target>
-
-	<target name="cond_OLD" depends="init" if="old">
-		<echo message="Eseguo cond_OLD" />
-		<delete failonerror="false" verbose="true">
-			<fileset dir="${output}">
-				<include name="*.jar" />
-			</fileset>
-		</delete>
-		<copy todir="${productDirOLD}/QualityACR">
-			<fileset dir="${output}" includes="*.jar" />
-		</copy>
-	</target-->
 
 
 	<target name="cond_WIN7" depends="init" if="win7">
@@ -231,26 +161,9 @@
 		<copy todir="${productDirWIN7}/Dosimetry">
 			<fileset dir="${output}" includes="*.jar" />
 			<fileset dir="lib" includes="flanagan.jar" />
-		<!--/copy>
-		<copy todir="${productDirWin7}/Dosimetry">
-			<fileset dir="lib" includes="flanagan.jar" /-->
 		</copy>
 
 	</target>
-
-	<!--target name="cond_FIJI" depends="init" if="win7">
-		<echo message="Eseguo cond_FIJI" />
-		<delete failonerror="false" verbose="true">
-			<fileset dir="${output}">
-				<include name="*.jar" />
-			</fileset>
-		</delete>
-
-		<copy todir="${productDirFIJI}/qualityACR">
-			<fileset dir="${output}" includes="*.jar" />
-		</copy>
-	</target-->
-
 
 
 </project>

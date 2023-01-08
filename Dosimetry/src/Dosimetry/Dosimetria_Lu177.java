@@ -16,6 +16,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
+import flanagan.analysis.Regression;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -29,6 +30,7 @@ import ij.io.DirectoryChooser;
 import ij.io.FileInfo;
 import ij.io.Opener;
 import ij.measure.Calibration;
+import ij.measure.CurveFitter;
 import ij.plugin.DICOM;
 import ij.plugin.PlugIn;
 import ij.process.ImageProcessor;
@@ -155,6 +157,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			Utility.appendLog(pathVolatile, aux1);
 			aux1 = "#003#\tActivity= " + activitySomministrazione;
 			Utility.appendLog(pathVolatile, aux1);
+
 			// copia da volatile a permanente i dati di SOMMINISTRAZIONE
 			Utility.copyLogInfo(pathVolatile, pathPermanente, 0, 3);
 			myDate0 = getDateTime(dataToDicom(dataSomministrazione), oraToDicom(oraSomministrazione));
@@ -213,7 +216,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 		double[] out24 = null;
 		double[] out48 = null;
 		double[] out120 = null;
+		int numParams = 0;
 		double[] outCF = null;
+		double[] paramsIJ = null;
+		double[] paramsFLA = null;
+
 		int scelta = 0;
 		int slice1 = 1;
 		ImagePlus imp1 = null;
@@ -247,6 +254,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 			Utility.appendLog(pathPermanente, "24h=" + petctviewerTitle);
 		}
 
+		// 0020,000E Series Instance UID:
+		// 1.2.840.113619.2.184.31108.1067210107.1661517437.7028981
 		String petUID1 = DicomTools.getTag(imp1, "0020,000E");
 		petUID1 = petUID1.trim();
 
@@ -268,6 +277,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 		imp2.setTitle(tit2);
 		imp2.show();
 
+		// 0020,000E Series Instance UID:
+		// 1.2.840.113619.2.184.31108.1067210107.1661517437.7028981
 		String ctUID2 = DicomTools.getTag(imp2, "0020,000E");
 		ctUID2 = ctUID2.trim();
 
@@ -459,6 +470,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 			yp[1] = out48[2];
 			xp[2] = 120.0;
 			yp[2] = out120[2];
+			for (double aux : xp) {
+				IJ.log("xp= " + aux);
+			}
+			for (double aux : yp) {
+				IJ.log("yp= " + aux);
+			}
 
 // ALLA FINE ANDREBBE FORSE INSERITO QUELLO QUI SOTTO; che usa il deltaT calcolato e non 24,48,120
 //
@@ -473,11 +490,32 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// FIT E PLOT DECISIONALI
 			// ========================================================================
 
-			outCF = Utility.MIRD_curveFitterImageJ(xp, yp);
-			Utility.MIRD_curvePlotter(xp, yp);
-			MIRD_display_LP66(MIRD_vol24, MIRD_vol48, MIRD_vol120);
+//			outCF = Utility.MIRD_curveFitterImageJ(xp, yp);
+//			Utility.MIRD_curvePlotter(xp, yp);
+//			MIRD_display_LP66(MIRD_vol24, MIRD_vol48, MIRD_vol120);
 
-			double[] outFla = Utility.MIRD_curveFitterFlanagan(xp, yp);
+			CurveFitter cf = Utility.MIRD_curveFitterSpecialImageJ(xp, yp);
+
+			// -------- recupero i dati da stampare ---------------
+			paramsIJ = cf.getParams();
+			numParams = cf.getNumParams();
+			outCF = new double[numParams];
+			for (int i1 = 0; i1 < numParams; i1++) {
+				IJ.log("MIRD FIT param " + i1 + " =" + paramsIJ[i1]);
+				outCF[i1] = paramsIJ[i1];
+			}
+
+			Regression rf = Utility.MIRD_curveFitterSpecialFlanagan(xp, yp);
+			// -------- recupero i dati da stampare ---------------
+
+			paramsFLA = rf.getBestEstimates();
+
+			Utility.MIRD_curvePlotterSpecialCombined(cf, rf, xp, yp);
+
+//			Utility.debugDeiPoveri("ATTENZIO' LA LINEA VERDE (flanagan) E'VOLUTAMENTE SPOSTATA VERSO L'ALTO DI 0.3, \n"
+//					+ "IN MODO DA POTER VEDERE SIA VERDE CHE BLU (imagej), IN REALTA' SONO SOVRAPPOSTE");
+
+			// double[] outFla = Utility.MIRD_curveFitterFlanagan(xp, yp);
 
 			// ==========================================================================
 			// PARTE REVIEW CHE DEVE RITORNARE INDIETRO PER RIFARE UNO O PIU'DEI CALCOLI
@@ -515,7 +553,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		} while (scelta < 4);
 		// ============================================================================
-		// UNA VOLTA CHE THE MOUTAINEER (L'UOMO DEL MONTE) HA DETTO SI, SCRIVIAMO TUTA
+		// UNA VOLTA CHE THE MOUTAINEER (L'UOMO DEL MONTE) HA DETTO SI, SCRIVIAMO TUTTA
 		// LA MONNEZZA IN VOLATILE, IN ATTESA DI CONOSCERE IL NOME CHE DARANNO ALLA
 		// LESIONE
 		// ============================================================================
@@ -550,13 +588,21 @@ public class Dosimetria_Lu177 implements PlugIn {
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120= " + out120[2];
 		Utility.appendLog(pathVolatile, aux5);
 		count5 = 260;
-		aux5 = "#" + String.format("%03d", count5++) + "#\t----- MIRD FIT RESULTS --------";
+		aux5 = "#" + String.format("%03d", count5++) + "#\t----- MIRD FIT RESULTS IMAGEJ --------";
 		Utility.appendLog(pathVolatile, aux5);
-		for (int i1 = 0; i1 < 3; i1++) {
-			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FIT param " + i1 + "= " + outCF[i1];
+		for (int i1 = 0; i1 < numParams; i1++) {
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD IJ FIT param " + i1 + "= " + paramsIJ[i1];
 			Utility.appendLog(pathVolatile, aux5);
 		}
-		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FITgoodness= " + outCF[3];
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FITgoodness= " + null;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\t----- MIRD FIT RESULTS FLANAGAN --------";
+		Utility.appendLog(pathVolatile, aux5);
+		for (int i1 = 0; i1 < paramsFLA.length; i1++) {
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FLANAGAN FIT param " + i1 + "= " + paramsFLA[i1];
+			Utility.appendLog(pathVolatile, aux5);
+		}
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FITgoodness= " + null;
 		Utility.appendLog(pathVolatile, aux5);
 
 		// ==============================================================
@@ -1113,21 +1159,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		if (inDate == null)
 			return "";
 		return DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.US).format(inDate);
-	}
-
-	/**
-	 * Calcolo della durata dell'acquisizione in secondi
-	 * 
-	 * @param imp1 immagine da analizzare
-	 * @return durata
-	 */
-	int MIRD_CalcoloDurataAcquisizione(ImagePlus imp1) {
-
-		int numFrames = Utility.parseInt(DicomTools.getTag(imp1, "0054,0053"));
-		int durationFrame = Utility.parseInt(DicomTools.getTag(imp1, "0018,1242"));
-		int durata = numFrames * (durationFrame / 1000);
-
-		return durata;
 	}
 
 	/**
@@ -1701,12 +1732,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 		ArrayList<Long> eList = new ArrayList<Long>();
 		for (byte b3 = 0; b3 < arrayOfString.length; b3++) {
 			ImagePlus imp8 = IJ.openImage(vetFile[b3].getAbsolutePath());
-			int durata = MIRD_CalcoloDurataAcquisizione(imp8);
+			int durata = Utility.MIRD_CalcoloDurataAcquisizione(imp8);
 			String acqDate = DicomTools.getTag(imp8, "0008,0022").trim();
 			String acqTime = DicomTools.getTag(imp8, "0008,0032").trim();
 			// IJ.log("getDateTime: date= " + acqDate + " time=" + acqTime);
 			Date myDate1 = getDateTime(acqDate, acqTime);
-			long myDelta1 = MIRD_CalcoloDeltaT(myDate0, myDate1);
+			long myDelta1 = Utility.MIRD_CalcoloDeltaT(myDate0, myDate1);
 			eList.add(myDelta1);
 			ArrayList<String> bList = new ArrayList<String>();
 			bList.add("\tImage Name= " + vetFile[b3].getName());
@@ -1800,23 +1831,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		gd1.showDialog();
 		IJ.log("LP31 - true PREMUTO OK");
 		return true;
-	}
-
-	/**
-	 * Calcolo delta T in millisecondi
-	 * 
-	 * @param dateTime0
-	 * @param dateTime24
-	 * @return
-	 */
-	static long MIRD_CalcoloDeltaT(Date dateTime0, Date dateTime24) {
-
-//		IJ.log("dateTime0= " +dateTime0);
-//		IJ.log("dateTime24= " +dateTime24);
-		long diff = dateTime24.getTime() - dateTime0.getTime();
-//		IJ.log("difference= " + diff / (1000 * 60 * 60) + " hours");
-//		IJ.log("difference= " + diff / (1000 * 60 * 60 * 24) + " days");
-		return diff;
 	}
 
 	/**

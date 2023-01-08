@@ -17,9 +17,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
+import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import flanagan.analysis.Regression;
 import ij.IJ;
@@ -31,6 +30,7 @@ import ij.gui.NonBlockingGenericDialog;
 import ij.gui.Plot;
 import ij.gui.WaitForUserDialog;
 import ij.measure.CurveFitter;
+import ij.util.DicomTools;
 import ij.util.Tools;
 
 //
@@ -642,24 +642,70 @@ public class Utility {
 		String res1 = cf1.getResultString();
 		int iterations = cf1.getIterations();
 		double sumResidualSqr1 = cf1.getSumResidualsSqr();
+		double rSquared = cf1.getRSquared();
+		String formula = cf1.getFormula();
+		double[] ff1 = new double[256];
+		for (int i1 = 0; i1 < 256; i1++) {
+			ff1[i1] = cf1.f(i1);
+			IJ.log("x= " + i1 + "ff1=" + ff1[i1]);
+		}
 
-		Plot zz = cf1.getPlot(128);
-		zz.setLineWidth(2);
-		zz.show();
-		Utility.debugDeiPoveri("SPETTA");
-		double[] out1 = new double[4];
-		for (int i1 = 0; i1 < params.length; i1++) {
+//		Plot zz = cf1.getPlot(256);
+//		zz.setLineWidth(2);
+//		zz.show();
+//		Utility.debugDeiPoveri("SPETTA");
+		double[] out1 = new double[numParams];
+		for (int i1 = 0; i1 < numParams; i1++) {
 			IJ.log("MIRD FIT param " + i1 + " =" + params[i1]);
 			out1[i1] = params[i1];
 		}
+		int count = 0;
+//		for (int i1 = 10; i1 < 10 + 266; i1++) {
+//			IJ.log("count= " + count + " i1= " + i1);
+//			out1[i1] = cf1.f(count++);
+//			IJ.log("x= " + i1 + "ff1=" + ff1[i1]);
+//		}
+
 		IJ.log("MIRD FIT iterations= " + iterations);
 		IJ.log("MIRD FIT goodness=  " + goodness);
 		IJ.log("MIRD FIT sumResidualSqr=  " + sumResidualSqr1);
+		IJ.log("MIRD FIT R^2=  " + rSquared);
 		IJ.log("MIRD FIT numParams=  " + numParams);
 		IJ.log("MIRD FIT resultString=  " + res1);
-		out1[3] = goodness;
+		IJ.log("MIRD FIT formula=  " + formula);
 		IJ.log("=====================");
 		return out1;
+	}
+
+	/**
+	 * Calcolo Fit esponenziale
+	 * 
+	 * @param vetX
+	 * @param vetY
+	 */
+	static CurveFitter MIRD_curveFitterSpecialImageJ(double[] vetX, double[] vetY) {
+
+		IJ.log("=== CURVE FITTER SPECIAL IMAGEJ ====");
+		CurveFitter cf1 = new CurveFitter(vetX, vetY);
+		cf1.doFit(CurveFitter.EXPONENTIAL);
+		return cf1;
+	}
+
+	/**
+	 * Calcolo Fit esponenziale
+	 * 
+	 * @param vetX
+	 * @param vetY
+	 */
+	static Regression MIRD_curveFitterSpecialFlanagan(double[] vetX, double[] vetY) {
+
+		IJ.log("=== CURVE FITTER SPECIAL FLANAGAN ====");
+
+		Regression reg = new Regression(vetX, vetY);
+
+		reg.exponentialSimple();
+
+		return reg;
 	}
 
 	/**
@@ -686,6 +732,12 @@ public class Utility {
 		for (double err : bestEstErrors) {
 			IJ.log("FLANAGAN bestErrors= " + err);
 		}
+		double coeffOfDetermination = reg.getCoefficientOfDetermination();
+		IJ.log("FLANAGAN coeffOfDetermination= " + coeffOfDetermination);
+
+		double adjustedCoeffOfDetermination = reg.getAdjustedCoefficientOfDetermination();
+		IJ.log("FLANAGAN adjustedCoeffOfDetermination= " + adjustedCoeffOfDetermination);
+
 		Utility.debugDeiPoveri("SPETTA");
 
 		IJ.log("===============");
@@ -699,7 +751,6 @@ public class Utility {
 	 * @param vetX
 	 * @param vetY
 	 */
-
 	static void MIRD_curvePlotter(double[] vetX, double[] vetY) {
 
 		double[] minMaxX = Tools.getMinMax(vetX);
@@ -708,14 +759,241 @@ public class Utility {
 		double xmax = minMaxX[1] * 1.1;
 		double ymin = -1.0;
 		double ymax = minMaxY[1] * 1.1;
+		int PLOT_WIDTH = 600;
+		int PLOT_HEIGHT = 350;
 
 		Plot plot1 = new Plot("Punti", "ore dalla somministrazione", "attivita' MBq");
 		plot1.setLineWidth(2);
-		plot1.setColor(Color.red);
+		plot1.setColor(Color.red, Color.red);
+		plot1.setColor(Color.blue);
 		plot1.add("circle", vetX, vetY);
+		plot1.setFrameSize(PLOT_WIDTH, PLOT_HEIGHT);
 		plot1.setLimits(xmin, xmax, ymin, ymax);
 		plot1.show();
 
+	}
+
+	/**
+	 * Effettua il plot dei punti trovati, SENZA mostrare alcun fit
+	 * 
+	 * @param vetX
+	 * @param vetY
+	 */
+	static void MIRD_curvePlotterSpecialImageJ(CurveFitter cf) {
+
+		int PLOT_WIDTH = 600;
+		int PLOT_HEIGHT = 350;
+
+		double[] x = cf.getXPoints();
+		double[] y = cf.getYPoints();
+		if (cf.getParams().length < cf.getNumParams()) {
+
+// 			Plot plot = new Plot(cf.getFormula(), "X", "Y", x, y);
+			Plot plot = new Plot(cf.getFormula(), "X", "Y");
+			plot.setLineWidth(2);
+
+			plot.add("line", x, y);
+
+			plot.setColor(Color.BLUE);
+			plot.addLabel(0.02, 0.1, cf.getName());
+			plot.addLabel(0.02, 0.2, cf.getStatusString());
+			plot.show();
+			return;
+		}
+		int npoints = 1000;
+		if (npoints < x.length)
+			npoints = x.length; // or 2*x.length-1; for 2 values per data point
+		if (npoints > 1000)
+			npoints = 1000;
+		double[] a = Tools.getMinMax(x);
+		double xmin = a[0], xmax = a[1] * 1.5;
+		xmin = 0;
+		npoints = 1000;
+		double[] b = Tools.getMinMax(y);
+		double ymin = b[0], ymax = b[1] * 1.1; // y range of data points
+		ymin = 0;
+		double[] px = new double[npoints];
+		double[] py = new double[npoints];
+		double inc = (xmax - xmin) / (npoints - 1);
+		double tmp = xmin;
+		for (int i = 0; i < npoints; i++) {
+			px[i] = tmp;
+			tmp += inc;
+		}
+		double[] params = cf.getParams();
+		for (int i = 0; i < npoints; i++)
+			py[i] = cf.f(params, px[i]);
+		a = Tools.getMinMax(py);
+		double dataRange = ymax - ymin;
+		ymin = Math.max(ymin - dataRange, Math.min(ymin, a[0])); // expand y range for curve, but not too much
+		ymax = Math.min(ymax + dataRange, Math.max(ymax, a[1]));
+		Plot plot = new Plot(cf.getFormula(), "X", "Y");
+		plot.setLineWidth(2);
+		plot.setColor(Color.BLUE);
+		plot.add("line", px, py);
+		plot.setLimits(xmin, xmax, ymin, ymax);
+		plot.setColor(Color.RED);
+		plot.add("circle", x, y);
+		plot.setColor(Color.BLUE);
+		StringBuffer legend = new StringBuffer(100);
+		legend.append(cf.getName());
+		legend.append('\n');
+		legend.append(cf.getFormula());
+		legend.append('\n');
+		double[] p = cf.getParams();
+		int n = cf.getNumParams();
+		char pChar = 'a';
+		for (int i = 0; i < n; i++) {
+			legend.append(pChar + " = " + IJ.d2s(p[i], 5, 9) + '\n');
+			pChar++;
+		}
+		legend.append("R^2 = " + IJ.d2s(cf.getRSquared(), 4));
+		legend.append('\n');
+		plot.addLabel(0.8, 0.1, legend.toString());
+//		plot.addLabel(0.02, 0.1, legend.toString());
+		plot.setFrameSize(PLOT_WIDTH, PLOT_HEIGHT);
+
+		plot.setColor(Color.BLUE);
+		plot.show();
+	}
+
+	/**
+	 * Effettua il plot dei punti trovati, SENZA mostrare alcun fit
+	 * 
+	 * @param vetX
+	 * @param vetY
+	 */
+	static void MIRD_curvePlotterSpecialFlanagan(Regression reg, double[] x, double[] y) {
+
+		int PLOT_WIDTH = 600;
+		int PLOT_HEIGHT = 350;
+
+		int npoints = 1000;
+		if (npoints < x.length)
+			npoints = x.length; // or 2*x.length-1; for 2 values per data point
+		if (npoints > 1000)
+			npoints = 1000;
+		double[] a = Tools.getMinMax(x);
+		double xmin = a[0], xmax = a[1] * 1.5;
+		xmin = 0;
+		npoints = 1000;
+		double[] b = Tools.getMinMax(y);
+		double ymin = b[0], ymax = b[1] * 1.1; // y range of data points
+		ymin = 0;
+		double[] px = new double[npoints];
+		double[] py = new double[npoints];
+		double inc = (xmax - xmin) / (npoints - 1);
+		double tmp = xmin;
+		for (int i = 0; i < npoints; i++) {
+			px[i] = tmp;
+			tmp += inc;
+		}
+		double[] params = reg.getBestEstimates();
+
+		double aux0 = 0;
+		double aux1 = 0;
+
+		aux0 = params[1];
+		aux1 = params[0];
+
+		IJ.log("aux0= " + aux0 + " aux1= " + aux1);
+		for (int i = 0; i < npoints; i++) {
+			py[i] = aux0 * Math.exp(aux1 * px[i]);
+			IJ.log("px[" + i + "]= " + px[i] + "  py[" + i + "]= " + py[i]);
+		}
+		Utility.debugDeiPoveri("PIPPO");
+		a = Tools.getMinMax(py);
+		double dataRange = ymax - ymin;
+		ymin = Math.max(ymin - dataRange, Math.min(ymin, a[0])); // expand y range for curve, but not too much
+		ymax = Math.min(ymax + dataRange, Math.max(ymax, a[1]));
+		Plot plot = new Plot("TITOLO", "X", "Y");
+		plot.setLineWidth(2);
+		plot.setColor(Color.GREEN);
+		plot.add("line", px, py);
+		plot.setLimits(xmin, xmax, ymin, ymax);
+		plot.setColor(Color.RED);
+		plot.add("circle", x, y);
+		plot.setColor(Color.GREEN);
+//		plot.addLabel(0.02, 0.1, legend.toString());
+		plot.setFrameSize(PLOT_WIDTH, PLOT_HEIGHT);
+
+		plot.show();
+
+		Utility.debugDeiPoveri("FIIIIIIII");
+	}
+
+	/**
+	 * Effettua il plot dei punti trovati, mostrando anche il FIT
+	 * 
+	 * @param vetX
+	 * @param vetY
+	 * @param params
+	 * @param npoints
+	 */
+	static void MIRD_curvePlotter(double[] vetX, double[] vetY, double[] params, int npoints) {
+
+		double[] minMaxX = Tools.getMinMax(vetX);
+		double[] minMaxY = Tools.getMinMax(vetY);
+		double xmin = 0;
+		double xmax = minMaxX[1] * 1.1;
+		double ymin = -1.0;
+		double ymax = minMaxY[1] * 1.1;
+		int PLOT_WIDTH = 600;
+		int PLOT_HEIGHT = 350;
+		double[] px = new double[npoints];
+		double[] py = new double[npoints];
+
+		double inc = (xmax - xmin) / (npoints - 1);
+		double tmp = minMaxX[0];
+		for (int i = 0; i < npoints; i++) {
+			px[i] = (float) tmp;
+			tmp += inc;
+		}
+
+//		for (int i = 0; i < npoints; i++)
+//			py[i] = (float) f(params, px[i]);
+
+		Plot plot1 = new Plot("Punti", "ore dalla somministrazione", "attivita' MBq");
+		plot1.setLineWidth(2);
+		plot1.setColor(Color.red, Color.red);
+		plot1.setColor(Color.blue);
+		plot1.add("circle", vetX, vetY);
+		plot1.setFrameSize(PLOT_WIDTH, PLOT_HEIGHT);
+		plot1.setLimits(xmin, xmax, ymin, ymax);
+		plot1.show();
+
+	}
+
+	/**
+	 * Calcolo della durata dell'acquisizione in secondi
+	 * 
+	 * @param imp1 immagine da analizzare
+	 * @return durata
+	 */
+	static int MIRD_CalcoloDurataAcquisizione(ImagePlus imp1) {
+
+		int numFrames = Utility.parseInt(DicomTools.getTag(imp1, "0054,0053"));
+		int durationFrame = Utility.parseInt(DicomTools.getTag(imp1, "0018,1242"));
+		int durata = numFrames * (durationFrame / 1000);
+
+		return durata;
+	}
+
+	/**
+	 * Calcolo delta T in millisecondi
+	 * 
+	 * @param dateTime0
+	 * @param dateTime24
+	 * @return
+	 */
+	static long MIRD_CalcoloDeltaT(Date dateTime0, Date dateTime24) {
+
+//		IJ.log("dateTime0= " +dateTime0);
+//		IJ.log("dateTime24= " +dateTime24);
+		long diff = dateTime24.getTime() - dateTime0.getTime();
+//		IJ.log("difference= " + diff / (1000 * 60 * 60) + " hours");
+//		IJ.log("difference= " + diff / (1000 * 60 * 60 * 24) + " days");
+		return diff;
 	}
 
 	/**
@@ -801,6 +1079,83 @@ public class Utility {
 		for (final Window w : WindowManager.getAllNonImageWindows()) {
 			w.dispose();
 		}
+	}
+
+	/**
+	 * Effettua il plot dei punti trovati, MOSTRANDO i due fit ImageJ e Flanagan
+	 * sovrapposti
+	 * 
+	 * @param vetX
+	 * @param vetY
+	 */
+	static void MIRD_curvePlotterSpecialCombined(CurveFitter cf, Regression reg, double[] x, double[] y) {
+
+		int PLOT_WIDTH = 600;
+		int PLOT_HEIGHT = 350;
+
+		int npoints = 1000;
+		if (npoints < x.length)
+			npoints = x.length; // or 2*x.length-1; for 2 values per data point
+		if (npoints > 1000)
+			npoints = 1000;
+		double[] a = Tools.getMinMax(x);
+		double xmin = a[0], xmax = a[1] * 1.5;
+		xmin = 0;
+		npoints = 1000;
+		double[] b = Tools.getMinMax(y);
+		double ymin = b[0], ymax = b[1] * 1.1; // y range of data points
+		ymin = 0;
+
+		// curva di FIT ottenuta da ImageJ
+
+		double[] pxj = new double[npoints];
+		double[] pyj = new double[npoints];
+		double incj = (xmax - xmin) / (npoints - 1);
+		double tmpj = xmin;
+		for (int i = 0; i < npoints; i++) {
+			pxj[i] = tmpj;
+			tmpj += incj;
+		}
+		double[] paramsj = cf.getParams();
+		for (int i = 0; i < npoints; i++)
+			pyj[i] = cf.f(paramsj, pxj[i]);
+
+		// curva di FIT ottenuta da Flanagan
+		double[] pxf = new double[npoints];
+		double[] pyf = new double[npoints];
+		double incf = (xmax - xmin) / (npoints - 1);
+		double tmpf = xmin;
+		for (int i = 0; i < npoints; i++) {
+			pxf[i] = tmpf;
+			tmpf += incf;
+		}
+		double[] paramsf = reg.getBestEstimates();
+
+		double aux0f = paramsf[1];
+		double aux1f = paramsf[0];
+
+		for (int i = 0; i < npoints; i++) {
+			pyf[i] = (aux0f * Math.exp(aux1f * pxf[i]));
+		}
+
+		a = Tools.getMinMax(pyj);
+		double dataRange = ymax - ymin;
+		ymin = Math.max(ymin - dataRange, Math.min(ymin, a[0])); // expand y range for curve, but not too much
+		ymax = Math.min(ymax + dataRange, Math.max(ymax, a[1]));
+		Plot plot = new Plot(cf.getFormula(), "X", "Y");
+//		plot.setLineWidth(2);
+		plot.setColor(Color.BLUE);
+		plot.add("line", pxj, pyj);
+		plot.setColor(Color.GREEN);
+		plot.add("line", pxf, pyf);
+		plot.setLimits(xmin, xmax, ymin, ymax);
+		plot.setColor(Color.RED);
+		plot.add("circle", x, y);
+		plot.setColor(Color.BLUE);
+		plot.setFrameSize(PLOT_WIDTH, PLOT_HEIGHT);
+
+		plot.setColor(Color.BLUE);
+		plot.show();
 	}
 
 }
