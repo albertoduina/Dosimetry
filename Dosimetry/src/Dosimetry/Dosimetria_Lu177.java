@@ -170,6 +170,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// ============================================
 			// STESSO PAZIENTE, NUOVO DISTRETTO, NUOVA LESIONE
 			// ============================================
+			nuovaLaboriosa = true;
 			IJ.log("NUOVO DISTRETTO, CARICAMENTO IMMAGINI E \nRECUPERO DATI SOMMINISTRAZIONE DA PERMANENTE");
 			arrayOfFile2 = desktopImagesFolderFill();
 			Utility.initLog(pathVolatile);

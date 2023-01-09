@@ -103,11 +103,11 @@ public class Dosimetry_v2 implements PlugIn {
 
 		// leggo in volatile.txt i dati scritti da Load_Patient
 //		String[] vetLogList = Utility.readLog(pathPermanente);
-		String[] vetPath = new String[3];
+		String[] vetPetCtViewerTitle = new String[3];
 		for (int i1 = 0; i1 < 3; i1++) {
-			vetPath[0] = Utility.readFromLog(pathPermanente, "24h=", "=");
-			vetPath[1] = Utility.readFromLog(pathPermanente, "48h=", "=");
-			vetPath[2] = Utility.readFromLog(pathPermanente, "120h=", "=");
+			vetPetCtViewerTitle[0] = Utility.readFromLog(pathPermanente, "24h=", "=");
+			vetPetCtViewerTitle[1] = Utility.readFromLog(pathPermanente, "48h=", "=");
+			vetPetCtViewerTitle[2] = Utility.readFromLog(pathPermanente, "120h=", "=");
 		}
 
 		// ==========================================================================
@@ -190,7 +190,8 @@ public class Dosimetry_v2 implements PlugIn {
 
 				/// FUNZIONA ANCORA !!!!
 				Utility.imageToFront(title1);
-				Utility.nonImageToFront(vetPath[point1]);
+				Utility.nonImageToFront(vetPetCtViewerTitle[point1]);
+				IJ.log("PRIMO PIANO= " + vetPetCtViewerTitle[point1]);
 
 //				NonBlockingGenericDialog gdlg = new NonBlockingGenericDialog("DD012 ISTRUZIONI");
 //				gdlg.addMessage(
@@ -207,6 +208,7 @@ public class Dosimetry_v2 implements PlugIn {
 				waitForUserDialog.show();
 
 				Utility.imageToFront(title1);
+//				Utility.nonImageToFront(vetPetCtViewerTitle[point1]);
 
 				// ======================================================
 				// FINE PARTE NUOVA ALL'INTERNO DEL LOOP
@@ -316,7 +318,6 @@ public class Dosimetry_v2 implements PlugIn {
 				dialog.setOKLabel("Next");
 				dialog.setLocation(screen.width / 3, screen.height / 3);
 				dialog.showDialog();
-				
 
 				if (!dialog.wasOKed()) {
 					IJ.log("eseguito reset003");
