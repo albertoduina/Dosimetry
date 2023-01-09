@@ -478,6 +478,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 				IJ.log("yp1= " + aux);
 			}
 
+			Utility.MIRD_pointsPlotter(xp1, yp1, null);
+
 // ALLA FINE ANDREBBE FORSE INSERITO QUELLO QUI SOTTO; che usa il deltaT calcolato e non 24,48,120
 //
 //			xp[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#019#", "=")); // deltaT
@@ -501,6 +503,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 				if (aux)
 					count++;
 			}
+
+			Utility.MIRD_pointsPlotter(xp1, yp1, punti);
+			Utility.debugDeiPoveri("POTA, POTA, POTA");
 
 			int count2 = 0;
 			double[] xp2 = new double[count];
@@ -531,7 +536,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 			paramsFLA = rf.getBestEstimates();
 
 			Utility.MIRD_curvePlotterSpecialCombined(cf, rf, xp2, yp2);
-
 
 			// ==========================================================================
 			// PARTE REVIEW CHE DEVE RITORNARE INDIETRO PER RIFARE UNO O PIU'DEI CALCOLI

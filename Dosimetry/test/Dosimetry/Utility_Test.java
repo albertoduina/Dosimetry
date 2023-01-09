@@ -133,7 +133,6 @@ public class Utility_Test {
 		Utility.debugDeiPoveri("SPETTA");
 	}
 
-
 	@Test
 	public final void test_dedupeLog() {
 
@@ -162,8 +161,9 @@ public class Utility_Test {
 
 		double[] xp = { 24.0, 48.0, 120.0 };
 		double[] yp = { 31.07396764774879, 16.491215792454124, 6.2384313914105185 };
+		boolean[] bb = { true, false, true };
 
-		Utility.MIRD_curvePlotter(xp, yp);
+		Utility.MIRD_pointsPlotter(xp, yp, bb);
 		Utility.debugDeiPoveri("SPETTA");
 
 	}

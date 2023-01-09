@@ -751,22 +751,39 @@ public class Utility {
 	 * @param vetX
 	 * @param vetY
 	 */
-	static void MIRD_curvePlotter(double[] vetX, double[] vetY) {
+	static void MIRD_pointsPlotter(double[] vetX, double[] vetY, boolean[] selected) {
 
 		double[] minMaxX = Tools.getMinMax(vetX);
 		double[] minMaxY = Tools.getMinMax(vetY);
+		boolean[] neglected = { true, true, true };
 		double xmin = 0;
 		double xmax = minMaxX[1] * 1.1;
 		double ymin = -1.0;
 		double ymax = minMaxY[1] * 1.1;
 		int PLOT_WIDTH = 600;
 		int PLOT_HEIGHT = 350;
+		double[] xx = new double[1];
+		double[] yy = new double[1];
+
+		if (selected == null)
+			selected = neglected;
 
 		Plot plot1 = new Plot("Punti", "ore dalla somministrazione", "attivita' MBq");
 		plot1.setLineWidth(2);
-		plot1.setColor(Color.red, Color.red);
-		plot1.setColor(Color.blue);
-		plot1.add("circle", vetX, vetY);
+		for (int i1 = 0; i1 < selected.length; i1++) {
+			if (selected[i1]) {
+				plot1.setColor(Color.blue);
+				xx[0] = vetX[i1];
+				yy[0] = vetY[i1];
+				plot1.add("circle", xx, yy);
+			} else {
+				plot1.setColor(Color.red);
+				xx[0] = vetX[i1];
+				yy[0] = vetY[i1];
+				plot1.add("circle", xx, yy);
+			}
+
+		}
 		plot1.setFrameSize(PLOT_WIDTH, PLOT_HEIGHT);
 		plot1.setLimits(xmin, xmax, ymin, ymax);
 		plot1.show();
