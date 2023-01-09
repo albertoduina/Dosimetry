@@ -827,7 +827,7 @@ public class Utility {
 		double dataRange = ymax - ymin;
 		ymin = Math.max(ymin - dataRange, Math.min(ymin, a[0])); // expand y range for curve, but not too much
 		ymax = Math.min(ymax + dataRange, Math.max(ymax, a[1]));
-		Plot plot = new Plot(cf.getFormula(), "X", "Y");
+		Plot plot = new Plot("IMAGEJ " + cf.getFormula(), "X", "Y");
 		plot.setLineWidth(2);
 		plot.setColor(Color.BLUE);
 		plot.add("line", px, py);
@@ -850,11 +850,10 @@ public class Utility {
 		legend.append("R^2 = " + IJ.d2s(cf.getRSquared(), 4));
 		legend.append('\n');
 		plot.addLabel(0.8, 0.1, legend.toString());
-//		plot.addLabel(0.02, 0.1, legend.toString());
 		plot.setFrameSize(PLOT_WIDTH, PLOT_HEIGHT);
-
 		plot.setColor(Color.BLUE);
 		plot.show();
+		Utility.debugDeiPoveri("IMAGEJ");
 	}
 
 	/**
@@ -901,12 +900,11 @@ public class Utility {
 			py[i] = aux0 * Math.exp(aux1 * px[i]);
 			IJ.log("px[" + i + "]= " + px[i] + "  py[" + i + "]= " + py[i]);
 		}
-		Utility.debugDeiPoveri("PIPPO");
 		a = Tools.getMinMax(py);
 		double dataRange = ymax - ymin;
 		ymin = Math.max(ymin - dataRange, Math.min(ymin, a[0])); // expand y range for curve, but not too much
 		ymax = Math.min(ymax + dataRange, Math.max(ymax, a[1]));
-		Plot plot = new Plot("TITOLO", "X", "Y");
+		Plot plot = new Plot("FLANAGAN", "X", "Y");
 		plot.setLineWidth(2);
 		plot.setColor(Color.GREEN);
 		plot.add("line", px, py);
@@ -919,7 +917,7 @@ public class Utility {
 
 		plot.show();
 
-		Utility.debugDeiPoveri("FIIIIIIII");
+		Utility.debugDeiPoveri("FLANAGAN");
 	}
 
 	/**
@@ -1093,7 +1091,7 @@ public class Utility {
 		int PLOT_WIDTH = 600;
 		int PLOT_HEIGHT = 350;
 
-		int npoints = 1000;
+		int npoints = 400;
 		if (npoints < x.length)
 			npoints = x.length; // or 2*x.length-1; for 2 values per data point
 		if (npoints > 1000)
@@ -1101,7 +1099,7 @@ public class Utility {
 		double[] a = Tools.getMinMax(x);
 		double xmin = a[0], xmax = a[1] * 1.5;
 		xmin = 0;
-		npoints = 1000;
+		npoints = 400;
 		double[] b = Tools.getMinMax(y);
 		double ymin = b[0], ymax = b[1] * 1.1; // y range of data points
 		ymin = 0;
@@ -1113,12 +1111,14 @@ public class Utility {
 		double incj = (xmax - xmin) / (npoints - 1);
 		double tmpj = xmin;
 		for (int i = 0; i < npoints; i++) {
-			pxj[i] = tmpj;
+			if (i % 2 != 0)
+				pxj[i] = tmpj;
 			tmpj += incj;
 		}
 		double[] paramsj = cf.getParams();
 		for (int i = 0; i < npoints; i++)
-			pyj[i] = cf.f(paramsj, pxj[i]);
+			if (i % 2 != 0)
+				pyj[i] = cf.f(paramsj, pxj[i]);
 
 		// curva di FIT ottenuta da Flanagan
 		double[] pxf = new double[npoints];
@@ -1126,7 +1126,8 @@ public class Utility {
 		double incf = (xmax - xmin) / (npoints - 1);
 		double tmpf = xmin;
 		for (int i = 0; i < npoints; i++) {
-			pxf[i] = tmpf;
+			if (i % 2 == 0)
+				pxf[i] = tmpf;
 			tmpf += incf;
 		}
 		double[] paramsf = reg.getBestEstimates();
@@ -1135,20 +1136,22 @@ public class Utility {
 		double aux1f = paramsf[0];
 
 		for (int i = 0; i < npoints; i++) {
-			pyf[i] = (aux0f * Math.exp(aux1f * pxf[i]));
+			if (i % 2 == 0)
+				pyf[i] = (aux0f * Math.exp(aux1f * pxf[i]));
 		}
 
 		a = Tools.getMinMax(pyj);
 		double dataRange = ymax - ymin;
 		ymin = Math.max(ymin - dataRange, Math.min(ymin, a[0])); // expand y range for curve, but not too much
 		ymax = Math.min(ymax + dataRange, Math.max(ymax, a[1]));
-		Plot plot = new Plot(cf.getFormula(), "X", "Y");
-//		plot.setLineWidth(2);
+		Plot plot = new Plot("Comparazione ImageJ BLU e Flanagan VERDE", "X", "Y");
+		plot.setLineWidth(2);
 		plot.setColor(Color.BLUE);
-		plot.add("line", pxj, pyj);
+		plot.add("dot", pxj, pyj);
 		plot.setColor(Color.GREEN);
-		plot.add("line", pxf, pyf);
+		plot.add("dot", pxf, pyf);
 		plot.setLimits(xmin, xmax, ymin, ymax);
+		plot.setLineWidth(2);
 		plot.setColor(Color.RED);
 		plot.add("circle", x, y);
 		plot.setColor(Color.BLUE);

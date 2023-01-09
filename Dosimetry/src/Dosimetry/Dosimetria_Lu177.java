@@ -495,7 +495,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 //			MIRD_display_LP66(MIRD_vol24, MIRD_vol48, MIRD_vol120);
 
 			CurveFitter cf = Utility.MIRD_curveFitterSpecialImageJ(xp, yp);
-
+			Utility.MIRD_curvePlotterSpecialImageJ(cf);
 			// -------- recupero i dati da stampare ---------------
 			paramsIJ = cf.getParams();
 			numParams = cf.getNumParams();
@@ -506,6 +506,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			}
 
 			Regression rf = Utility.MIRD_curveFitterSpecialFlanagan(xp, yp);
+			Utility.MIRD_curvePlotterSpecialFlanagan(rf, xp, yp);
 			// -------- recupero i dati da stampare ---------------
 
 			paramsFLA = rf.getBestEstimates();
@@ -596,6 +597,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		}
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FITgoodness= " + null;
 		Utility.appendLog(pathVolatile, aux5);
+		count5 = 270;
 		aux5 = "#" + String.format("%03d", count5++) + "#\t----- MIRD FIT RESULTS FLANAGAN --------";
 		Utility.appendLog(pathVolatile, aux5);
 		for (int i1 = 0; i1 < paramsFLA.length; i1++) {
