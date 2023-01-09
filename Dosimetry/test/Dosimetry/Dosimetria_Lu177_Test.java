@@ -58,6 +58,16 @@ public class Dosimetria_Lu177_Test {
 	}
 
 	@Test
+	public final void test_LP33_PointsSelection() {
+
+		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
+		boolean[] selection = dosimetria_Lu177.pointsSelection_LP33();
+		IJ.log("LP33 restituisce " + selection);
+		Utility.debugDeiPoveri("SPETTA");
+		assertTrue(true);
+	}
+	
+	@Test
 	public final void test_LP32_DialogReview() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();

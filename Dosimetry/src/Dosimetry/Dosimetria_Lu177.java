@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Vector;
 
 import flanagan.analysis.Regression;
 import ij.IJ;
@@ -462,19 +463,19 @@ public class Dosimetria_Lu177 implements PlugIn {
 			double MIRD_fatCal120 = out120[1];
 			double MIRD_attiv120 = out120[2];
 
-			double[] xp = new double[3];
-			double[] yp = new double[3];
-			xp[0] = 24.0;
-			yp[0] = out24[2];
-			xp[1] = 48.0;
-			yp[1] = out48[2];
-			xp[2] = 120.0;
-			yp[2] = out120[2];
-			for (double aux : xp) {
-				IJ.log("xp= " + aux);
+			double[] xp1 = new double[3];
+			double[] yp1 = new double[3];
+			xp1[0] = 24.0;
+			yp1[0] = out24[2];
+			xp1[1] = 48.0;
+			yp1[1] = out48[2];
+			xp1[2] = 120.0;
+			yp1[2] = out120[2];
+			for (double aux : xp1) {
+				IJ.log("xp1= " + aux);
 			}
-			for (double aux : yp) {
-				IJ.log("yp= " + aux);
+			for (double aux : yp1) {
+				IJ.log("yp1= " + aux);
 			}
 
 // ALLA FINE ANDREBBE FORSE INSERITO QUELLO QUI SOTTO; che usa il deltaT calcolato e non 24,48,120
@@ -494,7 +495,25 @@ public class Dosimetria_Lu177 implements PlugIn {
 //			Utility.MIRD_curvePlotter(xp, yp);
 //			MIRD_display_LP66(MIRD_vol24, MIRD_vol48, MIRD_vol120);
 
-			CurveFitter cf = Utility.MIRD_curveFitterSpecialImageJ(xp, yp);
+			int count = 0;
+			boolean[] punti = pointsSelection_LP33();
+			for (boolean aux : punti) {
+				if (aux)
+					count++;
+			}
+
+			int count2 = 0;
+			double[] xp2 = new double[count];
+			double[] yp2 = new double[count];
+			for (int i1 = 0; i1 < xp1.length; i1++) {
+				if (punti[i1]) {
+					xp2[count2] = xp1[i1];
+					yp2[count2] = yp1[i1];
+					count2++;
+				}
+			}
+
+			CurveFitter cf = Utility.MIRD_curveFitterSpecialImageJ(xp2, yp2);
 			Utility.MIRD_curvePlotterSpecialImageJ(cf);
 			// -------- recupero i dati da stampare ---------------
 			paramsIJ = cf.getParams();
@@ -505,18 +524,14 @@ public class Dosimetria_Lu177 implements PlugIn {
 				outCF[i1] = paramsIJ[i1];
 			}
 
-			Regression rf = Utility.MIRD_curveFitterSpecialFlanagan(xp, yp);
-			Utility.MIRD_curvePlotterSpecialFlanagan(rf, xp, yp);
+			Regression rf = Utility.MIRD_curveFitterSpecialFlanagan(xp2, yp2);
+			Utility.MIRD_curvePlotterSpecialFlanagan(rf, xp2, yp2);
 			// -------- recupero i dati da stampare ---------------
 
 			paramsFLA = rf.getBestEstimates();
 
-			Utility.MIRD_curvePlotterSpecialCombined(cf, rf, xp, yp);
+			Utility.MIRD_curvePlotterSpecialCombined(cf, rf, xp2, yp2);
 
-//			Utility.debugDeiPoveri("ATTENZIO' LA LINEA VERDE (flanagan) E'VOLUTAMENTE SPOSTATA VERSO L'ALTO DI 0.3, \n"
-//					+ "IN MODO DA POTER VEDERE SIA VERDE CHE BLU (imagej), IN REALTA' SONO SOVRAPPOSTE");
-
-			// double[] outFla = Utility.MIRD_curveFitterFlanagan(xp, yp);
 
 			// ==========================================================================
 			// PARTE REVIEW CHE DEVE RITORNARE INDIETRO PER RIFARE UNO O PIU'DEI CALCOLI
@@ -1818,6 +1833,44 @@ public class Dosimetria_Lu177 implements PlugIn {
 		IJ.log("LP32 - true PREMUTO OK");
 		String selection = gd1.getNextRadioButton();
 		return selection;
+	}
+
+	/**
+	 * Dialogo non modale di selezione
+	 * 
+	 * @return
+	 */
+	boolean[] pointsSelection_LP33() {
+
+		IJ.log("dialogReview_LP33");
+		String[] items = { "   24h", "   48h", "   120h" };
+		boolean[] def = { true, true, true };
+		int rows = 4;
+		int columns = 1;
+		int count = 0;
+		boolean[] out1 = null;
+		NonBlockingGenericDialog gd1 = null;
+		do {
+			gd1 = new NonBlockingGenericDialog("LP33 - SELECTION");
+			gd1.addCheckboxGroup(rows, columns, items, def);
+			gd1.addMessage("Selezionare almeno\ndue punti su cui\nfare il FIT", this.defaultFont);
+			gd1.showDialog();
+			out1 = new boolean[def.length];
+			for (int i1 = 0; i1 < def.length; i1++) {
+				out1[i1] = gd1.getNextBoolean();
+				if (out1[i1] == true)
+					count++;
+			}
+			if (count < 2)
+				IJ.error("Dovevi selezionare ALMENO due punti,\nRIPROVACI ..... BYE-BYE!");
+		} while (count < 2);
+		if (gd1.wasCanceled()) {
+			IJ.log("LP33 - false PREMUTO CANCEL");
+			return null;
+		} else {
+			IJ.log("LP33 - true PREMUTO OK");
+			return out1;
+		}
 	}
 
 	/**
