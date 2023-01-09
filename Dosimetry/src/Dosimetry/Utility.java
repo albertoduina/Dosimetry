@@ -3,6 +3,7 @@ package Dosimetry;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.Window;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -697,6 +698,75 @@ public class Utility {
 	 * @param vetX
 	 * @param vetY
 	 */
+	static CurveFitter MIRD_curveFitterSpecialApache(double[] vetX, double[] vetY) {
+
+		IJ.log("=== CURVE FITTER SPECIAL APACHE ====");
+		List<Point> pList = new ArrayList<Point>();
+		return null;
+	}
+
+//	public static PolynomialFunction getPolynomialFit(List<Point> pList) {
+//		PolynomialFunction result = null;/* from w w w. j a v a 2 s . c o m */
+//		if (pList == null) {
+//			return result;
+//		}
+//		try {
+//
+//			final WeightedObservedPoints obs = new WeightedObservedPoints();
+//			for (Point p : pList) {
+//				obs.add(p.getX(), p.getY());
+//			}
+//
+//			final ParametricUnivariateFunction function = new PolynomialFunction.Parametric();
+//			// Start fit from initial guesses that are far from the optimal
+//			// values.
+//			// final SimpleCurveFitter fitter =
+//			// SimpleCurveFitter.create(function,
+//			// new double[] { -1e20, 3e15, -5e25 });
+//			final SimpleCurveFitter fitter = SimpleCurveFitter.create(function, new double[] { -2e20, 1e15, -1e25 });
+//			// 2e2 ist 2*10^2 = 2*100
+//			final double[] best = fitter.fit(obs.toList());
+//			// System.out.println("Parameters: " + best.length);
+//			// funktion ausgeben
+//			result = new PolynomialFunction(best);
+//		} catch (Exception e) {
+//			// e.printStackTrace();
+//			System.out.println("PolynomialFunction: " + e);
+//		}
+//		return result;
+//	}
+
+	public ArrayList<double[]> fitExponential(double time[], double voltage[]) {
+		// length of time and voltage arrays should be in the power of 2
+//		  double size = time.length;
+//		  double v80 = voltage[0] * 0.8;
+//		  double rc = 0;
+//		  double[] vf = new double[time.length];
+//		  for (int k = 0; k < size - 1; k++) {
+//		    if (voltage[k] < v80) {
+//		      rc = time[k] / .223;
+//		      break;
+//		    }
+//		  }
+//		  double[] initialGuess = new double[]{voltage[0], rc, 0};
+//		  //initialize the optimizer and curve fitter.
+//		  LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
+//		  CurveFitter fitter = new CurveFitter(optimizer);
+//		  for (int i = 0; i < time.length; i++)
+//		    fitter.addObservedPoint(time[i], voltage[i]);
+//		  double[] result = fitter.fit(exponentialParametricUnivariateFunction, initialGuess);    //result -> the fitted parameters.
+//		  for (int i = 0; i < time.length; i++)
+//		    vf[i] = result[0] * exp(-time[i] / result[1]) + result[2];
+//		return new ArrayList<double[]>(Arrays.asList(result, vf));
+		return null;
+	}
+
+	/**
+	 * Calcolo Fit esponenziale
+	 * 
+	 * @param vetX
+	 * @param vetY
+	 */
 	static Regression MIRD_curveFitterSpecialFlanagan(double[] vetX, double[] vetY) {
 
 		IJ.log("=== CURVE FITTER SPECIAL FLANAGAN ====");
@@ -772,12 +842,12 @@ public class Utility {
 		plot1.setLineWidth(2);
 		for (int i1 = 0; i1 < selected.length; i1++) {
 			if (selected[i1]) {
-				plot1.setColor(Color.blue);
+				plot1.setColor(Color.red);
 				xx[0] = vetX[i1];
 				yy[0] = vetY[i1];
 				plot1.add("circle", xx, yy);
 			} else {
-				plot1.setColor(Color.red);
+				plot1.setColor(Color.black);
 				xx[0] = vetX[i1];
 				yy[0] = vetY[i1];
 				plot1.add("circle", xx, yy);
@@ -791,32 +861,32 @@ public class Utility {
 	}
 
 	/**
-	 * Effettua il plot dei punti trovati, SENZA mostrare alcun fit
+	 * Effettua il plot dei punti (selezionati e non selezionati) e mostra il fit
+	 * fatto sui punti selezionati
 	 * 
 	 * @param vetX
 	 * @param vetY
 	 */
-	static void MIRD_curvePlotterSpecialImageJ(CurveFitter cf) {
+	static void MIRD_curvePlotterSpecialImageJ(CurveFitter cf, double[] vetx, double[] vety, boolean[] selected) {
 
 		int PLOT_WIDTH = 600;
 		int PLOT_HEIGHT = 350;
 
 		double[] x = cf.getXPoints();
 		double[] y = cf.getYPoints();
-		if (cf.getParams().length < cf.getNumParams()) {
-
-// 			Plot plot = new Plot(cf.getFormula(), "X", "Y", x, y);
-			Plot plot = new Plot(cf.getFormula(), "X", "Y");
-			plot.setLineWidth(2);
-
-			plot.add("line", x, y);
-
-			plot.setColor(Color.BLUE);
-			plot.addLabel(0.02, 0.1, cf.getName());
-			plot.addLabel(0.02, 0.2, cf.getStatusString());
-			plot.show();
-			return;
-		}
+//		if (cf.getParams().length < cf.getNumParams()) {
+//
+//// 			Plot plot = new Plot(cf.getFormula(), "X", "Y", x, y);
+//			Plot plot = new Plot(cf.getFormula(), "X", "Y");
+//			plot.setLineWidth(2);
+//
+//			plot.add("line", x, y);
+//			plot.setColor(Color.BLUE);
+//			plot.addLabel(0.02, 0.1, cf.getName());
+//			plot.addLabel(0.02, 0.2, cf.getStatusString());
+//			plot.show();
+//			return;
+//		}
 		int npoints = 1000;
 		if (npoints < x.length)
 			npoints = x.length; // or 2*x.length-1; for 2 values per data point
@@ -850,8 +920,25 @@ public class Utility {
 		plot.add("line", px, py);
 		plot.setLimits(xmin, xmax, ymin, ymax);
 		plot.setColor(Color.RED);
-		plot.add("circle", x, y);
-		plot.setColor(Color.BLUE);
+		double[] xx = new double[1];
+		double[] yy = new double[1];
+
+		for (int i1 = 0; i1 < selected.length; i1++) {
+			if (selected[i1]) {
+				plot.setColor(Color.red);
+				xx[0] = vetx[i1];
+				yy[0] = vety[i1];
+				plot.add("circle", xx, yy);
+			} else {
+				plot.setColor(Color.black);
+				xx[0] = vetx[i1];
+				yy[0] = vety[i1];
+				plot.add("circle", xx, yy);
+			}
+
+		}
+//		plot.add("circle", x, y);
+//		plot.setColor(Color.BLUE);
 		StringBuffer legend = new StringBuffer(100);
 		legend.append(cf.getName());
 		legend.append('\n');

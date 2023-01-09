@@ -101,9 +101,10 @@ public class Utility_Test {
 
 		double[] vetX = { 24, 48, 120 };
 		double[] vetY = { 35.921969407999995, 18.392739144, 9.153194127999999 };
+		boolean[] selected= {true, false, true};
 
 		CurveFitter cf = Utility.MIRD_curveFitterSpecialImageJ(vetX, vetY);
-		Utility.MIRD_curvePlotterSpecialImageJ(cf);
+		Utility.MIRD_curvePlotterSpecialImageJ(cf, vetX, vetY, selected);
 
 		Utility.debugDeiPoveri("SPETTA");
 	}
@@ -113,6 +114,8 @@ public class Utility_Test {
 
 		double[] vetX = { 24, 48, 120 };
 		double[] vetY = { 35.921969407999995, 18.392739144, 9.153194127999999 };
+//		double[] vetX = { 24, 120 };
+//		double[] vetY = { 35.921969407999995, 9.153194127999999 };
 
 		CurveFitter cf = Utility.MIRD_curveFitterSpecialImageJ(vetX, vetY);
 		Regression reg = Utility.MIRD_curveFitterSpecialFlanagan(vetX, vetY);
@@ -129,6 +132,18 @@ public class Utility_Test {
 
 		Regression reg = Utility.MIRD_curveFitterSpecialFlanagan(vetX, vetY);
 		Utility.MIRD_curvePlotterSpecialFlanagan(reg, vetX, vetY);
+
+		Utility.debugDeiPoveri("SPETTA");
+	}
+
+	@Test
+	public final void test_MIRD_pointsPlotter() {
+
+		double[] vetX = { 24, 48, 120 };
+		double[] vetY = { 35.921969407999995, 18.392739144, 9.153194127999999 };
+		boolean[] selected = { true, false, true };
+
+		Utility.MIRD_pointsPlotter(vetX, vetY, selected);
 
 		Utility.debugDeiPoveri("SPETTA");
 	}
@@ -154,18 +169,6 @@ public class Utility_Test {
 		Utility.dedupeLog(path2);
 
 		Utility.debugDeiPoveri("SPETTA");
-	}
-
-	@Test
-	public final void test_MIRD_curvePlotter() {
-
-		double[] xp = { 24.0, 48.0, 120.0 };
-		double[] yp = { 31.07396764774879, 16.491215792454124, 6.2384313914105185 };
-		boolean[] bb = { true, false, true };
-
-		Utility.MIRD_pointsPlotter(xp, yp, bb);
-		Utility.debugDeiPoveri("SPETTA");
-
 	}
 
 }

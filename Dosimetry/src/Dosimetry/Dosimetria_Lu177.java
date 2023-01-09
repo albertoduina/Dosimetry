@@ -101,6 +101,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		boolean nuovoDistretto = false;
 		boolean nuovaLaboriosa = false;
 		File[] arrayOfFile2 = null;
+		String aux5 = "";
 
 		// ===========================================================
 		// LEGGO CARTELLA DOSIMETRY FOLDER (E SOTTOCARTELLA IMAGES FOLDER)
@@ -230,6 +231,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		ImagePlus imp4 = null;
 		ImagePlus imp5 = null;
 		ImagePlus imp6 = null;
+		boolean flanagan = false;
 
 		// ===========================================================================
 		// ELABORAZIONE 24h ed apertura PetCtViewer
@@ -459,6 +461,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 			in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#180#", "=")); // over threshold count
 																							// integral
 			out120 = Utility.MIRD_point(in1);
+
+			int count5 = 194;
+			aux5 = "#" + String.format("%03d", count5++) + "#\t@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
+			Utility.appendLog(pathVolatile, aux5);
+
 			double MIRD_vol120 = out120[0];
 			double MIRD_fatCal120 = out120[1];
 			double MIRD_attiv120 = out120[2];
@@ -478,8 +485,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 				IJ.log("yp1= " + aux);
 			}
 
-			Utility.MIRD_pointsPlotter(xp1, yp1, null);
-
 // ALLA FINE ANDREBBE FORSE INSERITO QUELLO QUI SOTTO; che usa il deltaT calcolato e non 24,48,120
 //
 //			xp[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#019#", "=")); // deltaT
@@ -497,6 +502,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 //			Utility.MIRD_curvePlotter(xp, yp);
 //			MIRD_display_LP66(MIRD_vol24, MIRD_vol48, MIRD_vol120);
 
+			// Mostro i 3 punti, senza fit, in modo che, con LP33 venga scelto l'eventuale
+			// unto da togliere
+			Utility.MIRD_pointsPlotter(xp1, yp1, null);
+
 			int count = 0;
 			boolean[] punti = pointsSelection_LP33();
 			for (boolean aux : punti) {
@@ -506,6 +515,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 			Utility.MIRD_pointsPlotter(xp1, yp1, punti);
 			Utility.debugDeiPoveri("POTA, POTA, POTA");
+
+			count5 = 195;
+			aux5 = "#" + String.format("%03d", count5++) + "#\tSelezionati i punti 24h= " + punti[0] + " 48h= "
+					+ punti[1] + " 120h= " + punti[2];
+			Utility.appendLog(pathVolatile, aux5);
 
 			int count2 = 0;
 			double[] xp2 = new double[count];
@@ -519,7 +533,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			}
 
 			CurveFitter cf = Utility.MIRD_curveFitterSpecialImageJ(xp2, yp2);
-			Utility.MIRD_curvePlotterSpecialImageJ(cf);
+			Utility.MIRD_curvePlotterSpecialImageJ(cf, xp1, yp1, punti);
 			// -------- recupero i dati da stampare ---------------
 			paramsIJ = cf.getParams();
 			numParams = cf.getNumParams();
@@ -529,13 +543,16 @@ public class Dosimetria_Lu177 implements PlugIn {
 				outCF[i1] = paramsIJ[i1];
 			}
 
-			Regression rf = Utility.MIRD_curveFitterSpecialFlanagan(xp2, yp2);
-			Utility.MIRD_curvePlotterSpecialFlanagan(rf, xp2, yp2);
-			// -------- recupero i dati da stampare ---------------
+			if (count2 == 3) {
+				flanagan = true;
+				Regression rf = Utility.MIRD_curveFitterSpecialFlanagan(xp2, yp2);
+				Utility.MIRD_curvePlotterSpecialFlanagan(rf, xp2, yp2);
+				// -------- recupero i dati da stampare ---------------
 
-			paramsFLA = rf.getBestEstimates();
+				paramsFLA = rf.getBestEstimates();
 
-			Utility.MIRD_curvePlotterSpecialCombined(cf, rf, xp2, yp2);
+				Utility.MIRD_curvePlotterSpecialCombined(cf, rf, xp2, yp2);
+			}
 
 			// ==========================================================================
 			// PARTE REVIEW CHE DEVE RITORNARE INDIETRO PER RIFARE UNO O PIU'DEI CALCOLI
@@ -579,7 +596,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// ============================================================================
 
 		int count5 = 200;
-		String aux5 = "";
 
 		aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD CALCULATION 24h ----";
 		Utility.appendLog(pathVolatile, aux5);
@@ -619,12 +635,19 @@ public class Dosimetria_Lu177 implements PlugIn {
 		count5 = 270;
 		aux5 = "#" + String.format("%03d", count5++) + "#\t----- MIRD FIT RESULTS FLANAGAN --------";
 		Utility.appendLog(pathVolatile, aux5);
-		for (int i1 = 0; i1 < paramsFLA.length; i1++) {
-			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FLANAGAN FIT param " + i1 + "= " + paramsFLA[i1];
+		if (!flanagan) {
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FLANAGAN NON FUNZIONA SE PUNTI <3";
+			Utility.appendLog(pathVolatile, aux5);
+		} else {
+
+			for (int i1 = 0; i1 < paramsFLA.length; i1++) {
+				aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FLANAGAN FIT param " + i1 + "= "
+						+ paramsFLA[i1];
+				Utility.appendLog(pathVolatile, aux5);
+			}
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FITgoodness= " + null;
 			Utility.appendLog(pathVolatile, aux5);
 		}
-		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FITgoodness= " + null;
-		Utility.appendLog(pathVolatile, aux5);
 
 		// ==============================================================
 		// BATTESIMO DELLA LESIONE
