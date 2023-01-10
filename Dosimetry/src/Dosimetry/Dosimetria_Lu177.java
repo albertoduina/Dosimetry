@@ -418,7 +418,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 		imp2.close();
 		imp4.close();
 		imp6.close();
-		dialogSelection_LP30();
+		boolean ok = dialogSelection_LP30();
+		if (!ok)
+			return;
 
 		// qui abbiamo la difficolta'che il PetCtViewer si mette in primo piano e
 		// dobbiamo per forza cancellare i 3 dialoghi con ok/cancel ma il primo menu con
@@ -1678,7 +1680,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 	}
 
 	/**
-	 * Presenza immagini nel dosimetry folder all'avvio
+	 * Presenza immagini nel dosimetry folder all'avvio Testato, esegue cancel &
+	 * cross
 	 * 
 	 * @param str20
 	 * @return
@@ -1715,33 +1718,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 	 */
 	public File[] desktopImagesFolderFill() {
 
-		File file1 = new File(desktopImagesSubfolderPath);
-		// cancella cartella anco se piena
-		Utility.deleteDirectory(file1);
-
-		// crea le cartelle destinazione
-		for (int b1 = 0; b1 < arrayOfString.length; b1++) {
-
-			File file5 = new File(desktopImagesSubfolderPath + File.separator + arrayOfString[b1]);
-			if (file5.mkdirs()) {
-			} else {
-				IJ.log("cartella non creata= " + file5.toString());
-			}
-
-			File file6 = new File(
-					desktopImagesSubfolderPath + File.separator + arrayOfString[b1] + File.separator + "CT");
-			if (file6.mkdirs()) {
-			} else {
-				IJ.log("cartella non creata= " + file6.toString());
-			}
-
-			File file7 = new File(
-					desktopImagesSubfolderPath + File.separator + arrayOfString[b1] + File.separator + "SPECT");
-			if (file7.mkdirs()) {
-			} else {
-				IJ.log("cartella non creata= " + file7.toString());
-			}
-		}
 		String strDir24h = null;
 		String strDir48h = null;
 		String strDir120h = null;
@@ -1775,10 +1751,43 @@ public class Dosimetria_Lu177 implements PlugIn {
 		} else {
 			strDir120h = "Not Found";
 		}
-		// chiede conferma della selezione effettuata
+		// chiede conferma della selezione effettuata e solo dopo la conferma cancella
+		// l'esistente
+
 		boolean ok = dialogConfirmFolder_LP03(strDir24h, strDir48h, strDir120h);
-		if (!ok)
+		if (ok) {
+
+			File file1 = new File(desktopImagesSubfolderPath);
+			// cancella cartella anco se piena
+			Utility.deleteDirectory(file1);
+
+			// crea le cartelle destinazione
+			for (int b1 = 0; b1 < arrayOfString.length; b1++) {
+
+				File file5 = new File(desktopImagesSubfolderPath + File.separator + arrayOfString[b1]);
+				if (file5.mkdirs()) {
+				} else {
+					IJ.log("cartella non creata= " + file5.toString());
+				}
+
+				File file6 = new File(
+						desktopImagesSubfolderPath + File.separator + arrayOfString[b1] + File.separator + "CT");
+				if (file6.mkdirs()) {
+				} else {
+					IJ.log("cartella non creata= " + file6.toString());
+				}
+
+				File file7 = new File(
+						desktopImagesSubfolderPath + File.separator + arrayOfString[b1] + File.separator + "SPECT");
+				if (file7.mkdirs()) {
+				} else {
+					IJ.log("cartella non creata= " + file7.toString());
+				}
+
+			}
+		} else {
 			return null;
+		}
 
 		// ----------------------------------------
 		// Copia delle immagini dalla sorgente al DosimetryFolder situato sul desktop
@@ -1885,7 +1894,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 	}
 
 	/**
-	 * Dialogo non modale selezione immagini 24/48/120
+	 * Dialogo non modale selezione immagini 24/48/120 Onora il Cancel
 	 * 
 	 * @return
 	 */
@@ -1898,8 +1907,14 @@ public class Dosimetria_Lu177 implements PlugIn {
 				this.defaultFont);
 		gd1.setLocation(screen.width * 2 / 3, screen.height * 1 / 3);
 		gd1.showDialog();
-		IJ.log("LP30 - true PREMUTO OK");
-		return true;
+
+		if (gd1.wasCanceled()) {
+			IJ.log("LP30 - false PREMUTO CANCEL");
+			return false;
+		} else {
+			IJ.log("LP30 - true PREMUTO OK");
+			return true;
+		}
 	}
 
 	/**

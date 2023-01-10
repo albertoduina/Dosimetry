@@ -132,6 +132,8 @@ public class Dosimetry_v2 implements PlugIn {
 
 			String[] lista1 = WindowManager.getImageTitles();
 			ImagePlus selectedImage = Utility.sceltaAutomaticaImmagine_DD10(ok24, ok48, ok120, defaultFont);
+			if (selectedImage == null)
+				return;
 //		Utility.nonImageToFront("DD10 - Immagine da analizzare");
 
 			// cerco di determinare che scelta hanno fatto
@@ -191,6 +193,7 @@ public class Dosimetry_v2 implements PlugIn {
 				/// FUNZIONA ANCORA !!!!
 				Utility.imageToFront(title1);
 				Utility.nonImageToFront(vetPetCtViewerTitle[point1]);
+				String aux10= vetPetCtViewerTitle[point1];
 				IJ.log("PRIMO PIANO= " + vetPetCtViewerTitle[point1]);
 
 //				NonBlockingGenericDialog gdlg = new NonBlockingGenericDialog("DD012 ISTRUZIONI");
@@ -204,7 +207,7 @@ public class Dosimetry_v2 implements PlugIn {
 
 				WaitForUserDialog waitForUserDialog = new WaitForUserDialog("DD12 ISTRUZIONI",
 						"PER CONTORNAMENTO CON THRESHOLD:\nda Edit-BrownFatROI visualizzare numero di fetta in cui ci si trova e ricordarselo.\n"
-								+ "PER CONTORNAMENTO CON ROI:\nDisegnare ROI da Edit-BrownFatROI");
+								+ "PER CONTORNAMENTO CON ROI:\nDisegnare ROI da Edit-BrownFatROI\nPETCTVIEWER>>>"+aux10+"<<<");
 				waitForUserDialog.show();
 
 				Utility.imageToFront(title1);

@@ -252,6 +252,32 @@ public class Utility {
 	 * @param separator
 	 * @return
 	 */
+	static String readDoubleFromLog(String path1, String code1, String separator) {
+
+		// leggo una stringa dal log
+		String[] vetText = Utility.readSimpleText(path1);
+		String[] vetAux1;
+		String out1 = null;
+		if (vetText.length > 0) {
+			for (int i1 = 0; i1 < vetText.length; i1++) {
+				if (vetText[i1].contains(code1)) {
+					vetAux1 = vetText[i1].split(separator);
+					out1 = vetAux1[1].trim();
+				}
+			}
+		}
+
+		return out1;
+	}
+
+	/**
+	 * Lettura di un tag dal log
+	 * 
+	 * @param path1
+	 * @param code1
+	 * @param separator
+	 * @return
+	 */
 	static String readFromLog(String path1, String code1, String separator) {
 
 		// leggo una stringa dal log
@@ -540,6 +566,9 @@ public class Utility {
 		scelta1.addMessage(lista1[2], defaultFont, color120);
 		scelta1.setLocation(screen.width * 2 / 3, screen.height * 2 / 3);
 		scelta1.showDialog();
+
+		if (scelta1.wasCanceled())
+			return null;
 		ImagePlus dicomImage1 = scelta1.getNextImage();
 		return dicomImage1;
 	}
