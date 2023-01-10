@@ -1,0 +1,33 @@
+Per utilizzare due classi con lo stesso nome, provenienti da due diversi jar:
+
+www.baeldung.com/java-classes-same-name
+
+
+fanno un esempio:
+
+public class DateUnitTest{
+
+	@Test
+	public void whenUsingFullQualifiedClassNames(){
+		java.util.Date javaDate = new java.util.Date();
+		com.baeledung.date.Date baeledungDate = new com.baeledung.date.Date(javaDate.getTime());
+		 
+		Assert.assertEquals(javaDate.getTime(), baeledungDate.getTime());
+		}
+}
+
+poi consigliano di importare la piu' usata, in modo da definirne completamente solo l'altra
+in questo modo si risparmia lavoro esempio:
+
+import java.util.Date;
+
+public class DateUnitTest{
+
+	@Test
+	public void whenUsingFullQualifiedClassNames(){
+		Date javaDate = new Date();
+		com.baeledung.date.Date baeledungDate = new com.baeledung.date.Date(javaDate.getTime());
+		 
+		Assert.assertEquals(javaDate.getTime(), baeledungDate.getTime());
+		}
+}

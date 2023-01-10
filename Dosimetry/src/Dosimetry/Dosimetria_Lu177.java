@@ -99,9 +99,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 		Date myDate0 = null;
 		boolean nuovoPaziente = false;
 		boolean nuovoDistretto = false;
-		boolean nuovaLaboriosa = false;
+		boolean nuoveImmagini = false;
 		File[] arrayOfFile2 = null;
 		String aux5 = "";
+		int out1 = 0;
 
 		// ===========================================================
 		// LEGGO CARTELLA DOSIMETRY FOLDER (E SOTTOCARTELLA IMAGES FOLDER)
@@ -118,7 +119,15 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// DIALOGO CON DATI PAZIENTE PRECEDENTE - NUOVA LESIONE
 			// ===========================================================
 			IJ.log("DIALOGO NUOVO PAZIENTE OPPURE NUOVA LESIONE");
-			nuovoPaziente = dialogImmaginiPazientePrecedente_LP21(insOut);
+			out1 = dialogImmaginiPazientePrecedente_LP21(insOut);
+			IJ.log("out1= " + out1);
+
+			if (out1 == 2) {
+				nuovoPaziente = true;
+			} else if (out1 == 0) {
+				return;
+			}
+
 			if (!nuovoPaziente) {
 				// SUL PAZIENTE PRECEDENTE DOBBIAMO VEDERE SE E' UNA NUOVA LESIONE (ED ALLORA
 				// ANALIZZEREMO LE MEDESIME IMMAGINI) OPPURE SE E'UN NUOVO DISTRETTO DI CUI
@@ -130,9 +139,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// ============================================
 			// NUOVO PAZIENTE
 			// ============================================
-			nuovaLaboriosa = true;
+			nuoveImmagini = true;
 			IJ.log("NUOVO PAZIENTE, TRASFERIMENTO IMMAGINI");
 			arrayOfFile2 = desktopImagesFolderFill();
+			if (arrayOfFile2 == null)
+				return;
 			IJ.log("NUOVO PAZIENTE, INIZIALIZZAZIONE LOG E RICHIESTA DATI SOMMINISTRAZIONE");
 			Utility.deleteAllLogs(desktopDosimetryFolderPath);
 			Utility.initLog(pathPermanente);
@@ -159,7 +170,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 			Utility.appendLog(pathVolatile, aux1);
 			aux1 = "#003#\tActivity= " + activitySomministrazione;
 			Utility.appendLog(pathVolatile, aux1);
-
 			// copia da volatile a permanente i dati di SOMMINISTRAZIONE
 			Utility.copyLogInfo(pathVolatile, pathPermanente, 0, 3);
 			myDate0 = getDateTime(dataToDicom(dataSomministrazione), oraToDicom(oraSomministrazione));
@@ -170,9 +180,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// ============================================
 			// STESSO PAZIENTE, NUOVO DISTRETTO, NUOVA LESIONE
 			// ============================================
-			nuovaLaboriosa = true;
+			nuoveImmagini = true;
 			IJ.log("NUOVO DISTRETTO, CARICAMENTO IMMAGINI E \nRECUPERO DATI SOMMINISTRAZIONE DA PERMANENTE");
 			arrayOfFile2 = desktopImagesFolderFill();
+			if (arrayOfFile2 == null)
+				return;
 			Utility.initLog(pathVolatile);
 			// copia da permanente a volatile i dati di SOMMINISTRAZIONE
 			Utility.copyLogInfo(pathPermanente, pathVolatile, 0, 3);
@@ -223,6 +235,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 		double[] outCF = null;
 		double[] paramsIJ = null;
 		double[] paramsFLA = null;
+		double fitGoodnessIJ = 0;
+		double rSquaredIJ = 0;
+		double rSquaredFLA = 0;
+		double rSquaredFLAadjusted = 0;
 
 		int scelta = 0;
 		int slice1 = 1;
@@ -253,11 +269,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 		imp1.setTitle(tit1);
 		imp1.show();
 		String meta1 = getMeta(slice1, imp1);
-		if (nuovaLaboriosa) {
+		if (nuoveImmagini) {
 			petctviewerTitle = stringaLaboriosa(meta1);
 			Utility.appendLog(pathPermanente, "24h=" + petctviewerTitle);
 		}
-
 		// 0020,000E Series Instance UID:
 		// 1.2.840.113619.2.184.31108.1067210107.1661517437.7028981
 		String petUID1 = DicomTools.getTag(imp1, "0020,000E");
@@ -280,7 +295,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		tit2 = "B024 ## " + tit2;
 		imp2.setTitle(tit2);
 		imp2.show();
-
 		// 0020,000E Series Instance UID:
 		// 1.2.840.113619.2.184.31108.1067210107.1661517437.7028981
 		String ctUID2 = DicomTools.getTag(imp2, "0020,000E");
@@ -313,7 +327,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		imp3.setTitle(tit3);
 		imp3.show();
 		String meta3 = getMeta(slice1, imp3);
-		if (nuovaLaboriosa) {
+		if (nuoveImmagini) {
 			petctviewerTitle = stringaLaboriosa(meta3);
 			Utility.appendLog(pathPermanente, "48h=" + petctviewerTitle);
 		}
@@ -366,7 +380,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		imp5.setTitle(tit5);
 		imp5.show();
 		String meta5 = getMeta(slice1, imp5);
-		if (nuovaLaboriosa) {
+		if (nuoveImmagini) {
 			petctviewerTitle = stringaLaboriosa(meta5);
 			Utility.appendLog(pathPermanente, "120h=" + petctviewerTitle);
 		}
@@ -419,7 +433,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// ==========================================================================================
 			IJ.runPlugIn("Dosimetry.Dosimetry_v2", "");
 
-			Utility.endLog(pathPermanente);
+			if (nuoveImmagini)
+				Utility.endLog(pathPermanente);
 
 			// ==========================================================================================
 			// PARTE GRAFICA
@@ -464,7 +479,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			out120 = Utility.MIRD_point(in1);
 
 			int count5 = 194;
-			aux5 = "#" + String.format("%03d", count5++) + "#\t@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
+			aux5 = "#" + String.format("%03d", count5++) + "#\t----- POINT SELECTION ------------------";
 			Utility.appendLog(pathVolatile, aux5);
 
 			double MIRD_vol120 = out120[0];
@@ -543,6 +558,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 				IJ.log("MIRD FIT param " + i1 + " =" + paramsIJ[i1]);
 				outCF[i1] = paramsIJ[i1];
 			}
+			fitGoodnessIJ = cf.getFitGoodness();
+			rSquaredIJ = cf.getRSquared();
 
 			if (count2 == 3) {
 				flanagan = true;
@@ -551,6 +568,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 				// -------- recupero i dati da stampare ---------------
 
 				paramsFLA = rf.getBestEstimates();
+
+				rSquaredFLAadjusted = rf.getAdjustedCoefficientOfDetermination();
+				rSquaredFLA = rf.getCoefficientOfDetermination();
 
 				Utility.MIRD_curvePlotterSpecialCombined(cf, rf, xp2, yp2);
 			}
@@ -631,12 +651,16 @@ public class Dosimetria_Lu177 implements PlugIn {
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD IJ FIT param " + i1 + "= " + paramsIJ[i1];
 			Utility.appendLog(pathVolatile, aux5);
 		}
-		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FITgoodness= " + null;
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FITgoodness= " + fitGoodnessIJ;
 		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FIT R^2= " + rSquaredIJ;
+		Utility.appendLog(pathVolatile, aux5);
+
 		count5 = 270;
 		aux5 = "#" + String.format("%03d", count5++) + "#\t----- MIRD FIT RESULTS FLANAGAN --------";
 		Utility.appendLog(pathVolatile, aux5);
 		if (!flanagan) {
+			count5 = 279;
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FLANAGAN NON FUNZIONA SE PUNTI <3";
 			Utility.appendLog(pathVolatile, aux5);
 		} else {
@@ -646,7 +670,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 						+ paramsFLA[i1];
 				Utility.appendLog(pathVolatile, aux5);
 			}
-			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FITgoodness= " + null;
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FIT R^2 adjusted= " + rSquaredFLAadjusted;
+			Utility.appendLog(pathVolatile, aux5);
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FIT R^2= " + rSquaredFLA;
 			Utility.appendLog(pathVolatile, aux5);
 		}
 
@@ -1424,12 +1450,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 		genericDialog.setCancelLabel("QUIT");
 		genericDialog.showDialog();
 		if (genericDialog.wasCanceled()) {
-			IJ.log("LP02 - true PREMUTO QUIT");
-			return true;
-		} else {
-			IJ.log("LP02 - false PREMUTO BROWSE");
-			genericDialog.dispose();
+			IJ.log("LP02 - false PREMUTO QUIT");
 			return false;
+		} else {
+			IJ.log("LP02 - true PREMUTO BROWSE");
+			genericDialog.dispose();
+			return true;
 		}
 	}
 
@@ -1630,7 +1656,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 	 * @param str20
 	 * @return
 	 */
-	boolean dialogImmaginiPazientePrecedente_LP21(String[] str20) {
+	boolean dialogImmaginiPazientePrecedente_LP21_OLD(String[] str20) {
 
 		IJ.log("dialogImmaginiPazientePrecedente_LP21");
 		NonBlockingGenericDialog nonBlockingGenericDialog = new NonBlockingGenericDialog(
@@ -1648,6 +1674,37 @@ public class Dosimetria_Lu177 implements PlugIn {
 		} else {
 			IJ.log("LP21 true PASSA A NUOVO PAZIENTE");
 			return true;
+		}
+	}
+
+	/**
+	 * Presenza immagini nel dosimetry folder all'avvio
+	 * 
+	 * @param str20
+	 * @return
+	 */
+	int dialogImmaginiPazientePrecedente_LP21(String[] str20) {
+
+		IJ.log("dialogImmaginiPazientePrecedente_LP21");
+		NonBlockingGenericDialog nonBlockingGenericDialog = new NonBlockingGenericDialog(
+				"LP21 - Immagini paziente precedente");
+		nonBlockingGenericDialog.addMessage("Presenza immagini paziente precedente", this.titleFont);
+		nonBlockingGenericDialog.addMessage(
+				"Attenzione: in DosimetryFolder sul Desktop ci sono le immagini \n" + str20[0] + " di " + str20[1],
+				this.defaultFont);
+		nonBlockingGenericDialog.enableYesNoCancel("PASSA A NUOVO PAZIENTE", "CONTINUA CON ALTRE LESIONI");
+//		nonBlockingGenericDialog.setCancelLabel("");
+//		nonBlockingGenericDialog.setOKLabel("PASSA A NUOVO PAZIENTE");
+		nonBlockingGenericDialog.showDialog();
+		if (nonBlockingGenericDialog.wasCanceled()) {
+			IJ.log("LP21 0 Cancel");
+			return 0;
+		} else if (nonBlockingGenericDialog.wasOKed()) {
+			IJ.log("LP21 2 PASSA A NUOVO PAZIENTE");
+			return 2;
+		} else {
+			IJ.log("LP21 1 CONTINUA CON ALTRE LESIONI");
+			return 1;
 		}
 	}
 
@@ -1691,8 +1748,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		// chiede di identificare la cartella 24h sorgente
 		do {
-			boolean quit1 = dialogSelection_LP02();
-			if (quit1)
+			boolean ok = dialogSelection_LP02();
+			if (!ok)
 				return null;
 			strDir24h = directorySelection_LP_20(); // nome directory 24h
 		} while (strDir24h == null);
@@ -1719,7 +1776,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 			strDir120h = "Not Found";
 		}
 		// chiede conferma della selezione effettuata
-		dialogConfirmFolder_LP03(strDir24h, strDir48h, strDir120h);
+		boolean ok = dialogConfirmFolder_LP03(strDir24h, strDir48h, strDir120h);
+		if (!ok)
+			return null;
 
 		// ----------------------------------------
 		// Copia delle immagini dalla sorgente al DosimetryFolder situato sul desktop

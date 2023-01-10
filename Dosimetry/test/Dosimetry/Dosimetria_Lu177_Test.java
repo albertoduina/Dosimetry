@@ -66,7 +66,7 @@ public class Dosimetria_Lu177_Test {
 		Utility.debugDeiPoveri("SPETTA");
 		assertTrue(true);
 	}
-	
+
 	@Test
 	public final void test_LP32_DialogReview() {
 
@@ -100,9 +100,11 @@ public class Dosimetria_Lu177_Test {
 
 		String[] in1 = { "aa", "bb" };
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
-		boolean ok = dosimetria_Lu177.dialogImmaginiPazientePrecedente_LP21(in1);
+//		boolean ok = dosimetria_Lu177.dialogImmaginiPazientePrecedente_LP21(in1);
+		int out = dosimetria_Lu177.dialogImmaginiPazientePrecedente_LP21(in1);
+
 		Utility.debugDeiPoveri("SPETTA");
-		assertTrue(ok);
+		assertTrue(true);
 	}
 
 	@Test

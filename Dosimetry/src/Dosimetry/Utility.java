@@ -888,16 +888,18 @@ public class Utility {
 //			return;
 //		}
 		int npoints = 1000;
-		if (npoints < x.length)
-			npoints = x.length; // or 2*x.length-1; for 2 values per data point
+		if (npoints < vetx.length)
+			npoints = vetx.length; // or 2*x.length-1; for 2 values per data point
 		if (npoints > 1000)
 			npoints = 1000;
-		double[] a = Tools.getMinMax(x);
-		double xmin = a[0], xmax = a[1] * 1.5;
+		double[] a = Tools.getMinMax(vetx);
+		double xmin = a[0];
+		double xmax = a[1] * 1.5;
 		xmin = 0;
 		npoints = 1000;
-		double[] b = Tools.getMinMax(y);
-		double ymin = b[0], ymax = b[1] * 1.1; // y range of data points
+		double[] b = Tools.getMinMax(vety);
+		double ymin = b[0];
+		double ymax = b[1] * 1.1; // y range of data points
 		ymin = 0;
 		double[] px = new double[npoints];
 		double[] py = new double[npoints];
