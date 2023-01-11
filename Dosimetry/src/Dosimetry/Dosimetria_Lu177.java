@@ -1,6 +1,5 @@
 package Dosimetry;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.image.ColorModel;
@@ -15,18 +14,13 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.Vector;
 
 import flanagan.analysis.Regression;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
-import ij.WindowManager;
 import ij.gui.GenericDialog;
 import ij.gui.NonBlockingGenericDialog;
-import ij.gui.Plot;
-import ij.gui.WaitForUserDialog;
-import ij.gui.YesNoCancelDialog;
 import ij.io.DirectoryChooser;
 import ij.io.FileInfo;
 import ij.io.Opener;
@@ -100,6 +94,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		boolean nuovoPaziente = false;
 		boolean nuovoDistretto = false;
 		boolean nuoveImmagini = false;
+		boolean datiSomministrazioneValidi = false;
 		File[] arrayOfFile2 = null;
 		String aux5 = "";
 		int out1 = 0;
@@ -108,11 +103,15 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// LEGGO CARTELLA DOSIMETRY FOLDER (E SOTTOCARTELLA IMAGES FOLDER)
 		// ===========================================================
 		String[] insOut = inspector(desktopDosimetryFolderPath);
+		datiSomministrazioneValidi = Utility.datiSomministrazionePresenti(pathPermanente);
 		if (insOut == null) {
 			IJ.log("NON ESISTE DOSIMETRY_FOLDER SUL DESKTOP");
 			nuovoPaziente = true;
 		} else if (insOut.length == 0) {
 			IJ.log("NON ESISTONO IMMAGINI PAZIENTE");
+			nuovoPaziente = true;
+		} else if (!datiSomministrazioneValidi) {
+			IJ.log("NON ESISTONO I DATI SOMMINISTAZIONE");
 			nuovoPaziente = true;
 		} else {
 			// ===========================================================
@@ -135,6 +134,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 				nuovoDistretto = dialogDistretto_LP07();
 			}
 		}
+		if (!datiSomministrazioneValidi)
+			nuovoPaziente = true;
 		if (nuovoPaziente) {
 			// ============================================
 			// NUOVO PAZIENTE
@@ -304,7 +305,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// CT da aprire
 		String seriesUID1 = petUID1 + ", " + ctUID2;
 		IJ.runPlugIn("Pet_Ct_Viewer", seriesUID1);
-		IJ.wait(2000);
+		IJ.wait(500);
 
 		// ===========================================================================
 		// ELABORAZIONE 48h ed apertura PetCtViewer
@@ -357,7 +358,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		String seriesUID3 = petUID3 + ", " + ctUID4;
 		IJ.runPlugIn("Pet_Ct_Viewer", seriesUID3);
-		IJ.wait(2000);
+		IJ.wait(500);
 
 		// ===========================================================================
 		// ELABORAZIONE 120h ed apertura PetCtViewer
@@ -412,7 +413,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		String seriesUID5 = petUID5 + ", " + ctUID6;
 		IJ.runPlugIn("Pet_Ct_Viewer", seriesUID5);
-		IJ.wait(2000);
+		IJ.wait(500);
 
 		// ===========================================================================
 		imp2.close();
@@ -442,9 +443,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// PARTE GRAFICA
 			// ==========================================================================================
 
-			// String aux1 = "";
 			// 24h
-			// Utility.appendLog(pathVolatile, aux1);
+			// se non mi ha scritto il tag #119# di volatile vuol dire che Dosimetry_v2 non
+			// ha analizzato la immagine 24h (probabile cancel dato al menu)
+			if (Utility.readFromLog(pathVolatile, "#119#", "=") == null)
+				return;
+
 			double[] in1 = new double[5];
 			in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#018#", "=")); // acquisition duration
 			in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#119#", "=")); // pixel number over threshold
@@ -458,7 +462,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 			double MIRD_attiv24 = out24[2];
 
 			// 48h
-			// Utility.appendLog(pathVolatile, aux1);
+			// se non mi ha scritto il tag #119# di volatile vuol dire che Dosimetry_v2 non
+			// ha analizzato la immagine 24h (probabile cancel dato al menu)
+			if (Utility.readFromLog(pathVolatile, "#149#", "=") == null)
+				return;
 			in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#038#", "=")); // acquisition duration
 			in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#149#", "=")); // pixel number over threshold
 			in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
@@ -471,7 +478,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 			double MIRD_attiv48 = out48[2];
 
 			// 120h
-			// Utility.appendLog(pathVolatile, aux1);
+			// se non mi ha scritto il tag #119# di volatile vuol dire che Dosimetry_v2 non
+			// ha analizzato la immagine 24h (probabile cancel dato al menu)
+			if (Utility.readFromLog(pathVolatile, "#179#", "=") == null)
+				return;
 			in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#058#", "=")); // acquisition duration
 			in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#179#", "=")); // pixel number over threshold
 			in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
@@ -516,10 +526,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// FIT E PLOT DECISIONALI
 			// ========================================================================
 
-//			outCF = Utility.MIRD_curveFitterImageJ(xp, yp);
-//			Utility.MIRD_curvePlotter(xp, yp);
-//			MIRD_display_LP66(MIRD_vol24, MIRD_vol48, MIRD_vol120);
-
 			// Mostro i 3 punti, senza fit, in modo che, con LP33 venga scelto l'eventuale
 			// unto da togliere
 			Utility.MIRD_pointsPlotter(xp1, yp1, null);
@@ -532,13 +538,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 			}
 
 			Utility.MIRD_pointsPlotter(xp1, yp1, punti);
-			Utility.debugDeiPoveri("POTA, POTA, POTA");
-
 			count5 = 195;
 			aux5 = "#" + String.format("%03d", count5++) + "#\tSelezionati i punti 24h= " + punti[0] + " 48h= "
 					+ punti[1] + " 120h= " + punti[2];
 			Utility.appendLog(pathVolatile, aux5);
-
 			int count2 = 0;
 			double[] xp2 = new double[count];
 			double[] yp2 = new double[count];
@@ -549,7 +552,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 					count2++;
 				}
 			}
-
 			CurveFitter cf = Utility.MIRD_curveFitterSpecialImageJ(xp2, yp2);
 			Utility.MIRD_curvePlotterSpecialImageJ(cf, xp1, yp1, punti);
 			// -------- recupero i dati da stampare ---------------
@@ -566,15 +568,17 @@ public class Dosimetria_Lu177 implements PlugIn {
 			if (count2 == 3) {
 				flanagan = true;
 				Regression rf = Utility.MIRD_curveFitterSpecialFlanagan(xp2, yp2);
+				IJ.log("FLA001");
 				Utility.MIRD_curvePlotterSpecialFlanagan(rf, xp2, yp2);
+				IJ.log("FLA002");
 				// -------- recupero i dati da stampare ---------------
-
 				paramsFLA = rf.getBestEstimates();
+				paramsFLA = Utility.vetReverser(paramsFLA);
 
 				rSquaredFLAadjusted = rf.getAdjustedCoefficientOfDetermination();
 				rSquaredFLA = rf.getCoefficientOfDetermination();
-
 				Utility.MIRD_curvePlotterSpecialCombined(cf, rf, xp2, yp2);
+				IJ.log("FLA003");
 			}
 
 			// ==========================================================================
@@ -613,9 +617,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		} while (scelta < 4);
 		// ============================================================================
-		// UNA VOLTA CHE THE MOUTAINEER (L'UOMO DEL MONTE) HA DETTO SI, SCRIVIAMO TUTTA
-		// LA MONNEZZA IN VOLATILE, IN ATTESA DI CONOSCERE IL NOME CHE DARANNO ALLA
-		// LESIONE
+		// UNA VOLTA CHE L'OPERATORE HA DETTO SI, SCRIVIAMO TUTTA LA MONNEZZA IN
+		// VOLATILE, IN ATTESA DI CONOSCERE IL NOME CHE DARANNO ALLA LESIONE
 		// ============================================================================
 
 		int count5 = 200;
@@ -657,7 +660,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FIT R^2= " + rSquaredIJ;
 		Utility.appendLog(pathVolatile, aux5);
-
 		count5 = 270;
 		aux5 = "#" + String.format("%03d", count5++) + "#\t----- MIRD FIT RESULTS FLANAGAN --------";
 		Utility.appendLog(pathVolatile, aux5);
@@ -666,7 +668,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FLANAGAN NON FUNZIONA SE PUNTI <3";
 			Utility.appendLog(pathVolatile, aux5);
 		} else {
-
 			for (int i1 = 0; i1 < paramsFLA.length; i1++) {
 				aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FLANAGAN FIT param " + i1 + "= "
 						+ paramsFLA[i1];
@@ -682,10 +683,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// BATTESIMO DELLA LESIONE
 		// ==============================================================
 		Utility.dedupeLog(pathVolatile);
-		Utility.battezzaLesioni_DD07(pathVolatile);
+		Utility.dialogBattezzaLesioni_DD07(pathVolatile);
 		Utility.chiudiTutto();
 		IJ.showMessage("FINE LAVORO");
-
 	}
 
 	/**
@@ -1261,6 +1261,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		String ora0;
 		Double activity0;
 		String activity1;
+		boolean inputDebugMode = false;
 
 		IJ.log("LP04 start");
 		GenericDialog gd11 = new GenericDialog("LP04 - Date/Time/Activity");
@@ -1279,6 +1280,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		double default13 = 0.00;
 		int digits13 = 8;
 		gd11.addNumericField(label13, default13, digits13, 10, "[MBq]");
+
 		gd11.setCancelLabel("Annulla");
 		gd11.showDialog();
 		if (gd11.wasCanceled()) {
@@ -1301,6 +1303,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 		}
 
 		activity0 = gd11.getNextNumber();
+		if (activity0 == 0)
+			return null;
 		activity1 = "" + activity0;
 		out1[0] = data0;
 		out1[1] = ora0;

@@ -217,7 +217,6 @@ public class Utility {
 			out.close();
 			in.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		deleteLog(tmpFile);
@@ -238,7 +237,6 @@ public class Utility {
 			out.newLine();
 			out.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -521,7 +519,7 @@ public class Utility {
 	 * @param defaultFont
 	 * @return
 	 */
-	static ImagePlus sceltaAutomaticaImmagine_DD10(boolean ok24, boolean ok48, boolean ok120, Font defaultFont) {
+	static ImagePlus dialogSceltaAutomaticaImmagine_DD10(boolean ok24, boolean ok48, boolean ok120, Font defaultFont) {
 
 		boolean[] choice = new boolean[3];
 		String default1 = "";
@@ -680,21 +678,11 @@ public class Utility {
 			IJ.log("x= " + i1 + "ff1=" + ff1[i1]);
 		}
 
-//		Plot zz = cf1.getPlot(256);
-//		zz.setLineWidth(2);
-//		zz.show();
-//		Utility.debugDeiPoveri("SPETTA");
 		double[] out1 = new double[numParams];
 		for (int i1 = 0; i1 < numParams; i1++) {
 			IJ.log("MIRD FIT param " + i1 + " =" + params[i1]);
 			out1[i1] = params[i1];
 		}
-		int count = 0;
-//		for (int i1 = 10; i1 < 10 + 266; i1++) {
-//			IJ.log("count= " + count + " i1= " + i1);
-//			out1[i1] = cf1.f(count++);
-//			IJ.log("x= " + i1 + "ff1=" + ff1[i1]);
-//		}
 
 		IJ.log("MIRD FIT iterations= " + iterations);
 		IJ.log("MIRD FIT goodness=  " + goodness);
@@ -798,7 +786,7 @@ public class Utility {
 	 */
 	static Regression MIRD_curveFitterSpecialFlanagan(double[] vetX, double[] vetY) {
 
-		IJ.log("=== CURVE FITTER SPECIAL FLANAGAN ====");
+		IJ.log("=== CURVE FITTER SPECIAL FLANAGAN 002 ====");
 
 		Regression reg = new Regression(vetX, vetY);
 
@@ -815,7 +803,7 @@ public class Utility {
 	 */
 	static double[] MIRD_curveFitterFlanagan(double[] vetX, double[] vetY) {
 
-		IJ.log("=== CURVE FITTER FLANAGAN ====");
+		IJ.log("=== CURVE FITTER FLANAGAN 001 ===");
 
 		Regression reg = new Regression(vetX, vetY);
 
@@ -1033,7 +1021,7 @@ public class Utility {
 		IJ.log("aux0= " + aux0 + " aux1= " + aux1);
 		for (int i = 0; i < npoints; i++) {
 			py[i] = aux0 * Math.exp(aux1 * px[i]);
-			IJ.log("px[" + i + "]= " + px[i] + "  py[" + i + "]= " + py[i]);
+			// IJ.log("px[" + i + "]= " + px[i] + " py[" + i + "]= " + py[i]);
 		}
 		a = Tools.getMinMax(py);
 		double dataRange = ymax - ymin;
@@ -1135,7 +1123,7 @@ public class Utility {
 	 * @param pathVolatile
 	 * @param pathPermanente
 	 */
-	static void battezzaLesioni_DD07(String pathVolatile) {
+	static void dialogBattezzaLesioni_DD07(String pathVolatile) {
 		// alla fine del nostro reiterativo lavoro decidiamo che dobbiamo salvare il
 		// tutto CHE COSA POTRA'MAI ANDARE STORTO???
 		GenericDialog compliments1 = new GenericDialog("DD07 - Compliments1");
@@ -1165,7 +1153,7 @@ public class Utility {
 	 * Selezione altro distretto anatomico
 	 * 
 	 */
-	void altroDistretto_DD08() {
+	static void dialogAltroDistretto_DD08() {
 		IJ.log("DD08_altroDistretto");
 		GenericDialog finished1 = new GenericDialog("DD08 - Finished1");
 		finished1.addMessage("HAI TERMINATO ANALISI DISTRETTO?");
@@ -1294,6 +1282,51 @@ public class Utility {
 
 		plot.setColor(Color.BLUE);
 		plot.show();
+	}
+
+	static boolean datiSomministrazionePresenti(String path) {
+
+		File fil = new File(path);
+		if (!fil.exists())
+			return false;
+
+		String aux1 = "";
+		double aux2 = 0;
+		aux1 = readFromLog(path, "#001#", "=");
+		if (aux1 == null)
+			return false;
+		if (!Utility.isValidDate(aux1, "dd-mm-yyyy"))
+			return false;
+		aux1 = readFromLog(path, "#002#", "=");
+		if (aux1 == null)
+			return false;
+		if (!Utility.isValidTime(aux1, "HH:mm:ss"))
+			return false;
+
+		aux1 = readFromLog(path, "#003#", "="); // activity
+		if (aux1 == null)
+			return false;
+		aux2 = Double.parseDouble(aux1);
+		if (aux2 <= 0)
+			return false;
+
+		return true;
+	}
+
+	public String[] titoli() {
+		String[] all = WindowManager.getNonImageTitles();
+		return all;
+
+	}
+
+	static double[] vetReverser(double[] parameters) {
+		double[] out = new double[parameters.length];
+		int count = 0;
+		for (int i1 = parameters.length-1 ; i1 >= 0; i1--) {
+			out[count++] = parameters[i1];
+		}
+
+		return out;
 	}
 
 }

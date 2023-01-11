@@ -101,7 +101,7 @@ public class Utility_Test {
 
 		double[] vetX = { 24, 48, 120 };
 		double[] vetY = { 35.921969407999995, 18.392739144, 9.153194127999999 };
-		boolean[] selected= {true, false, true};
+		boolean[] selected = { true, false, true };
 
 		CurveFitter cf = Utility.MIRD_curveFitterSpecialImageJ(vetX, vetY);
 		Utility.MIRD_curvePlotterSpecialImageJ(cf, vetX, vetY, selected);
@@ -169,6 +169,21 @@ public class Utility_Test {
 		Utility.dedupeLog(path2);
 
 		Utility.debugDeiPoveri("SPETTA");
+	}
+
+	@Test
+	public final void test_vetReverser() {
+
+		
+		double[] input1= {1,2,3,4,5,6,7,8,9};
+		double[] input2=input1;
+		double[] output2= Utility.vetReverser(input2);
+		
+		for (double aux:output2)
+			IJ.log(""+aux);
+		
+		Utility.debugDeiPoveri("SPETTA");
+		
 	}
 
 }

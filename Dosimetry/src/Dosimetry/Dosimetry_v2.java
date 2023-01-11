@@ -110,6 +110,11 @@ public class Dosimetry_v2 implements PlugIn {
 			vetPetCtViewerTitle[2] = Utility.readFromLog(pathPermanente, "120h=", "=");
 		}
 
+		String[] niw1 = WindowManager.getNonImageTitles();
+		for (String aaa : niw1) {
+			IJ.log("titoli " + aaa);
+		}
+
 		// ==========================================================================
 		// Questi tag dal #901#, #902#, #903#, #904# scrittio e letti da permanente.txt
 		// sono quelli che permettono di scambiare informazioni tra Dosimetria_Lu177 e
@@ -131,7 +136,7 @@ public class Dosimetry_v2 implements PlugIn {
 			IJ.log("LOOP ESTERNO LIVELLO ZERO");
 
 			String[] lista1 = WindowManager.getImageTitles();
-			ImagePlus selectedImage = Utility.sceltaAutomaticaImmagine_DD10(ok24, ok48, ok120, defaultFont);
+			ImagePlus selectedImage = Utility.dialogSceltaAutomaticaImmagine_DD10(ok24, ok48, ok120, defaultFont);
 			if (selectedImage == null)
 				return;
 //		Utility.nonImageToFront("DD10 - Immagine da analizzare");
@@ -193,25 +198,14 @@ public class Dosimetry_v2 implements PlugIn {
 				/// FUNZIONA ANCORA !!!!
 				Utility.imageToFront(title1);
 				Utility.nonImageToFront(vetPetCtViewerTitle[point1]);
-				String aux10= vetPetCtViewerTitle[point1];
+				String aux10 = vetPetCtViewerTitle[point1];
 				IJ.log("PRIMO PIANO= " + vetPetCtViewerTitle[point1]);
-
-//				NonBlockingGenericDialog gdlg = new NonBlockingGenericDialog("DD012 ISTRUZIONI");
-//				gdlg.addMessage(
-//						"PER CONTORNAMENTO CON THRESHOLD:\nda Edit-BrownFatROI visualizzare numero di fetta in cui ci si trova e ricordarselo.\n"
-//								+ "PER CONTORNAMENTO CON ROI:\nDisegnare ROI da Edit-BrownFatROI");
-//				gdlg.showDialog();
-//				if (gdlg.wasOKed()) {
-//					IJ.log("DD012 - true PREMUTO OK");
-//				}
-
 				WaitForUserDialog waitForUserDialog = new WaitForUserDialog("DD12 ISTRUZIONI",
 						"PER CONTORNAMENTO CON THRESHOLD:\nda Edit-BrownFatROI visualizzare numero di fetta in cui ci si trova e ricordarselo.\n"
-								+ "PER CONTORNAMENTO CON ROI:\nDisegnare ROI da Edit-BrownFatROI\nPETCTVIEWER>>>"+aux10+"<<<");
+								+ "PER CONTORNAMENTO CON ROI:\nDisegnare ROI da Edit-BrownFatROI");
 				waitForUserDialog.show();
 
 				Utility.imageToFront(title1);
-//				Utility.nonImageToFront(vetPetCtViewerTitle[point1]);
 
 				// ======================================================
 				// FINE PARTE NUOVA ALL'INTERNO DEL LOOP
@@ -249,7 +243,6 @@ public class Dosimetry_v2 implements PlugIn {
 				// ======================================================
 				do {
 					IJ.log("LOOP LIVELLO DUE");
-
 					NonBlockingGenericDialog dialogSlice = new NonBlockingGenericDialog("DD097 - Required Parameters");
 					dialogSlice.addMessage("Slice selection", titleFont);
 					dialogSlice.addMessage("Image slices number: " + stackSize + ".", textFont);
