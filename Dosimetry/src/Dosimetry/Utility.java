@@ -250,7 +250,7 @@ public class Utility {
 	 * @param separator
 	 * @return
 	 */
-	static String readDoubleFromLog(String path1, String code1, String separator) {
+	static double readDoubleFromLog(String path1, String code1, String separator) {
 
 		// leggo una stringa dal log
 		String[] vetText = Utility.readSimpleText(path1);
@@ -265,7 +265,7 @@ public class Utility {
 			}
 		}
 
-		return out1;
+		return Double.parseDouble(out1);
 	}
 
 	/**
@@ -1126,7 +1126,7 @@ public class Utility {
 	static void dialogBattezzaLesioni_DD07(String pathVolatile) {
 		// alla fine del nostro reiterativo lavoro decidiamo che dobbiamo salvare il
 		// tutto CHE COSA POTRA'MAI ANDARE STORTO???
-		GenericDialog compliments1 = new GenericDialog("DD07 - Compliments1");
+		NonBlockingGenericDialog compliments1 = new NonBlockingGenericDialog("DD07 - Compliments1");
 		compliments1.addMessage("COMPLIMENTI, HAI COMPLETATO L'ANALISI DELLA LESIONE");
 		compliments1.addMessage("SENZA SCLERARE TROPPO");
 		compliments1.addStringField("NomeLesione per memorizzazione", "");
@@ -1322,11 +1322,166 @@ public class Utility {
 	static double[] vetReverser(double[] parameters) {
 		double[] out = new double[parameters.length];
 		int count = 0;
-		for (int i1 = parameters.length-1 ; i1 >= 0; i1--) {
+		for (int i1 = parameters.length - 1; i1 >= 0; i1--) {
 			out[count++] = parameters[i1];
 		}
 
 		return out;
+	}
+
+	static void blaBla(Regression reg, String pathVolatile) {
+		// ricaviamo tutti i valori di questo mondo
+		double[] params = reg.getBestEstimates();
+
+		double AA = params[1];
+		double aa = params[0];
+
+		double[] errors = reg.getBestEstimatesErrors();
+
+		double SA = errors[1];
+		double Sa = errors[0];
+
+		double mAtilde = AA / aa;
+		double disintegrazioni = mAtilde / 100;
+		double somministrata = Utility.readDoubleFromLog(pathVolatile, "#003#", "=");
+		double uptake = AA / somministrata;
+		double vol24 = Utility.readDoubleFromLog(pathVolatile, "#201#", "=");
+		double vol48 = Utility.readDoubleFromLog(pathVolatile, "#221#", "=");
+		double vol120 = Utility.readDoubleFromLog(pathVolatile, "#241#", "=");
+		double[] vetVol = new double[3];
+		vetVol[0] = vol24;
+		vetVol[1] = vol48;
+		vetVol[2] = vol120;
+
+		double massa = vetMean(vetVol);
+		double tmezzo = Math.log(2) / aa;
+
+		double SmAtilde = Math.sqrt(Math.pow(aa, 2) * Math.pow(SA, 2) + Math.pow(AA, 2) * Math.pow(Sa, 2))
+				/ (Math.pow(aa, 2));
+		double Sdisintegrazioni = SmAtilde / 100;
+		double Suptake = SA / somministrata;
+		double Smassa = vetSdKnuth(vetVol);
+		double Stmezzo = (Math.log(2) * Sa) / Math.pow(aa, 2);
+
+		IJ.log("==== VALORE MEDIO DOPO FLANAGAN =====");
+		IJ.log("parametro A= " + AA);
+		IJ.log("parametro a= " + aa);
+		IJ.log("mAtilde= " + mAtilde);
+		IJ.log("# disintegrazioni= " + disintegrazioni);
+		IJ.log("uptake[%]= " + uptake);
+		IJ.log("massa= " + massa);
+		IJ.log("tmezzo= " + tmezzo);
+		IJ.log("==== ERRORI DOPO FLANAGAN ==========");
+		IJ.log("errore SA= " + SA);
+		IJ.log("errore Sa= " + Sa);
+		IJ.log("SmAtilde= " + SmAtilde);
+		IJ.log("S# disintegrazioni= " + Sdisintegrazioni);
+		IJ.log("Suptake= " + Suptake);
+		IJ.log("Smassa= " + Smassa);
+		IJ.log("Stmezzo= " + Stmezzo);
+		IJ.log("====================================");
+
+		String aux5;
+		int count5 = 300;
+		aux5 = "#" + String.format("%03d", count5++) + "#\t--------- FLANAGAN VALORI MEDI ----------";
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tparametro A= " + AA;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tparametro a= " + aa;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tdisintegrazioni= " + disintegrazioni;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tuptake[%]= " + uptake;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tmassa= " + massa;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\ttmezzo= " + tmezzo;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\t--------- FLANAGAN ERRORI ----------";
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\terrore SA= " + SA;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\terrore Sa= " + Sa;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tSmAtilde= " + SmAtilde;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tS# disintegrazioni= " + Sdisintegrazioni;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tSuptake= " + Suptake;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tSmassa= " + Smassa;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tStmezzo= " + Stmezzo;
+		Utility.appendLog(pathVolatile, aux5);
+
+	}
+
+	/**
+	 * Calcola la deviazione standard
+	 * 
+	 * @param num  Numero dei pixel
+	 * @param sum  Somma dei valori pixel
+	 * @param sum2 Somma dei quadrati dei valori dei pixel
+	 * @return deviazione standard
+	 */
+
+	private static double calculateStdDev(int num, double sum, double sum2) {
+		double sd1;
+		if (num > 0) {
+			sd1 = (num * sum2 - sum * sum) / num;
+			if (sd1 > 0.0)
+				sd1 = Math.sqrt(sd1 / (num - 1.0));
+			else
+				sd1 = 0.0;
+		} else
+			sd1 = 0.0;
+		return (sd1);
+	}
+
+	/**
+	 * Calculates the standard deviation of an array of numbers. see Knuth's The Art
+	 * Of Computer Programming Volume II: Seminumerical Algorithms This algorithm is
+	 * slower, but more resistant to error propagation.
+	 * 
+	 * @param data Numbers to compute the standard deviation of. Array must contain
+	 *             two or more numbers.
+	 * @return standard deviation estimate of population ( to get estimate of
+	 *         sample, use n instead of n-1 in last line )
+	 */
+	public static double vetSdKnuth(double[] data) {
+		final int n = data.length;
+		if (n < 2) {
+			return Double.NaN;
+		}
+		double avg = data[0];
+		double sum = 0;
+		// yes, i1 below starts from 1
+		for (int i1 = 1; i1 < data.length; i1++) {
+			double newavg = avg + (data[i1] - avg) / (i1 + 1);
+			sum += (data[i1] - avg) * (data[i1] - newavg);
+			avg = newavg;
+		}
+		return Math.sqrt(sum / (n - 1));
+	}
+
+	/**
+	 * Calcola la media di un vettore
+	 * 
+	 * @param data
+	 * @return
+	 */
+
+	public static double vetMean(double[] data) {
+		final int n = data.length;
+		if (n < 1) {
+			return Double.NaN;
+		}
+		double sum = 0;
+		for (int i1 = 0; i1 < data.length; i1++) {
+			sum += data[i1];
+		}
+		double mean = sum / data.length;
+		return mean;
 	}
 
 }

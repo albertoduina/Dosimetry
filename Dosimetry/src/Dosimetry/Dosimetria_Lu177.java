@@ -95,6 +95,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 		boolean nuovoDistretto = false;
 		boolean nuoveImmagini = false;
 		boolean datiSomministrazioneValidi = false;
+		Regression rf = null;
+		CurveFitter cf = null;
 		File[] arrayOfFile2 = null;
 		String aux5 = "";
 		int out1 = 0;
@@ -552,7 +554,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 					count2++;
 				}
 			}
-			CurveFitter cf = Utility.MIRD_curveFitterSpecialImageJ(xp2, yp2);
+			cf = Utility.MIRD_curveFitterSpecialImageJ(xp2, yp2);
 			Utility.MIRD_curvePlotterSpecialImageJ(cf, xp1, yp1, punti);
 			// -------- recupero i dati da stampare ---------------
 			paramsIJ = cf.getParams();
@@ -567,7 +569,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 			if (count2 == 3) {
 				flanagan = true;
-				Regression rf = Utility.MIRD_curveFitterSpecialFlanagan(xp2, yp2);
+				rf = Utility.MIRD_curveFitterSpecialFlanagan(xp2, yp2);
 				IJ.log("FLA001");
 				Utility.MIRD_curvePlotterSpecialFlanagan(rf, xp2, yp2);
 				IJ.log("FLA002");
@@ -678,6 +680,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FIT R^2= " + rSquaredFLA;
 			Utility.appendLog(pathVolatile, aux5);
 		}
+
+		if (rf != null)
+			Utility.blaBla(rf, pathVolatile);
 
 		// ==============================================================
 		// BATTESIMO DELLA LESIONE
