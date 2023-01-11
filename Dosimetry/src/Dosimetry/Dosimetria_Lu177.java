@@ -502,11 +502,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 			double[] xp1 = new double[3];
 			double[] yp1 = new double[3];
-			xp1[0] = 24.0;
+			xp1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#019#", "=")); // deltaT
 			yp1[0] = out24[2];
-			xp1[1] = 48.0;
+			xp1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#039#", "=")); // deltaT
 			yp1[1] = out48[2];
-			xp1[2] = 120.0;
+			xp1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#059#", "=")); // deltaT
 			yp1[2] = out120[2];
 			for (double aux : xp1) {
 				IJ.log("xp1= " + aux);
@@ -523,7 +523,17 @@ public class Dosimetria_Lu177 implements PlugIn {
 //			yp[1] = out48[2];
 //			xp[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#059#", "=")); // deltaT
 //			yp[2] = out120[2];
+//
+//
+//			xp1[0] = 24.0;
+//			yp1[0] = out24[2];
+//			xp1[1] = 48.0;
+//			yp1[1] = out48[2];
+//			xp1[2] = 120.0;
+//			yp1[2] = out120[2];
 
+			
+			
 			// ========================================================================
 			// FIT E PLOT DECISIONALI
 			// ========================================================================
