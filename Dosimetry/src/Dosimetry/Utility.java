@@ -1333,8 +1333,8 @@ public class Utility {
 		// ricaviamo tutti i valori di questo mondo
 		double[] params = reg.getBestEstimates();
 
-		double AA = params[1];
-		double aa = params[0];
+		double AA = Math.abs(params[1]);
+		double aa = Math.abs(params[0]);
 
 		double[] errors = reg.getBestEstimatesErrors();
 
@@ -1355,6 +1355,7 @@ public class Utility {
 
 		double massa = vetMean(vetVol);
 		double tmezzo = Math.log(2) / aa;
+		double tau=mAtilde/somministrata;
 
 		double SmAtilde = Math.sqrt(Math.pow(aa, 2) * Math.pow(SA, 2) + Math.pow(AA, 2) * Math.pow(Sa, 2))
 				/ (Math.pow(aa, 2));
@@ -1362,6 +1363,7 @@ public class Utility {
 		double Suptake = SA / somministrata;
 		double Smassa = vetSdKnuth(vetVol);
 		double Stmezzo = (Math.log(2) * Sa) / Math.pow(aa, 2);
+		double Stau=SmAtilde/somministrata;
 
 		IJ.log("==== VALORE MEDIO DOPO FLANAGAN =====");
 		IJ.log("parametro A= " + AA);
@@ -1371,6 +1373,7 @@ public class Utility {
 		IJ.log("uptake[%]= " + uptake);
 		IJ.log("massa= " + massa);
 		IJ.log("tmezzo= " + tmezzo);
+		IJ.log("tau= " + tau);
 		IJ.log("==== ERRORI DOPO FLANAGAN ==========");
 		IJ.log("errore SA= " + SA);
 		IJ.log("errore Sa= " + Sa);
@@ -1379,6 +1382,7 @@ public class Utility {
 		IJ.log("Suptake= " + Suptake);
 		IJ.log("Smassa= " + Smassa);
 		IJ.log("Stmezzo= " + Stmezzo);
+		IJ.log("Stau= " + Stau);
 		IJ.log("====================================");
 
 		String aux5;
@@ -1389,6 +1393,8 @@ public class Utility {
 		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tparametro a= " + aa;
 		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tmAtilde= " + mAtilde;		
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tdisintegrazioni= " + disintegrazioni;
 		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tuptake[%]= " + uptake;
@@ -1396,6 +1402,8 @@ public class Utility {
 		aux5 = "#" + String.format("%03d", count5++) + "#\tmassa= " + massa;
 		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\ttmezzo= " + tmezzo;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\ttau= " + tau;
 		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\t--------- FLANAGAN ERRORI ----------";
 		Utility.appendLog(pathVolatile, aux5);
@@ -1412,6 +1420,8 @@ public class Utility {
 		aux5 = "#" + String.format("%03d", count5++) + "#\tSmassa= " + Smassa;
 		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tStmezzo= " + Stmezzo;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tStau= " + Stau;
 		Utility.appendLog(pathVolatile, aux5);
 
 	}

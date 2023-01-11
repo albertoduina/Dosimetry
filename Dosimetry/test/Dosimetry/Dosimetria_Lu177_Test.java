@@ -141,8 +141,14 @@ public class Dosimetria_Lu177_Test {
 	public final void test_LP05_DialogReview() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
-		ArrayList<ArrayList<String>> aList = null;
-		boolean ok = dosimetria_Lu177.dialogReview_LP05(aList);
+		ArrayList<ArrayList<String>> alist = new ArrayList<ArrayList<String>>();
+		ArrayList<String> blist = new ArrayList<String>();
+		blist.add("pippo");
+		blist.add("pluto");
+		blist.add("paperino");
+		alist.add(blist);
+
+		boolean ok = dosimetria_Lu177.dialogReview_LP05(alist);
 		Utility.debugDeiPoveri("SPETTA");
 		assertTrue(ok);
 	}
@@ -193,6 +199,19 @@ public class Dosimetria_Lu177_Test {
 		boolean ok = dosimetria_Lu177.dialogInitialize_LP00();
 		Utility.debugDeiPoveri("SPETTA");
 		assertTrue(ok);
+	}
+
+	@Test
+	public final void test_LP66_MIRD_display() {
+
+		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
+		double vol24 = 124.5001;
+		double vol48 = 345.5190;
+		double vol120 = 712.6678;
+
+		dosimetria_Lu177.MIRD_display_LP66(vol24, vol48, vol120);
+		Utility.debugDeiPoveri("SPETTA");
+		assertTrue(false);
 	}
 
 }

@@ -532,14 +532,15 @@ public class Dosimetria_Lu177 implements PlugIn {
 //			xp1[2] = 120.0;
 //			yp1[2] = out120[2];
 
-			
-			
 			// ========================================================================
 			// FIT E PLOT DECISIONALI
 			// ========================================================================
 
 			// Mostro i 3 punti, senza fit, in modo che, con LP33 venga scelto l'eventuale
 			// unto da togliere
+
+			MIRD_display_LP66(MIRD_vol24, MIRD_vol48, MIRD_vol120);
+
 			Utility.MIRD_pointsPlotter(xp1, yp1, null);
 
 			int count = 0;
@@ -2031,9 +2032,13 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 	void MIRD_display_LP66(double vol24, double vol48, double vol120) {
 
-		String aux24 = "MIRD volume24= " + vol24;
-		String aux48 = "MIRD volume48= " + vol48;
-		String aux120 = "MIRD volume120= " + vol120;
+		double media = (vol24 + vol48 + vol120) / 3.0;
+		double per24 = (vol24 * 100) / media;
+		double per48 = (vol48 * 100) / media;
+		double per120 = (vol120 * 100) / media;
+		String aux24 = "Volume24= " + vol24 + "[g]    (" + String.format("+%,.1f%%", per24) + " rispetto a media)";
+		String aux48 = "Volume48= " + vol48 + "[g]    (" + String.format("+%,.1f%%", per48) + " rispetto a media)";
+		String aux120 = "Volume120= " + vol120 + "[g]    (" + String.format("+%,.1f%%", per120) + " rispetto a media)";
 
 		IJ.log("MIRD_display_LP66");
 		NonBlockingGenericDialog gd1 = new NonBlockingGenericDialog("LP66 - VOLUMI CALCOLATI");
