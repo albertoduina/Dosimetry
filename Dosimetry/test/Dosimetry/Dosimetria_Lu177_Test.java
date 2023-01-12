@@ -87,10 +87,10 @@ public class Dosimetria_Lu177_Test {
 	}
 
 	@Test
-	public final void test_LP30_DialogSelection() {
+	public final void test_LP30_DialogInstructions() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
-		boolean ok = dosimetria_Lu177.dialogSelection_LP30();
+		boolean ok = dosimetria_Lu177.dialogInstructions_LP30();
 		Utility.debugDeiPoveri("SPETTA");
 		assertTrue(ok);
 	}
@@ -117,12 +117,12 @@ public class Dosimetria_Lu177_Test {
 	}
 
 	@Test
-	public final void test_LP10_DialogConfirmDatiSomministrazione() {
+	public final void test_LP10_DialogConfermaDatiSomministrazione() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
 		String paramString = "Messaggio di errore";
 		String[] in1 = { "02-01-2022", "12:44:00", "3.456" };
-		boolean ok = dosimetria_Lu177.dialogConfirmDatiSomministrazione_LP10(in1);
+		boolean ok = dosimetria_Lu177.dialogConfermaDatiSomministrazione_LP10(in1);
 		Utility.debugDeiPoveri("SPETTA");
 		assertTrue(true);
 	}
@@ -154,10 +154,10 @@ public class Dosimetria_Lu177_Test {
 	}
 
 	@Test
-	public final void test_LP04_DialogDatiSomministrazione() {
+	public final void test_LP04_DialogInputDatiSomministrazione() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
-		String[] out1 = dosimetria_Lu177.dialogDatiSomministrazione_LP04();
+		String[] out1 = dosimetria_Lu177.dialogInputDatiSomministrazione_LP04();
 		for (String aux : out1) {
 			IJ.log("" + aux);
 		}
@@ -206,8 +206,8 @@ public class Dosimetria_Lu177_Test {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
 		double vol24 = 124.5001;
-		double vol48 = 345.5190;
-		double vol120 = 712.6678;
+		double vol48 = 95.5190;
+		double vol120 = 212.6678;
 
 		dosimetria_Lu177.MIRD_display_LP66(vol24, vol48, vol120);
 		Utility.debugDeiPoveri("SPETTA");

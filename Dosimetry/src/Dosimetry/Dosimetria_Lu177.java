@@ -154,12 +154,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 			String[] datiSomministrazione = null;
 			boolean okDati = false;
 			do {
-				datiSomministrazione = dialogDatiSomministrazione_LP04();
+				datiSomministrazione = dialogInputDatiSomministrazione_LP04();
 				if (datiSomministrazione == null) {
 					IJ.log("datiSomministrazione NON PERVENUTI");
 					return;
 				}
-				okDati = dialogConfirmDatiSomministrazione_LP10(datiSomministrazione);
+				okDati = dialogConfermaDatiSomministrazione_LP10(datiSomministrazione);
 			} while (!okDati);
 			dataSomministrazione = datiSomministrazione[0];
 			oraSomministrazione = datiSomministrazione[1];
@@ -421,7 +421,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		imp2.close();
 		imp4.close();
 		imp6.close();
-		boolean ok = dialogSelection_LP30();
+		boolean ok = dialogInstructions_LP30();
 		if (!ok)
 			return;
 
@@ -1269,9 +1269,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 	 * 
 	 * @return
 	 */
-	String[] dialogDatiSomministrazione_LP04() {
+	String[] dialogInputDatiSomministrazione_LP04() {
 
-		IJ.log("dialogDatiSomministrazione_LP04");
+		IJ.log("dialogInputDatiSomministrazione_LP04");
 		String[] out1 = new String[3];
 		String data0;
 		String ora0;
@@ -1353,14 +1353,14 @@ public class Dosimetria_Lu177 implements PlugIn {
 	 * @param in1
 	 * @return
 	 */
-	boolean dialogConfirmDatiSomministrazione_LP10(String[] in1) {
+	boolean dialogConfermaDatiSomministrazione_LP10(String[] in1) {
 
-		IJ.log("dialogConfirmDatiSomministrazione_LP10");
+		IJ.log("dialogConfermaDatiSomministrazione_LP10");
 		String data11 = in1[0];
 		String ora11 = in1[1];
 		String activity11 = in1[2];
 
-		GenericDialog conf11 = new GenericDialog("LP10 - CONFIRM");
+		GenericDialog conf11 = new GenericDialog("LP10 - CONFERMA DATI INSERITI");
 
 		conf11.addMessage("CONFERMA DATI SOMMINISTRAZIONE", this.titleFont);
 		conf11.setFont(this.defaultFont);
@@ -1710,7 +1710,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		IJ.log("dialogImmaginiPazientePrecedente_LP21");
 		NonBlockingGenericDialog nonBlockingGenericDialog = new NonBlockingGenericDialog(
-				"LP21 - Immagini paziente precedente");
+				"LP21 - Presenza immagini paziente precedente");
 		nonBlockingGenericDialog.addMessage("Presenza immagini paziente precedente", this.titleFont);
 		nonBlockingGenericDialog.addMessage(
 				"Attenzione: in DosimetryFolder sul Desktop ci sono le immagini \n" + str20[0] + " di " + str20[1],
@@ -1918,11 +1918,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 	 * 
 	 * @return
 	 */
-	boolean dialogSelection_LP30() {
+	boolean dialogInstructions_LP30() {
 
-		IJ.log("dialogSelection_LP30");
+		IJ.log("dialogInstructions_LP30");
 		Dimension screen = IJ.getScreenSize();
-		NonBlockingGenericDialog gd1 = new NonBlockingGenericDialog("LP30 - Dialog selection");
+		NonBlockingGenericDialog gd1 = new NonBlockingGenericDialog("LP30 - ISTRUZIONI");
 		gd1.addMessage("Trova le lesioni su PET-CT Viewer su tutte e tre le \nimmagini 24h, 48h e 120h, poi premi OK",
 				this.defaultFont);
 		gd1.setLocation(screen.width * 2 / 3, screen.height * 1 / 3);
@@ -2033,12 +2033,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 	void MIRD_display_LP66(double vol24, double vol48, double vol120) {
 
 		double media = (vol24 + vol48 + vol120) / 3.0;
-		double per24 = (vol24 * 100) / media;
-		double per48 = (vol48 * 100) / media;
-		double per120 = (vol120 * 100) / media;
-		String aux24 = "Volume24= " + vol24 + "[g]    (" + String.format("+%,.1f%%", per24) + " rispetto a media)";
-		String aux48 = "Volume48= " + vol48 + "[g]    (" + String.format("+%,.1f%%", per48) + " rispetto a media)";
-		String aux120 = "Volume120= " + vol120 + "[g]    (" + String.format("+%,.1f%%", per120) + " rispetto a media)";
+		double per24 = ((vol24-media) * 100) / media;
+		double per48 = ((vol48-media) * 100) / media;
+		double per120 = ((vol120-media) * 100) / media;
+		String aux24 = "Volume24= " + vol24 + " g    (" + String.format("%+,.1f%%", per24) + " rispetto a media)";
+		String aux48 = "Volume48= " + vol48 + " g    (" + String.format("%+,.1f%%", per48) + " rispetto a media)";
+		String aux120 = "Volume120= " + vol120 + " g    (" + String.format("%+,.1f%%", per120) + " rispetto a media)";
 
 		IJ.log("MIRD_display_LP66");
 		NonBlockingGenericDialog gd1 = new NonBlockingGenericDialog("LP66 - VOLUMI CALCOLATI");

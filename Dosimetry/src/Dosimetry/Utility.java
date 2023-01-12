@@ -768,7 +768,7 @@ public class Utility {
 //		  double[] initialGuess = new double[]{voltage[0], rc, 0};
 //		  //initialize the optimizer and curve fitter.
 //		  LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
-//		  CurveFitter fitter = new CurveFitter(optimizer);
+//		  CurveFitter fitter = new org.apache.commons.math3.fitting.CurveFitter(optimizer);
 //		  for (int i = 0; i < time.length; i++)
 //		    fitter.addObservedPoint(time[i], voltage[i]);
 //		  double[] result = fitter.fit(exponentialParametricUnivariateFunction, initialGuess);    //result -> the fitted parameters.
