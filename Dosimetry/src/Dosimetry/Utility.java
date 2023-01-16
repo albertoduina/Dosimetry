@@ -1377,7 +1377,7 @@ public class Utility {
 		double Smassa = Double.NaN;
 		double Stmezzo = Double.NaN;
 		double Stau = Double.NaN;
-		double dose = Double.NaN;
+		double Sdose = Double.NaN;
 
 		if (errors != null) {
 			SA = errors[1];
@@ -1389,8 +1389,10 @@ public class Utility {
 			Smassa = vetSdKnuth(vetVol);
 			Stmezzo = (Math.log(2) * Sa) / Math.pow(aa, 2);
 			Stau = SmAtilde / somministrata;
-			dose = MIRD_calcoloDose(massa, mAtilde);
+
 		}
+
+		double[] vetDose = MIRD_calcoloDose(massa, mAtilde, SmAtilde, Smassa, pathVolatile);
 
 		IJ.log("AA= " + AA);
 		IJ.log("aa= " + aa);
@@ -1402,9 +1404,10 @@ public class Utility {
 		IJ.log("massa= " + massa);
 		IJ.log("tmezzo= " + tmezzo);
 		IJ.log("tau= " + tau);
-		IJ.log("dose= " + dose);
+		IJ.log("dose= " + vetDose[0]);
+		IJ.log("Sdose= " + vetDose[1]);
 
-		double[] out1 = new double[17];
+		double[] out1 = new double[18];
 		out1[0] = AA;
 		out1[1] = aa;
 		out1[2] = SA;
@@ -1421,7 +1424,8 @@ public class Utility {
 		out1[13] = Smassa;
 		out1[14] = Stmezzo;
 		out1[15] = Stau;
-		out1[16] = dose;
+		out1[16] = vetDose[0];
+		out1[17] = vetDose[1];
 
 		return out1;
 	}
@@ -1501,9 +1505,11 @@ public class Utility {
 	 * @param dateTime24
 	 * @return
 	 */
-	static double MIRD_calcoloDose(double massa, double mAtilde) {
+	static double[] MIRD_calcoloDose(double massa, double mAtilde, double SmAtilde, double Smassa,
+			String pathVolatile) {
 
 		// inserisco la tabella
+
 		double[][] sFactor = {
 				{ 0.01, 0.10, 0.50, 1.00, 2.00, 4.00, 6.00, 8.00, 10.00, 20.00, 40.00, 60.00, 80.00, 100.00, 300.00,
 						400.00, 500.00, 600.00, 1000.00, 2000.00, 3000.00, 4000.00, 5000.00, 6000.00 },
@@ -1511,16 +1517,19 @@ public class Utility {
 						2.14E+00, 1.43E+00, 1.07E+00, 8.60E-01, 2.89E-01, 2.18E-01, 1.75E-01, 1.46E-01, 8.82E-02,
 						4.46E-02, 2.99E-02, 2.26E-02, 1.81E-02, 1.52E-02 } };
 		// cerco in tabella i valori inferiori e superiori
-		double s1 = 0;
-		double s2 = 0;
-		double m1 = 0;
-		double m2 = 0;
-		for (int i1 = 0; i1 < sFactor[0].length - 1; i1++) {
-			if (sFactor[0][i1 + 1] >= massa && sFactor[0][i1 + 1] <= massa) {
-				s2 = sFactor[0][i1 + 1];
-				m2 = sFactor[1][i1 + 1];
-				s1 = sFactor[0][i1];
-				m1 = sFactor[1][i1];
+		double s1 = Double.NaN;
+		double s2 = Double.NaN;
+		double m1 = Double.NaN;
+		double m2 = Double.NaN;
+
+
+		for (int i1 = 0; i1 < sFactor[1].length - 1; i1++) {
+
+			if (sFactor[0][i1] <= massa && sFactor[0][i1 + 1] >= massa) {
+				m2 = sFactor[0][i1 + 1];
+				s2 = sFactor[1][i1 + 1];
+				m1 = sFactor[0][i1];
+				s1 = sFactor[1][i1];
 				break;
 			}
 		}
@@ -1528,9 +1537,31 @@ public class Utility {
 		// moltiplicazione tra mAtilde ed il resto, nelle formule di word non c'era,
 		// c'erano solo le parentesi quadre, come se mAtilde fosse un vettore. BOH
 
-		double dose = (mAtilde * (((s2 - s1) / (m2 - m1)) * (massa - m1) + s1)) / 1000;
+		double dose = (mAtilde / 1000) * (((s2 - s1) / (m2 - m1)) * (massa - m1) + s1);
 
-		return dose;
+		int count5 = 500;
+		String aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose s1= " + s1;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose s2= " + s2;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose m1= " + m1;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose m2= " + m2;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose massa= " + massa;
+		Utility.appendLog(pathVolatile, aux5);
+
+		double Sdose = Double.NaN;
+
+		if (SmAtilde != Double.NaN) {
+			Sdose = Math.sqrt(Math.pow((SmAtilde / 1000) * (((s2 - s1) / (m2 - m1)) * (massa - m1) + s1), 2)
+					+ Math.pow((mAtilde / 1000) * ((s2 - s1) / (m2 - m1)) * Smassa, 2));
+
+		}
+		double[] out1 = new double[2];
+		out1[0] = dose;
+		out1[1] = Sdose;
+		return out1;
 	}
 
 }

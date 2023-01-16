@@ -280,6 +280,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		double Stmezzo = -1;
 		double Stau = -1;
 		double dose = -1;
+		double Sdose = -1;
 
 		// ===========================================================================
 		// ELABORAZIONE 24h ed apertura PetCtViewer
@@ -535,6 +536,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 				Stmezzo = -1;
 				Stau = -1;
 				dose = -1;
+				Sdose=-1;
 
 				IJ.runPlugIn("Dosimetry.Dosimetry_v2", "");
 
@@ -682,6 +684,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 					tmezzo = out2[8];
 					tau = out2[9];
 					dose = out2[16];
+					Sdose = out2[17];
 
 					IJ.log("==== PRIMA DI REVIEW =====");
 					IJ.log("count2= " + count2);
@@ -734,6 +737,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 					Stmezzo = out2[14];
 					Stau = out2[15];
 					dose = out2[16];
+					Sdose = out2[17];
 
 					IJ.log("==== PRIMA DI REVIEW =====");
 					IJ.log("count2= " + count2);
@@ -756,6 +760,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 					IJ.log("Smassa= " + Smassa);
 					IJ.log("Stmezzo= " + Stmezzo);
 					IJ.log("Stau= " + Stau);
+					IJ.log("Sdose= " + Sdose);
 					IJ.log("====================================");
 
 				}
@@ -914,6 +919,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 			Utility.appendLog(pathVolatile, aux5);
 			aux5 = "#" + String.format("%03d", count5++) + "#\tStau= " + Stau;
 			Utility.appendLog(pathVolatile, aux5);
+			aux5 = "#" + String.format("%03d", count5++) + "#\tSdose= " + Sdose;
+			Utility.appendLog(pathVolatile, aux5);
+
 		}
 
 //		if (rf != null) {
