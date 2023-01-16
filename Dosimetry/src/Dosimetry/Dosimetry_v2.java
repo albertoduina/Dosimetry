@@ -609,6 +609,10 @@ public class Dosimetry_v2 implements PlugIn {
 							aux1 = "#" + count++ + "#\tProcessed Slices Position= " + posizioneMax + " ("
 									+ fettaCranioCaudaleFinal + "-" + fettaCaudoCranialeFinal + ")";
 							Utility.appendLog(pathVolatile, aux1);
+							aux1 = "#" + count++ + "#\tFROM IJ Section= " + fettaCranioCaudaleFinal;
+							Utility.appendLog(pathVolatile, aux1);
+							aux1 = "#" + count++ + "#\tTO IJ Section= " + fettaCaudoCranialeFinal;
+							Utility.appendLog(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tPet-Ct Viewer slice= " + convertFromPETCTReference(posizioneMax)
 									+ " (" + convertFromPETCTReference(fettaCranioCaudaleFinal) + "-"
 									+ convertFromPETCTReference(fettaCaudoCranialeFinal) + ")";

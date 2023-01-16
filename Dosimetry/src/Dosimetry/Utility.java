@@ -32,6 +32,7 @@ import ij.gui.Plot;
 import ij.gui.WaitForUserDialog;
 import ij.measure.CurveFitter;
 import ij.util.DicomTools;
+import ij.util.FontUtil;
 import ij.util.Tools;
 
 //
@@ -45,6 +46,11 @@ import ij.util.Tools;
 //
 
 public class Utility {
+
+	static String fontStyle = "Arial";
+	static Font defaultFont = FontUtil.getFont(fontStyle, Font.PLAIN, 13);
+	static Font textFont = FontUtil.getFont(fontStyle, Font.ITALIC, 16);
+	static Font titleFont = FontUtil.getFont(fontStyle, Font.BOLD, 16);
 
 	/**
 	 * Legge tutte le linee di un file testo e le restituisce come vettore di
@@ -426,6 +432,25 @@ public class Utility {
 		} catch (ParseException e) {
 			return false;
 		}
+	}
+
+	/**
+	 * Test per validazione dataora
+	 * 
+	 * @param timestamp
+	 * @return
+	 */
+	static Date getDateTime(String timestamp, String format) {
+
+		Date dateTime = null;
+		SimpleDateFormat format1 = new SimpleDateFormat(format);
+		try {
+			dateTime = format1.parse(timestamp);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return dateTime;
 	}
 
 	/**
@@ -1127,6 +1152,7 @@ public class Utility {
 		// alla fine del nostro reiterativo lavoro decidiamo che dobbiamo salvare il
 		// tutto CHE COSA POTRA'MAI ANDARE STORTO???
 		NonBlockingGenericDialog compliments1 = new NonBlockingGenericDialog("DD07 - Compliments1");
+		compliments1.setFont(defaultFont);
 		compliments1.addMessage("COMPLIMENTI, HAI COMPLETATO L'ANALISI DELLA LESIONE");
 		compliments1.addMessage("SENZA SCLERARE TROPPO");
 		compliments1.addStringField("NomeLesione per memorizzazione", "");
@@ -1156,6 +1182,8 @@ public class Utility {
 	static void dialogAltroDistretto_DD08() {
 		IJ.log("DD08_altroDistretto");
 		GenericDialog finished1 = new GenericDialog("DD08 - Finished1");
+		finished1.setFont(defaultFont);
+
 		finished1.addMessage("HAI TERMINATO ANALISI DISTRETTO?");
 		finished1.addMessage("se rispondi ALTRA LESIONE vuoi analizzare un altra lesione");
 		finished1.addMessage(
@@ -1295,14 +1323,8 @@ public class Utility {
 		aux1 = readFromLog(path, "#001#", "=");
 		if (aux1 == null)
 			return false;
-		if (!Utility.isValidDate(aux1, "dd-mm-yyyy"))
+		if (!Utility.isValidDateTime(aux1, "dd-MM-yyyy HH:mm:ss"))
 			return false;
-		aux1 = readFromLog(path, "#002#", "=");
-		if (aux1 == null)
-			return false;
-		if (!Utility.isValidTime(aux1, "HH:mm:ss"))
-			return false;
-
 		aux1 = readFromLog(path, "#003#", "="); // activity
 		if (aux1 == null)
 			return false;
@@ -1329,101 +1351,79 @@ public class Utility {
 		return out;
 	}
 
-	static void blaBla(Regression reg, String pathVolatile) {
-		// ricaviamo tutti i valori di questo mondo
-		double[] params = reg.getBestEstimates();
+	static double[] blaBla(double[] params, double[] errors, double vol24, double vol48, double vol120,
+			String pathVolatile) {
 
-		double AA = Math.abs(params[1]);
-		double aa = Math.abs(params[0]);
-
-		double[] errors = reg.getBestEstimatesErrors();
-
-		double SA = errors[1];
-		double Sa = errors[0];
-
-		double mAtilde = AA / aa;
-		double disintegrazioni = mAtilde / 100;
-		double somministrata = Utility.readDoubleFromLog(pathVolatile, "#003#", "=");
-		double uptake = AA / somministrata;
-		double vol24 = Utility.readDoubleFromLog(pathVolatile, "#201#", "=");
-		double vol48 = Utility.readDoubleFromLog(pathVolatile, "#221#", "=");
-		double vol120 = Utility.readDoubleFromLog(pathVolatile, "#241#", "=");
 		double[] vetVol = new double[3];
 		vetVol[0] = vol24;
 		vetVol[1] = vol48;
 		vetVol[2] = vol120;
 
+		double AA = Math.abs(params[1]);
+		double aa = Math.abs(params[0]);
+		double mAtilde = AA / aa;
+		double disintegrazioni = mAtilde / 100;
+		double somministrata = Utility.readDoubleFromLog(pathVolatile, "#003#", "=");
+		double uptake = AA / somministrata;
 		double massa = vetMean(vetVol);
 		double tmezzo = Math.log(2) / aa;
-		double tau=mAtilde/somministrata;
+		double tau = mAtilde / somministrata;
 
-		double SmAtilde = Math.sqrt(Math.pow(aa, 2) * Math.pow(SA, 2) + Math.pow(AA, 2) * Math.pow(Sa, 2))
-				/ (Math.pow(aa, 2));
-		double Sdisintegrazioni = SmAtilde / 100;
-		double Suptake = SA / somministrata;
-		double Smassa = vetSdKnuth(vetVol);
-		double Stmezzo = (Math.log(2) * Sa) / Math.pow(aa, 2);
-		double Stau=SmAtilde/somministrata;
+		double SA = Double.NaN;
+		double Sa = Double.NaN;
+		double SmAtilde = Double.NaN;
+		double Sdisintegrazioni = Double.NaN;
+		double Suptake = Double.NaN;
+		double Smassa = Double.NaN;
+		double Stmezzo = Double.NaN;
+		double Stau = Double.NaN;
+		double dose = Double.NaN;
 
-		IJ.log("==== VALORE MEDIO DOPO FLANAGAN =====");
-		IJ.log("parametro A= " + AA);
-		IJ.log("parametro a= " + aa);
+		if (errors != null) {
+			SA = errors[1];
+			Sa = errors[0];
+			SmAtilde = Math.sqrt(Math.pow(aa, 2) * Math.pow(SA, 2) + Math.pow(AA, 2) * Math.pow(Sa, 2))
+					/ (Math.pow(aa, 2));
+			Sdisintegrazioni = SmAtilde / 100;
+			Suptake = SA / somministrata;
+			Smassa = vetSdKnuth(vetVol);
+			Stmezzo = (Math.log(2) * Sa) / Math.pow(aa, 2);
+			Stau = SmAtilde / somministrata;
+			dose = MIRD_calcoloDose(massa, mAtilde);
+		}
+
+		IJ.log("AA= " + AA);
+		IJ.log("aa= " + aa);
+		IJ.log("SA= " + SA);
+		IJ.log("Sa= " + Sa);
 		IJ.log("mAtilde= " + mAtilde);
-		IJ.log("# disintegrazioni= " + disintegrazioni);
-		IJ.log("uptake[%]= " + uptake);
+		IJ.log("disintegrazioni= " + disintegrazioni);
+		IJ.log("uptake= " + uptake);
 		IJ.log("massa= " + massa);
 		IJ.log("tmezzo= " + tmezzo);
 		IJ.log("tau= " + tau);
-		IJ.log("==== ERRORI DOPO FLANAGAN ==========");
-		IJ.log("errore SA= " + SA);
-		IJ.log("errore Sa= " + Sa);
-		IJ.log("SmAtilde= " + SmAtilde);
-		IJ.log("S# disintegrazioni= " + Sdisintegrazioni);
-		IJ.log("Suptake= " + Suptake);
-		IJ.log("Smassa= " + Smassa);
-		IJ.log("Stmezzo= " + Stmezzo);
-		IJ.log("Stau= " + Stau);
-		IJ.log("====================================");
+		IJ.log("dose= " + dose);
 
-		String aux5;
-		int count5 = 300;
-		aux5 = "#" + String.format("%03d", count5++) + "#\t--------- FLANAGAN VALORI MEDI ----------";
-		Utility.appendLog(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tparametro A= " + AA;
-		Utility.appendLog(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tparametro a= " + aa;
-		Utility.appendLog(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tmAtilde= " + mAtilde;		
-		Utility.appendLog(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tdisintegrazioni= " + disintegrazioni;
-		Utility.appendLog(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tuptake[%]= " + uptake;
-		Utility.appendLog(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tmassa= " + massa;
-		Utility.appendLog(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\ttmezzo= " + tmezzo;
-		Utility.appendLog(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\ttau= " + tau;
-		Utility.appendLog(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\t--------- FLANAGAN ERRORI ----------";
-		Utility.appendLog(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\terrore SA= " + SA;
-		Utility.appendLog(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\terrore Sa= " + Sa;
-		Utility.appendLog(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tSmAtilde= " + SmAtilde;
-		Utility.appendLog(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tS# disintegrazioni= " + Sdisintegrazioni;
-		Utility.appendLog(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tSuptake= " + Suptake;
-		Utility.appendLog(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tSmassa= " + Smassa;
-		Utility.appendLog(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tStmezzo= " + Stmezzo;
-		Utility.appendLog(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tStau= " + Stau;
-		Utility.appendLog(pathVolatile, aux5);
+		double[] out1 = new double[17];
+		out1[0] = AA;
+		out1[1] = aa;
+		out1[2] = SA;
+		out1[3] = Sa;
+		out1[4] = mAtilde;
+		out1[5] = disintegrazioni;
+		out1[6] = uptake;
+		out1[7] = massa;
+		out1[8] = tmezzo;
+		out1[9] = tau;
+		out1[10] = SmAtilde;
+		out1[11] = Sdisintegrazioni;
+		out1[12] = Suptake;
+		out1[13] = Smassa;
+		out1[14] = Stmezzo;
+		out1[15] = Stau;
+		out1[16] = dose;
 
+		return out1;
 	}
 
 	/**
@@ -1492,6 +1492,45 @@ public class Utility {
 		}
 		double mean = sum / data.length;
 		return mean;
+	}
+
+	/**
+	 * Calcolo delta T in millisecondi
+	 * 
+	 * @param dateTime0
+	 * @param dateTime24
+	 * @return
+	 */
+	static double MIRD_calcoloDose(double massa, double mAtilde) {
+
+		// inserisco la tabella
+		double[][] sFactor = {
+				{ 0.01, 0.10, 0.50, 1.00, 2.00, 4.00, 6.00, 8.00, 10.00, 20.00, 40.00, 60.00, 80.00, 100.00, 300.00,
+						400.00, 500.00, 600.00, 1000.00, 2000.00, 3000.00, 4000.00, 5000.00, 6000.00 },
+				{ 7.85E+03, 8.17E+02, 1.66E+02, 8.39E+01, 4.21E+01, 2.11E+01, 1.41E+01, 1.06E+01, 8.50E+00, 4.25E+00,
+						2.14E+00, 1.43E+00, 1.07E+00, 8.60E-01, 2.89E-01, 2.18E-01, 1.75E-01, 1.46E-01, 8.82E-02,
+						4.46E-02, 2.99E-02, 2.26E-02, 1.81E-02, 1.52E-02 } };
+		// cerco in tabella i valori inferiori e superiori
+		double s1 = 0;
+		double s2 = 0;
+		double m1 = 0;
+		double m2 = 0;
+		for (int i1 = 0; i1 < sFactor[0].length - 1; i1++) {
+			if (sFactor[0][i1 + 1] >= massa && sFactor[0][i1 + 1] <= massa) {
+				s2 = sFactor[0][i1 + 1];
+				m2 = sFactor[1][i1 + 1];
+				s1 = sFactor[0][i1];
+				m1 = sFactor[1][i1];
+				break;
+			}
+		}
+		// per trovare la dose faccio una interpolazione lineare, comunque la
+		// moltiplicazione tra mAtilde ed il resto, nelle formule di word non c'era,
+		// c'erano solo le parentesi quadre, come se mAtilde fosse un vettore. BOH
+
+		double dose = (mAtilde * (((s2 - s1) / (m2 - m1)) * (massa - m1) + s1)) / 1000;
+
+		return dose;
 	}
 
 }

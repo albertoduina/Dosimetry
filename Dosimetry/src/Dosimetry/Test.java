@@ -1,5 +1,9 @@
 package Dosimetry;
 
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
@@ -10,19 +14,26 @@ import ij.plugin.DICOM;
 import ij.plugin.PlugIn;
 
 /**
- * Test 
+ * Test
  * 
  * @author Alberto
  *
  */
 public class Test implements PlugIn {
 
-	public void run(String arg) {
-
-		int aa = WindowManager.getWindowCount();
-		int bb = WindowManager.getImageCount();
-//		Utility.debugDeiPoveri("windowCount aa= " + aa + " imageCount bb= " + bb);
-	}
+//	public static void main(String[] args) {
+//		SwingUtilities.invokeLater(() -> {
+//			GridPage mainPanel = new GridPage();
+//
+//			IJ.log("eseguo grid");
+//			JFrame frame = new JFrame("GUI");
+//			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//			frame.add(mainPanel);
+//			frame.pack();
+//			frame.setLocationRelativeTo(null);
+//			frame.setVisible(true);
+//		});
+//	}
 
 	public boolean isDicomImage(String fileName1) {
 		boolean fail = false;
@@ -46,6 +57,41 @@ public class Test implements PlugIn {
 	private void debugDeiPoveri(String text) {
 		WaitForUserDialog wait = new WaitForUserDialog("Debug", text);
 		wait.show();
+	}
+
+	public static void main(String[] args) {
+		
+		IJ.log("Eseguo labeldemo1");
+
+		LabelDemo label = new LabelDemo();
+		// Schedule a job for the event dispatch thread:
+		// creating and showing this application's GUI.
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				// Turn off metal's use of bold fonts
+				UIManager.put("swing.boldMetal", Boolean.FALSE);
+
+				label.createAndShowGUI();
+			}
+		});
+	}
+
+	@Override
+	public void run(String arg) {
+		// TODO Auto-generated method stub
+		IJ.log("Eseguo labeldemo2");
+		LabelDemo label = new LabelDemo();
+		// Schedule a job for the event dispatch thread:
+		// creating and showing this application's GUI.
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				// Turn off metal's use of bold fonts
+				UIManager.put("swing.boldMetal", Boolean.FALSE);
+
+				label.createAndShowGUI();
+			}
+		});
+	
 	}
 
 }

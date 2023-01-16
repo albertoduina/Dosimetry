@@ -214,4 +214,40 @@ public class Dosimetria_Lu177_Test {
 		assertTrue(false);
 	}
 
+	@Test
+	public final void test_LP67_MIRD_display() {
+
+		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
+		double vol24 = 0;
+		double vol48 = 0;
+		double vol120 = 0;
+		double uptake = 0;
+		double massa = 0;
+		double tmezzo = 0;
+		double dose = 0;
+	
+		dosimetria_Lu177.MIRD_display_LP67(vol24, vol48, vol120, uptake, massa, tmezzo, dose);
+
+		Utility.debugDeiPoveri("SPETTA");
+
+	}
+
+	@Test
+	public final void test_LP67_FUNNY_display() {
+
+		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
+		double vol24 = 12.334;
+		double vol48 = 15.4467;
+		double vol120 = 18.3452;
+		double uptake = 1.345;
+		double massa = 6.789;
+		double tmezzo = 0.23344;
+		double dose = 0.3456;
+
+		dosimetria_Lu177.FUNNY_display_LP67(vol24, vol48, vol120, uptake, massa, tmezzo, dose);
+
+		Utility.debugDeiPoveri("SPETTA");
+
+	}
+
 }
