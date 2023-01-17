@@ -13,7 +13,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -21,11 +20,13 @@ import java.util.List;
 import java.util.Locale;
 
 import flanagan.analysis.Regression;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.GenericDialog;
 import ij.gui.NonBlockingGenericDialog;
+import ij.gui.Plot;
 import ij.io.DirectoryChooser;
 import ij.io.FileInfo;
 import ij.io.Opener;
@@ -263,24 +264,24 @@ public class Dosimetria_Lu177 implements PlugIn {
 		ImagePlus imp6 = null;
 		boolean flanagan = false;
 
-		double AA = -1;
-		double aa = -1;
-		double SA = -1;
-		double Sa = -1;
-		double mAtilde = -1;
-		double disintegrazioni = -1;
-		double uptake = -1;
-		double massa = -1;
-		double tmezzo = -1;
-		double tau = -1;
-		double SmAtilde = -1;
-		double Sdisintegrazioni = -1;
-		double Suptake = -1;
-		double Smassa = -1;
-		double Stmezzo = -1;
-		double Stau = -1;
-		double dose = -1;
-		double Sdose = -1;
+		double AA = Double.NaN;
+		double aa = Double.NaN;
+		double SA = Double.NaN;
+		double Sa = Double.NaN;
+		double mAtilde = Double.NaN;
+		double disintegrazioni = Double.NaN;
+		double uptake = Double.NaN;
+		double massa = Double.NaN;
+		double tmezzo = Double.NaN;
+		double tau = Double.NaN;
+		double SmAtilde = Double.NaN;
+		double Sdisintegrazioni = Double.NaN;
+		double Suptake = Double.NaN;
+		double Smassa = Double.NaN;
+		double Stmezzo = Double.NaN;
+		double Stau = Double.NaN;
+		double dose = Double.NaN;
+		double Sdose = Double.NaN;
 
 		// ===========================================================================
 		// ELABORAZIONE 24h ed apertura PetCtViewer
@@ -450,15 +451,15 @@ public class Dosimetria_Lu177 implements PlugIn {
 		imp2.close();
 		imp4.close();
 		imp6.close();
-		double MIRD_vol24 = -1;
-		double MIRD_fatCal24 = -1;
-		double MIRD_attiv24 = -1;
-		double MIRD_vol48 = -1;
-		double MIRD_fatCal48 = -1;
-		double MIRD_attiv48 = -1;
-		double MIRD_vol120 = -1;
-		double MIRD_fatCal120 = -1;
-		double MIRD_attiv120 = -1;
+		double MIRD_vol24 = Double.NaN;
+		double MIRD_fatCal24 = Double.NaN;
+		double MIRD_attiv24 = Double.NaN;
+		double MIRD_vol48 = Double.NaN;
+		double MIRD_fatCal48 = Double.NaN;
+		double MIRD_attiv48 = Double.NaN;
+		double MIRD_vol120 = Double.NaN;
+		double MIRD_fatCal120 = Double.NaN;
+		double MIRD_attiv120 = Double.NaN;
 		double[] out2 = null;
 		int decis1 = -1;
 		int count3 = -1;
@@ -476,172 +477,179 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 		do {
+//			do {
+			// ==========================================================================================
+			// il do qui sopra serve per permettere la review di qualche elaborazione, vista
+			// in base al plot dei punti ottenuti dai contornamenti per 24,48 e 120
+			// ==========================================================================================
+
+			// ===========================================================================================
+			// Azzeramento dei valori ottenuti in precedenza MA SERVE VERAMENTE ??
+			// ===========================================================================================
+
+			MIRD_vol24 = Double.NaN;
+			MIRD_fatCal24 = Double.NaN;
+			MIRD_attiv24 = Double.NaN;
+			MIRD_vol48 = Double.NaN;
+			MIRD_fatCal48 = Double.NaN;
+			MIRD_attiv48 = Double.NaN;
+			MIRD_vol120 = Double.NaN;
+			MIRD_fatCal120 = Double.NaN;
+			MIRD_attiv120 = Double.NaN;
+			decis1 = -1;
+			out24 = null;
+			out48 = null;
+			out120 = null;
+			numParams = 0;
+			outCF = null;
+			paramsIJ = null;
+			paramsFLA = null;
+			fitGoodnessIJ = 0;
+			rSquaredIJ = 0;
+			rSquaredFLA = 0;
+			rSquaredFLAadjusted = 0;
+
+			scelta = 0;
+			slice1 = 1;
+			imp1 = null;
+			imp2 = null;
+			imp3 = null;
+			imp4 = null;
+			imp5 = null;
+			imp6 = null;
+			flanagan = false;
+			solodue = false;
+
+			AA = Double.NaN;
+			aa = Double.NaN;
+			SA = Double.NaN;
+			Sa = Double.NaN;
+			mAtilde = Double.NaN;
+			disintegrazioni = Double.NaN;
+			uptake = Double.NaN;
+			massa = Double.NaN;
+			tmezzo = Double.NaN;
+			tau = Double.NaN;
+			SmAtilde = Double.NaN;
+			Sdisintegrazioni = Double.NaN;
+			Suptake = Double.NaN;
+			Smassa = Double.NaN;
+			Stmezzo = Double.NaN;
+			Stau = Double.NaN;
+			dose = Double.NaN;
+			Sdose = Double.NaN;
+			int rip = -1;
+
+			IJ.runPlugIn("Dosimetry.Dosimetry_v2", "");
+
+			if (nuoveImmagini)
+				Utility.endLog(pathPermanente);
+
+			// ==========================================================================================
+			// PARTE GRAFICA
+			// ==========================================================================================
+
+			// 24h
+			// se non mi ha scritto il tag #121# di volatile vuol dire che Dosimetry_v2 non
+			// ha analizzato la immagine 24h (probabile cancel dato al menu)
+			if (Utility.readFromLog(pathVolatile, "#121#", "=") == null)
+				return;
+
+			double[] in1 = new double[5];
+			in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#018#", "=")); // acquisition duration
+			in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#121#", "=")); // pixel number over
+																							// threshold
+			in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
+			in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#115#", "=")); // contouring threshold
+																							// level
+			in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#122#", "=")); // over threshold count
+																							// integral
+			out24 = Utility.MIRD_point(in1);
+			MIRD_vol24 = out24[0];
+			MIRD_fatCal24 = out24[1];
+			MIRD_attiv24 = out24[2];
+
+			// 48h
+			// se non mi ha scritto il tag #151# di volatile vuol dire che Dosimetry_v2 non
+			// ha analizzato la immagine 24h (probabile cancel dato al menu)
+			if (Utility.readFromLog(pathVolatile, "#151#", "=") == null)
+				return;
+			in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#038#", "=")); // acquisition duration
+			in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#151#", "=")); // pixel number over
+																							// threshold
+			in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
+			in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#145#", "=")); // contouring threshold
+																							// level
+			in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#152#", "=")); // over threshold count
+																							// integral
+			out48 = Utility.MIRD_point(in1);
+			MIRD_vol48 = out48[0];
+			MIRD_fatCal48 = out48[1];
+			MIRD_attiv48 = out48[2];
+
+			// 120h
+			// se non mi ha scritto il tag #181# di volatile vuol dire che Dosimetry_v2 non
+			// ha analizzato la immagine 24h (probabile cancel dato al menu)
+			if (Utility.readFromLog(pathVolatile, "#181#", "=") == null)
+				return;
+			in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#058#", "=")); // acquisition duration
+			in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#181#", "=")); // pixel number over
+																							// threshold
+			in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
+			in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#175#", "=")); // contouring threshold
+																							// level
+			in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#182#", "=")); // over threshold count
+																							// integral
+			out120 = Utility.MIRD_point(in1);
+
+			int count5 = 194;
+			aux5 = "#" + String.format("%03d", count5++) + "#\t----- POINT SELECTION ------------------";
+			Utility.appendLog(pathVolatile, aux5);
+
+			MIRD_vol120 = out120[0];
+			MIRD_fatCal120 = out120[1];
+			MIRD_attiv120 = out120[2];
+
+			double[] xp1 = new double[3];
+			double[] yp1 = new double[3];
+			xp1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#019#", "=")); // deltaT
+			yp1[0] = out24[2];
+			xp1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#039#", "=")); // deltaT
+			yp1[1] = out48[2];
+			xp1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#059#", "=")); // deltaT
+			yp1[2] = out120[2];
+			for (double aux : xp1) {
+				IJ.log("xp1= " + aux);
+			}
+			for (double aux : yp1) {
+				IJ.log("yp1= " + aux);
+			}
+
+			// ========================================================================
+			// FIT E PLOT DECISIONALI
+			// ========================================================================
+
+			// Mostro i 3 volumi calcolati ed i punti, senza fit, in modo che, con LP33
+			// venga scelto l'eventuale punto da togliere
+
+			MIRD_display_LP66(MIRD_vol24, MIRD_vol48, MIRD_vol120);
+			String titolo1 = "Punti1";
+			Utility.MIRD_pointsPlotter(xp1, yp1, null, titolo1);
+
+			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			// QUI DEVO TORNARE PER PROBLEMI DI FIT DA LP08
+			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			do {
-				// ==========================================================================================
-				// il do qui sopra serve per permettere la review di qualche elaborazione, vista
-				// in base al plot dei punti ottenuti dai contornamenti per 24,48 e 120
-				// ==========================================================================================
-
-				// ===========================================================================================
-				// Azzeramento dei valori ottenuti in precedenza MA SERVE VERAMENTE ??
-				// ===========================================================================================
-
-				MIRD_vol24 = -1;
-				MIRD_fatCal24 = -1;
-				MIRD_attiv24 = -1;
-				MIRD_vol48 = -1;
-				MIRD_fatCal48 = -1;
-				MIRD_attiv48 = -1;
-				MIRD_vol120 = -1;
-				MIRD_fatCal120 = -1;
-				MIRD_attiv120 = -1;
-				decis1 = -1;
-				out24 = null;
-				out48 = null;
-				out120 = null;
-				numParams = 0;
-				outCF = null;
-				paramsIJ = null;
-				paramsFLA = null;
-				fitGoodnessIJ = 0;
-				rSquaredIJ = 0;
-				rSquaredFLA = 0;
-				rSquaredFLAadjusted = 0;
-
-				scelta = 0;
-				slice1 = 1;
-				imp1 = null;
-				imp2 = null;
-				imp3 = null;
-				imp4 = null;
-				imp5 = null;
-				imp6 = null;
-				flanagan = false;
-				solodue = false;
-
-				AA = -1;
-				aa = -1;
-				SA = -1;
-				Sa = -1;
-				mAtilde = -1;
-				disintegrazioni = -1;
-				uptake = -1;
-				massa = -1;
-				tmezzo = -1;
-				tau = -1;
-				SmAtilde = -1;
-				Sdisintegrazioni = -1;
-				Suptake = -1;
-				Smassa = -1;
-				Stmezzo = -1;
-				Stau = -1;
-				dose = -1;
-				Sdose=-1;
-
-				IJ.runPlugIn("Dosimetry.Dosimetry_v2", "");
-
-				if (nuoveImmagini)
-					Utility.endLog(pathPermanente);
-
-				// ==========================================================================================
-				// PARTE GRAFICA
-				// ==========================================================================================
-
-				// 24h
-				// se non mi ha scritto il tag #121# di volatile vuol dire che Dosimetry_v2 non
-				// ha analizzato la immagine 24h (probabile cancel dato al menu)
-				if (Utility.readFromLog(pathVolatile, "#121#", "=") == null)
-					return;
-
-				double[] in1 = new double[5];
-				in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#018#", "=")); // acquisition duration
-				in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#121#", "=")); // pixel number over
-																								// threshold
-				in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
-				in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#115#", "=")); // contouring threshold
-																								// level
-				in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#122#", "=")); // over threshold count
-																								// integral
-				out24 = Utility.MIRD_point(in1);
-				MIRD_vol24 = out24[0];
-				MIRD_fatCal24 = out24[1];
-				MIRD_attiv24 = out24[2];
-
-				// 48h
-				// se non mi ha scritto il tag #151# di volatile vuol dire che Dosimetry_v2 non
-				// ha analizzato la immagine 24h (probabile cancel dato al menu)
-				if (Utility.readFromLog(pathVolatile, "#151#", "=") == null)
-					return;
-				in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#038#", "=")); // acquisition duration
-				in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#151#", "=")); // pixel number over
-																								// threshold
-				in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
-				in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#145#", "=")); // contouring threshold
-																								// level
-				in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#152#", "=")); // over threshold count
-																								// integral
-				out48 = Utility.MIRD_point(in1);
-				MIRD_vol48 = out48[0];
-				MIRD_fatCal48 = out48[1];
-				MIRD_attiv48 = out48[2];
-
-				// 120h
-				// se non mi ha scritto il tag #181# di volatile vuol dire che Dosimetry_v2 non
-				// ha analizzato la immagine 24h (probabile cancel dato al menu)
-				if (Utility.readFromLog(pathVolatile, "#181#", "=") == null)
-					return;
-				in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#058#", "=")); // acquisition duration
-				in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#181#", "=")); // pixel number over
-																								// threshold
-				in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
-				in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#175#", "=")); // contouring threshold
-																								// level
-				in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#182#", "=")); // over threshold count
-																								// integral
-				out120 = Utility.MIRD_point(in1);
-
-				int count5 = 194;
-				aux5 = "#" + String.format("%03d", count5++) + "#\t----- POINT SELECTION ------------------";
-				Utility.appendLog(pathVolatile, aux5);
-
-				MIRD_vol120 = out120[0];
-				MIRD_fatCal120 = out120[1];
-				MIRD_attiv120 = out120[2];
-
-				double[] xp1 = new double[3];
-				double[] yp1 = new double[3];
-				xp1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#019#", "=")); // deltaT
-				yp1[0] = out24[2];
-				xp1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#039#", "=")); // deltaT
-				yp1[1] = out48[2];
-				xp1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#059#", "=")); // deltaT
-				yp1[2] = out120[2];
-				for (double aux : xp1) {
-					IJ.log("xp1= " + aux);
-				}
-				for (double aux : yp1) {
-					IJ.log("yp1= " + aux);
-				}
-
-				// ========================================================================
-				// FIT E PLOT DECISIONALI
-				// ========================================================================
-
-				// Mostro i 3 volumi calcolati ed i punti, senza fit, in modo che, con LP33
-				// venga scelto l'eventuale punto da togliere
-
-				MIRD_display_LP66(MIRD_vol24, MIRD_vol48, MIRD_vol120);
-
-				Utility.MIRD_pointsPlotter(xp1, yp1, null);
-
 				int count = 0;
 				boolean[] punti = pointsSelection_LP33();
 				for (boolean aux : punti) {
 					if (aux)
 						count++;
 				}
+				Utility.closePlot(titolo1);
 
-				Utility.MIRD_pointsPlotter(xp1, yp1, punti);
+				String titolo2 = "Punti2";
+				Utility.MIRD_pointsPlotter(xp1, yp1, punti, titolo2);
 				count5 = 195;
 				aux5 = "#" + String.format("%03d", count5++) + "#\tSelezionati i punti 24h= " + punti[0] + " 48h= "
 						+ punti[1] + " 120h= " + punti[2];
@@ -656,6 +664,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 						count2++;
 					}
 				}
+
+				Utility.closePlot(titolo2);
 
 				if (count2 == 2) {
 					count3 = 2;
@@ -766,14 +776,43 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 				}
 
+				double[] vetInput = new double[14];
+
+				vetInput[0] = MIRD_vol24;
+				vetInput[1] = MIRD_vol48;
+				vetInput[2] = MIRD_vol120;
+				vetInput[3] = uptake;
+				vetInput[4] = massa;
+				vetInput[5] = tmezzo;
+				vetInput[6] = dose;
+				vetInput[7] = 0;
+				vetInput[8] = 0;
+				vetInput[9] = 0;
+				vetInput[10] = Suptake;
+				vetInput[11] = Smassa;
+				vetInput[12] = Stmezzo;
+				vetInput[13] = Sdose;
+
 				// ==========================================================================
 				// PARTE REVIEW CHE DEVE RITORNARE INDIETRO PER RIFARE UNO O PIU'DEI CALCOLI
 				// FINALMENTE SAREMO FELICI E GORGOGLIONI DELLE NOSTRE ELABORAZIONI
 				// ==========================================================================
-				decis1 = MIRD_display_LP67(MIRD_vol24, MIRD_vol48, MIRD_vol120, uptake, massa, tmezzo, dose);
+//				decis1 = MIRD_display_LP67(MIRD_vol24, MIRD_vol48, MIRD_vol120, uptake, massa, tmezzo, dose);
+				decis1 = MIRD_display_LP68(vetInput);
 				if (decis1 == 0)
 					return;
+				boolean fit = false;
+				if (decis1 == 1) {
+					rip = dialogRipetizione_LP08();
+					if (rip == 0)
+						return;
+				}
+			} while (rip < 2 &&  decis1<2);
 
+			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			// QUI DEVO ENTRARE PER PROBLEMI DI contornatura DA LP08
+			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			if (rip == 2) {
 				selection = dialogReview_LP32();
 				String aux1 = "";
 				switch (selection) {
@@ -802,14 +841,16 @@ public class Dosimetria_Lu177 implements PlugIn {
 					scelta = 4;
 					break;
 				}
+			}
 
-			} while (decis1 != 2);
-			// ================= POSTSCRITTURA ===========================================
-			// UNA VOLTA CHE L'OPERATORE HA DETTO SI, SCRIVIAMO TUTTA LA MONNEZZA IN
-			// VOLATILE, IN ATTESA DI CONOSCERE IL NOME CHE DARANNO ALLA LESIONE
-			// ============================================================================
+		} while (decis1 != 2);
 
-		} while (scelta < 4);
+		// ================= POSTSCRITTURA ===========================================
+		// UNA VOLTA CHE L'OPERATORE HA DETTO SI, SCRIVIAMO TUTTA LA MONNEZZA IN
+		// VOLATILE, IN ATTESA DI CONOSCERE IL NOME CHE DARANNO ALLA LESIONE
+		// ============================================================================
+
+//		} while (scelta < 4);
 
 		int count5 = 200;
 		aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD CALCULATION 24h ----";
@@ -934,10 +975,20 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// BATTESIMO DELLA LESIONE
 		// ==============================================================
 		Utility.dedupeLog(pathVolatile);
-		Utility.dialogBattezzaLesioni_DD07(pathVolatile);
+		Utility.dialogBattezzaLesioni_LP07(pathVolatile);
 		Utility.chiudiTutto();
 		IJ.showMessage("FINE LAVORO");
 	}
+
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 	/**
 	 * Copia i file immagine da una directory all'altra
@@ -1581,6 +1632,29 @@ public class Dosimetria_Lu177 implements PlugIn {
 		} else {
 			IJ.log("LP07 - false ALTRO DISTRETTO");
 			return false;
+		}
+	}
+
+	int dialogRipetizione_LP08() {
+
+		IJ.log("dialogo LP08");
+		GenericDialog genericDialog3 = new GenericDialog("LP08 - COSA RIPETERE");
+		genericDialog3.setFont(defaultFont);
+		genericDialog3.addMessage("Scelta tipo di problema:", titleFont);
+		genericDialog3.enableYesNoCancel("CONTORNAMENTO", "FIT");
+
+		genericDialog3.setCancelLabel("Chiudi");
+		genericDialog3.showDialog();
+
+		if (genericDialog3.wasCanceled()) {
+			IJ.log("LP08 0 Chiudi");
+			return 0;
+		} else if (genericDialog3.wasOKed()) {
+			IJ.log("LP08 2 CONTORNAMENTO");
+			return 2;
+		} else {
+			IJ.log("LP08 1 FIT");
+			return 1;
 		}
 	}
 
@@ -2289,9 +2363,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 		double per24 = ((vol24 - media) * 100) / media;
 		double per48 = ((vol48 - media) * 100) / media;
 		double per120 = ((vol120 - media) * 100) / media;
-		String aux24 = "Volume24= " + vol24 + " g    (" + String.format("%+,.1f%%", per24) + " rispetto a media)";
-		String aux48 = "Volume48= " + vol48 + " g    (" + String.format("%+,.1f%%", per48) + " rispetto a media)";
-		String aux120 = "Volume120= " + vol120 + " g    (" + String.format("%+,.1f%%", per120) + " rispetto a media)";
+		String aux24 = "Volume24 h= " + String.format("%.2f", vol24) + " cm3    (" + String.format("%+,.1f%%", per24)
+				+ " rispetto a media)";
+		String aux48 = "Volume48 h= " + String.format("%.2f", vol48) + " cm3    (" + String.format("%+,.1f%%", per48)
+				+ " rispetto a media)";
+		String aux120 = "Volume120 h= " + String.format("%.2f", vol120) + " cm3    ("
+				+ String.format("%+,.1f%%", per120) + " rispetto a media)";
 
 		IJ.log("MIRD_display_LP66");
 		NonBlockingGenericDialog gd1 = new NonBlockingGenericDialog("LP66 - VOLUMI CALCOLATI");
@@ -2307,6 +2384,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 	}
 
 	/**
+	 * Mostra i risultati ottenuti
 	 * 
 	 * @param vol24
 	 * @param vol48
@@ -2321,14 +2399,21 @@ public class Dosimetria_Lu177 implements PlugIn {
 		GenericDialog gd1 = new GenericDialog("LP67 - RISULTATI");
 		gd1.addMessage("RISULTATI  OTTENUTI", titleFont);
 		gd1.setFont(defaultFont);
-		aux1 = "uptake%= " + uptake;
+
+		// (" + String.format("%+,.1f%%", per24)
+
+		double errr = 8.34567;
+
+		aux1 = "uptake%= " + String.format("%.2f%%", uptake) + "    \u00B1 " + String.format("%.2f%%", errr);
 		gd1.addMessage(aux1);
-		gd1.addMessage("vol24= " + vol24 + "        vol48= " + vol48 + "        vol120= " + vol120);
-		aux1 = "massa= " + massa;
+
+		gd1.addMessage("vol24= " + String.format("%.2f", vol24) + " cm3    vol48= " + String.format("%.2f", vol48)
+				+ " cm3    vol120= " + String.format("%.2f", vol120) + " cm3");
+		aux1 = "massa= " + String.format("%.2f", massa) + " g";
 		gd1.addMessage(aux1);
-		aux1 = "tmezzo= " + tmezzo + "  [giorni]";
+		aux1 = "t1/2= " + String.format("%.2f", tmezzo) + " ore" + String.format("%.2f", tmezzo / 24) + " giorni";
 		gd1.addMessage(aux1);
-		aux1 = "dose= " + dose;
+		aux1 = "dose= " + String.format("%.2f", dose) + " Gy";
 		gd1.addMessage(aux1);
 		gd1.enableYesNoCancel("ACCETTA RISULTATI", "RIPETI ANALISI");
 
@@ -2347,6 +2432,70 @@ public class Dosimetria_Lu177 implements PlugIn {
 	}
 
 	/**
+	 * Mostra i risultati ottenuti
+	 * 
+	 * @param vol24
+	 * @param vol48
+	 * @param vol120
+	 */
+	static int MIRD_display_LP68(double[] vetInput) {
+
+		double vol24 = vetInput[0];
+		double vol48 = vetInput[1];
+		double vol120 = vetInput[2];
+		double uptake = vetInput[3];
+		double massa = vetInput[4];
+		double tmezzo = vetInput[5];
+		double dose = vetInput[6];
+//		double Svol24 = vetInput[7];
+//		double Svol48 = vetInput[8];
+//		double Svol120 = vetInput[9];
+		double Suptake = vetInput[10];
+		double Smassa = vetInput[11];
+		double Stmezzo = vetInput[12];
+		double Sdose = vetInput[13];
+
+		// String[] items = { "24h", "48h", "120h" };
+		String aux1 = "";
+
+		IJ.log("MIRD_display_LP68");
+		GenericDialog gd1 = new GenericDialog("LP68 - RISULTATI");
+		gd1.addMessage("RISULTATI  OTTENUTI", titleFont);
+		gd1.setFont(defaultFont);
+
+		// (" + String.format("%+,.1f%%", per24)
+
+		aux1 = "uptake%= " + String.format("%.2f", uptake) + " \u00B1 " + String.format("%.2f%%", Suptake);
+		gd1.addMessage(aux1);
+
+		gd1.addMessage("vol24= " + String.format("%.2f", vol24) + " cm3    vol48= " + String.format("%.2f", vol48)
+				+ " cm3    vol120= " + String.format("%.2f", vol120) + " cm3");
+		aux1 = "massa= " + String.format("%.2f", massa) + " \u00B1 " + String.format("%.2f", Smassa) + " g";
+		gd1.addMessage(aux1);
+		aux1 = "t1/2= " + String.format("%.2f", tmezzo) + " \u00B1 " + String.format("%.2f", Stmezzo) + " ore ...... "
+				+ String.format("%.2f", tmezzo / 24) + " \u00B1 " + String.format("%.2f", Stmezzo / 24) + " giorni";
+		gd1.addMessage(aux1);
+		aux1 = "dose= " + String.format("%.2f", dose) + " \u00B1 " + String.format("%.2f", Sdose) + " Gy";
+		gd1.addMessage(aux1);
+		gd1.enableYesNoCancel("ACCETTA RISULTATI", "RIPETI ANALISI");
+
+		gd1.showDialog();
+
+		if (gd1.wasCanceled()) {
+			IJ.log("LP68= 0 Cancel");
+			return 0;
+		} else if (gd1.wasOKed()) {
+			IJ.log("LP68= 2 ACCETTA RISULTATI");
+			return 2;
+		} else {
+			IJ.log("LP68= 1 RIPETI CONTORNATURA");
+			return 1;
+		}
+	}
+
+	/**
+	 * Tentativo di creare un dialogo con dati disposti su una griglia, in modo da
+	 * occupare meno posto
 	 * 
 	 * @param vol24
 	 * @param vol48
@@ -2413,6 +2562,14 @@ public class Dosimetria_Lu177 implements PlugIn {
 		}
 	}
 
+	/**
+	 * 
+	 * @param gd
+	 * @param gridWidth
+	 * @param gridHeight
+	 * @param value
+	 * @return
+	 */
 	static Panel makePanel(GenericDialog gd, int gridWidth, int gridHeight, double[] value) {
 		Panel panel = new Panel();
 		TextField[] tf = new TextField[gridWidth * gridHeight];

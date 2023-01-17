@@ -128,6 +128,14 @@ public class Dosimetria_Lu177_Test {
 	}
 
 	@Test
+	public final void test_LP08_DialogRipetizione() {
+
+		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
+		int aa = dosimetria_Lu177.dialogRipetizione_LP08();
+		Utility.debugDeiPoveri("SPETTA");
+		assertTrue(true);
+	}
+	@Test
 	public final void test_LP06_DialogErrorMessage() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
@@ -218,15 +226,30 @@ public class Dosimetria_Lu177_Test {
 	public final void test_LP67_MIRD_display() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
-		double vol24 = 0;
-		double vol48 = 0;
-		double vol120 = 0;
-		double uptake = 0;
-		double massa = 0;
-		double tmezzo = 0;
-		double dose = 0;
-	
+		double vol24 = 35.921969;
+		double vol48 = 18.392739;
+		double vol120 = 9.153194;
+		double uptake = 41.119521;
+		double massa = 21.155967;
+		double tmezzo = 33.580609;
+		double dose = 10.147774;
+
 		dosimetria_Lu177.MIRD_display_LP67(vol24, vol48, vol120, uptake, massa, tmezzo, dose);
+
+		Utility.debugDeiPoveri("SPETTA");
+
+	}
+
+	@Test
+	public final void test_LP68_MIRD_display() {
+
+		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
+
+		double[] out2 = { 50.741488, 0.020641, 2458.251552, 24.582515, 41.119521, 21.155967, 33.580609, 1992.100123,
+				10.147774, 10.539239, 0.005856, 864.416111, 8.644161, 8.540712, 13.596632, 9.528169, 700.499280,
+				5.016710 };
+
+		dosimetria_Lu177.MIRD_display_LP68(out2);
 
 		Utility.debugDeiPoveri("SPETTA");
 

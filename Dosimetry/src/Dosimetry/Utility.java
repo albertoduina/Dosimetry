@@ -863,7 +863,7 @@ public class Utility {
 	 * @param vetX
 	 * @param vetY
 	 */
-	static void MIRD_pointsPlotter(double[] vetX, double[] vetY, boolean[] selected) {
+	static void MIRD_pointsPlotter(double[] vetX, double[] vetY, boolean[] selected, String title) {
 
 		double[] minMaxX = Tools.getMinMax(vetX);
 		double[] minMaxY = Tools.getMinMax(vetY);
@@ -880,7 +880,7 @@ public class Utility {
 		if (selected == null)
 			selected = neglected;
 
-		Plot plot1 = new Plot("Punti", "ore dalla somministrazione", "attivita' MBq");
+		Plot plot1 = new Plot(title, "ore dalla somministrazione", "attivita' MBq");
 		plot1.setLineWidth(2);
 		for (int i1 = 0; i1 < selected.length; i1++) {
 			if (selected[i1]) {
@@ -899,6 +899,7 @@ public class Utility {
 		plot1.setFrameSize(PLOT_WIDTH, PLOT_HEIGHT);
 		plot1.setLimits(xmin, xmax, ymin, ymax);
 		plot1.show();
+		return;
 
 	}
 
@@ -909,26 +910,11 @@ public class Utility {
 	 * @param vetX
 	 * @param vetY
 	 */
-	static void MIRD_curvePlotterSpecialImageJ(CurveFitter cf, double[] vetx, double[] vety, boolean[] selected) {
+	static Plot MIRD_curvePlotterSpecialImageJ(CurveFitter cf, double[] vetx, double[] vety, boolean[] selected) {
 
 		int PLOT_WIDTH = 600;
 		int PLOT_HEIGHT = 350;
 
-		double[] x = cf.getXPoints();
-		double[] y = cf.getYPoints();
-//		if (cf.getParams().length < cf.getNumParams()) {
-//
-//// 			Plot plot = new Plot(cf.getFormula(), "X", "Y", x, y);
-//			Plot plot = new Plot(cf.getFormula(), "X", "Y");
-//			plot.setLineWidth(2);
-//
-//			plot.add("line", x, y);
-//			plot.setColor(Color.BLUE);
-//			plot.addLabel(0.02, 0.1, cf.getName());
-//			plot.addLabel(0.02, 0.2, cf.getStatusString());
-//			plot.show();
-//			return;
-//		}
 		int npoints = 1000;
 		if (npoints < vetx.length)
 			npoints = vetx.length; // or 2*x.length-1; for 2 values per data point
@@ -958,31 +944,30 @@ public class Utility {
 		double dataRange = ymax - ymin;
 		ymin = Math.max(ymin - dataRange, Math.min(ymin, a[0])); // expand y range for curve, but not too much
 		ymax = Math.min(ymax + dataRange, Math.max(ymax, a[1]));
-		Plot plot = new Plot("IMAGEJ " + cf.getFormula(), "X", "Y");
-		plot.setLineWidth(2);
-		plot.setColor(Color.BLUE);
-		plot.add("line", px, py);
-		plot.setLimits(xmin, xmax, ymin, ymax);
-		plot.setColor(Color.RED);
+		
+		Plot plot2 = new Plot("IMAGEJ " + cf.getFormula(), "ore dalla somministrazione", "attivita' MBq");
+		plot2.setLineWidth(2);
+		plot2.setColor(Color.BLUE);
+		plot2.add("line", px, py);
+		plot2.setLimits(xmin, xmax, ymin, ymax);
+		plot2.setColor(Color.RED);
 		double[] xx = new double[1];
 		double[] yy = new double[1];
 
 		for (int i1 = 0; i1 < selected.length; i1++) {
 			if (selected[i1]) {
-				plot.setColor(Color.red);
+				plot2.setColor(Color.red);
 				xx[0] = vetx[i1];
 				yy[0] = vety[i1];
-				plot.add("circle", xx, yy);
+				plot2.add("circle", xx, yy);
 			} else {
-				plot.setColor(Color.black);
+				plot2.setColor(Color.black);
 				xx[0] = vetx[i1];
 				yy[0] = vety[i1];
-				plot.add("circle", xx, yy);
+				plot2.add("circle", xx, yy);
 			}
 
 		}
-//		plot.add("circle", x, y);
-//		plot.setColor(Color.BLUE);
 		StringBuffer legend = new StringBuffer(100);
 		legend.append(cf.getName());
 		legend.append('\n');
@@ -997,11 +982,11 @@ public class Utility {
 		}
 		legend.append("R^2 = " + IJ.d2s(cf.getRSquared(), 4));
 		legend.append('\n');
-		plot.addLabel(0.8, 0.1, legend.toString());
-		plot.setFrameSize(PLOT_WIDTH, PLOT_HEIGHT);
-		plot.setColor(Color.BLUE);
-		plot.show();
-		Utility.debugDeiPoveri("IMAGEJ");
+		plot2.addLabel(0.8, 0.1, legend.toString());
+		plot2.setFrameSize(PLOT_WIDTH, PLOT_HEIGHT);
+		plot2.setColor(Color.BLUE);
+		plot2.show();
+		return plot2;
 	}
 
 	/**
@@ -1052,7 +1037,8 @@ public class Utility {
 		double dataRange = ymax - ymin;
 		ymin = Math.max(ymin - dataRange, Math.min(ymin, a[0])); // expand y range for curve, but not too much
 		ymax = Math.min(ymax + dataRange, Math.max(ymax, a[1]));
-		Plot plot = new Plot("FLANAGAN", "X", "Y");
+		
+		Plot plot = new Plot("FLANAGAN", "ore dalla somministrazione", "attivita' MBq");
 		plot.setLineWidth(2);
 		plot.setColor(Color.GREEN);
 		plot.add("line", px, py);
@@ -1062,10 +1048,8 @@ public class Utility {
 		plot.setColor(Color.GREEN);
 //		plot.addLabel(0.02, 0.1, legend.toString());
 		plot.setFrameSize(PLOT_WIDTH, PLOT_HEIGHT);
-
 		plot.show();
 
-		Utility.debugDeiPoveri("FLANAGAN");
 	}
 
 	/**
@@ -1095,9 +1079,6 @@ public class Utility {
 			px[i] = (float) tmp;
 			tmp += inc;
 		}
-
-//		for (int i = 0; i < npoints; i++)
-//			py[i] = (float) f(params, px[i]);
 
 		Plot plot1 = new Plot("Punti", "ore dalla somministrazione", "attivita' MBq");
 		plot1.setLineWidth(2);
@@ -1134,11 +1115,7 @@ public class Utility {
 	 */
 	static long MIRD_CalcoloDeltaT(Date dateTime0, Date dateTime24) {
 
-//		IJ.log("dateTime0= " +dateTime0);
-//		IJ.log("dateTime24= " +dateTime24);
 		long diff = dateTime24.getTime() - dateTime0.getTime();
-//		IJ.log("difference= " + diff / (1000 * 60 * 60) + " hours");
-//		IJ.log("difference= " + diff / (1000 * 60 * 60 * 24) + " days");
 		return diff;
 	}
 
@@ -1148,17 +1125,17 @@ public class Utility {
 	 * @param pathVolatile
 	 * @param pathPermanente
 	 */
-	static void dialogBattezzaLesioni_DD07(String pathVolatile) {
+	static void dialogBattezzaLesioni_LP07(String pathVolatile) {
 		// alla fine del nostro reiterativo lavoro decidiamo che dobbiamo salvare il
 		// tutto CHE COSA POTRA'MAI ANDARE STORTO???
-		NonBlockingGenericDialog compliments1 = new NonBlockingGenericDialog("DD07 - Compliments1");
+		NonBlockingGenericDialog compliments1 = new NonBlockingGenericDialog("LP07 - Compliments1");
 		compliments1.setFont(defaultFont);
 		compliments1.addMessage("COMPLIMENTI, HAI COMPLETATO L'ANALISI DELLA LESIONE");
 		compliments1.addMessage("SENZA SCLERARE TROPPO");
 		compliments1.addStringField("NomeLesione per memorizzazione", "");
 		compliments1.showDialog();
 		String lesionName = compliments1.getNextString();
-		IJ.log("eseguo battezzaLesioni con DD07 lesionName= " + lesionName);
+		IJ.log("eseguo battezzaLesioni con LP07 lesionName= " + lesionName);
 
 		// ora i nostri dati verrano battezzati col nome fornito dal ... PADRINO !!!
 		// il nome del nuovo file diverra' lesionName.txt, non occorre un controllo che
@@ -1312,6 +1289,12 @@ public class Utility {
 		plot.show();
 	}
 
+	/**
+	 * Verifica esistenza dei dati di somministrazione
+	 * 
+	 * @param path
+	 * @return
+	 */
 	static boolean datiSomministrazionePresenti(String path) {
 
 		File fil = new File(path);
@@ -1335,12 +1318,23 @@ public class Utility {
 		return true;
 	}
 
+	/*
+	 * Letture dei titoli delle finestre nonImmagine, usato per tests
+	 * 
+	 */
 	public String[] titoli() {
 		String[] all = WindowManager.getNonImageTitles();
 		return all;
 
 	}
 
+	/**
+	 * Inverte un vettore, per ovviare al fatto che tra Flanagan e ImageJ i dati di
+	 * output sono invertiti tra loro
+	 * 
+	 * @param parameters
+	 * @return
+	 */
 	static double[] vetReverser(double[] parameters) {
 		double[] out = new double[parameters.length];
 		int count = 0;
@@ -1351,6 +1345,17 @@ public class Utility {
 		return out;
 	}
 
+	/**
+	 * Calcolo di vari valori
+	 * 
+	 * @param params
+	 * @param errors
+	 * @param vol24
+	 * @param vol48
+	 * @param vol120
+	 * @param pathVolatile
+	 * @return
+	 */
 	static double[] blaBla(double[] params, double[] errors, double vol24, double vol48, double vol120,
 			String pathVolatile) {
 
@@ -1522,7 +1527,6 @@ public class Utility {
 		double m1 = Double.NaN;
 		double m2 = Double.NaN;
 
-
 		for (int i1 = 0; i1 < sFactor[1].length - 1; i1++) {
 
 			if (sFactor[0][i1] <= massa && sFactor[0][i1 + 1] >= massa) {
@@ -1562,6 +1566,16 @@ public class Utility {
 		out1[0] = dose;
 		out1[1] = Sdose;
 		return out1;
+	}
+
+	public static void closePlot(String title) {
+		String[] vetNames = WindowManager.getImageTitles();
+		for (int i1 = 0; i1 < vetNames.length; i1++) {
+			ImagePlus impx = WindowManager.getImage(vetNames[i1]);
+			// if (impx.getInfoProperty() == null && impx.getBitDepth() == 8)
+			if (impx.getTitle().equals(title))
+				impx.close();
+		}
 	}
 
 }

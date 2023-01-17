@@ -1,5 +1,7 @@
 package Dosimetry;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,6 +28,18 @@ public class Utility_Test {
 
 	}
 
+	@Test
+	public final void test_LP07_BattezzaLesioni() {
+
+		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
+		String pathVolatile = "Messaggio di errore";
+		Utility.dialogBattezzaLesioni_LP07(pathVolatile);
+		Utility.debugDeiPoveri("SPETTA");
+		assertTrue(true);
+	}
+
+	
+	
 	@Test
 	public final void test_copyInfo() {
 
@@ -143,10 +157,29 @@ public class Utility_Test {
 		double[] vetY = { 35.921969407999995, 18.392739144, 9.153194127999999 };
 		boolean[] selected = { true, false, true };
 
-		Utility.MIRD_pointsPlotter(vetX, vetY, selected);
+		Utility.MIRD_pointsPlotter(vetX, vetY, selected, "Titolo");
 
 		Utility.debugDeiPoveri("SPETTA");
 	}
+	
+	@Test
+	public final void test_MIRD_closePlot() {
+
+		double[] vetX = { 24, 48, 120 };
+		double[] vetY = { 35.921969407999995, 18.392739144, 9.153194127999999 };
+		double[] vetY2 = { 35.921969407999995, 9.392739144, 9.153194127999999 };
+		boolean[] selected = { true, false, true };
+
+		String tit1=  "Punti1";
+		Utility.MIRD_pointsPlotter(vetX, vetY, selected, tit1);
+		String tit2=  "Punti2";
+		Utility.MIRD_pointsPlotter(vetX, vetY2, selected, tit2);
+		Utility.debugDeiPoveri("SPETTA");		
+		Utility.closePlot(tit1);
+
+		Utility.debugDeiPoveri("SPETTA");
+	}
+
 
 	@Test
 	public final void test_dedupeLog() {
@@ -174,18 +207,15 @@ public class Utility_Test {
 	@Test
 	public final void test_vetReverser() {
 
-		
-		double[] input1= {1,2,3,4,5,6,7,8,9};
-		double[] input2=input1;
-		double[] output2= Utility.vetReverser(input2);
-		
-		for (double aux:output2)
-			IJ.log(""+aux);
-		
+		double[] input1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+		double[] input2 = input1;
+		double[] output2 = Utility.vetReverser(input2);
+
+		for (double aux : output2)
+			IJ.log("" + aux);
+
 		Utility.debugDeiPoveri("SPETTA");
-		
+
 	}
-	
-	
 
 }
