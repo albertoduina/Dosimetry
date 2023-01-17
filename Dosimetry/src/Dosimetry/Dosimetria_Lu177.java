@@ -717,6 +717,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 					paramsFLA = rf.getBestEstimates();
 					paramsFLA = Utility.vetReverser(paramsFLA);
 					double[] errorsFLA = rf.getBestEstimatesErrors();
+					errorsFLA = Utility.vetReverser(errorsFLA);
 
 					out2 = Utility.blaBla(paramsFLA, errorsFLA, MIRD_vol24, MIRD_vol48, MIRD_vol120, pathVolatile);
 

@@ -1359,8 +1359,8 @@ public class Utility {
 		vetVol[1] = vol48;
 		vetVol[2] = vol120;
 
-		double AA = Math.abs(params[1]);
-		double aa = Math.abs(params[0]);
+		double AA = Math.abs(params[0]);
+		double aa = Math.abs(params[1]);
 		double mAtilde = AA / aa;
 		double disintegrazioni = mAtilde / 100;
 		double somministrata = Utility.readDoubleFromLog(pathVolatile, "#003#", "=");
@@ -1380,8 +1380,8 @@ public class Utility {
 		double Sdose = Double.NaN;
 
 		if (errors != null) {
-			SA = errors[1];
-			Sa = errors[0];
+			SA = errors[0];
+			Sa = errors[1];
 			SmAtilde = Math.sqrt(Math.pow(aa, 2) * Math.pow(SA, 2) + Math.pow(AA, 2) * Math.pow(Sa, 2))
 					/ (Math.pow(aa, 2));
 			Sdisintegrazioni = SmAtilde / 100;
