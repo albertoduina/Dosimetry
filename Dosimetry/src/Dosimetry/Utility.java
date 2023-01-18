@@ -979,7 +979,7 @@ public class Utility {
 		ymin = Math.max(ymin - dataRange, Math.min(ymin, a[0])); // expand y range for curve, but not too much
 		ymax = Math.min(ymax + dataRange, Math.max(ymax, a[1]));
 
-		Plot plot2 = new Plot("IMAGEJ " + cf.getFormula(), "ore dalla somministrazione", "attivita' MBq");
+		Plot plot2 = new Plot("PLOT IMAGEJ", "ore dalla somministrazione", "attivita' MBq");
 		plot2.setLineWidth(2);
 		plot2.setColor(Color.BLUE);
 		plot2.add("line", px, py);
@@ -1072,7 +1072,7 @@ public class Utility {
 		ymin = Math.max(ymin - dataRange, Math.min(ymin, a[0])); // expand y range for curve, but not too much
 		ymax = Math.min(ymax + dataRange, Math.max(ymax, a[1]));
 
-		Plot plot = new Plot("FLANAGAN", "ore dalla somministrazione", "attivita' MBq");
+		Plot plot = new Plot("PLOT FLANAGAN", "ore dalla somministrazione", "attivita' MBq");
 		plot.setLineWidth(2);
 		plot.setColor(Color.GREEN);
 		plot.add("line", px, py);
@@ -1165,7 +1165,6 @@ public class Utility {
 		NonBlockingGenericDialog compliments1 = new NonBlockingGenericDialog("LP27 - Battezza lesioni");
 		compliments1.setFont(defaultFont);
 		compliments1.addMessage("COMPLIMENTI, HAI COMPLETATO L'ANALISI DELLA LESIONE");
-		compliments1.addMessage("SENZA SCLERARE TROPPO");
 		compliments1.addStringField("NomeLesione per memorizzazione", "");
 		compliments1.showDialog();
 		String lesionName = compliments1.getNextString();
@@ -1415,7 +1414,7 @@ public class Utility {
 		double SmAtilde = Double.NaN;
 		double Sdisintegrazioni = Double.NaN;
 		double Suptake = Double.NaN;
-		double Smassa = Double.NaN;
+		double Smassa = vetSdKnuth(vetVol);
 		double Stmezzo = Double.NaN;
 		double Stau = Double.NaN;
 		double Sdose = Double.NaN;
@@ -1427,7 +1426,7 @@ public class Utility {
 					/ (Math.pow(aa, 2));
 			Sdisintegrazioni = SmAtilde / 100;
 			Suptake = SA / somministrata;
-			Smassa = vetSdKnuth(vetVol);
+		
 			Stmezzo = (Math.log(2) * Sa) / Math.pow(aa, 2);
 			Stau = SmAtilde / somministrata;
 

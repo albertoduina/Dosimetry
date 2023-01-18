@@ -472,7 +472,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		// PUNTO DI INIZIO DEI LOOP DI ELABORAZIONE, FINISCONO SOLO SE E QUANDO I
-		// RISULTATI DENGONO ACCETTATI/APPROVATI PER ESAURIMENTO DELLA PAZIENZA
+		// RISULTATI DENGONO ACCETTATI/APPROVATI O PER ESAURIMENTO DELLA PAZIENZA
 		// DELL'OPERATORE
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -484,7 +484,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// ==========================================================================================
 
 			// ===========================================================================================
-			// Azzeramento dei valori ottenuti in precedenza MA SERVE VERAMENTE ??
+			// Azzeramento dei valori ottenuti in precedenza SERVE VERAMENTE
 			// ===========================================================================================
 
 			MIRD_vol24 = Double.NaN;
@@ -704,12 +704,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 					Stau = out2[15];
 					dose = out2[16];
 					Sdose = out2[17];
-					// qui elimino le stampe di tag ereditati
-//					Utility.removeLineLog(pathVolatile, "#270#"); 
-//					Utility.removeLineLog(pathVolatile, "#271#"); 
-//					Utility.removeLineLog(pathVolatile, "#272#"); 
-//					Utility.removeLineLog(pathVolatile, "#273#"); 
-//					Utility.removeLineLog(pathVolatile, "#274#"); 
 
 					IJ.log("==== PRIMA DI REVIEW =====");
 					IJ.log("count2= " + count2);
@@ -723,6 +717,16 @@ public class Dosimetria_Lu177 implements PlugIn {
 					IJ.log("tmezzo= " + tmezzo);
 					IJ.log("tau= " + tau);
 					IJ.log("dose= " + dose);
+					IJ.log("==== ERRORI ==========");
+					IJ.log("errore SA= " + SA);
+					IJ.log("errore Sa= " + Sa);
+					IJ.log("SmAtilde= " + SmAtilde);
+					IJ.log("S# disintegrazioni= " + Sdisintegrazioni);
+					IJ.log("Suptake= " + Suptake);
+					IJ.log("Smassa= " + Smassa);
+					IJ.log("Stmezzo= " + Stmezzo);
+					IJ.log("Stau= " + Stau);
+					IJ.log("Sdose= " + Sdose);
 					IJ.log("====================================");
 
 				} else if (count2 == 3) {
@@ -783,7 +787,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 					IJ.log("tmezzo= " + tmezzo);
 					IJ.log("tau= " + tau);
 					IJ.log("dose= " + dose);
-					IJ.log("==== ERRORI DOPO FLANAGAN ==========");
+					IJ.log("==== ERRORI ==========");
 					IJ.log("errore SA= " + SA);
 					IJ.log("errore Sa= " + Sa);
 					IJ.log("SmAtilde= " + SmAtilde);
@@ -822,12 +826,16 @@ public class Dosimetria_Lu177 implements PlugIn {
 				decis1 = MIRD_display_LP68(vetInput);
 				if (decis1 == 0)
 					return;
-				boolean fit = false;
+				// boolean fit = false;
 				if (decis1 == 1) {
 					rip = dialogRipetizione_LP08();
 					if (rip == 0)
 						return;
 				}
+				Utility.closePlot("PLOT FLANAGAN");
+				Utility.closePlot("PLOT IMAGEJ");
+				
+				
 			} while (rip < 2 && decis1 < 2);
 
 			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -858,9 +866,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 					aux1 = "#904#\tokk= false";
 					Utility.modifyLog(pathPermanente, "#904#", aux1);
 					break;
-				case "FATTO":
-					scelta = 4;
-					break;
 				}
 			}
 
@@ -871,7 +876,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// VOLATILE, IN ATTESA DI CONOSCERE IL NOME CHE DARANNO ALLA LESIONE
 		// ============================================================================
 
-//		} while (scelta < 4);
 
 		int count5 = 200;
 		aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD CALCULATION 24h ----";
@@ -933,8 +937,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 						+ paramsFLA[i1];
 				Utility.appendLog(pathVolatile, aux5);
 			}
-			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FIT R^2 adjusted= " + rSquaredFLAadjusted;
-			Utility.appendLog(pathVolatile, aux5);
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FIT R^2= " + rSquaredFLA;
 			Utility.appendLog(pathVolatile, aux5);
 		}
@@ -2293,8 +2295,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 	String dialogReview_LP32() {
 
 		IJ.log("dialogReview_LP32");
-		String[] items = { "24h", "48h", "120h", "FATTO" };
-		int rows = 4;
+		String[] items = { "24h", "48h", "120h"};
+		int rows = 3;
 		int columns = 1;
 		NonBlockingGenericDialog gd1 = new NonBlockingGenericDialog("LP32 - REVIEW");
 		gd1.setFont(defaultFont);
@@ -2495,7 +2497,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		// (" + String.format("%+,.1f%%", per24)
 
-		aux1 = "uptake%= " + String.format("%.2f", uptake) + " \u00B1 " + String.format("%.2f%%", Suptake);
+		aux1 = "uptake%= " + String.format("%.2f", uptake*100) + " \u00B1 " + String.format("%.2f%%", Suptake);
 		gd1.addMessage(aux1);
 
 		gd1.addMessage("vol24= " + String.format("%.2f", vol24) + " cm3    vol48= " + String.format("%.2f", vol48)
