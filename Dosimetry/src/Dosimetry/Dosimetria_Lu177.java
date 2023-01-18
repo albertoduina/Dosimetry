@@ -669,6 +669,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 				if (count2 == 2) {
 					count3 = 2;
+					flanagan=false;
+					
 					cf = Utility.MIRD_curveFitterSpecialImageJ(xp2, yp2);
 					Utility.MIRD_curvePlotterSpecialImageJ(cf, xp1, yp1, punti);
 					// -------- recupero i dati da stampare ---------------
@@ -683,6 +685,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 					rSquaredIJ = cf.getRSquared();
 
 					out2 = Utility.blaBla(paramsIJ, null, MIRD_vol24, MIRD_vol48, MIRD_vol120, pathVolatile);
+
 					AA = out2[0];
 					aa = out2[1];
 					SA = out2[2];
@@ -693,8 +696,20 @@ public class Dosimetria_Lu177 implements PlugIn {
 					massa = out2[7];
 					tmezzo = out2[8];
 					tau = out2[9];
+					SmAtilde = out2[10];
+					Sdisintegrazioni = out2[11];
+					Suptake = out2[12];
+					Smassa = out2[13];
+					Stmezzo = out2[14];
+					Stau = out2[15];
 					dose = out2[16];
 					Sdose = out2[17];
+					// qui elimino le stampe di tag ereditati
+//					Utility.removeLineLog(pathVolatile, "#270#"); 
+//					Utility.removeLineLog(pathVolatile, "#271#"); 
+//					Utility.removeLineLog(pathVolatile, "#272#"); 
+//					Utility.removeLineLog(pathVolatile, "#273#"); 
+//					Utility.removeLineLog(pathVolatile, "#274#"); 
 
 					IJ.log("==== PRIMA DI REVIEW =====");
 					IJ.log("count2= " + count2);
@@ -749,6 +764,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 					Stau = out2[15];
 					dose = out2[16];
 					Sdose = out2[17];
+
+//					Utility.removeLineLog(pathVolatile, "#260#"); 
+//					Utility.removeLineLog(pathVolatile, "#261#"); 
+//					Utility.removeLineLog(pathVolatile, "#262#"); 
+//					Utility.removeLineLog(pathVolatile, "#263#"); 
+//					Utility.removeLineLog(pathVolatile, "#264#"); 
 
 					IJ.log("==== PRIMA DI REVIEW =====");
 					IJ.log("count2= " + count2);
@@ -807,7 +828,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 					if (rip == 0)
 						return;
 				}
-			} while (rip < 2 &&  decis1<2);
+			} while (rip < 2 && decis1 < 2);
 
 			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			// QUI DEVO ENTRARE PER PROBLEMI DI contornatura DA LP08
@@ -879,25 +900,34 @@ public class Dosimetria_Lu177 implements PlugIn {
 		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120= " + out120[2];
 		Utility.appendLog(pathVolatile, aux5);
-		count5 = 260;
-		aux5 = "#" + String.format("%03d", count5++) + "#\t----- MIRD FIT RESULTS IMAGEJ --------";
-		Utility.appendLog(pathVolatile, aux5);
-		for (int i1 = 0; i1 < numParams; i1++) {
-			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD IJ FIT param " + i1 + "= " + paramsIJ[i1];
-			Utility.appendLog(pathVolatile, aux5);
-		}
-		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FITgoodness= " + fitGoodnessIJ;
-		Utility.appendLog(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FIT R^2= " + rSquaredIJ;
-		Utility.appendLog(pathVolatile, aux5);
-		count5 = 270;
-		aux5 = "#" + String.format("%03d", count5++) + "#\t----- MIRD FIT RESULTS FLANAGAN --------";
-		Utility.appendLog(pathVolatile, aux5);
+
 		if (!flanagan) {
-			count5 = 279;
-			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FLANAGAN NON FUNZIONA SE PUNTI <3";
+			//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			// CON IMAGEJ E BASTA
+			//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			
+			count5 = 260;
+			aux5 = "#" + String.format("%03d", count5++) + "#\t----- MIRD FIT RESULTS IMAGEJ --------";
+			Utility.appendLog(pathVolatile, aux5);
+			for (int i1 = 0; i1 < numParams; i1++) {
+				aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD IJ FIT param " + i1 + "= " + paramsIJ[i1];
+				Utility.appendLog(pathVolatile, aux5);
+			}
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FITgoodness= " + fitGoodnessIJ;
+			Utility.appendLog(pathVolatile, aux5);
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FIT R^2= " + rSquaredIJ;
 			Utility.appendLog(pathVolatile, aux5);
 		} else {
+			//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			// CON FLANAGAN E BASTA
+			//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			count5 = 270;
+			aux5 = "#" + String.format("%03d", count5++) + "#\t----- MIRD FIT RESULTS FLANAGAN --------";
+			Utility.appendLog(pathVolatile, aux5);
+		//	count5 = 279;
+		//	aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FLANAGAN NON FUNZIONA SE PUNTI <3";
+		//	Utility.appendLog(pathVolatile, aux5);
+
 			for (int i1 = 0; i1 < paramsFLA.length; i1++) {
 				aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FLANAGAN FIT param " + i1 + "= "
 						+ paramsFLA[i1];
@@ -942,29 +972,29 @@ public class Dosimetria_Lu177 implements PlugIn {
 		aux5 = "#" + String.format("%03d", count5++) + "#\tdose= " + dose;
 		Utility.appendLog(pathVolatile, aux5);
 
-	//	if (count3 == 3) {   /// lo eseguo sempre
-			aux5 = "#" + String.format("%03d", count5++) + "#\t--------- FLANAGAN ERRORI ----------";
-			Utility.appendLog(pathVolatile, aux5);
-			aux5 = "#" + String.format("%03d", count5++) + "#\terrore SA= " + SA;
-			Utility.appendLog(pathVolatile, aux5);
-			aux5 = "#" + String.format("%03d", count5++) + "#\terrore Sa= " + Sa;
-			Utility.appendLog(pathVolatile, aux5);
-			aux5 = "#" + String.format("%03d", count5++) + "#\tSmAtilde= " + SmAtilde;
-			Utility.appendLog(pathVolatile, aux5);
-			aux5 = "#" + String.format("%03d", count5++) + "#\tS# disintegrazioni= " + Sdisintegrazioni;
-			Utility.appendLog(pathVolatile, aux5);
-			aux5 = "#" + String.format("%03d", count5++) + "#\tSuptake= " + Suptake;
-			Utility.appendLog(pathVolatile, aux5);
-			aux5 = "#" + String.format("%03d", count5++) + "#\tSmassa= " + Smassa;
-			Utility.appendLog(pathVolatile, aux5);
-			aux5 = "#" + String.format("%03d", count5++) + "#\tStmezzo= " + Stmezzo;
-			Utility.appendLog(pathVolatile, aux5);
-			aux5 = "#" + String.format("%03d", count5++) + "#\tStau= " + Stau;
-			Utility.appendLog(pathVolatile, aux5);
-			aux5 = "#" + String.format("%03d", count5++) + "#\tSdose= " + Sdose;
-			Utility.appendLog(pathVolatile, aux5);
+		// if (count3 == 3) { /// lo eseguo sempre
+		aux5 = "#" + String.format("%03d", count5++) + "#\t--------- CALCOLO ERRORI ----------";
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\terrore SA= " + SA;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\terrore Sa= " + Sa;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tSmAtilde= " + SmAtilde;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tS# disintegrazioni= " + Sdisintegrazioni;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tSuptake= " + Suptake;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tSmassa= " + Smassa;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tStmezzo= " + Stmezzo;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tStau= " + Stau;
+		Utility.appendLog(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tSdose= " + Sdose;
+		Utility.appendLog(pathVolatile, aux5);
 
-	//	}
+		// }
 
 //		if (rf != null) {
 //

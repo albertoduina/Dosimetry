@@ -36,6 +36,7 @@ public class Utility_Test {
 		Utility.debugDeiPoveri("SPETTA");
 		assertTrue(true);
 	}
+
 	@Test
 	public final void test_DD08_AltroDistretto() {
 
@@ -44,8 +45,6 @@ public class Utility_Test {
 		assertTrue(true);
 	}
 
-	
-	
 	@Test
 	public final void test_copyInfo() {
 
@@ -56,6 +55,28 @@ public class Utility_Test {
 
 		Utility.copyLogInfo(pathSorgente, pathDestinazione, start, end);
 
+		Utility.debugDeiPoveri("SPETTA");
+
+	}
+
+	@Test
+	public final void test_removeLineLog() {
+
+		File source= new File("testdata/permanente2.txt");
+		File dest= new File("testdata/permanente.txt");
+		try {
+			if (dest.exists())  
+					dest.delete();
+			
+			Files.copy(source.toPath(), dest.toPath());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		String pathPermanente = "testdata/permanente.txt";
+		Utility.removeLineLog(pathPermanente, "#030#");
 		Utility.debugDeiPoveri("SPETTA");
 
 	}
@@ -167,7 +188,7 @@ public class Utility_Test {
 
 		Utility.debugDeiPoveri("SPETTA");
 	}
-	
+
 	@Test
 	public final void test_MIRD_closePlot() {
 
@@ -176,16 +197,15 @@ public class Utility_Test {
 		double[] vetY2 = { 35.921969407999995, 9.392739144, 9.153194127999999 };
 		boolean[] selected = { true, false, true };
 
-		String tit1=  "Punti1";
+		String tit1 = "Punti1";
 		Utility.MIRD_pointsPlotter(vetX, vetY, selected, tit1);
-		String tit2=  "Punti2";
+		String tit2 = "Punti2";
 		Utility.MIRD_pointsPlotter(vetX, vetY2, selected, tit2);
-		Utility.debugDeiPoveri("SPETTA");		
+		Utility.debugDeiPoveri("SPETTA");
 		Utility.closePlot(tit1);
 
 		Utility.debugDeiPoveri("SPETTA");
 	}
-
 
 	@Test
 	public final void test_dedupeLog() {

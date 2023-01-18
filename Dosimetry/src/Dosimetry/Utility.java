@@ -203,6 +203,40 @@ public class Utility {
 	}
 
 	/**
+	 * Se nel file esiste gia'una linea col tag, essa viene cancellata
+	 * 
+	 * @param path1
+	 * @param tag
+	 * @param newline
+	 */
+	public static void removeLineLog(String path1, String tag) {
+
+		boolean ok = false;
+		try {
+			BufferedReader file = new BufferedReader(new FileReader(path1));
+			StringBuffer inputBuffer = new StringBuffer();
+			String line;
+			// lettura
+			while ((line = file.readLine()) != null) {
+				if (line.contains(tag)) {
+				} else {
+					inputBuffer.append(line);
+					inputBuffer.append('\n');
+				}
+			}
+			file.close();
+
+			// riscrittura
+			FileOutputStream fileOut = new FileOutputStream(path1);
+			fileOut.write(inputBuffer.toString().getBytes());
+			fileOut.close();
+
+		} catch (Exception e) {
+			System.out.println("errore lettura/scrittura file " + path1);
+		}
+	}
+
+	/**
 	 * Copia tutti i dati dal log volatile.txt al log permanente.txt
 	 * 
 	 * @param permFile indirizzo log permanente da utilizzare
