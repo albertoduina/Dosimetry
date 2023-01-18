@@ -243,13 +243,13 @@ public class Dosimetry_v2 implements PlugIn {
 				// ======================================================
 				do {
 					IJ.log("LOOP LIVELLO DUE");
-					NonBlockingGenericDialog dialogSlice = new NonBlockingGenericDialog("DD097 - Required Parameters");
+					NonBlockingGenericDialog dialogSlice = new NonBlockingGenericDialog("DD97 - Required Parameters");
 					dialogSlice.addMessage("Slice selection", titleFont);
 					dialogSlice.addMessage("Image slices number: " + stackSize + ".", textFont);
 					dialogSlice.addNumericField("Insert slice index: ", posizioneInput, 0); // NUOVO
 					dialogSlice.addRadioButtonGroup("Select reference system:", scelteReferenceSystem, 2, 1,
 							scelteReferenceSystem[referenceRadioButtonIndex ? 0 : 1]);
-					dialogSlice.setCancelLabel("Quit");
+					dialogSlice.setCancelLabel("Cancel");
 					dialogSlice.setOKLabel("Next");
 					dialogSlice.setFont(defaultFont);
 					dialogSlice.showDialog();
@@ -292,7 +292,7 @@ public class Dosimetry_v2 implements PlugIn {
 				fettaCaudoCraniale = posizioneLesione + distanzaCaudoCraniale;
 				fettaCranioCaudale = posizioneLesione - distanzaCranioCaudale;
 
-				NonBlockingGenericDialog dialog = new NonBlockingGenericDialog("DD096 - Parameter Selection");
+				NonBlockingGenericDialog dialog = new NonBlockingGenericDialog("DD96 - Parameter Selection");
 				dialog.addMessage("ROI definition and parameter selection", titleFont);
 				dialog.addMessage("Fill the required information and draw a reference ROI around the lesion.",
 						textFont);
@@ -310,7 +310,7 @@ public class Dosimetry_v2 implements PlugIn {
 				dialog.addCheckbox("Select to use a personalized maximum.", false);
 				dialog.addNumericField("", 1500, 0);
 				dialog.setFont(defaultFont);
-				dialog.setCancelLabel("Quit");
+				dialog.setCancelLabel("Cancel");
 				dialog.setOKLabel("Next");
 				dialog.setLocation(screen.width / 3, screen.height / 3);
 				dialog.showDialog();
@@ -528,7 +528,7 @@ public class Dosimetry_v2 implements PlugIn {
 					boolean ricontorna = false;
 					boolean prosegui = false;
 					while (!continua) {
-						NonBlockingGenericDialog resultsDialog = new NonBlockingGenericDialog("DD098 - Results");
+						NonBlockingGenericDialog resultsDialog = new NonBlockingGenericDialog("DD98 - Results");
 						resultsDialog.addMessage("Results", titleFont);
 						resultsDialog.addMessage("Maximum lesion count: " + (int) roiMax);
 						resultsDialog.addMessage("Contouring threshold level: " + threshold);
@@ -658,7 +658,7 @@ public class Dosimetry_v2 implements PlugIn {
 								int radioGroupIndex = 0;
 
 								NonBlockingGenericDialog histDialog = new NonBlockingGenericDialog(
-										"DD093 - Required Parameter");
+										"DD93 - Required Parameter");
 								histDialog.addMessage("Histogram Paramters", titleFont);
 								if (!signedIntegerFlag) {
 									histDialog.addMessage("Image Bit Depth= " + ip.getBitDepth() + ".", textFont);
@@ -740,7 +740,7 @@ public class Dosimetry_v2 implements PlugIn {
 									cancelButtonFlag = false;
 
 								} else if (histDialog.wasCanceled()) {
-									GenericDialog fileNameDialog = new GenericDialog("DD099 - Saving Process");
+									GenericDialog fileNameDialog = new GenericDialog("DD99 - Saving Process");
 									fileNameDialog.addMessage("Insert file name without extension", defaultFont);
 									fileNameDialog.addStringField("Save As: ", histogramFileName, 20);
 									fileNameDialog.addMessage("The file will be saved in 'Downloads'.", defaultFont);
@@ -762,7 +762,7 @@ public class Dosimetry_v2 implements PlugIn {
 							continua = true;
 						}
 						resetflag = resultsDialog.getNextBoolean();
-						IJ.log("ricevuto da dialogo DD098 resetflag= " + resetflag);
+						IJ.log("ricevuto da dialogo DD08 resetflag= " + resetflag);
 					}
 				}
 				IJ.log("FINE LOOP LIVELLO UNO");

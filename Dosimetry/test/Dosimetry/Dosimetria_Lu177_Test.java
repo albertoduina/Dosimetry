@@ -135,6 +135,16 @@ public class Dosimetria_Lu177_Test {
 		Utility.debugDeiPoveri("SPETTA");
 		assertTrue(true);
 	}
+	
+	@Test
+	public final void test_LP07_dialogDistretto() {
+
+		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
+		dosimetria_Lu177.dialogDistretto_LP07();
+		Utility.debugDeiPoveri("SPETTA");
+		assertTrue(true);
+	}
+	
 	@Test
 	public final void test_LP06_DialogErrorMessage() {
 

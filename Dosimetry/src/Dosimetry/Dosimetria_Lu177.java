@@ -942,7 +942,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		aux5 = "#" + String.format("%03d", count5++) + "#\tdose= " + dose;
 		Utility.appendLog(pathVolatile, aux5);
 
-		if (count3 == 3) {
+	//	if (count3 == 3) {   /// lo eseguo sempre
 			aux5 = "#" + String.format("%03d", count5++) + "#\t--------- FLANAGAN ERRORI ----------";
 			Utility.appendLog(pathVolatile, aux5);
 			aux5 = "#" + String.format("%03d", count5++) + "#\terrore SA= " + SA;
@@ -964,7 +964,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			aux5 = "#" + String.format("%03d", count5++) + "#\tSdose= " + Sdose;
 			Utility.appendLog(pathVolatile, aux5);
 
-		}
+	//	}
 
 //		if (rf != null) {
 //
@@ -975,7 +975,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// BATTESIMO DELLA LESIONE
 		// ==============================================================
 		Utility.dedupeLog(pathVolatile);
-		Utility.dialogBattezzaLesioni_LP07(pathVolatile);
+		Utility.dialogBattezzaLesioni_LP27(pathVolatile);
 		Utility.chiudiTutto();
 		IJ.showMessage("FINE LAVORO");
 	}
@@ -1584,10 +1584,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 		int digits13 = 8;
 		gd11.addNumericField(label13, default13, digits13, 10, "[MBq]");
 
-		gd11.setCancelLabel("Annulla");
+		gd11.setCancelLabel("Cancel");
 		gd11.showDialog();
 		if (gd11.wasCanceled()) {
-			IJ.log("LP04 null ANNULLA");
+			IJ.log("LP04 null Cancel");
 			return null;
 		}
 
@@ -1643,11 +1643,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 		genericDialog3.addMessage("Scelta tipo di problema:", titleFont);
 		genericDialog3.enableYesNoCancel("CONTORNAMENTO", "FIT");
 
-		genericDialog3.setCancelLabel("Chiudi");
+		genericDialog3.setCancelLabel("Cancel");
 		genericDialog3.showDialog();
 
 		if (genericDialog3.wasCanceled()) {
-			IJ.log("LP08 0 Chiudi");
+			IJ.log("LP08 0 Cancel");
 			return 0;
 		} else if (genericDialog3.wasOKed()) {
 			IJ.log("LP08 2 CONTORNAMENTO");
@@ -1783,10 +1783,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 		genericDialog.setFont(defaultFont);
 		genericDialog.addMessage("Select folder of the 24h acquisition");
 		genericDialog.setOKLabel("BROWSE");
-		genericDialog.setCancelLabel("QUIT");
+		genericDialog.setCancelLabel("Cancel");
 		genericDialog.showDialog();
 		if (genericDialog.wasCanceled()) {
-			IJ.log("LP02 - false PREMUTO QUIT");
+			IJ.log("LP02 - false PREMUTO Cancel");
 			return false;
 		} else {
 			IJ.log("LP02 - true PREMUTO BROWSE");
@@ -1836,10 +1836,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 		genericDialog1.addMessage("120h folder path:", textFont);
 		genericDialog1.addMessage(str120, defaultFont);
 		genericDialog1.setOKLabel("CONFIRM");
-		genericDialog1.setCancelLabel("QUIT");
+		genericDialog1.setCancelLabel("Cancel");
 		genericDialog1.showDialog();
 		if (genericDialog1.wasCanceled()) {
-			IJ.log("LP03 - false PREMUTO QUIT");
+			IJ.log("LP03 - false PREMUTO Cancel");
 			return false;
 		} else {
 			IJ.log("LP03 - true PREMUTO CONFIRM");

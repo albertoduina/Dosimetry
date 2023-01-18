@@ -29,11 +29,17 @@ public class Utility_Test {
 	}
 
 	@Test
-	public final void test_LP07_BattezzaLesioni() {
+	public final void test_LP27_BattezzaLesioni() {
 
-		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
 		String pathVolatile = "Messaggio di errore";
-		Utility.dialogBattezzaLesioni_LP07(pathVolatile);
+		Utility.dialogBattezzaLesioni_LP27(pathVolatile);
+		Utility.debugDeiPoveri("SPETTA");
+		assertTrue(true);
+	}
+	@Test
+	public final void test_DD08_AltroDistretto() {
+
+		Utility.dialogAltroDistretto_DD08();
 		Utility.debugDeiPoveri("SPETTA");
 		assertTrue(true);
 	}

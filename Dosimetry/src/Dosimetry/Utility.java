@@ -944,7 +944,7 @@ public class Utility {
 		double dataRange = ymax - ymin;
 		ymin = Math.max(ymin - dataRange, Math.min(ymin, a[0])); // expand y range for curve, but not too much
 		ymax = Math.min(ymax + dataRange, Math.max(ymax, a[1]));
-		
+
 		Plot plot2 = new Plot("IMAGEJ " + cf.getFormula(), "ore dalla somministrazione", "attivita' MBq");
 		plot2.setLineWidth(2);
 		plot2.setColor(Color.BLUE);
@@ -1037,7 +1037,7 @@ public class Utility {
 		double dataRange = ymax - ymin;
 		ymin = Math.max(ymin - dataRange, Math.min(ymin, a[0])); // expand y range for curve, but not too much
 		ymax = Math.min(ymax + dataRange, Math.max(ymax, a[1]));
-		
+
 		Plot plot = new Plot("FLANAGAN", "ore dalla somministrazione", "attivita' MBq");
 		plot.setLineWidth(2);
 		plot.setColor(Color.GREEN);
@@ -1125,17 +1125,17 @@ public class Utility {
 	 * @param pathVolatile
 	 * @param pathPermanente
 	 */
-	static void dialogBattezzaLesioni_LP07(String pathVolatile) {
+	static void dialogBattezzaLesioni_LP27(String pathVolatile) {
 		// alla fine del nostro reiterativo lavoro decidiamo che dobbiamo salvare il
 		// tutto CHE COSA POTRA'MAI ANDARE STORTO???
-		NonBlockingGenericDialog compliments1 = new NonBlockingGenericDialog("LP07 - Compliments1");
+		NonBlockingGenericDialog compliments1 = new NonBlockingGenericDialog("LP27 - Battezza lesioni");
 		compliments1.setFont(defaultFont);
 		compliments1.addMessage("COMPLIMENTI, HAI COMPLETATO L'ANALISI DELLA LESIONE");
 		compliments1.addMessage("SENZA SCLERARE TROPPO");
 		compliments1.addStringField("NomeLesione per memorizzazione", "");
 		compliments1.showDialog();
 		String lesionName = compliments1.getNextString();
-		IJ.log("eseguo battezzaLesioni con LP07 lesionName= " + lesionName);
+		IJ.log("eseguo battezzaLesioni con LP27 lesionName= " + lesionName);
 
 		// ora i nostri dati verrano battezzati col nome fornito dal ... PADRINO !!!
 		// il nome del nuovo file diverra' lesionName.txt, non occorre un controllo che
@@ -1158,7 +1158,7 @@ public class Utility {
 	 */
 	static void dialogAltroDistretto_DD08() {
 		IJ.log("DD08_altroDistretto");
-		GenericDialog finished1 = new GenericDialog("DD08 - Finished1");
+		GenericDialog finished1 = new GenericDialog("DD08 - Altro distretto");
 		finished1.setFont(defaultFont);
 
 		finished1.addMessage("HAI TERMINATO ANALISI DISTRETTO?");
@@ -1169,8 +1169,10 @@ public class Utility {
 		finished1.setCancelLabel("ALTRA LESIONE");
 
 		finished1.showDialog();
-		boolean avanti = finished1.wasCanceled();
-		boolean finito = finished1.wasOKed();
+		if (finished1.wasCanceled())
+			IJ.log("DD08 premuto ALTRA LESIONE");
+		if (finished1.wasOKed())
+			IJ.log("DD08 premuto FINITO");
 	}
 
 	/**
