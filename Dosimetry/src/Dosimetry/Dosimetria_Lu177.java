@@ -2497,7 +2497,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		// (" + String.format("%+,.1f%%", per24)
 
-		aux1 = "uptake%= " + String.format("%.2f", uptake*100) + " \u00B1 " + String.format("%.2f%%", Suptake);
+		aux1 = "uptake%= " + String.format("%.2f", uptake*100) + " \u00B1 " + String.format("%.2f%%", Suptake*100);
 		gd1.addMessage(aux1);
 
 		gd1.addMessage("vol24= " + String.format("%.2f", vol24) + " cm3    vol48= " + String.format("%.2f", vol48)
