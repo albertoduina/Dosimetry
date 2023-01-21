@@ -68,7 +68,7 @@ public class Load_Patient implements PlugIn {
 		pathPermanente = desktopPath + File.separator + "DosimetryFolder" + File.separator + "permanente.txt";
 		pathVolatile = desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
 
-		Utility.appendLog(pathVolatile, "---- LOADPATIENT -----");
+		Utility.logAppend(pathVolatile, "---- LOADPATIENT -----");
 		String petctviewerTitle = "";
 
 		String desktopDosimetryFolderPath = desktopPath + File.separator + "DosimetryFolder";
@@ -173,17 +173,17 @@ public class Load_Patient implements PlugIn {
 			ora11 = out2[1];
 			activity11 = Double.parseDouble(out2[2]);
 
-			Utility.appendLog(pathPermanente, "---- DOSIMETRY-----");
-			Utility.appendLog(pathPermanente, "");
+			Utility.logAppend(pathPermanente, "---- DOSIMETRY-----");
+			Utility.logAppend(pathPermanente, "");
 
 			String aux1 = "";
 			aux1 = "#100#\tData: " + data11;
-			Utility.appendLog(pathPermanente, aux1);
+			Utility.logAppend(pathPermanente, aux1);
 			aux1 = "#101#\tOra: " + ora11;
-			Utility.appendLog(pathPermanente, aux1);
+			Utility.logAppend(pathPermanente, aux1);
 			aux1 = "#102#\tActivity: " + activity11;
-			Utility.appendLog(pathPermanente, aux1);
-			Utility.appendLog(pathPermanente, "");
+			Utility.logAppend(pathPermanente, aux1);
+			Utility.logAppend(pathPermanente, "");
 		} else {
 			// recupero i dati mantenuti da una sessione precedente
 			data11 = Utility.readFromLog(pathPermanente, "#100#", ":");
@@ -231,7 +231,7 @@ public class Load_Patient implements PlugIn {
 		int slice1 = 1;
 		meta1 = getMeta(slice1, imp1);
 		petctviewerTitle = stringaLaboriosa(meta1);
-		Utility.appendLog(pathVolatile, "24h=" + petctviewerTitle);
+		Utility.logAppend(pathVolatile, "24h=" + petctviewerTitle);
 
 		String petUID1 = DicomTools.getTag(imp1, "0020,000E");
 		petUID1 = petUID1.trim();
@@ -286,7 +286,7 @@ public class Load_Patient implements PlugIn {
 		imp3.show();
 		String meta3 = getMeta(slice1, imp3);
 		petctviewerTitle = stringaLaboriosa(meta3);
-		Utility.appendLog(pathVolatile, "48h=" + petctviewerTitle);
+		Utility.logAppend(pathVolatile, "48h=" + petctviewerTitle);
 
 		String petUID3 = DicomTools.getTag(imp3, "0020,000E");
 		petUID3 = petUID3.trim();
@@ -338,7 +338,7 @@ public class Load_Patient implements PlugIn {
 		imp5.show();
 		String meta5 = getMeta(slice1, imp5);
 		petctviewerTitle = stringaLaboriosa(meta5);
-		Utility.appendLog(pathVolatile, "120h=" + petctviewerTitle);
+		Utility.logAppend(pathVolatile, "120h=" + petctviewerTitle);
 
 		String petUID5 = DicomTools.getTag(imp5, "0020,000E");
 		petUID5 = petUID5.trim();
@@ -417,7 +417,7 @@ public class Load_Patient implements PlugIn {
 		for (int a4 = 0; a4 < aList.size(); a4++) {
 			count2 = a4 * 10 + 30;
 			aux1 = (arrayOfString[a4] + " folder path:");
-			Utility.appendLog(pathPermanente, aux1);
+			Utility.logAppend(pathPermanente, aux1);
 
 			String str22 = "";
 			ArrayList<String> cList = aList.get(a4);
@@ -426,12 +426,12 @@ public class Load_Patient implements PlugIn {
 				String str9 = cList.get(b4);
 				str22 = str22 + aux2 + str9;
 			}
-			Utility.appendLog(pathPermanente, str22);
+			Utility.logAppend(pathPermanente, str22);
 			aux3 = "#" + String.format("%03d", ++count2) + "#" + eList.get(a4);
-			Utility.appendLog(pathPermanente, aux3);
+			Utility.logAppend(pathPermanente, aux3);
 		}
 
-		Utility.endLog(pathPermanente);
+		Utility.logEnd(pathPermanente);
 
 		dialogReview_DLP05(aList);
 
@@ -1003,7 +1003,7 @@ public class Load_Patient implements PlugIn {
 //		IJ.log("numberOfFrames= " + numFrames + " durationFrame= " + durationFrame + " durata= " + durata);
 		String aux1 = "";
 		aux1 = "#110#\tMird durata acquisuizione= " + durata;
-		Utility.appendLog(pathPermanente, aux1);
+		Utility.logAppend(pathPermanente, aux1);
 
 		return durata;
 	}
@@ -1235,19 +1235,19 @@ public class Load_Patient implements PlugIn {
 		// --------------------------------------------------------------------------------------
 		Date now = new Date();
 		SimpleDateFormat dateformat = new SimpleDateFormat("dd MMM yyyy - HH:mm.ss");
-		Utility.initLog(pathVolatile);
-		Utility.appendLog(pathVolatile, "INITIALIZED " + dateformat.format(now));
-		Utility.appendLog(pathVolatile, "---------------------");
+		Utility.logInit(pathVolatile);
+		Utility.logAppend(pathVolatile, "INITIALIZED " + dateformat.format(now));
+		Utility.logAppend(pathVolatile, "---------------------");
 		File f1 = new File(pathPermanente);
 		if (init || !f1.exists()) {
-			Utility.initLog(pathPermanente);
-			Utility.appendLog(pathPermanente, "INITIALIZED " + dateformat.format(now));
+			Utility.logInit(pathPermanente);
+			Utility.logAppend(pathPermanente, "INITIALIZED " + dateformat.format(now));
 		} else {
-			Utility.appendLog(pathPermanente, "PRESERVED " + dateformat.format(now));
+			Utility.logAppend(pathPermanente, "PRESERVED " + dateformat.format(now));
 		}
 
-		Utility.appendLog(pathPermanente, "--- LOAD PATIENT---");
-		Utility.appendLog(pathPermanente, "");
+		Utility.logAppend(pathPermanente, "--- LOAD PATIENT---");
+		Utility.logAppend(pathPermanente, "");
 
 	}
 

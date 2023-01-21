@@ -28,6 +28,36 @@ public class Utility_Test {
 
 	}
 
+	
+	@Test
+	public final void test_FM02_DialogAltreLesioni() {
+
+		Utility.dialogAltreLesioni_FM02();
+		MyLog.waitHere("SPETTA");
+		assertTrue(true);
+	}
+
+	
+	
+	@Test
+	public final void test_FM01_DialogFileSelection() {
+
+		String message = "Select a fileO";
+		String defaultDirectory = "\testdata";
+		Utility.dialogFileSelection_FM01(message, defaultDirectory);
+		Utility.debugDeiPoveri("SPETTA");
+		assertTrue(true);
+	}
+	
+	@Test
+	public final void test_LP06_DialogErrorMessage() {
+
+		String paramString = "Messaggio di errore";
+		Utility.dialogErrorMessage_LP06(paramString);
+		Utility.debugDeiPoveri("SPETTA");
+		assertTrue(true);
+	}
+
 	@Test
 	public final void test_LP27_BattezzaLesioni() {
 
@@ -53,48 +83,48 @@ public class Utility_Test {
 		int start = 10;
 		int end = 15;
 
-		Utility.copyLogInfo(pathSorgente, pathDestinazione, start, end);
+		Utility.logCopyRange(pathSorgente, pathDestinazione, start, end);
 
 		Utility.debugDeiPoveri("SPETTA");
 
 	}
 
-	@Test
-	public final void test_removeLineLog() {
+//	@Test
+//	public final void test_removeLineLog() {
+//
+//		File source= new File("testdata/permanente2.txt");
+//		File dest= new File("testdata/permanente.txt");
+//		try {
+//			if (dest.exists())  
+//					dest.delete();
+//			
+//			Files.copy(source.toPath(), dest.toPath());
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//		
+//		String pathPermanente = "testdata/permanente.txt";
+//		Utility.removeLineLog(pathPermanente, "#030#");
+//		Utility.debugDeiPoveri("SPETTA");
+//
+//	}
 
-		File source= new File("testdata/permanente2.txt");
-		File dest= new File("testdata/permanente.txt");
-		try {
-			if (dest.exists())  
-					dest.delete();
-			
-			Files.copy(source.toPath(), dest.toPath());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
+	@Test
+	public final void test_logModifyEsistente() {
+
 		String pathPermanente = "testdata/permanente.txt";
-		Utility.removeLineLog(pathPermanente, "#030#");
+		Utility.logModify(pathPermanente, "#030#", "#030# !!!!!!!!!!!!!!!");
 		Utility.debugDeiPoveri("SPETTA");
 
 	}
 
 	@Test
-	public final void test_modifyLogEsistente() {
+	public final void test_logModifyMancante() {
 
 		String pathPermanente = "testdata/permanente.txt";
-		Utility.modifyLog(pathPermanente, "#030#", "#030# !!!!!!!!!!!!!!!");
-		Utility.debugDeiPoveri("SPETTA");
-
-	}
-
-	@Test
-	public final void test_modifyLogMancante() {
-
-		String pathPermanente = "testdata/permanente.txt";
-		Utility.modifyLog(pathPermanente, "#730#", "#730# !!!!!!!!!!!!!!!");
+		Utility.logModify(pathPermanente, "#730#", "#730# !!!!!!!!!!!!!!!");
 		Utility.debugDeiPoveri("SPETTA");
 
 	}
@@ -105,7 +135,7 @@ public class Utility_Test {
 		String pathSorgente = "testdata/sorgente.txt";
 		String[] out1 = Utility.readSimpleText(pathSorgente);
 		for (String aux : out1) {
-			IJ.log(aux);
+			MyLog.log(aux);
 		}
 		Utility.debugDeiPoveri("SPETTA");
 
@@ -118,7 +148,7 @@ public class Utility_Test {
 
 		String code1 = "#003#";
 		String out1 = Utility.readFromLog(pathSorgente, code1);
-		IJ.log("TROVATO out1= " + out1);
+		MyLog.log("TROVATO out1= " + out1);
 
 		Utility.debugDeiPoveri("SPETTA");
 
@@ -208,7 +238,7 @@ public class Utility_Test {
 	}
 
 	@Test
-	public final void test_dedupeLog() {
+	public final void test_logDedupe() {
 
 		String path1 = "testdata/volatile.txt";
 		String path2 = "testdata/volatile3.txt";
@@ -220,12 +250,33 @@ public class Utility_Test {
 		try {
 			Files.copy(file1.toPath(), file2.toPath());
 		} catch (IOException e) {
-			IJ.log("errore 001");
+			MyLog.log("errore 001");
 			e.printStackTrace();
 		}
 		Utility.debugDeiPoveri("SPETTA");
 
-		Utility.dedupeLog(path2);
+		Utility.logDedupe(path2);
+
+		Utility.debugDeiPoveri("SPETTA");
+	}
+	
+	
+	@Test
+	public final void test_logCoopyRange() {
+
+		String path1 = "testdata/volatile.txt";
+//		String path2 = "testdata/volatile3.txt";
+		String path3 = "testdata/allacazzo.txt";
+//		File file1 = new File(path1);
+//		File file2 = new File(path2);
+//		File file3 = new File(path3);
+
+		Utility.logDeleteSingle(path3);
+		Utility.logInit(path3);
+		
+		Utility.debugDeiPoveri("SPETTA");
+
+		Utility.logCopyRange(path1, path3, 31, 150);
 
 		Utility.debugDeiPoveri("SPETTA");
 	}
@@ -238,7 +289,7 @@ public class Utility_Test {
 		double[] output2 = Utility.vetReverser(input2);
 
 		for (double aux : output2)
-			IJ.log("" + aux);
+			MyLog.log("" + aux);
 
 		Utility.debugDeiPoveri("SPETTA");
 

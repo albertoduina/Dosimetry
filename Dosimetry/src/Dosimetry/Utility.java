@@ -30,6 +30,8 @@ import ij.gui.ImageWindow;
 import ij.gui.NonBlockingGenericDialog;
 import ij.gui.Plot;
 import ij.gui.WaitForUserDialog;
+import ij.io.DirectoryChooser;
+import ij.io.OpenDialog;
 import ij.measure.CurveFitter;
 import ij.util.DicomTools;
 import ij.util.FontUtil;
@@ -64,9 +66,9 @@ public class Utility {
 		List<String> out1 = null;
 		try {
 			out1 = Files.readAllLines(Paths.get(path1));
-			// IJ.log("lette= " + out1.size() + " linee");
+			// MyLog.log("lette= " + out1.size() + " linee");
 		} catch (IOException e) {
-			IJ.log("errore lettura " + path1);
+			MyLog.log("errore lettura " + path1);
 			e.printStackTrace();
 		}
 		String[] out2 = out1.toArray(new String[0]);
@@ -78,12 +80,12 @@ public class Utility {
 	 * 
 	 * @param path indirizzo log da utilizzare
 	 */
-	public static void initLog(String path) {
+	public static void logInit(String path) {
 		File f1 = new File(path);
 		if (f1.exists()) {
 			f1.delete();
 		}
-		appendLog(path, "---- INIZIO ---------");
+		logAppend(path, "---- INIZIO ---------");
 	}
 
 	/**
@@ -91,8 +93,8 @@ public class Utility {
 	 * 
 	 * @param path
 	 */
-	public static void endLog(String path) {
-		appendLog(path, "---- FINE ---------");
+	public static void logEnd(String path) {
+		logAppend(path, "---- FINE ---------");
 	}
 
 	/**
@@ -101,7 +103,7 @@ public class Utility {
 	 * 
 	 * @param path indirizzo log da utilizzare
 	 */
-	public static void deleteLog(String path) {
+	public static void logDeleteSingle(String path) {
 		File f1 = new File(path);
 		if (f1.exists()) {
 			f1.delete();
@@ -116,7 +118,7 @@ public class Utility {
 	 * 
 	 * @param path1
 	 */
-	static void dedupeLog(String path1) {
+	static void logDedupe(String path1) {
 		ArrayList<String> inArrayList = new ArrayList<String>();
 		ArrayList<String> outArrayList = new ArrayList<String>();
 		String line1 = "";
@@ -125,7 +127,7 @@ public class Utility {
 		String tag1 = "";
 		String tag2 = "";
 
-		IJ.log("eseguo dedupeLog");
+		MyLog.log("eseguo dedupeLog");
 		try {
 			BufferedReader file1 = new BufferedReader(new FileReader(path1));
 			while ((line1 = file1.readLine()) != null) {
@@ -157,7 +159,7 @@ public class Utility {
 			}
 			out.close();
 		} catch (Exception e) {
-			IJ.log("dedupe DISASTER");
+			MyLog.log("dedupe DISASTER");
 			System.out.println("DEDUPE errore lettura/scrittura file " + path1);
 		}
 	}
@@ -170,7 +172,7 @@ public class Utility {
 	 * @param tag
 	 * @param newline
 	 */
-	public static void modifyLog(String path1, String tag, String newline) {
+	public static void logModify(String path1, String tag, String newline) {
 
 		boolean ok = true;
 		try {
@@ -209,7 +211,8 @@ public class Utility {
 	 * @param tag
 	 * @param newline
 	 */
-	public static void removeLineLog(String path1, String tag) {
+	public static void logRemoveLine(String path1, String tag) {
+		
 
 		boolean ok = false;
 		try {
@@ -242,7 +245,7 @@ public class Utility {
 	 * @param permFile indirizzo log permanente da utilizzare
 	 * @param tmpFile  indirizzo log temporaneo da utilizzare
 	 */
-	public static void moveLog(String permFile, String tmpFile) {
+	public static void logMove(String permFile, String tmpFile) {
 		BufferedWriter out;
 		BufferedReader in;
 		String str = "";
@@ -259,7 +262,7 @@ public class Utility {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		deleteLog(tmpFile);
+		logDeleteSingle(tmpFile);
 	}
 
 	/**
@@ -268,7 +271,7 @@ public class Utility {
 	 * @param path  path indirizzo log da utilizzare
 	 * @param linea stringa da inserire
 	 */
-	public static void appendLog(String path, String linea) {
+	public static void logAppend(String path, String linea) {
 
 		BufferedWriter out;
 		try {
@@ -282,6 +285,24 @@ public class Utility {
 
 	}
 
+	
+//	public static void logRewrite(String pathSorgente, String pathDestinazione) {
+//
+//		BufferedWriter out;
+//		try {
+//			out = new BufferedWriter(new FileWriter(pathDestinazione, true));
+//			out.write(linea);
+//			out.newLine();
+//			out.close();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//
+//	}
+
+	
+	
+	
 	/**
 	 * Lettura di un tag dal log
 	 * 
@@ -361,7 +382,7 @@ public class Utility {
 	 * @param start
 	 * @param end
 	 */
-	static void copyLogInfo(String pathSorgente, String pathDestinazione, int start, int end) {
+	static void logCopyRange(String pathSorgente, String pathDestinazione, int start, int end) {
 
 		String aux1 = "";
 		String aux2 = "";
@@ -369,7 +390,7 @@ public class Utility {
 			aux1 = "#" + String.format("%03d", i1) + "#";
 			aux2 = readFromLog(pathSorgente, aux1);
 			if (aux2 != null) {
-				Utility.appendLog(pathDestinazione, aux2);
+				Utility.logAppend(pathDestinazione, aux2);
 			}
 		}
 
@@ -422,10 +443,10 @@ public class Utility {
 		sdf.setLenient(false);
 		try {
 			sdf.parse(date);
-			// IJ.log("isValidDate TEST SUPERATO");
+			// MyLog.log("isValidDate TEST SUPERATO");
 			return true;
 		} catch (ParseException e) {
-			// IJ.log("isValidDate ERRORE");
+			// MyLog.log("isValidDate ERRORE");
 			return false;
 		}
 	}
@@ -442,10 +463,10 @@ public class Utility {
 		sdf.setLenient(false);
 		try {
 			sdf.parse(time);
-			// IJ.log("isValidTime TEST SUPERATO");
+			// MyLog.log("isValidTime TEST SUPERATO");
 			return true;
 		} catch (ParseException e) {
-			// IJ.log("isValidTime ERRORE");
+			// MyLog.log("isValidTime ERRORE");
 			return false;
 		}
 	}
@@ -718,11 +739,11 @@ public class Utility {
 	 */
 	static double[] MIRD_curveFitterImageJ(double[] vetX, double[] vetY) {
 
-		IJ.log("=== CURVE FITTER IMAGEJ ====");
+		MyLog.log("=== CURVE FITTER IMAGEJ ====");
 		CurveFitter cf1 = new CurveFitter(vetX, vetY);
 		cf1.doFit(CurveFitter.EXPONENTIAL);
 		String status = cf1.getStatusString();
-		IJ.log("STATUS del fit= " + status);
+		MyLog.log("STATUS del fit= " + status);
 		double[] params = cf1.getParams();
 		int numParams = cf1.getNumParams();
 		double goodness = cf1.getFitGoodness();
@@ -734,23 +755,23 @@ public class Utility {
 		double[] ff1 = new double[256];
 		for (int i1 = 0; i1 < 256; i1++) {
 			ff1[i1] = cf1.f(i1);
-			IJ.log("x= " + i1 + "ff1=" + ff1[i1]);
+			MyLog.log("x= " + i1 + "ff1=" + ff1[i1]);
 		}
 
 		double[] out1 = new double[numParams];
 		for (int i1 = 0; i1 < numParams; i1++) {
-			IJ.log("MIRD FIT param " + i1 + " =" + params[i1]);
+			MyLog.log("MIRD FIT param " + i1 + " =" + params[i1]);
 			out1[i1] = params[i1];
 		}
 
-		IJ.log("MIRD FIT iterations= " + iterations);
-		IJ.log("MIRD FIT goodness=  " + goodness);
-		IJ.log("MIRD FIT sumResidualSqr=  " + sumResidualSqr1);
-		IJ.log("MIRD FIT R^2=  " + rSquared);
-		IJ.log("MIRD FIT numParams=  " + numParams);
-		IJ.log("MIRD FIT resultString=  " + res1);
-		IJ.log("MIRD FIT formula=  " + formula);
-		IJ.log("=====================");
+		MyLog.log("MIRD FIT iterations= " + iterations);
+		MyLog.log("MIRD FIT goodness=  " + goodness);
+		MyLog.log("MIRD FIT sumResidualSqr=  " + sumResidualSqr1);
+		MyLog.log("MIRD FIT R^2=  " + rSquared);
+		MyLog.log("MIRD FIT numParams=  " + numParams);
+		MyLog.log("MIRD FIT resultString=  " + res1);
+		MyLog.log("MIRD FIT formula=  " + formula);
+		MyLog.log("=====================");
 		return out1;
 	}
 
@@ -762,7 +783,7 @@ public class Utility {
 	 */
 	static CurveFitter MIRD_curveFitterSpecialImageJ(double[] vetX, double[] vetY) {
 
-		IJ.log("=== CURVE FITTER SPECIAL IMAGEJ ====");
+		MyLog.log("=== CURVE FITTER SPECIAL IMAGEJ ====");
 		CurveFitter cf1 = new CurveFitter(vetX, vetY);
 		cf1.doFit(CurveFitter.EXPONENTIAL);
 		return cf1;
@@ -776,7 +797,7 @@ public class Utility {
 	 */
 	static CurveFitter MIRD_curveFitterSpecialApache(double[] vetX, double[] vetY) {
 
-		IJ.log("=== CURVE FITTER SPECIAL APACHE ====");
+		MyLog.log("=== CURVE FITTER SPECIAL APACHE ====");
 		List<Point> pList = new ArrayList<Point>();
 		return null;
 	}
@@ -845,7 +866,7 @@ public class Utility {
 	 */
 	static Regression MIRD_curveFitterSpecialFlanagan(double[] vetX, double[] vetY) {
 
-		IJ.log("=== CURVE FITTER SPECIAL FLANAGAN 002 ====");
+		MyLog.log("=== CURVE FITTER SPECIAL FLANAGAN 002 ====");
 
 		Regression reg = new Regression(vetX, vetY);
 
@@ -862,7 +883,7 @@ public class Utility {
 	 */
 	static double[] MIRD_curveFitterFlanagan(double[] vetX, double[] vetY) {
 
-		IJ.log("=== CURVE FITTER FLANAGAN 001 ===");
+		MyLog.log("=== CURVE FITTER FLANAGAN 001 ===");
 
 		Regression reg = new Regression(vetX, vetY);
 
@@ -871,22 +892,22 @@ public class Utility {
 		Utility.debugDeiPoveri("SPETTA");
 		double[] bestEstimates = reg.getBestEstimates();
 		for (double est : bestEstimates) {
-			IJ.log("FLANAGAN bestEstimates= " + est);
+			MyLog.log("FLANAGAN bestEstimates= " + est);
 		}
-		IJ.log("--------------");
+		MyLog.log("--------------");
 		double[] bestEstErrors = reg.getBestEstimatesErrors();
 		for (double err : bestEstErrors) {
-			IJ.log("FLANAGAN bestErrors= " + err);
+			MyLog.log("FLANAGAN bestErrors= " + err);
 		}
 		double coeffOfDetermination = reg.getCoefficientOfDetermination();
-		IJ.log("FLANAGAN coeffOfDetermination= " + coeffOfDetermination);
+		MyLog.log("FLANAGAN coeffOfDetermination= " + coeffOfDetermination);
 
 		double adjustedCoeffOfDetermination = reg.getAdjustedCoefficientOfDetermination();
-		IJ.log("FLANAGAN adjustedCoeffOfDetermination= " + adjustedCoeffOfDetermination);
+		MyLog.log("FLANAGAN adjustedCoeffOfDetermination= " + adjustedCoeffOfDetermination);
 
 		Utility.debugDeiPoveri("SPETTA");
 
-		IJ.log("===============");
+		MyLog.log("===============");
 
 		return null;
 	}
@@ -1062,10 +1083,10 @@ public class Utility {
 		aux0 = params[1];
 		aux1 = params[0];
 
-		IJ.log("aux0= " + aux0 + " aux1= " + aux1);
+		MyLog.log("aux0= " + aux0 + " aux1= " + aux1);
 		for (int i = 0; i < npoints; i++) {
 			py[i] = aux0 * Math.exp(aux1 * px[i]);
-			// IJ.log("px[" + i + "]= " + px[i] + " py[" + i + "]= " + py[i]);
+			// MyLog.log("px[" + i + "]= " + px[i] + " py[" + i + "]= " + py[i]);
 		}
 		a = Tools.getMinMax(py);
 		double dataRange = ymax - ymin;
@@ -1131,7 +1152,7 @@ public class Utility {
 	 * @param imp1 immagine da analizzare
 	 * @return durata
 	 */
-	static int MIRD_CalcoloDurataAcquisizione(ImagePlus imp1) {
+	static int MIRD_calcoloDurataAcquisizione(ImagePlus imp1) {
 
 		int numFrames = Utility.parseInt(DicomTools.getTag(imp1, "0054,0053"));
 		int durationFrame = Utility.parseInt(DicomTools.getTag(imp1, "0018,1242"));
@@ -1147,7 +1168,7 @@ public class Utility {
 	 * @param dateTime24
 	 * @return
 	 */
-	static long MIRD_CalcoloDeltaT(Date dateTime0, Date dateTime24) {
+	static long MIRD_calcoloDeltaT(Date dateTime0, Date dateTime24) {
 
 		long diff = dateTime24.getTime() - dateTime0.getTime();
 		return diff;
@@ -1168,7 +1189,7 @@ public class Utility {
 		compliments1.addStringField("NomeLesione per memorizzazione", "");
 		compliments1.showDialog();
 		String lesionName = compliments1.getNextString();
-		IJ.log("eseguo battezzaLesioni con LP27 lesionName= " + lesionName);
+		MyLog.log("eseguo battezzaLesioni con LP27 lesionName= " + lesionName);
 
 		// ora i nostri dati verrano battezzati col nome fornito dal ... PADRINO !!!
 		// il nome del nuovo file diverra' lesionName.txt, non occorre un controllo che
@@ -1180,9 +1201,9 @@ public class Utility {
 		String pathBase = pathVolatile.substring(0, pos);
 		String pathLesione = pathBase + File.separator + lesionName + ".txt";
 
-		Utility.endLog(pathVolatile);
-		Utility.moveLog(pathLesione, pathVolatile);
-		Utility.initLog(pathVolatile);
+		Utility.logEnd(pathVolatile);
+		Utility.logMove(pathLesione, pathVolatile);
+		Utility.logInit(pathVolatile);
 	}
 
 	/**
@@ -1190,7 +1211,7 @@ public class Utility {
 	 * 
 	 */
 	static void dialogAltroDistretto_DD08() {
-		IJ.log("DD08_altroDistretto");
+		MyLog.log("DD08_altroDistretto");
 		GenericDialog finished1 = new GenericDialog("DD08 - Altro distretto");
 		finished1.setFont(defaultFont);
 
@@ -1203,9 +1224,9 @@ public class Utility {
 
 		finished1.showDialog();
 		if (finished1.wasCanceled())
-			IJ.log("DD08 premuto ALTRA LESIONE");
+			MyLog.log("DD08 premuto ALTRA LESIONE");
 		if (finished1.wasOKed())
-			IJ.log("DD08 premuto FINITO");
+			MyLog.log("DD08 premuto FINITO");
 	}
 
 	/**
@@ -1213,7 +1234,7 @@ public class Utility {
 	 * 
 	 * @param pathDir
 	 */
-	public static void deleteAllLogs(String pathDir) {
+	public static void logDeleteAll(String pathDir) {
 
 		File folder = new File(pathDir);
 		File fList[] = folder.listFiles();
@@ -1230,7 +1251,7 @@ public class Utility {
 	 */
 	static void chiudiTutto() {
 
-		IJ.log("eseguo chiudiTutto");
+		MyLog.log("eseguo chiudiTutto");
 		ImagePlus imp1 = null;
 		while (WindowManager.getCurrentImage() != null) {
 			imp1 = WindowManager.getCurrentImage();
@@ -1426,7 +1447,7 @@ public class Utility {
 					/ (Math.pow(aa, 2));
 			Sdisintegrazioni = SmAtilde / 100;
 			Suptake = SA / somministrata;
-		
+
 			Stmezzo = (Math.log(2) * Sa) / Math.pow(aa, 2);
 			Stau = SmAtilde / somministrata;
 
@@ -1434,18 +1455,18 @@ public class Utility {
 
 		double[] vetDose = MIRD_calcoloDose(massa, mAtilde, SmAtilde, Smassa, pathVolatile);
 
-		IJ.log("AA= " + AA);
-		IJ.log("aa= " + aa);
-		IJ.log("SA= " + SA);
-		IJ.log("Sa= " + Sa);
-		IJ.log("mAtilde= " + mAtilde);
-		IJ.log("disintegrazioni= " + disintegrazioni);
-		IJ.log("uptake= " + uptake);
-		IJ.log("massa= " + massa);
-		IJ.log("tmezzo= " + tmezzo);
-		IJ.log("tau= " + tau);
-		IJ.log("dose= " + vetDose[0]);
-		IJ.log("Sdose= " + vetDose[1]);
+		MyLog.log("AA= " + AA);
+		MyLog.log("aa= " + aa);
+		MyLog.log("SA= " + SA);
+		MyLog.log("Sa= " + Sa);
+		MyLog.log("mAtilde= " + mAtilde);
+		MyLog.log("disintegrazioni= " + disintegrazioni);
+		MyLog.log("uptake= " + uptake);
+		MyLog.log("massa= " + massa);
+		MyLog.log("tmezzo= " + tmezzo);
+		MyLog.log("tau= " + tau);
+		MyLog.log("dose= " + vetDose[0]);
+		MyLog.log("Sdose= " + vetDose[1]);
 
 		double[] out1 = new double[18];
 		out1[0] = AA;
@@ -1579,16 +1600,18 @@ public class Utility {
 		double dose = (mAtilde / 1000) * (((s2 - s1) / (m2 - m1)) * (massa - m1) + s1);
 
 		int count5 = 500;
-		String aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose s1= " + s1;
-		Utility.appendLog(pathVolatile, aux5);
+		String aux5 = "#" + String.format("%03d", count5++) + "#\t-------- CALCOLO DOSE -----------";
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose s1= " + s1;
+		Utility.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose s2= " + s2;
-		Utility.appendLog(pathVolatile, aux5);
+		Utility.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose m1= " + m1;
-		Utility.appendLog(pathVolatile, aux5);
+		Utility.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose m2= " + m2;
-		Utility.appendLog(pathVolatile, aux5);
+		Utility.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose massa= " + massa;
-		Utility.appendLog(pathVolatile, aux5);
+		Utility.logAppend(pathVolatile, aux5);
 
 		double Sdose = Double.NaN;
 
@@ -1611,6 +1634,74 @@ public class Utility {
 			if (impx.getTitle().equals(title))
 				impx.close();
 		}
+	}
+
+	/**
+	 * Visualizzazione messaggi di errore
+	 * 
+	 * @param paramString
+	 */
+	static void dialogErrorMessage_LP06(String paramString) {
+
+		MyLog.log("dialogErrorMessage_LP06");
+		GenericDialog genericDialog = new GenericDialog("LP06 - Error");
+		genericDialog.setFont(defaultFont);
+		genericDialog.addMessage(paramString);
+		genericDialog.hideCancelButton();
+		genericDialog.showDialog();
+	}
+
+	/**
+	 * selezione di un file da parte dell'utilizzatore
+	 * 
+	 * @param message messaggio per l'utilizzatore
+	 * @return path dell'immagine selezionata
+	 */
+	public static String dialogFileSelection_FM01(String message, String defaultPath) {
+
+		OpenDialog od1 = new OpenDialog(message);
+		OpenDialog.setDefaultDirectory(defaultPath);
+		return od1.getPath();
+
+	}
+
+	/**
+	 * selezione di un file da parte dell'utilizzatore
+	 * 
+	 * @param message messaggio per l'utilizzatore
+	 * @return path dell'immagine selezionata
+	 */
+	public static int dialogAltreLesioni_FM02() {
+
+		MyLog.log("FM02 start");
+		GenericDialog gd1 = new GenericDialog("FM02 - AltreLesioni");
+		gd1.addMessage("Ci sono altre lesioni nel fegato?", titleFont);
+		gd1.setFont(defaultFont);
+		gd1.enableYesNoCancel( "ALTRE LESIONI", "FINITE");
+
+		gd1.setCancelLabel("Cancel");
+		gd1.showDialog();
+		if (gd1.wasCanceled()) {
+			MyLog.log("FM02 0 Cancel");
+			return 0;
+		} else if (gd1.wasOKed()) {
+			MyLog.log("FM02 2 ALTRE LESIONI");
+			return 2;
+		} else {
+			MyLog.log("FM02 1 FINITE ");
+			return 1;
+		}
+
+	}
+
+	public static boolean stampa() {
+
+		if (System.getProperty("user.name").equals("Alberto")) {
+			return true;
+		} else {
+			return false;
+		}
+
 	}
 
 }

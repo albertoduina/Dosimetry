@@ -62,7 +62,7 @@ public class Dosimetria_Lu177_Test {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
 		boolean[] selection = dosimetria_Lu177.pointsSelection_LP33();
-		IJ.log("LP33 restituisce " + selection);
+		MyLog.log("LP33 restituisce " + selection);
 		Utility.debugDeiPoveri("SPETTA");
 		assertTrue(true);
 	}
@@ -72,7 +72,7 @@ public class Dosimetria_Lu177_Test {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
 		String selection = dosimetria_Lu177.dialogReview_LP32();
-		IJ.log("LP32 restituisce " + selection);
+		MyLog.log("LP32 restituisce " + selection);
 		Utility.debugDeiPoveri("SPETTA");
 		assertTrue(true);
 	}
@@ -137,7 +137,7 @@ public class Dosimetria_Lu177_Test {
 	}
 	
 	@Test
-	public final void test_LP07_dialogDistretto() {
+	public final void test_LP07_DialogDistretto() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
 		dosimetria_Lu177.dialogDistretto_LP07();
@@ -145,15 +145,6 @@ public class Dosimetria_Lu177_Test {
 		assertTrue(true);
 	}
 	
-	@Test
-	public final void test_LP06_DialogErrorMessage() {
-
-		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
-		String paramString = "Messaggio di errore";
-		dosimetria_Lu177.dialogErrorMessage_LP06(paramString);
-		Utility.debugDeiPoveri("SPETTA");
-		assertTrue(true);
-	}
 
 	@Test
 	public final void test_LP05_DialogReview() {
@@ -177,7 +168,7 @@ public class Dosimetria_Lu177_Test {
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
 		String[] out1 = dosimetria_Lu177.dialogInputDatiSomministrazione_LP04();
 		for (String aux : out1) {
-			IJ.log("" + aux);
+			MyLog.log("" + aux);
 		}
 		Utility.debugDeiPoveri("SPETTA ");
 		assertTrue(true);

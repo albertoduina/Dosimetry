@@ -60,9 +60,9 @@ public class Dosimetry_v2 implements PlugIn {
 
 	public void run(String arg) {
 
-		IJ.log("============================");
-		IJ.log("START Dosimetry_v2");
-		IJ.log("============================");
+		MyLog.log("============================");
+		MyLog.log("START Dosimetry_v2");
+		MyLog.log("============================");
 		FontUtil fu = new FontUtil();
 		String fontStyle = "Arial";
 		Font titleFont = fu.getFont(fontStyle, 1, 18);
@@ -112,7 +112,7 @@ public class Dosimetry_v2 implements PlugIn {
 
 		String[] niw1 = WindowManager.getNonImageTitles();
 		for (String aaa : niw1) {
-			IJ.log("titoli " + aaa);
+			MyLog.log("titoli " + aaa);
 		}
 
 		// ==========================================================================
@@ -133,7 +133,7 @@ public class Dosimetry_v2 implements PlugIn {
 		// RELATIVI DATI SIANO NEL VOLATILE.TXT O NEL PERMANENTE.TXT
 		// ======================================================
 		do {
-			IJ.log("LOOP ESTERNO LIVELLO ZERO");
+			MyLog.log("LOOP ESTERNO LIVELLO ZERO");
 
 			String[] lista1 = WindowManager.getImageTitles();
 			ImagePlus selectedImage = Utility.dialogSceltaAutomaticaImmagine_DD10(ok24, ok48, ok120, defaultFont);
@@ -174,7 +174,7 @@ public class Dosimetry_v2 implements PlugIn {
 			// CALCOLATA LA ROI PER LA IMMAGINE CORRENTE
 			// ==========================================================================
 			do {
-				IJ.log("LOOP LIVELLO UNO");
+				MyLog.log("LOOP LIVELLO UNO");
 
 				this.dicomImage = selectedImage;
 				ip = dicomImage.getProcessor();
@@ -199,7 +199,7 @@ public class Dosimetry_v2 implements PlugIn {
 				Utility.imageToFront(title1);
 				Utility.nonImageToFront(vetPetCtViewerTitle[point1]);
 				String aux10 = vetPetCtViewerTitle[point1];
-				IJ.log("PRIMO PIANO= " + vetPetCtViewerTitle[point1]);
+				MyLog.log("PRIMO PIANO= " + vetPetCtViewerTitle[point1]);
 				WaitForUserDialog waitForUserDialog = new WaitForUserDialog("DD12 ISTRUZIONI",
 						"PER CONTORNAMENTO CON THRESHOLD:\nda Edit-BrownFatROI visualizzare numero di fetta in cui ci si trova e ricordarselo.\n"
 								+ "PER CONTORNAMENTO CON ROI:\nDisegnare ROI da Edit-BrownFatROI");
@@ -220,9 +220,9 @@ public class Dosimetry_v2 implements PlugIn {
 				boolean flagROIPETCT = false;
 
 				if (resetflag) {
-					IJ.log("eseguo un reset usando resetflag= " + resetflag);
+					MyLog.log("eseguo un reset usando resetflag= " + resetflag);
 
-					IJ.log("eseguito reset001");
+					MyLog.log("eseguito reset001");
 					IJ.run("Set Scale...", "distance=0 known=0 pixel=1");
 					IJ.run("Select None");
 					IJ.run("Remove Overlay");
@@ -242,7 +242,7 @@ public class Dosimetry_v2 implements PlugIn {
 				// while (posizioneLesione <= 0 | posizioneLesione > stackSize)
 				// ======================================================
 				do {
-					IJ.log("LOOP LIVELLO DUE");
+					MyLog.log("LOOP LIVELLO DUE");
 					NonBlockingGenericDialog dialogSlice = new NonBlockingGenericDialog("DD97 - Required Parameters");
 					dialogSlice.addMessage("Slice selection", titleFont);
 					dialogSlice.addMessage("Image slices number: " + stackSize + ".", textFont);
@@ -255,7 +255,7 @@ public class Dosimetry_v2 implements PlugIn {
 					dialogSlice.showDialog();
 
 					if (!dialogSlice.wasOKed()) {
-						IJ.log("eseguito reset002");
+						MyLog.log("eseguito reset002");
 						IJ.run("Select None");
 						IJ.run("Remove Overlay");
 						IJ.resetThreshold();
@@ -283,9 +283,9 @@ public class Dosimetry_v2 implements PlugIn {
 								"Hint: the input index is the slice number where the\n lesion is located in the selected reference system.\n \nIt must be an integer between 1 and "
 										+ stackSize + ".\n \nPlease try again.");
 
-					IJ.log("FINE LOOP LIVELLO DUE");
+					MyLog.log("FINE LOOP LIVELLO DUE");
 				} while (posizioneLesione <= 0 | posizioneLesione > stackSize);
-				IJ.log("FUORI DA LOOP LIVELLO DUE");
+				MyLog.log("FUORI DA LOOP LIVELLO DUE");
 
 				dicomImage.setSlice(posizioneLesione);
 
@@ -316,7 +316,7 @@ public class Dosimetry_v2 implements PlugIn {
 				dialog.showDialog();
 
 				if (!dialog.wasOKed()) {
-					IJ.log("eseguito reset003");
+					MyLog.log("eseguito reset003");
 					IJ.run("Select None");
 					IJ.run("Remove Overlay");
 					IJ.resetThreshold();
@@ -386,7 +386,7 @@ public class Dosimetry_v2 implements PlugIn {
 							int pointsIndex = 0;
 
 							while (csvScanner.hasNextLine()) {
-								IJ.log("HHH2");
+								MyLog.log("HHH2");
 								String singleLine = csvScanner.nextLine();
 								if (singleLine.contains("num points")) {
 
@@ -522,7 +522,7 @@ public class Dosimetry_v2 implements PlugIn {
 					if (threshold == -1)
 						IJ.resetThreshold();
 					IJ.run("Select None");
-					IJ.log("eseguito reset004");
+					MyLog.log("eseguito reset004");
 
 					boolean continua = false;
 					boolean ricontorna = false;
@@ -565,9 +565,10 @@ public class Dosimetry_v2 implements PlugIn {
 						}
 
 						if (prosegui) {
-							IJ.log("ricontorna= " + ricontorna + " prosegui= " + prosegui);
+							MyLog.log("ricontorna= " + ricontorna + " prosegui= " + prosegui);
 
 							int count = point1 * 30 + 100;
+							int countbase = count;
 							String aux1 = "";
 							String aux2 = "";
 							switch (point1) {
@@ -588,42 +589,58 @@ public class Dosimetry_v2 implements PlugIn {
 							// DALL'OPERATORE. QUESTO NEL dosimetria_Lu177
 							// ==========================================================================
 
-							IJ.log("ESEGUO MemorizeResults con point1= " + point1);
+							// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+							MyLog.log("ESEGUO MemorizeResults con point1= " + point1);
+							
 							aux1 = "#" + count++ + "#\t--- PATIENT INFO " + aux2 + " ---";
-							Utility.appendLog(pathVolatile, aux1);
+							MyLog.log(aux1);
+							Utility.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tPatient MachineName= "
 									+ DicomTools.getTag(dicomImage, "0010,0010");
-							Utility.appendLog(pathVolatile, aux1);
+							MyLog.log(aux1);
+							Utility.logAppend(pathVolatile, aux1);
+							aux1 = "#" + count++ + "#\tPatient ID= " + DicomTools.getTag(dicomImage, "0010,0020");
+							MyLog.log(aux1);
+							Utility.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tPatient birth date= "
 									+ DicomTools.getTag(dicomImage, "0010,0030");
-							Utility.appendLog(pathVolatile, aux1);
-							count = count + 10;
+							MyLog.log(aux1);
+							Utility.logAppend(pathVolatile, aux1);
+							aux1 = "#" + count++ + "#\tPatient sex= " + DicomTools.getTag(dicomImage, "0010,0040");
+							MyLog.log(aux1);
+							Utility.logAppend(pathVolatile, aux1);
+							count = countbase + 13;   /// proprio tredici, corbezzoli !!!, se metto dieci si pianta
+							// count = count + 10;
+
+							// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 							aux1 = "#" + count++ + "#\t--- DOSIMETRY INFO " + aux2 + " ---";
-							Utility.appendLog(pathVolatile, aux1);
+							Utility.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tMaximum lesion count= " + (int) roiMax;
-							Utility.appendLog(pathVolatile, aux1);
+							Utility.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tContouring threshold level= " + threshold;
-							Utility.appendLog(pathVolatile, aux1);
+							Utility.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tContouring count threshold level= " + (int) (roiMax * threshold);
-							Utility.appendLog(pathVolatile, aux1);
+							Utility.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tProcessed Slices Position= " + posizioneMax + " ("
 									+ fettaCranioCaudaleFinal + "-" + fettaCaudoCranialeFinal + ")";
-							Utility.appendLog(pathVolatile, aux1);
+							Utility.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tFROM IJ Section= " + fettaCranioCaudaleFinal;
-							Utility.appendLog(pathVolatile, aux1);
+							Utility.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tTO IJ Section= " + fettaCaudoCranialeFinal;
-							Utility.appendLog(pathVolatile, aux1);
+							Utility.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tPet-Ct Viewer slice= " + convertFromPETCTReference(posizioneMax)
 									+ " (" + convertFromPETCTReference(fettaCranioCaudaleFinal) + "-"
 									+ convertFromPETCTReference(fettaCaudoCranialeFinal) + ")";
-							Utility.appendLog(pathVolatile, aux1);
+							Utility.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tPixel number over threshold= " + conteggio;
-							Utility.appendLog(pathVolatile, aux1);
+							Utility.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tOver threshold count integral= " + integrale;
-							Utility.appendLog(pathVolatile, aux1);
+							Utility.logAppend(pathVolatile, aux1);
 							// Utility.appendLog(pathVolatile, "++++");
 
-							IJ.log("eseguito reset005");
+							MyLog.log("eseguito reset005");
 							IJ.run("Select None");
 							IJ.run("Remove Overlay");
 							IJ.resetThreshold();
@@ -632,7 +649,7 @@ public class Dosimetry_v2 implements PlugIn {
 
 							continua = true;
 							lavora = false;
-							IJ.log("001 azzero lavora");
+							MyLog.log("001 azzero lavora");
 
 						} else if (!resultsDialog.wasOKed()) {
 
@@ -762,12 +779,12 @@ public class Dosimetry_v2 implements PlugIn {
 							continua = true;
 						}
 						resetflag = resultsDialog.getNextBoolean();
-						IJ.log("ricevuto da dialogo DD08 resetflag= " + resetflag);
+						MyLog.log("ricevuto da dialogo DD08 resetflag= " + resetflag);
 					}
 				}
-				IJ.log("FINE LOOP LIVELLO UNO");
+				MyLog.log("FINE LOOP LIVELLO UNO");
 			} while (lavora);
-			IJ.log("FUORI LOOP LIVELLO UNO");
+			MyLog.log("FUORI LOOP LIVELLO UNO");
 			// ======================================================
 			// PARTE NUOVA
 			// ======================================================
@@ -776,32 +793,32 @@ public class Dosimetry_v2 implements PlugIn {
 			if (point1 == 0) {
 				ok24 = true;
 				aux1 = "#901#\tok24= true";
-				Utility.modifyLog(pathPermanente, "#901#", aux1);
+				Utility.logModify(pathPermanente, "#901#", aux1);
 			}
 			if (point1 == 1) {
 				ok48 = true;
 				aux1 = "#902#\tok48= true";
-				Utility.modifyLog(pathPermanente, "#902#", aux1);
+				Utility.logModify(pathPermanente, "#902#", aux1);
 			}
 			if (point1 == 2) {
 				ok120 = true;
 				aux1 = "#903#\tok120= true";
-				Utility.modifyLog(pathPermanente, "#903#", aux1);
+				Utility.logModify(pathPermanente, "#903#", aux1);
 			}
 
 			// mi rimane da stabilire se abbiamo completato 24/48/120
 			if (ok24 && ok48 && ok120) {
 				okk = true;
 				aux1 = "#904#\tokk= true";
-				Utility.modifyLog(pathPermanente, "#904#", aux1);
+				Utility.logModify(pathPermanente, "#904#", aux1);
 			}
 
-			IJ.log("FINE LOOP LIVELLO ZERO");
+			MyLog.log("FINE LOOP LIVELLO ZERO");
 		} while (!okk);
-		IJ.log("FUORI LOOP LIVELLO ZERO");
-		IJ.log("============================");
-		IJ.log("END Dosimetry_v2");
-		IJ.log("============================");
+		MyLog.log("FUORI LOOP LIVELLO ZERO");
+		MyLog.log("============================");
+		MyLog.log("END Dosimetry_v2");
+		MyLog.log("============================");
 
 	}
 

@@ -101,6 +101,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 		boolean nuovoDistretto = false;
 		boolean nuoveImmagini = false;
 		boolean datiSomministrazioneValidi = false;
+		Regression rf = null;
+		CurveFitter cf = null;
 		File[] arrayOfFile2 = null;
 		String aux5 = "";
 		int out1 = 0;
@@ -152,9 +154,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 			if (arrayOfFile2 == null)
 				return;
 			MyLog.log("NUOVO PAZIENTE, INIZIALIZZAZIONE LOG E RICHIESTA DATI SOMMINISTRAZIONE");
-			Utility.logDeleteAll(desktopDosimetryFolderPath);
-			Utility.logInit(pathPermanente);
-			Utility.logInit(pathVolatile);
+			Utility.deleteAllLogs(desktopDosimetryFolderPath);
+			Utility.initLog(pathPermanente);
+			Utility.initLog(pathVolatile);
 			String[] datiSomministrazione = null;
 			boolean okDati = false;
 			do {
@@ -171,23 +173,23 @@ public class Dosimetria_Lu177 implements PlugIn {
 			dataOraSomministrazione = getDateTime(dataToDicom(dataSomministrazione), oraToDicom(oraSomministrazione));
 
 			MyLog.log("NUOVO PAZIENTE, SCRITTURA DATI SOMMINISTRAZIONE SU VOLATILE");
-			Utility.logAppend(pathVolatile, "#000#\t-- SOMMINISTRAZIONE --");
+			Utility.appendLog(pathVolatile, "#000#\t-- SOMMINISTRAZIONE --");
 
 			SimpleDateFormat sdf = new SimpleDateFormat(format1);
 			String myDTT = sdf.format(dataOraSomministrazione);
 
 			String aux1 = "";
 			aux1 = "#001#\tDateTime administration= " + myDTT;
-			Utility.logAppend(pathVolatile, aux1);
+			Utility.appendLog(pathVolatile, aux1);
 			aux1 = "#002#\tDummy";
-			Utility.logAppend(pathVolatile, aux1);
+			Utility.appendLog(pathVolatile, aux1);
 			aux1 = "#003#\tActivity= " + activitySomministrazione;
-			Utility.logAppend(pathVolatile, aux1);
+			Utility.appendLog(pathVolatile, aux1);
 			// copia da volatile a permanente i dati di SOMMINISTRAZIONE
-			Utility.logCopyRange(pathVolatile, pathPermanente, 0, 3);
+			Utility.copyLogInfo(pathVolatile, pathPermanente, 0, 3);
 			raccoltaDati(arrayOfFile2, dataOraSomministrazione);
 			// copia da volatile a permanente i dati di IMAGE INFO 24-48-120
-			Utility.logCopyRange(pathVolatile, pathPermanente, 10, 60);
+			Utility.copyLogInfo(pathVolatile, pathPermanente, 10, 60);
 		} else if (nuovoDistretto) { // stesso paziente nuovo distretto nuova lesione
 			// ============================================
 			// STESSO PAZIENTE, NUOVO DISTRETTO, NUOVA LESIONE
@@ -197,11 +199,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 			arrayOfFile2 = desktopImagesFolderFill();
 			if (arrayOfFile2 == null)
 				return;
-			Utility.logInit(pathVolatile);
+			Utility.initLog(pathVolatile);
 			// copia da permanente a volatile i dati di SOMMINISTRAZIONE
-			Utility.logCopyRange(pathPermanente, pathVolatile, 0, 3);
+			Utility.copyLogInfo(pathPermanente, pathVolatile, 0, 3);
 			// copia da permanente a volatile i dati di IMAGE INFO 24-48-120
-			Utility.logCopyRange(pathPermanente, pathVolatile, 10, 60);
+			Utility.copyLogInfo(pathPermanente, pathVolatile, 10, 60);
 			dataOraSomministrazione = Utility.getDateTime(Utility.readFromLog(pathVolatile, "#001#", "="), format1);
 			// oraSomministrazione = Utility.readFromLog(pathVolatile, "#002#", "=");
 			activitySomministrazione = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "="));
@@ -214,11 +216,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// STESSO PAZIENTE, STESSO DISTRETTO, NUOVA LESIONE
 			// ============================================
 			MyLog.log("NUOVA LESIONE, RECUPERO DATI SOMMINISTRAZIONE DA PERMANENTE");
-			Utility.logInit(pathVolatile);
+			Utility.initLog(pathVolatile);
 			// copia da permanente a volatile i dati di IMAGE INFO 24-48-120
-			Utility.logCopyRange(pathPermanente, pathVolatile, 0, 3);
+			Utility.copyLogInfo(pathPermanente, pathVolatile, 0, 3);
 			// copia da permanente a volatile i dati di IMAGE INFO 24-48-120
-			Utility.logCopyRange(pathPermanente, pathVolatile, 10, 60);
+			Utility.copyLogInfo(pathPermanente, pathVolatile, 10, 60);
 			dataOraSomministrazione = Utility.getDateTime(Utility.readFromLog(pathVolatile, "#001#", "="), format1);
 			// oraSomministrazione = Utility.readFromLog(pathVolatile, "#002#", "=");
 			activitySomministrazione = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "="));
@@ -303,7 +305,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		if (nuoveImmagini) {
 			petctviewerTitle = stringaLaboriosa(meta1);
-			Utility.logAppend(pathPermanente, "24h=" + petctviewerTitle);
+			Utility.appendLog(pathPermanente, "24h=" + petctviewerTitle);
 		}
 		// 0020,000E Series Instance UID:
 		// 1.2.840.113619.2.184.31108.1067210107.1661517437.7028981
@@ -362,7 +364,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		String meta3 = getMeta(slice1, imp3);
 		if (nuoveImmagini) {
 			petctviewerTitle = stringaLaboriosa(meta3);
-			Utility.logAppend(pathPermanente, "48h=" + petctviewerTitle);
+			Utility.appendLog(pathPermanente, "48h=" + petctviewerTitle);
 		}
 
 		String petUID3 = DicomTools.getTag(imp3, "0020,000E");
@@ -415,7 +417,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		String meta5 = getMeta(slice1, imp5);
 		if (nuoveImmagini) {
 			petctviewerTitle = stringaLaboriosa(meta5);
-			Utility.logAppend(pathPermanente, "120h=" + petctviewerTitle);
+			Utility.appendLog(pathPermanente, "120h=" + petctviewerTitle);
 		}
 
 		String petUID5 = DicomTools.getTag(imp5, "0020,000E");
@@ -447,8 +449,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		IJ.runPlugIn("Pet_Ct_Viewer", seriesUID5);
 		IJ.wait(500);
 
-		MyLog.log("SONO DEFINITIVAMENTE IN LU177");
-
 		// ===========================================================================
 		imp2.close();
 		imp4.close();
@@ -474,12 +474,16 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		// PUNTO DI INIZIO DEI LOOP DI ELABORAZIONE, FINISCONO SOLO SE E QUANDO I
-		// RISULTATI VENGONO DEFINITIVAMENTE ACCETTATI/APPROVATI O PER ESAURIMENTO DELLA
-		// PAZIENZA
+		// RISULTATI DENGONO ACCETTATI/APPROVATI O PER ESAURIMENTO DELLA PAZIENZA
 		// DELL'OPERATORE
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 		do {
+//			do {
+			// ==========================================================================================
+			// il do qui sopra serve per permettere la review di qualche elaborazione, vista
+			// in base al plot dei punti ottenuti dai contornamenti per 24,48 e 120
+			// ==========================================================================================
 
 			// ===========================================================================================
 			// Azzeramento dei valori ottenuti in precedenza SERVE VERAMENTE
@@ -541,7 +545,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			IJ.runPlugIn("Dosimetry.Dosimetry_v2", "");
 
 			if (nuoveImmagini)
-				Utility.logEnd(pathPermanente);
+				Utility.endLog(pathPermanente);
 
 			// ==========================================================================================
 			// PARTE GRAFICA
@@ -603,7 +607,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 			int count5 = 194;
 			aux5 = "#" + String.format("%03d", count5++) + "#\t----- POINT SELECTION ------------------";
-			Utility.logAppend(pathVolatile, aux5);
+			Utility.appendLog(pathVolatile, aux5);
 
 			MIRD_vol120 = out120[0];
 			MIRD_fatCal120 = out120[1];
@@ -630,58 +634,210 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 			// Mostro i 3 volumi calcolati ed i punti, senza fit, in modo che, con LP33
 			// venga scelto l'eventuale punto da togliere
-			double[] vetInput = new double[14];
-
-			vetInput[0] = MIRD_vol24;
-			vetInput[1] = MIRD_vol48;
-			vetInput[2] = MIRD_vol120;
-			vetInput[3] = uptake;
-			vetInput[4] = massa;
-			vetInput[5] = tmezzo;
-			vetInput[6] = dose;
-			vetInput[7] = 0;
-			vetInput[8] = 0;
-			vetInput[9] = 0;
-			vetInput[10] = Suptake;
-			vetInput[11] = Smassa;
-			vetInput[12] = Stmezzo;
-			vetInput[13] = Sdose;
 
 			MIRD_display_LP66(MIRD_vol24, MIRD_vol48, MIRD_vol120);
+			String titolo1 = "Punti1";
+			Utility.MIRD_pointsPlotter(xp1, yp1, null, titolo1);
 
 			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			// QUI DEVO TORNARE PER PROBLEMI DI FIT DA LP08
 			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			do {
+				int count = 0;
+				boolean[] punti = pointsSelection_LP33();
+				for (boolean aux : punti) {
+					if (aux)
+						count++;
+				}
+				Utility.closePlot(titolo1);
 
-				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
-				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
-				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+				String titolo2 = "Punti2";
+				Utility.MIRD_pointsPlotter(xp1, yp1, punti, titolo2);
+				count5 = 195;
+				aux5 = "#" + String.format("%03d", count5++) + "#\tSelezionati i punti 24h= " + punti[0] + " 48h= "
+						+ punti[1] + " 120h= " + punti[2];
+				Utility.appendLog(pathVolatile, aux5);
+				int count2 = 0;
+				double[] xp2 = new double[count];
+				double[] yp2 = new double[count];
+				for (int i1 = 0; i1 < xp1.length; i1++) {
+					if (punti[i1]) {
+						xp2[count2] = xp1[i1];
+						yp2[count2] = yp1[i1];
+						count2++;
+					}
+				}
 
-				processa(xp1, yp1, MIRD_vol24, MIRD_vol48, MIRD_vol120);
+				Utility.closePlot(titolo2);
 
-				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
-				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
-				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+				if (count2 == 2) {
+					count3 = 2;
+					flanagan = false;
+
+					cf = Utility.MIRD_curveFitterSpecialImageJ(xp2, yp2);
+					Utility.MIRD_curvePlotterSpecialImageJ(cf, xp1, yp1, punti);
+					// -------- recupero i dati da stampare ---------------
+					paramsIJ = cf.getParams();
+					numParams = cf.getNumParams();
+					outCF = new double[numParams];
+					for (int i1 = 0; i1 < numParams; i1++) {
+						MyLog.log("MIRD FIT param " + i1 + " =" + paramsIJ[i1]);
+						outCF[i1] = paramsIJ[i1];
+					}
+					fitGoodnessIJ = cf.getFitGoodness();
+					rSquaredIJ = cf.getRSquared();
+
+					out2 = Utility.blaBla(paramsIJ, null, MIRD_vol24, MIRD_vol48, MIRD_vol120, pathVolatile);
+
+					AA = out2[0];
+					aa = out2[1];
+					SA = out2[2];
+					Sa = out2[3];
+					mAtilde = out2[4];
+					disintegrazioni = out2[5];
+					uptake = out2[6];
+					massa = out2[7];
+					tmezzo = out2[8];
+					tau = out2[9];
+					SmAtilde = out2[10];
+					Sdisintegrazioni = out2[11];
+					Suptake = out2[12];
+					Smassa = out2[13];
+					Stmezzo = out2[14];
+					Stau = out2[15];
+					dose = out2[16];
+					Sdose = out2[17];
+
+					MyLog.log("==== PRIMA DI REVIEW =====");
+					MyLog.log("count2= " + count2);
+					MyLog.log("==== VALORE MEDIO DOPO IMAGEJ =====");
+					MyLog.log("parametro A= " + AA);
+					MyLog.log("parametro a= " + aa);
+					MyLog.log("mAtilde= " + mAtilde);
+					MyLog.log("# disintegrazioni= " + disintegrazioni);
+					MyLog.log("uptake[%]= " + uptake);
+					MyLog.log("massa= " + massa);
+					MyLog.log("tmezzo= " + tmezzo);
+					MyLog.log("tau= " + tau);
+					MyLog.log("dose= " + dose);
+					MyLog.log("==== ERRORI ==========");
+					MyLog.log("errore SA= " + SA);
+					MyLog.log("errore Sa= " + Sa);
+					MyLog.log("SmAtilde= " + SmAtilde);
+					MyLog.log("S# disintegrazioni= " + Sdisintegrazioni);
+					MyLog.log("Suptake= " + Suptake);
+					MyLog.log("Smassa= " + Smassa);
+					MyLog.log("Stmezzo= " + Stmezzo);
+					MyLog.log("Stau= " + Stau);
+					MyLog.log("Sdose= " + Sdose);
+					MyLog.log("====================================");
+
+				} else if (count2 == 3) {
+					count3 = 3;
+					flanagan = true;
+					rf = Utility.MIRD_curveFitterSpecialFlanagan(xp2, yp2);
+					MyLog.log("FLA001");
+					Utility.MIRD_curvePlotterSpecialFlanagan(rf, xp2, yp2);
+					MyLog.log("FLA002");
+					// -------- recupero i dati da stampare ---------------
+
+					rSquaredFLAadjusted = rf.getAdjustedCoefficientOfDetermination();
+					rSquaredFLA = rf.getCoefficientOfDetermination();
+//					Utility.MIRD_curvePlotterSpecialCombined(cf, rf, xp2, yp2);
+//					MyLog.log("FLA003");
+
+					paramsFLA = rf.getBestEstimates();
+					paramsFLA = Utility.vetReverser(paramsFLA);
+					double[] errorsFLA = rf.getBestEstimatesErrors();
+					errorsFLA = Utility.vetReverser(errorsFLA);
+
+					out2 = Utility.blaBla(paramsFLA, errorsFLA, MIRD_vol24, MIRD_vol48, MIRD_vol120, pathVolatile);
+
+					AA = out2[0];
+					aa = out2[1];
+					SA = out2[2];
+					Sa = out2[3];
+					mAtilde = out2[4];
+					disintegrazioni = out2[5];
+					uptake = out2[6];
+					massa = out2[7];
+					tmezzo = out2[8];
+					tau = out2[9];
+					SmAtilde = out2[10];
+					Sdisintegrazioni = out2[11];
+					Suptake = out2[12];
+					Smassa = out2[13];
+					Stmezzo = out2[14];
+					Stau = out2[15];
+					dose = out2[16];
+					Sdose = out2[17];
+
+//					Utility.removeLineLog(pathVolatile, "#260#"); 
+//					Utility.removeLineLog(pathVolatile, "#261#"); 
+//					Utility.removeLineLog(pathVolatile, "#262#"); 
+//					Utility.removeLineLog(pathVolatile, "#263#"); 
+//					Utility.removeLineLog(pathVolatile, "#264#"); 
+
+					MyLog.log("==== PRIMA DI REVIEW =====");
+					MyLog.log("count2= " + count2);
+					MyLog.log("==== VALORE MEDIO DOPO FLANAGAN =====");
+					MyLog.log("parametro A= " + AA);
+					MyLog.log("parametro a= " + aa);
+					MyLog.log("mAtilde= " + mAtilde);
+					MyLog.log("# disintegrazioni= " + disintegrazioni);
+					MyLog.log("uptake[%]= " + uptake);
+					MyLog.log("massa= " + massa);
+					MyLog.log("tmezzo= " + tmezzo);
+					MyLog.log("tau= " + tau);
+					MyLog.log("dose= " + dose);
+					MyLog.log("==== ERRORI ==========");
+					MyLog.log("errore SA= " + SA);
+					MyLog.log("errore Sa= " + Sa);
+					MyLog.log("SmAtilde= " + SmAtilde);
+					MyLog.log("S# disintegrazioni= " + Sdisintegrazioni);
+					MyLog.log("Suptake= " + Suptake);
+					MyLog.log("Smassa= " + Smassa);
+					MyLog.log("Stmezzo= " + Stmezzo);
+					MyLog.log("Stau= " + Stau);
+					MyLog.log("Sdose= " + Sdose);
+					MyLog.log("====================================");
+
+				}
+
+				double[] vetInput = new double[14];
+
+				vetInput[0] = MIRD_vol24;
+				vetInput[1] = MIRD_vol48;
+				vetInput[2] = MIRD_vol120;
+				vetInput[3] = uptake;
+				vetInput[4] = massa;
+				vetInput[5] = tmezzo;
+				vetInput[6] = dose;
+				vetInput[7] = 0;
+				vetInput[8] = 0;
+				vetInput[9] = 0;
+				vetInput[10] = Suptake;
+				vetInput[11] = Smassa;
+				vetInput[12] = Stmezzo;
+				vetInput[13] = Sdose;
 
 				// ==========================================================================
 				// PARTE REVIEW CHE DEVE RITORNARE INDIETRO PER RIFARE UNO O PIU'DEI CALCOLI
 				// FINALMENTE SAREMO FELICI E GORGOGLIONI DELLE NOSTRE ELABORAZIONI
 				// ==========================================================================
 //				decis1 = MIRD_display_LP67(MIRD_vol24, MIRD_vol48, MIRD_vol120, uptake, massa, tmezzo, dose);
-				decis1 = MIRD_display_LP68(vetInput); // accetta risultati o ripeti analisi
+				decis1 = MIRD_display_LP68(vetInput);
 				if (decis1 == 0)
 					return;
 				// boolean fit = false;
 				if (decis1 == 1) {
-					rip = dialogRipetizione_LP08(); // problema fit o contornamento
+					rip = dialogRipetizione_LP08();
 					if (rip == 0)
 						return;
 				}
 				Utility.closePlot("PLOT FLANAGAN");
 				Utility.closePlot("PLOT IMAGEJ");
 
-				/// ritorno da selezione 2 o 3 punti
 			} while (rip < 2 && decis1 < 2);
 
 			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -694,35 +850,28 @@ public class Dosimetria_Lu177 implements PlugIn {
 				case "24h":
 					scelta = 1;
 					aux1 = "#901#\tok24= false";
-					Utility.logModify(pathPermanente, "#901#", aux1);
+					Utility.modifyLog(pathPermanente, "#901#", aux1);
 					aux1 = "#904#\tokk= false";
-					Utility.logModify(pathPermanente, "#904#", aux1);
+					Utility.modifyLog(pathPermanente, "#904#", aux1);
 					break;
 				case "48h":
 					scelta = 2;
 					aux1 = "#902#\tok48= false";
-					Utility.logModify(pathPermanente, "#902#", aux1);
+					Utility.modifyLog(pathPermanente, "#902#", aux1);
 					aux1 = "#904#\tokk= false";
-					Utility.logModify(pathPermanente, "#904#", aux1);
+					Utility.modifyLog(pathPermanente, "#904#", aux1);
 					break;
 				case "120h":
 					scelta = 3;
 					aux1 = "#903#\tok120= false";
-					Utility.logModify(pathPermanente, "#903#", aux1);
+					Utility.modifyLog(pathPermanente, "#903#", aux1);
 					aux1 = "#904#\tokk= false";
-					Utility.logModify(pathPermanente, "#904#", aux1);
+					Utility.modifyLog(pathPermanente, "#904#", aux1);
 					break;
 				}
 			}
 
 		} while (decis1 != 2);
-
-		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 		// ================= POSTSCRITTURA ===========================================
 		// UNA VOLTA CHE L'OPERATORE HA DETTO SI, SCRIVIAMO TUTTA LA MONNEZZA IN
@@ -731,31 +880,31 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		int count5 = 200;
 		aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD CALCULATION 24h ----";
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol24= " + out24[0];
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal24= " + out24[1];
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv24= " + out24[2];
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		count5 = 220;
 		aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD CALCULATION 48h ----";
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol48= " + out48[0];
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal48= " + out48[1];
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv48= " + out48[2];
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		count5 = 240;
 		aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD CALCULATION 120h ----";
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol120= " + out120[0];
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal120= " + out120[1];
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120= " + out120[2];
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 
 		if (!flanagan) {
 			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -764,22 +913,22 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 			count5 = 260;
 			aux5 = "#" + String.format("%03d", count5++) + "#\t----- MIRD FIT RESULTS IMAGEJ --------";
-			Utility.logAppend(pathVolatile, aux5);
+			Utility.appendLog(pathVolatile, aux5);
 			for (int i1 = 0; i1 < numParams; i1++) {
 				aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD IJ FIT param " + i1 + "= " + paramsIJ[i1];
-				Utility.logAppend(pathVolatile, aux5);
+				Utility.appendLog(pathVolatile, aux5);
 			}
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FITgoodness= " + fitGoodnessIJ;
-			Utility.logAppend(pathVolatile, aux5);
+			Utility.appendLog(pathVolatile, aux5);
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FIT R^2= " + rSquaredIJ;
-			Utility.logAppend(pathVolatile, aux5);
+			Utility.appendLog(pathVolatile, aux5);
 		} else {
 			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			// CON FLANAGAN E BASTA
 			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			count5 = 270;
 			aux5 = "#" + String.format("%03d", count5++) + "#\t----- MIRD FIT RESULTS FLANAGAN --------";
-			Utility.logAppend(pathVolatile, aux5);
+			Utility.appendLog(pathVolatile, aux5);
 			// count5 = 279;
 			// aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FLANAGAN NON FUNZIONA
 			// SE PUNTI <3";
@@ -788,66 +937,66 @@ public class Dosimetria_Lu177 implements PlugIn {
 			for (int i1 = 0; i1 < paramsFLA.length; i1++) {
 				aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FLANAGAN FIT param " + i1 + "= "
 						+ paramsFLA[i1];
-				Utility.logAppend(pathVolatile, aux5);
+				Utility.appendLog(pathVolatile, aux5);
 			}
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FIT R^2= " + rSquaredFLA;
-			Utility.logAppend(pathVolatile, aux5);
+			Utility.appendLog(pathVolatile, aux5);
 		}
 
 		count5 = 300;
 		if (count3 == 2) {
 			aux5 = "#" + String.format("%03d", count5++)
 					+ "#\t---DUE PUNTI SELEZIONATI ELABORATI CON IMAGEJ ---------> " + count3;
-			Utility.logAppend(pathVolatile, aux5);
+			Utility.appendLog(pathVolatile, aux5);
 		} else if (count3 == 3) {
 			aux5 = "#" + String.format("%03d", count5++)
 					+ "#\t---TRE PUNTI SELEZIONATI ELABORATI CON FLANAGAN--------> " + count3;
-			Utility.logAppend(pathVolatile, aux5);
+			Utility.appendLog(pathVolatile, aux5);
 
 		} else {
 			aux5 = "#" + String.format("%03d", count5++) + "#\t--------- INFERNAL ERROR !!!! --------> " + count3;
-			Utility.logAppend(pathVolatile, aux5);
+			Utility.appendLog(pathVolatile, aux5);
 		}
 		aux5 = "#" + String.format("%03d", count5++) + "#\tparametro A= " + AA;
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tparametro a= " + aa;
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tmAtilde= " + mAtilde;
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tdisintegrazioni= " + disintegrazioni;
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tuptake[%]= " + uptake;
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tmassa= " + massa;
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\ttmezzo= " + tmezzo;
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\ttau= " + tau;
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tdose= " + dose;
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 
 		// if (count3 == 3) { /// lo eseguo sempre
 		aux5 = "#" + String.format("%03d", count5++) + "#\t--------- CALCOLO ERRORI ----------";
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\terrore SA= " + SA;
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\terrore Sa= " + Sa;
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tSmAtilde= " + SmAtilde;
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tS# disintegrazioni= " + Sdisintegrazioni;
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tSuptake= " + Suptake;
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tSmassa= " + Smassa;
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tStmezzo= " + Stmezzo;
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tStau= " + Stau;
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tSdose= " + Sdose;
-		Utility.logAppend(pathVolatile, aux5);
+		Utility.appendLog(pathVolatile, aux5);
 
 		// }
 
@@ -859,7 +1008,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// ==============================================================
 		// BATTESIMO DELLA LESIONE
 		// ==============================================================
-		Utility.logDedupe(pathVolatile);
+		Utility.dedupeLog(pathVolatile);
 		Utility.dialogBattezzaLesioni_LP27(pathVolatile);
 		Utility.chiudiTutto();
 		IJ.showMessage("FINE LAVORO");
@@ -1166,7 +1315,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 // 		dobbiamo usare l'immagine corretta, in quella taroccata dovrebbe chiamarsi CAVLO
 		m_patName = compressPatName(getDicomValue(meta, "0010,0010"));
 		String aux1 = "#600#\tm_patname= " + m_patName;
-		Utility.logAppend(pathPermanente, aux1);
+		Utility.appendLog(pathPermanente, aux1);
 //		Utility.appendLog(pathVolatile, aux1);
 //		Utility.debugDeiPoveri("ciprovo");
 
@@ -1425,6 +1574,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			return "";
 		return DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.US).format(inDate);
 	}
+
 
 	/**
 	 * Dialogo inserimento dati iniezione
@@ -1735,14 +1885,14 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// --------------------------------------------------------------------------------------
 		Date now = new Date();
 		SimpleDateFormat dateformat = new SimpleDateFormat("dd MMM yyyy - HH:mm.ss");
-		Utility.logInit(pathVolatile);
-		Utility.logAppend(pathVolatile, "INITIALIZED " + dateformat.format(now));
+		Utility.initLog(pathVolatile);
+		Utility.appendLog(pathVolatile, "INITIALIZED " + dateformat.format(now));
 		File f1 = new File(pathPermanente);
 		if (init || !f1.exists()) {
-			Utility.logInit(pathPermanente);
-			Utility.logAppend(pathPermanente, "INITIALIZED " + dateformat.format(now));
+			Utility.initLog(pathPermanente);
+			Utility.appendLog(pathPermanente, "INITIALIZED " + dateformat.format(now));
 		} else {
-			Utility.logAppend(pathPermanente, "PRESERVED " + dateformat.format(now));
+			Utility.appendLog(pathPermanente, "PRESERVED " + dateformat.format(now));
 		}
 
 	}
@@ -1796,8 +1946,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 						try {
 							copyDirectory(file5, file6);
 						} catch (Exception exception) {
-							Utility.dialogErrorMessage_LP06(
-									"An Error occurred while coping CT images. Please try again!");
+							Utility.dialogErrorMessage_LP06("An Error occurred while coping CT images. Please try again!");
 							return;
 						}
 					} else if (file5.getName().contains("EM001")) {
@@ -1805,8 +1954,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 					}
 				}
 			} else {
-				Utility.dialogErrorMessage_LP06(
-						"It was not possible to import files for " + arrayOfString[b2] + " folder.");
+				Utility.dialogErrorMessage_LP06("It was not possible to import files for " + arrayOfString[b2] + " folder.");
 			}
 
 		}
@@ -2093,18 +2241,18 @@ public class Dosimetria_Lu177 implements PlugIn {
 			count2 = a4 * 20 + 10;
 //			aux1 = "#010#\t---- IMAGE INFO " + arrayOfString[a4] + " ----";
 			aux2 = "#" + String.format("%03d", count2++) + "#\t---- IMAGE INFO " + arrayOfString[a4] + " ----";
-			Utility.logAppend(pathVolatile, aux2);
+			Utility.appendLog(pathVolatile, aux2);
 			String str22 = "";
 			ArrayList<String> cList = aList.get(a4);
 			for (int b4 = 0; b4 < cList.size(); b4++) {
 				aux2 = "#" + String.format("%03d", count2++) + "#";
 				String str9 = cList.get(b4);
 				str22 = aux2 + str9;
-				Utility.logAppend(pathVolatile, str22);
+				Utility.appendLog(pathVolatile, str22);
 			}
 			aux3 = "#" + String.format("%03d", count2++) + "#" + "\tDeltaT= "
 					+ (double) eList.get(a4) / (1000 * 60 * 60);
-			Utility.logAppend(pathVolatile, aux3);
+			Utility.appendLog(pathVolatile, aux3);
 		}
 	}
 
@@ -2158,7 +2306,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 	 * 
 	 * @return
 	 */
-	static boolean[] pointsSelection_LP33() {
+	boolean[] pointsSelection_LP33() {
 
 		MyLog.log("dialogReview_LP33");
 		String[] items = { "   24h", "   48h", "   120h" };
@@ -2171,7 +2319,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		do {
 			gd1 = new NonBlockingGenericDialog("LP33 - SELECTION");
 			gd1.addCheckboxGroup(rows, columns, items, def);
-			gd1.addMessage("Selezionare ALMENO\ndue punti su cui\nfare il FIT", defaultFont);
+			gd1.addMessage("Selezionare ALMENO\ndue punti su cui\nfare il FIT", this.defaultFont);
 			gd1.showDialog();
 			out1 = new boolean[def.length];
 			for (int i1 = 0; i1 < def.length; i1++) {
@@ -2217,13 +2365,13 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		String aux1 = "";
 		aux1 = "#901#\tokk= false";
-		Utility.logModify(path, "#901#", aux1);
+		Utility.modifyLog(path, "#901#", aux1);
 		aux1 = "#902#\tokk= false";
-		Utility.logModify(path, "#902#", aux1);
+		Utility.modifyLog(path, "#902#", aux1);
 		aux1 = "#903#\tokk= false";
-		Utility.logModify(path, "#903#", aux1);
+		Utility.modifyLog(path, "#903#", aux1);
 		aux1 = "#904#\tokk= false";
-		Utility.logModify(path, "#904#", aux1);
+		Utility.modifyLog(path, "#904#", aux1);
 
 	}
 
@@ -2480,220 +2628,5 @@ public class Dosimetria_Lu177 implements PlugIn {
 //		Utility.appendLog(pathPermanente, aux1);
 //		Utility.appendLog(pathVolatile, aux1);
 //	}
-
-	static void processa(double[] xp1, double[] yp1, double MIRD_vol24, double MIRD_vol48, double MIRD_vol120) {
-
-		Regression rf = null;
-		CurveFitter cf = null;
-		int count3 = 0;
-		int count5 = 0;
-		String aux5 = "";
-
-		boolean flanagan;
-
-		double[] out2 = null;
-		double[] out24 = null;
-		double[] out48 = null;
-		double[] out120 = null;
-		int numParams = 0;
-		double[] outCF = null;
-		double[] paramsIJ = null;
-		double[] paramsFLA = null;
-		double fitGoodnessIJ = 0;
-		double rSquaredIJ = 0;
-		double rSquaredFLA = 0;
-		double rSquaredFLAadjusted = 0;
-
-		double AA = Double.NaN;
-		double aa = Double.NaN;
-		double SA = Double.NaN;
-		double Sa = Double.NaN;
-		double mAtilde = Double.NaN;
-		double disintegrazioni = Double.NaN;
-		double uptake = Double.NaN;
-		double massa = Double.NaN;
-		double tmezzo = Double.NaN;
-		double tau = Double.NaN;
-		double SmAtilde = Double.NaN;
-		double Sdisintegrazioni = Double.NaN;
-		double Suptake = Double.NaN;
-		double Smassa = Double.NaN;
-		double Stmezzo = Double.NaN;
-		double Stau = Double.NaN;
-		double dose = Double.NaN;
-		double Sdose = Double.NaN;
-
-		for (int i1 = 0; i1 < xp1.length; i1++) {
-
-			MyLog.log("in " + i1 + " xp1= " + xp1[i1] + " yp1= " + yp1[i1]);
-
-		}
-
-		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
-		desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
-		pathPermanente = desktopPath + File.separator + "DosimetryFolder" + File.separator + "permanente.txt";
-		pathVolatile = desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
-		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
-		String titolo1 = "Punti_PP01";
-		Utility.MIRD_pointsPlotter(xp1, yp1, null, titolo1);
-
-		int count = 0;
-		boolean[] punti = pointsSelection_LP33(); /// selezione dei 2 o 3 punti su cui fare il fit
-		for (boolean aux : punti) {
-			if (aux)
-				count++;
-		}
-		Utility.closePlot(titolo1);
-
-		String titolo2 = "Punti_PP02";
-		Utility.MIRD_pointsPlotter(xp1, yp1, punti, titolo2);
-		count5 = 195;
-		aux5 = "#" + String.format("%03d", count5++) + "#\t Selezionati i punti 24h= " + punti[0] + " 48h= " + punti[1]
-				+ " 120h= " + punti[2];
-
-		Utility.logAppend(pathVolatile, aux5);
-		int count2 = 0;
-		double[] xp2 = new double[count];
-		double[] yp2 = new double[count];
-		for (int i1 = 0; i1 < xp1.length; i1++) {
-			if (punti[i1]) {
-				xp2[count2] = xp1[i1];
-				yp2[count2] = yp1[i1];
-				count2++;
-			}
-		}
-
-		Utility.closePlot(titolo2);
-
-		if (count2 == 2) {
-			count3 = 2;
-			flanagan = false;
-
-			cf = Utility.MIRD_curveFitterSpecialImageJ(xp2, yp2);
-			Utility.MIRD_curvePlotterSpecialImageJ(cf, xp1, yp1, punti);
-			// -------- recupero i dati da stampare ---------------
-			paramsIJ = cf.getParams();
-			numParams = cf.getNumParams();
-			outCF = new double[numParams];
-			for (int i1 = 0; i1 < numParams; i1++) {
-				MyLog.log("MIRD FIT param " + i1 + " =" + paramsIJ[i1]);
-				outCF[i1] = paramsIJ[i1];
-			}
-			fitGoodnessIJ = cf.getFitGoodness();
-			rSquaredIJ = cf.getRSquared();
-
-			out2 = Utility.blaBla(paramsIJ, null, MIRD_vol24, MIRD_vol48, MIRD_vol120, pathVolatile);
-
-			AA = out2[0];
-			aa = out2[1];
-			SA = out2[2];
-			Sa = out2[3];
-			mAtilde = out2[4];
-			disintegrazioni = out2[5];
-			uptake = out2[6];
-			massa = out2[7];
-			tmezzo = out2[8];
-			tau = out2[9];
-			SmAtilde = out2[10];
-			Sdisintegrazioni = out2[11];
-			Suptake = out2[12];
-			Smassa = out2[13];
-			Stmezzo = out2[14];
-			Stau = out2[15];
-			dose = out2[16];
-			Sdose = out2[17];
-
-			MyLog.log("==== PRIMA DI REVIEW =====");
-			MyLog.log("count2= " + count2);
-			MyLog.log("==== VALORE MEDIO DOPO IMAGEJ =====");
-			MyLog.log("parametro A= " + AA);
-			MyLog.log("parametro a= " + aa);
-			MyLog.log("mAtilde= " + mAtilde);
-			MyLog.log("# disintegrazioni= " + disintegrazioni);
-			MyLog.log("uptake[%]= " + uptake);
-			MyLog.log("massa= " + massa);
-			MyLog.log("tmezzo= " + tmezzo);
-			MyLog.log("tau= " + tau);
-			MyLog.log("dose= " + dose);
-			MyLog.log("==== ERRORI ==========");
-			MyLog.log("errore SA= " + SA);
-			MyLog.log("errore Sa= " + Sa);
-			MyLog.log("SmAtilde= " + SmAtilde);
-			MyLog.log("S# disintegrazioni= " + Sdisintegrazioni);
-			MyLog.log("Suptake= " + Suptake);
-			MyLog.log("Smassa= " + Smassa);
-			MyLog.log("Stmezzo= " + Stmezzo);
-			MyLog.log("Stau= " + Stau);
-			MyLog.log("Sdose= " + Sdose);
-			MyLog.log("====================================");
-
-		} else if (count2 == 3) {
-			count3 = 3;
-			flanagan = true;
-			rf = Utility.MIRD_curveFitterSpecialFlanagan(xp2, yp2);
-			MyLog.log("FLA001");
-			Utility.MIRD_curvePlotterSpecialFlanagan(rf, xp2, yp2);
-			MyLog.log("FLA002");
-			// -------- recupero i dati da stampare ---------------
-
-			rSquaredFLAadjusted = rf.getAdjustedCoefficientOfDetermination();
-			rSquaredFLA = rf.getCoefficientOfDetermination();
-//			Utility.MIRD_curvePlotterSpecialCombined(cf, rf, xp2, yp2);
-//			MyLog.log("FLA003");
-
-			paramsFLA = rf.getBestEstimates();
-			paramsFLA = Utility.vetReverser(paramsFLA);
-			double[] errorsFLA = rf.getBestEstimatesErrors();
-			errorsFLA = Utility.vetReverser(errorsFLA);
-
-			out2 = Utility.blaBla(paramsFLA, errorsFLA, MIRD_vol24, MIRD_vol48, MIRD_vol120, pathVolatile);
-
-			AA = out2[0];
-			aa = out2[1];
-			SA = out2[2];
-			Sa = out2[3];
-			mAtilde = out2[4];
-			disintegrazioni = out2[5];
-			uptake = out2[6];
-			massa = out2[7];
-			tmezzo = out2[8];
-			tau = out2[9];
-			SmAtilde = out2[10];
-			Sdisintegrazioni = out2[11];
-			Suptake = out2[12];
-			Smassa = out2[13];
-			Stmezzo = out2[14];
-			Stau = out2[15];
-			dose = out2[16];
-			Sdose = out2[17];
-
-			MyLog.log("==== PRIMA DI REVIEW =====");
-			MyLog.log("count2= " + count2);
-			MyLog.log("==== VALORE MEDIO DOPO FLANAGAN =====");
-			MyLog.log("parametro A= " + AA);
-			MyLog.log("parametro a= " + aa);
-			MyLog.log("mAtilde= " + mAtilde);
-			MyLog.log("# disintegrazioni= " + disintegrazioni);
-			MyLog.log("uptake[%]= " + uptake);
-			MyLog.log("massa= " + massa);
-			MyLog.log("tmezzo= " + tmezzo);
-			MyLog.log("tau= " + tau);
-			MyLog.log("dose= " + dose);
-			MyLog.log("==== ERRORI ==========");
-			MyLog.log("errore SA= " + SA);
-			MyLog.log("errore Sa= " + Sa);
-			MyLog.log("SmAtilde= " + SmAtilde);
-			MyLog.log("S# disintegrazioni= " + Sdisintegrazioni);
-			MyLog.log("Suptake= " + Suptake);
-			MyLog.log("Smassa= " + Smassa);
-			MyLog.log("Stmezzo= " + Stmezzo);
-			MyLog.log("Stau= " + Stau);
-			MyLog.log("Sdose= " + Sdose);
-			MyLog.log("====================================");
-
-		}
-		
-
-	}
 
 }
