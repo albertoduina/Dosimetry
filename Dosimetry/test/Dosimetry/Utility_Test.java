@@ -114,8 +114,20 @@ public class Utility_Test {
 	@Test
 	public final void test_logModifyEsistente() {
 
+		String path1 = "testdata/permanente2.txt";
+		String path2 = "testdata/permanente.txt";
+		File file1 = new File(path1);
+		File file2 = new File(path2);
+
+		new File(path2).delete();
+		try {
+			Files.copy(file1.toPath(), file2.toPath());
+		} catch (IOException e) {
+			MyLog.log("erroreCopia permanente2 > permanente");
+			e.printStackTrace();
+		}
 		String pathPermanente = "testdata/permanente.txt";
-		Utility.logModify(pathPermanente, "#030#", "#030# !!!!!!!!!!!!!!!");
+		Utility.logModify(pathPermanente, "#030#", "#030# MODIFICATO");
 		Utility.debugDeiPoveri("SPETTA");
 
 	}
@@ -123,8 +135,20 @@ public class Utility_Test {
 	@Test
 	public final void test_logModifyMancante() {
 
+		String path1 = "testdata/permanente2.txt";
+		String path2 = "testdata/permanente.txt";
+		File file1 = new File(path1);
+		File file2 = new File(path2);
+
+		new File(path2).delete();
+		try {
+			Files.copy(file1.toPath(), file2.toPath());
+		} catch (IOException e) {
+			MyLog.log("erroreCopia permanente2 > permanente");
+			e.printStackTrace();
+		}
 		String pathPermanente = "testdata/permanente.txt";
-		Utility.logModify(pathPermanente, "#730#", "#730# !!!!!!!!!!!!!!!");
+		Utility.logModify(pathPermanente, "#730#", "#730# MODIFICATO (AGGIUNTO)");
 		Utility.debugDeiPoveri("SPETTA");
 
 	}
@@ -250,7 +274,7 @@ public class Utility_Test {
 		try {
 			Files.copy(file1.toPath(), file2.toPath());
 		} catch (IOException e) {
-			MyLog.log("errore 001");
+			MyLog.log("erroreCopia");
 			e.printStackTrace();
 		}
 		Utility.debugDeiPoveri("SPETTA");

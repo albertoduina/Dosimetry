@@ -76,12 +76,10 @@ public class Fegato_MIRD implements PlugIn {
 		// copio parte del logFegatoInToto in volatile.txt perche'poi servira'
 
 		Utility.logDeleteSingle(pathVolatile);
-		MyLog.waitHere("dopo delete di volatile");
 		Utility.logInit(pathVolatile);
 		pathVolatile = desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
 
 		Utility.logCopyRange(pathToto, pathVolatile, 0, 182);
-		MyLog.waitHere("dopo copia in volatile");
 
 		String pathLesione = "";
 		int count = 1;
@@ -95,13 +93,18 @@ public class Fegato_MIRD implements PlugIn {
 			out1 = Utility.dialogAltreLesioni_FM02();
 
 		} while (out1 == 2);
-		brisighello(arrLesioni);
+
+		String deletepath = desktopPath + File.separator + "DosimetryFolder" + File.separator
+				+ "FegatoSenzaLesioni.txt";
+		Utility.logDeleteSingle(deletepath);
+
+		anaLiver(arrLesioni);
 
 		// Dosimetria_Lu177.processa(false);
 
 	}
 
-	public void brisighello(ArrayList<String> arrLesioni) {
+	public void anaLiver(ArrayList<String> arrLesioni) {
 
 		String aux1 = "";
 		// leggiamo i valori dal fegato in toto e dai vari file lesione e mettiamo il
@@ -118,6 +121,38 @@ public class Fegato_MIRD implements PlugIn {
 		double MIRD_vol24 = 0;
 		double MIRD_vol48 = 0;
 		double MIRD_vol120 = 0;
+
+		double AA = Double.NaN;
+		double aa = Double.NaN;
+		double SA = Double.NaN;
+		double Sa = Double.NaN;
+		double mAtilde = Double.NaN;
+		double disintegrazioni = Double.NaN;
+		double uptake = Double.NaN;
+		double massa = Double.NaN;
+		double tmezzo = Double.NaN;
+		double tau = Double.NaN;
+		double SmAtilde = Double.NaN;
+		double Sdisintegrazioni = Double.NaN;
+		double Suptake = Double.NaN;
+		double Smassa = Double.NaN;
+		double Stmezzo = Double.NaN;
+		double Stau = Double.NaN;
+		double dose = Double.NaN;
+		double Sdose = Double.NaN;
+		double Rsquared = Double.NaN;
+		double s1 = Double.NaN;
+		double s2 = Double.NaN;
+		double m1 = Double.NaN;
+		double m2 = Double.NaN;
+
+		int decis1 = 0;
+		double[] out24=null;
+		double[] out48=null;
+		double[] out120=null;
+		
+		
+		
 
 		for (int i1 = 0; i1 < arrLesioni.size(); i1++) {
 			aux1 = arrLesioni.get(i1);
@@ -164,32 +199,142 @@ public class Fegato_MIRD implements PlugIn {
 		MyLog.log("integrale48=" + integrale48);
 		int integrale120 = subtractInteger(arrIntegrale120);
 		MyLog.log("integrale120=" + integrale120);
+		
+		
+		
+		// ==========================================================================================
+		// PARTE GRAFICA EDDECCHE ????
+		// ==========================================================================================
+
+		// 24h
+		// se non mi ha scritto il tag #121# di volatile vuol dire che Dosimetry_v2 non
+		// ha analizzato la immagine 24h (probabile cancel dato al menu)
+
+		if (Utility.readFromLog(pathVolatile, "#121#", "=") == null)
+			return;
+
+		double[] in1 = new double[5];
+		in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#018#", "=")); // acquisition duration
+		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#121#", "=")); // pixel number over
+																						// threshold
+		in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
+		in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#115#", "=")); // contouring threshold
+																						// level
+		in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#122#", "=")); // over threshold count
+																						// integral
+		out24 = Utility.MIRD_point(in1);
+
+		// 48h
+		// se non mi ha scritto il tag #151# di volatile vuol dire che Dosimetry_v2 non
+		// ha analizzato la immagine 24h (probabile cancel dato al menu)
+		if (Utility.readFromLog(pathVolatile, "#151#", "=") == null)
+			return;
+		in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#038#", "=")); // acquisition duration
+		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#151#", "=")); // pixel number over
+																						// threshold
+		in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
+		in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#145#", "=")); // contouring threshold
+																						// level
+		in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#152#", "=")); // over threshold count
+																						// integral
+		out48 = Utility.MIRD_point(in1);
+
+		// 120h
+		// se non mi ha scritto il tag #181# di volatile vuol dire che Dosimetry_v2 non
+		// ha analizzato la immagine 24h (probabile cancel dato al menu)
+		if (Utility.readFromLog(pathVolatile, "#181#", "=") == null)
+			return;
+		in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#058#", "=")); // acquisition duration
+		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#181#", "=")); // pixel number over
+																						// threshold
+		in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
+		in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#175#", "=")); // contouring threshold
+																						// level
+		in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#182#", "=")); // over threshold count
+																						// integral
+		out120 = Utility.MIRD_point(in1);
+
+
+		// Mostro i 3 volumi calcolati ed i punti, senza fit, in modo che, con LP33
+		// venga scelto l'eventuale punto da togliere
 
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
-		yp1[0] = Math.abs(integrale24);
-		yp1[1] = Math.abs(integrale48);
-		yp1[2] = Math.abs(integrale120);
+		yp1[0] = integrale24;
+		yp1[1] = integrale48;
+		yp1[2] = integrale120;
+
+		int count5 = 194;
+		String aux5 = "";
+		aux5 = "#" + String.format("%03d", count5++) + "#\t----- POINT SELECTION ------------------";
+		Utility.logAppend(pathVolatile, aux5);
 
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
-		Dosimetria_Lu177.processa(xp1, yp1, MIRD_vol24, MIRD_vol48, MIRD_vol120);
-		
-		///  qui bisogna introdurre la decisione e l'eventuale ritorno
-		
-		
-		
-		
+		do {
+
+			double[] vetOut4 = Dosimetria_Lu177.processa(xp1, yp1, MIRD_vol24, MIRD_vol48, MIRD_vol120);
+
+			AA = vetOut4[0];
+			aa = vetOut4[1];
+			SA = vetOut4[2];
+			Sa = vetOut4[3];
+			mAtilde = vetOut4[4];
+			disintegrazioni = vetOut4[5];
+			uptake = vetOut4[6];
+			massa = vetOut4[7];
+			tmezzo = vetOut4[8];
+			tau = vetOut4[9];
+			SmAtilde = vetOut4[10];
+			Sdisintegrazioni = vetOut4[11];
+			Suptake = vetOut4[12];
+			Smassa = vetOut4[13];
+			Stmezzo = vetOut4[14];
+			Stau = vetOut4[15];
+			dose = vetOut4[16];
+			Sdose = vetOut4[17];
+			Rsquared = vetOut4[18];
+			s1 = vetOut4[18];
+			s2 = vetOut4[19];
+			m1 = vetOut4[20];
+			m2 = vetOut4[21];
+
+
+			double[] vetInput = new double[14];
+
+			vetInput[0] = MIRD_vol24;
+			vetInput[1] = MIRD_vol48;
+			vetInput[2] = MIRD_vol120;
+			vetInput[3] = uptake;
+			vetInput[4] = massa;
+			vetInput[5] = tmezzo;
+			vetInput[6] = dose;
+			vetInput[7] = 0;
+			vetInput[8] = 0;
+			vetInput[9] = 0;
+			vetInput[10] = Suptake;
+			vetInput[11] = Smassa;
+			vetInput[12] = Stmezzo;
+			vetInput[13] = Sdose;
+
+			/// qui bisogna introdurre la decisione e l'eventuale ritorno
+			decis1 = Dosimetria_Lu177.MIRD_display_LP68(vetInput); // accetta risultati o ripeti analisi
+			if (decis1 == 0)
+				return;
+//		// boolean fit = false;
+			// if (decis1 == 1) {
+
+		} while (decis1 < 2);
 
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 		// Vado a riscrivere i TAG #122#, #152à, #182#
 
-		String aux5 = "";
+		aux5 = "";
 		aux5 = "#122#\tintegrale24 AGGIORNATO= " + integrale24;
 //		Utility.logAppend(pathVolatile, aux5);
 		Utility.logModify(pathVolatile, "#122#", aux5);
@@ -202,16 +347,150 @@ public class Fegato_MIRD implements PlugIn {
 
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+		// qui si devono inserire gli ulteriori calcoli
+
+		// ================= POSTSCRITTURA ===========================================
+		// UNA VOLTA CHE L'OPERATORE HA DETTO SI, SCRIVIAMO TUTTA LA MONNEZZA IN
+		// VOLATILE, IN ATTESA DI CONOSCERE IL NOME CHE DARANNO ALLA LESIONE
+		// ============================================================================
+
+		boolean flanagan = false;
 		
-		
+		if (Double.isNaN(SmAtilde))
+			flanagan = false;
+		else
+			flanagan = true;
+
+		count5 = 200;
+		aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD CALCULATION 24h ----";
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol24= " + out24[0];
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal24= " + out24[1];
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv24= " + out24[2];
+		Utility.logAppend(pathVolatile, aux5);
+		count5 = 220;
+		aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD CALCULATION 48h ----";
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol48= " + out48[0];
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal48= " + out48[1];
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv48= " + out48[2];
+		Utility.logAppend(pathVolatile, aux5);
+		count5 = 240;
+		aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD CALCULATION 120h ----";
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol120= " + out120[0];
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal120= " + out120[1];
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120= " + out120[2];
+		Utility.logAppend(pathVolatile, aux5);
+
+		if (!flanagan) {
+			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			// CON IMAGEJ E BASTA
+			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+			count5 = 260;
+			aux5 = "#" + String.format("%03d", count5++) + "#\t----- MIRD FIT RESULTS IMAGEJ --------";
+			Utility.logAppend(pathVolatile, aux5);
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD IJ FIT param 0= " + AA;
+			Utility.logAppend(pathVolatile, aux5);
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD IJ FIT param 1= " + aa;
+			Utility.logAppend(pathVolatile, aux5);
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FIT R^2= " + Rsquared;
+			Utility.logAppend(pathVolatile, aux5);
+		} else {
+			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			// CON FLANAGAN E BASTA
+			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			count5 = 270;
+			aux5 = "#" + String.format("%03d", count5++) + "#\t----- MIRD FIT RESULTS FLANAGAN --------";
+			Utility.logAppend(pathVolatile, aux5);
+
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FLANAGAN FIT param 0= " + AA;
+			Utility.logAppend(pathVolatile, aux5);
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FLANAGAN FIT param 1= " + aa;
+			Utility.logAppend(pathVolatile, aux5);
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FIT R^2= " + Rsquared;
+			Utility.logAppend(pathVolatile, aux5);
+		}
+
+		count5 = 300;
+		if (flanagan) {
+			aux5 = "#" + String.format("%03d", count5++) + "#\t---TRE PUNTI SELEZIONATI ELABORATI CON FLANAGAN------";
+			Utility.logAppend(pathVolatile, aux5);
+		} else {
+			aux5 = "#" + String.format("%03d", count5++) + "#\t---DUE PUNTI SELEZIONATI ELABORATI CON IMAGEJ -------";
+			Utility.logAppend(pathVolatile, aux5);
+		}
+		aux5 = "#" + String.format("%03d", count5++) + "#\tparametro A= " + AA;
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tparametro a= " + aa;
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tmAtilde= " + mAtilde;
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tdisintegrazioni= " + disintegrazioni;
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tuptake[%]= " + uptake;
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tmassa= " + massa;
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\ttmezzo= " + tmezzo;
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\ttau= " + tau;
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tdose= " + dose;
+		Utility.logAppend(pathVolatile, aux5);
+
+		// if (count3 == 3) { /// lo eseguo sempre
+		aux5 = "#" + String.format("%03d", count5++) + "#\t--------- CALCOLO ERRORI ----------";
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\terrore SA= " + SA;
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\terrore Sa= " + Sa;
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tSmAtilde= " + SmAtilde;
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tS# disintegrazioni= " + Sdisintegrazioni;
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tSuptake= " + Suptake;
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tSmassa= " + Smassa;
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tStmezzo= " + Stmezzo;
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tStau= " + Stau;
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tSdose= " + Sdose;
+		Utility.logAppend(pathVolatile, aux5);
+
+		count5 = 500;
+		aux5 = "#" + String.format("%03d", count5++) + "#\t-------- CALCOLO DOSE -----------";
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose s1= " + s1;
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose s2= " + s2;
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose m1= " + m1;
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose m2= " + m2;
+		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose massa= " + massa;
+		Utility.logAppend(pathVolatile, aux5);
+
+		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+
 		int pos = pathVolatile.lastIndexOf(File.separator);
 		String pathBase = pathVolatile.substring(0, pos);
 		String pathLesione = pathBase + File.separator + "FegatoSenzaLesioni.txt";
 		Utility.logEnd(pathVolatile);
 		Utility.logMove(pathLesione, pathVolatile);
 		Utility.logInit(pathVolatile);
-
-
 
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§

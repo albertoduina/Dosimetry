@@ -1,93 +1,140 @@
+---- INIZIO ---------
 #000#	-- SOMMINISTRAZIONE --
-#001#	Data= 05-01-2023
-#002#	Ora= 22:00:00
-#003#	----------- tre --------
-#004#	----------- quattro --------
-#005#	----------- cinque --------
-#006#	----------- sei --------
-#007#	----------- sette --------
-#010#	AA ---- IMAGE INFO 24h ----
-#011#	AA Image Name= TOMOaddome24h_EM001_DS.dcm
-#012#	AA Acquisition Date= 20220818
-#013#	AA Acquisition Time= 151722.00
-#014#	AA Isotope=  Lu177 SC[208 and 166] 
-#015#	AA Collimator=  MEGP
-#016#	AA Number of frames=  60
-#017#	AA Actual frame duration=  20000 
-#018#	AA Acquisition duration= 1200
-#019#	AA DeltaT= -3367.710485277778
-#030#	AA ---- IMAGE INFO 48h ----
-#010#	BB ---- IMAGE INFO 24h ----
-#011#	BB Image Name= TOMOaddome24h_EM001_DS.dcm
-#012#	BB Acquisition Date= 20220818
-#013#	BB Acquisition Time= 151722.00
-#014#	BB Isotope=  Lu177 SC[208 and 166] 
-#015#	BB Collimator=  MEGP
-#016#	BB Number of frames=  60
-#017#	BB Actual frame duration=  20000 
-#018#	BB Acquisition duration= 1200
-#019#	BB DeltaT= -3367.710485277778
-#030#	BB ---- IMAGE INFO 48h ----
-#010#	CC ---- IMAGE INFO 24h ----
-#011#	CC Image Name= TOMOaddome24h_EM001_DS.dcm
-#012#	CC Acquisition Date= 20220818
-#013#	CC Acquisition Time= 151722.00
-#014#	CC Isotope=  Lu177 SC[208 and 166] 
-#015#	CC Collimator=  MEGP
-#016#	CC Number of frames=  60
-#017#	CC Actual frame duration=  20000 
-#018#	CC Acquisition duration= 1200
-#019#	CC DeltaT= -3367.710485277778
-#030#	CC ---- IMAGE INFO 48h ----
+#001#	DateTime administration= 17-08-2022 10:00:00
+#002#	Dummy
+#003#	Activity= 5.678
+#010#	---- IMAGE INFO 24h ----
+#011#	Image Name= TOMOaddome24h_EM001_DS.dcm
+#012#	Acquisition DateTime= 18-08-2022 15:17:22
+#013#	Dummy
+#014#	Isotope=  Lu177 SC[208 and 166] 
+#015#	Collimator=  MEGP
+#016#	Number of frames=  60
+#017#	Actual frame duration=  20000 
+#018#	Acquisition duration= 1200
+#019#	DeltaT= 29.289458888888888
+#030#	---- IMAGE INFO 48h ----
 #031#	Image Name= TOMOaddome48h_EM001_DS.dcm
-#032#	Acquisition Date= 20220819
-#033#	Acquisition Time= 154103.00
+#032#	Acquisition DateTime= 19-08-2022 15:41:03
+#033#	Dummy
 #034#	Isotope=  Lu177 SC[208 and 166] 
 #035#	Collimator=  MEGP
 #036#	Number of frames=  60
 #037#	Actual frame duration=  25000 
 #038#	Acquisition duration= 1500
-#039#	DeltaT= -3343.3156908333335
+#039#	DeltaT= 53.68418638888889
 #050#	---- IMAGE INFO 120h ----
 #051#	Image Name= TOMOaddome120h_EM001_DS.dcm
-#052#	Acquisition Date= 20220822
-#053#	Acquisition Time= 142301.00
+#052#	Acquisition DateTime= 22-08-2022 14:23:01
+#053#	Dummy
 #054#	Isotope=  Lu177 SC[208 and 166] 
 #055#	Collimator=  MEGP
 #056#	Number of frames=  60
 #057#	Actual frame duration=  30000 
 #058#	Acquisition duration= 1800
-#059#	DeltaT= -3272.6162058333334
+#059#	DeltaT= 124.38363444444444
 #100#	--- PATIENT INFO 24h ---
 #101#	Patient MachineName=  COVTI^GIAN CAVLO
-#102#	Patient birth date=  19470623
+#102#	Patient ID=  P10776224 
+#103#	Patient birth date=  19470623
+#104#	Patient sex=  M 
 #113#	--- DOSIMETRY INFO 24h ---
 #114#	Maximum lesion count= 353
 #115#	Contouring threshold level= 0.4
 #116#	Contouring count threshold level= 141
 #117#	Processed Slices Position= 94 (92-100)
-#118#	Pet-Ct Viewer slice= 35 (37-29)
-#119#	Pixel number over threshold= 416
-#120#	Over threshold count integral= 89723
+#118#	FROM IJ Section= 92
+#119#	TO IJ Section= 100
+#120#	Pet-Ct Viewer slice= 35 (37-29)
+#121#	Pixel number over threshold= 416
+#122#	Over threshold count integral= 89723
 #130#	--- PATIENT INFO 48h ---
 #131#	Patient MachineName=  COSTI^GIAN CARLO
-#132#	Patient birth date=  19470623
+#132#	Patient ID=  P10776224 
+#133#	Patient birth date=  19470623
+#134#	Patient sex=  M 
 #143#	--- DOSIMETRY INFO 48h ---
 #144#	Maximum lesion count= 400
 #145#	Contouring threshold level= 0.4
 #146#	Contouring count threshold level= 160
 #147#	Processed Slices Position= 93 (92-98)
-#148#	Pet-Ct Viewer slice= 36 (37-31)
-#149#	Pixel number over threshold= 213
-#150#	Over threshold count integral= 53511
+#148#	FROM IJ Section= 92
+#149#	TO IJ Section= 98
+#150#	Pet-Ct Viewer slice= 36 (37-31)
+#151#	Pixel number over threshold= 213
+#152#	Over threshold count integral= 53511
 #160#	--- PATIENT INFO 120h ---
 #161#	Patient MachineName=  COSTI^GIAN CARLO
-#162#	Patient birth date=  19470623
+#162#	Patient ID=  P10776224 
+#163#	Patient birth date=  19470623
+#164#	Patient sex=  M 
 #173#	--- DOSIMETRY INFO 120h ---
 #174#	Maximum lesion count= 327
 #175#	Contouring threshold level= 0.4
 #176#	Contouring count threshold level= 130
 #177#	Processed Slices Position= 93 (92-96)
-#178#	Pet-Ct Viewer slice= 36 (37-33)
-#179#	Pixel number over threshold= 106
-#180#	Over threshold count integral= 21935
+#178#	FROM IJ Section= 92
+#179#	TO IJ Section= 96
+#180#	Pet-Ct Viewer slice= 36 (37-33)
+#181#	Pixel number over threshold= 106
+#182#	Over threshold count integral= 21935
+#194#	----- POINT SELECTION ------------------
+#195#	 Selezionati i punti 24h= true 48h= true 120h= true
+#130#	--- PATIENT INFO 48h ---
+#131#	Patient MachineName=  COSTI^GIAN CARLO
+#132#	Patient ID=  P10776224 
+#133#	Patient birth date=  19470623
+#134#	Patient sex=  M 
+#143#	--- DOSIMETRY INFO 48h ---
+#144#	Maximum lesion count= 400
+#145#	Contouring threshold level= 0.4
+#146#	Contouring count threshold level= 160
+#147#	Processed Slices Position= 93 (92-98)
+#148#	FROM IJ Section= 92
+#149#	TO IJ Section= 98
+#150#	Pet-Ct Viewer slice= 36 (37-31)
+#151#	Pixel number over threshold= 213
+#152#	Over threshold count integral= 53511
+#194#	----- POINT SELECTION ------------------
+#200#	---- MIRD CALCULATION 24h ----
+#201#	MIRD_vol24= 35.921969407999995
+#202#	MIRD_fatCal24= 2.4061673589366515
+#203#	MIRD_attiv24= 31.07396764774879
+#220#	---- MIRD CALCULATION 48h ----
+#221#	MIRD_vol48= 18.392739144
+#222#	MIRD_fatCal48= 2.163212248809656
+#223#	MIRD_attiv48= 16.491215792454124
+#240#	---- MIRD CALCULATION 120h ----
+#241#	MIRD_vol120= 9.153194127999999
+#242#	MIRD_fatCal120= 1.9533934648844176
+#243#	MIRD_attiv120= 6.2384313914105185
+#270#	----- MIRD FIT RESULTS FLANAGAN --------
+#271#	MIRD FLANAGAN FIT param 0= 55.39898299948586
+#272#	MIRD FLANAGAN FIT param 1= 0.02064129284784154
+#273#	MIRD FIT R^2= 0.9748113755273121
+#300#	---TRE PUNTI SELEZIONATI ELABORATI CON FLANAGAN------
+#301#	parametro A= 55.39898299948586
+#302#	parametro a= 0.02064129284784154
+#303#	mAtilde= 2683.8911403400266
+#304#	disintegrazioni= 26.838911403400267
+#305#	uptake[%]= 9.756777562431465
+#306#	massa= 21.155967559999997
+#307#	tmezzo= 33.58060881503494
+#308#	tau= 472.6824833286415
+#309#	dose= 11.079224536154243
+#310#	--------- CALCOLO ERRORI ----------
+#311#	errore SA= 12.79491338030433
+#312#	errore Sa= 0.005856765299312808
+#313#	SmAtilde= 981.918162366782
+#314#	S# disintegrazioni= 9.81918162366782
+#315#	Suptake= 2.253419052536867
+#316#	Smassa= 13.596632154950253
+#317#	Stmezzo= 9.528169862589815
+#318#	Stau= 172.93380809559386
+#319#	Sdose= 5.590326757805066
+#500#	-------- CALCOLO DOSE -----------
+#501#	Utility.MIRD_calcoloDose s1= 0.9748113755273121
+#502#	Utility.MIRD_calcoloDose s2= 4.25
+#503#	Utility.MIRD_calcoloDose m1= 2.14
+#504#	Utility.MIRD_calcoloDose m2= 20.0
+#505#	Utility.MIRD_calcoloDose massa= 21.155967559999997

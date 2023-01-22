@@ -135,24 +135,36 @@ public class Utility {
 			}
 			file1.close();
 			new File(path1).delete();
+			//
 			// questo si chiama ALGORITMO DEL TROGLODITA, IN QUESTO CASO UN INGENNIERE BRAO
-			// FESS avrebbe usato una HashList
+			// FESS avrebbe usato una HashList, ma modestamente nel far cazzate non mi batte
+			// nessuno, infatti questa routine sbaglia spudoratamente !!
+			//
+			boolean dupe = false;
 			for (int i1 = inArrayList.size() - 1; i1 >= 0; i1--) {
+				// partendo dal fondo leggo riga per riga
 				line2 = inArrayList.get(i1);
 				tag1 = line2.substring(0, 5);
-				boolean dupe = false;
+				dupe = false;
 				for (String line3 : outArrayList) {
+					// leggo i tag di tutte le linee gia'presenti nell'array di output
 					tag2 = line3.substring(0, 5);
 					if (tag1.equals(tag2)) {
+						// se i tag sono uguali evviva, abbiamo un duplicato!
 						dupe = true;
 					}
 				}
 				if (!dupe) {
+					// se non ho per le mani duplicato lo scrivo nell'array di output, che in questo
+					// modo viene scritto all'incontrario!
 					outArrayList.add(line2);
 				}
 			}
+			
+			
 			BufferedWriter out = new BufferedWriter(new FileWriter(path1, true));
 			for (int i1 = outArrayList.size() - 1; i1 >= 0; i1--) {
+				// in questo modo ribalto l'array di output
 				line4 = outArrayList.get(i1);
 				out.write(line4);
 				out.newLine();
@@ -212,7 +224,6 @@ public class Utility {
 	 * @param newline
 	 */
 	public static void logRemoveLine(String path1, String tag) {
-		
 
 		boolean ok = false;
 		try {
@@ -285,7 +296,6 @@ public class Utility {
 
 	}
 
-	
 //	public static void logRewrite(String pathSorgente, String pathDestinazione) {
 //
 //		BufferedWriter out;
@@ -300,9 +310,6 @@ public class Utility {
 //
 //	}
 
-	
-	
-	
 	/**
 	 * Lettura di un tag dal log
 	 * 
@@ -1402,18 +1409,19 @@ public class Utility {
 	}
 
 	/**
-	 * Calcolo di vari valori
+	 * Calcolo di vari valori dosimetrici
 	 * 
 	 * @param params
 	 * @param errors
+	 * @param Rsquared     serve solo per riportarlo in uscita
 	 * @param vol24
 	 * @param vol48
 	 * @param vol120
 	 * @param pathVolatile
 	 * @return
 	 */
-	static double[] blaBla(double[] params, double[] errors, double vol24, double vol48, double vol120,
-			String pathVolatile) {
+	static double[] calcoliDosimetrici(double[] params, double[] errors, double Rsquared, double vol24, double vol48,
+			double vol120, String pathVolatile) {
 
 		double[] vetVol = new double[3];
 		vetVol[0] = vol24;
@@ -1450,7 +1458,7 @@ public class Utility {
 
 			Stmezzo = (Math.log(2) * Sa) / Math.pow(aa, 2);
 			Stau = SmAtilde / somministrata;
-
+			MyLog.here("flanagan errors");
 		}
 
 		double[] vetDose = MIRD_calcoloDose(massa, mAtilde, SmAtilde, Smassa, pathVolatile);
@@ -1468,7 +1476,7 @@ public class Utility {
 		MyLog.log("dose= " + vetDose[0]);
 		MyLog.log("Sdose= " + vetDose[1]);
 
-		double[] out1 = new double[18];
+		double[] out1 = new double[23];
 		out1[0] = AA;
 		out1[1] = aa;
 		out1[2] = SA;
@@ -1487,6 +1495,11 @@ public class Utility {
 		out1[15] = Stau;
 		out1[16] = vetDose[0];
 		out1[17] = vetDose[1];
+		out1[18] = Rsquared;
+		out1[19] = vetDose[2]; // s1;
+		out1[20] = vetDose[3]; // s2;
+		out1[21] = vetDose[4]; // m1;
+		out1[22] = vetDose[5]; // m2;
 
 		return out1;
 	}
@@ -1560,10 +1573,13 @@ public class Utility {
 	}
 
 	/**
-	 * Calcolo delta T in millisecondi
+	 * Calcolo della dose e scrittura risultati nel file di log
 	 * 
-	 * @param dateTime0
-	 * @param dateTime24
+	 * @param massa
+	 * @param mAtilde
+	 * @param SmAtilde
+	 * @param Smassa
+	 * @param pathVolatile
 	 * @return
 	 */
 	static double[] MIRD_calcoloDose(double massa, double mAtilde, double SmAtilde, double Smassa,
@@ -1593,25 +1609,24 @@ public class Utility {
 				break;
 			}
 		}
-		// per trovare la dose faccio una interpolazione lineare, comunque la
-		// moltiplicazione tra mAtilde ed il resto, nelle formule di word non c'era,
-		// c'erano solo le parentesi quadre, come se mAtilde fosse un vettore. BOH
+
+		// per trovare la dose faccio una interpolazione lineare,
 
 		double dose = (mAtilde / 1000) * (((s2 - s1) / (m2 - m1)) * (massa - m1) + s1);
 
-		int count5 = 500;
-		String aux5 = "#" + String.format("%03d", count5++) + "#\t-------- CALCOLO DOSE -----------";
-		Utility.logAppend(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose s1= " + s1;
-		Utility.logAppend(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose s2= " + s2;
-		Utility.logAppend(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose m1= " + m1;
-		Utility.logAppend(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose m2= " + m2;
-		Utility.logAppend(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose massa= " + massa;
-		Utility.logAppend(pathVolatile, aux5);
+//		int count5 = 500;
+//		String aux5 = "#" + String.format("%03d", count5++) + "#\t-------- CALCOLO DOSE -----------";
+//		Utility.logAppend(pathVolatile, aux5);
+//		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose s1= " + s1;
+//		Utility.logAppend(pathVolatile, aux5);
+//		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose s2= " + s2;
+//		Utility.logAppend(pathVolatile, aux5);
+//		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose m1= " + m1;
+//		Utility.logAppend(pathVolatile, aux5);
+//		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose m2= " + m2;
+//		Utility.logAppend(pathVolatile, aux5);
+//		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose massa= " + massa;
+//		Utility.logAppend(pathVolatile, aux5);
 
 		double Sdose = Double.NaN;
 
@@ -1620,12 +1635,22 @@ public class Utility {
 					+ Math.pow((mAtilde / 1000) * ((s2 - s1) / (m2 - m1)) * Smassa, 2));
 
 		}
-		double[] out1 = new double[2];
+		double[] out1 = new double[6];
 		out1[0] = dose;
 		out1[1] = Sdose;
+		out1[2] = s1;
+		out1[3] = s2;
+		out1[4] = m1;
+		out1[5] = m2;
+
 		return out1;
 	}
 
+	/**
+	 * Chiude le immagini di plot, utilizzandone il titolo
+	 * 
+	 * @param title
+	 */
 	public static void closePlot(String title) {
 		String[] vetNames = WindowManager.getImageTitles();
 		for (int i1 = 0; i1 < vetNames.length; i1++) {
@@ -1677,7 +1702,7 @@ public class Utility {
 		GenericDialog gd1 = new GenericDialog("FM02 - AltreLesioni");
 		gd1.addMessage("Ci sono altre lesioni nel fegato?", titleFont);
 		gd1.setFont(defaultFont);
-		gd1.enableYesNoCancel( "ALTRE LESIONI", "FINITE");
+		gd1.enableYesNoCancel("ALTRE LESIONI", "FINITE");
 
 		gd1.setCancelLabel("Cancel");
 		gd1.showDialog();
@@ -1694,9 +1719,16 @@ public class Utility {
 
 	}
 
+	/**
+	 * Utilizzato per abilitare il flag per la stampa di IJ.log solo sul mio PC, per
+	 * il resto degli utenti la parola d'ordine e' OMERTA'
+	 * 
+	 * @return
+	 */
 	public static boolean stampa() {
 
-		if (System.getProperty("user.name").equals("Alberto")) {
+		String username = System.getProperty("user.name");
+		if (username.equals("Alberto")) {
 			return true;
 		} else {
 			return false;

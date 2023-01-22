@@ -55,7 +55,7 @@ import ij.util.FontUtil;
  * @author
  * @since 05 dec 2022
  */
-public class Dosimetria_Lu177OLD implements PlugIn {
+public class Dosimetria_Lu177_OLD implements PlugIn {
 
 	static String fontStyle = "Arial";
 	static Font defaultFont = FontUtil.getFont(fontStyle, Font.PLAIN, 13);
@@ -83,7 +83,6 @@ public class Dosimetria_Lu177OLD implements PlugIn {
 	static String pathVolatile;
 	static String[] arrayOfString = { "24h", "48h", "120h" };
 	String format1 = "dd-MM-yyyy HH:mm:ss";
-	
 
 	public void run(String paramString) {
 
@@ -92,8 +91,6 @@ public class Dosimetria_Lu177OLD implements PlugIn {
 		pathVolatile = desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
 		desktopDosimetryFolderPath = desktopPath + File.separator + "DosimetryFolder";
 		desktopImagesSubfolderPath = desktopDosimetryFolderPath + File.separator + "ImagesFolder";
-
-		
 
 		String petctviewerTitle = "";
 		Double activitySomministrazione;
@@ -685,7 +682,8 @@ public class Dosimetria_Lu177OLD implements PlugIn {
 					fitGoodnessIJ = cf.getFitGoodness();
 					rSquaredIJ = cf.getRSquared();
 
-					out2 = Utility.blaBla(paramsIJ, null, MIRD_vol24, MIRD_vol48, MIRD_vol120, pathVolatile);
+					out2 = Utility.calcoliDosimetrici(paramsIJ, null, rSquaredIJ, MIRD_vol24, MIRD_vol48, MIRD_vol120,
+							pathVolatile);
 
 					AA = out2[0];
 					aa = out2[1];
@@ -749,7 +747,8 @@ public class Dosimetria_Lu177OLD implements PlugIn {
 					double[] errorsFLA = rf.getBestEstimatesErrors();
 					errorsFLA = Utility.vetReverser(errorsFLA);
 
-					out2 = Utility.blaBla(paramsFLA, errorsFLA, MIRD_vol24, MIRD_vol48, MIRD_vol120, pathVolatile);
+					out2 = Utility.calcoliDosimetrici(paramsFLA, errorsFLA, rSquaredFLA, MIRD_vol24, MIRD_vol48,
+							MIRD_vol120, pathVolatile);
 
 					AA = out2[0];
 					aa = out2[1];
@@ -864,15 +863,13 @@ public class Dosimetria_Lu177OLD implements PlugIn {
 			}
 
 		} while (decis1 != 2);
-		
-		
+
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		
 
 		// ================= POSTSCRITTURA ===========================================
 		// UNA VOLTA CHE L'OPERATORE HA DETTO SI, SCRIVIAMO TUTTA LA MONNEZZA IN
@@ -1576,7 +1573,6 @@ public class Dosimetria_Lu177OLD implements PlugIn {
 		return DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.US).format(inDate);
 	}
 
-
 	/**
 	 * Dialogo inserimento dati iniezione
 	 * 
@@ -1947,7 +1943,8 @@ public class Dosimetria_Lu177OLD implements PlugIn {
 						try {
 							copyDirectory(file5, file6);
 						} catch (Exception exception) {
-							Utility.dialogErrorMessage_LP06("An Error occurred while coping CT images. Please try again!");
+							Utility.dialogErrorMessage_LP06(
+									"An Error occurred while coping CT images. Please try again!");
 							return;
 						}
 					} else if (file5.getName().contains("EM001")) {
@@ -1955,7 +1952,8 @@ public class Dosimetria_Lu177OLD implements PlugIn {
 					}
 				}
 			} else {
-				Utility.dialogErrorMessage_LP06("It was not possible to import files for " + arrayOfString[b2] + " folder.");
+				Utility.dialogErrorMessage_LP06(
+						"It was not possible to import files for " + arrayOfString[b2] + " folder.");
 			}
 
 		}

@@ -13,6 +13,7 @@
 #017#	Actual frame duration=  20000 
 #018#	Acquisition duration= 1200
 #019#	DeltaT= -3336.127214722222
+#030#	---- IMAGE INFO 48h ----
 #031#	Image Name= TOMOaddome48h_EM001_DS.dcm
 #032#	Acquisition Date= 20220819
 #033#	Acquisition Time= 154103.00
@@ -40,3 +41,4 @@
 #903#	ok120= true
 #904#	okk= true
 ---- FINE ---------
+#730# MODIFICATO (AGGIUNTO)

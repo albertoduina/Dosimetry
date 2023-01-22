@@ -1,12 +1,11 @@
 package Dosimetry;
 
+import java.util.ArrayList;
+
 import ij.IJ;
 import ij.gui.WaitForUserDialog;
 
 public class MyLog {
-
-	
-	
 
 	public static void here() {
 		IJ.log("file=" + Thread.currentThread().getStackTrace()[2].getFileName() + " " + "line="
@@ -36,6 +35,18 @@ public class MyLog {
 	public static void log(String str) {
 		if (Utility.stampa())
 			IJ.log(str);
+	}
+
+	public static void logArrayList(ArrayList<String> arrList) {
+		if (arrList == null) {
+			IJ.log("Warning vector = null");
+		} else {
+			IJ.log("----------- [ " + arrList.size() + " ] -----------");
+			for (int j1 = 0; j1 < arrList.size(); j1++) {
+				IJ.log(arrList.get(j1));
+			}
+			IJ.log("---------------------------------------------");
+		}
 	}
 
 }
