@@ -555,7 +555,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 				Utility.logEnd(pathPermanente);
 
 			// ==========================================================================================
-			// PARTE GRAFICA EDDECCHE ????
+			// Elaborazione 24/48/120h
 			// ==========================================================================================
 
 			// 24h
@@ -612,9 +612,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 																							// integral
 			out120 = Utility.MIRD_point(in1);
 
-//			int count5 = 194;
-//			aux5 = "#" + String.format("%03d", count5++) + "#\t----- POINT SELECTION ------------------";
-//			Utility.logAppend(pathVolatile, aux5);
 
 			MIRD_vol120 = out120[0];
 			MIRD_fatCal120 = out120[1];
@@ -641,22 +638,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 			// Mostro i 3 volumi calcolati ed i punti, senza fit, in modo che, con LP33
 			// venga scelto l'eventuale punto da togliere
-//			double[] vetInput = new double[14];
-//
-//			vetInput[0] = MIRD_vol24;
-//			vetInput[1] = MIRD_vol48;
-//			vetInput[2] = MIRD_vol120;
-//			vetInput[3] = uptake;
-//			vetInput[4] = massa;
-//			vetInput[5] = tmezzo;
-//			vetInput[6] = dose;
-//			vetInput[7] = 0;
-//			vetInput[8] = 0;
-//			vetInput[9] = 0;
-//			vetInput[10] = Suptake;
-//			vetInput[11] = Smassa;
-//			vetInput[12] = Stmezzo;
-//			vetInput[13] = Sdose;
 			double[] vetInput = null;
 
 			MIRD_display_LP66(MIRD_vol24, MIRD_vol48, MIRD_vol120);
@@ -780,14 +761,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 		// ================= POSTSCRITTURA ===========================================
 		// UNA VOLTA CHE L'OPERATORE HA DETTO SI, SCRIVIAMO TUTTA LA MONNEZZA IN
-		// VOLATILE, IN ATTESA DI CONOSCERE IL NOME CHE DARANNO ALLA LESIONE
+		// VOLATILE, IN ATTESA DI BATTEZZARE LA LESIONE
 		// ============================================================================
 
 		if (Double.isNaN(SmAtilde))
@@ -916,32 +893,17 @@ public class Dosimetria_Lu177 implements PlugIn {
 		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose massa= " + massa;
 		Utility.logAppend(pathVolatile, aux5);
 
-		// }
-
-//		if (rf != null) {
-//
-//			Utility.blaBla(rf, pathVolatile);
-//
-//		}
 		// ==============================================================
 		// BATTESIMO DELLA LESIONE
 		// ==============================================================
 		
-		
-		Utility.logDedupe(pathVolatile);
-		
+		Utility.logDedupe(pathVolatile);   // ELIMINAZIONE DOPPIONI
 		
 		Utility.dialogBattezzaLesioni_LP27(pathVolatile);
 		Utility.chiudiTutto();
 		IJ.showMessage("FINE LAVORO");
 	}
 
-	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -1016,7 +978,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 	 */
 
 	ImagePlus readStackFiles(String myPath) {
-		int j, k, n0, n, width = -1, height = 0, depth = 0, samplePerPixel = 0;
+		int j, k, n0, width = -1, height = 0, depth = 0, samplePerPixel = 0;
+//		int n;
 		int bad = 0, fails = 0;
 		Opener opener;
 		ImagePlus imp, imp2 = null;
@@ -1024,9 +987,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 		Calibration cal = null;
 		double min, max, progVal;
 		FileInfo fi = null;
-		String parName, flName, info, label1, tmp;
-		String[] frameText = null;
-		ArrayList<ImagePlus> imgList = null;
+		String flName, info, label1, tmp;
+//		String parName;
+//		String[] frameText = null;
+//		ArrayList<ImagePlus> imgList = null;
 		String mytitle = "";
 		// BI_dbSaveInfo curr1 = null;
 
@@ -1045,23 +1009,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 			isDicomImage(flName);
 		}
 
-//		if(currRow.flList != null && !currRow.flList.isEmpty()) {
-//			results = new File[currRow.flList.size()];
-//			currRow.flList.toArray(results);
-//		}
 		n0 = results.length;
-		// look for graphics files
-//		if( n0 <= 4) for( j = 0; j < n0; j++) {
-//			opener = new Opener();
-//			flName = results[j].getPath();
-//			k = opener.getFileType(flName);
-//			if( k == Opener.UNKNOWN || k == Opener.TEXT) bad++;
-//		}
 
-		// BI_dbSaveInfo fa riferimento alle immagini
-		// immagazzinate sul loro database ospedaliero
 		for (j = 1; j <= n0; j++) {
-//			curr1 = new BI_dbSaveInfo();
 			progVal = ((double) j) / n0;
 			IJ.showStatus(j + "/" + n0);
 			IJ.showProgress(progVal);
@@ -1074,29 +1024,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 			if (tmp.equalsIgnoreCase("dirfile"))
 				continue;
 			k = opener.getFileType(flName);
-//			if( k == Opener.UNKNOWN || k == Opener.TEXT) {
-//				if( tmp.startsWith("graphic") && tmp.endsWith("gr1")) {
-//					frameText = ChoosePetCt.getFrameText(flName);
-//				}
-//				continue;
-//			}
-//			tmp = currRow.dicomDirPath;
-//			curr1.isDicomDir = (tmp != null && !tmp.isEmpty());
-//			curr1.flName = checkEmpty;
-//			curr1.patName = currRow.patName;
-//			curr1.patID = currRow.patID;
-//			curr1.styName = currRow.styName;
-//			curr1.serName = currRow.serName;
-//			curr1.styDate = currRow.styDate;
-//			curr1.accession = currRow.accession;
 			opener.setSilentMode(true);
 			imp = opener.openImage(flName);
 			if (imp == null) {
 				fails++;
 				if (fails > 2) {
-//					tmp = "Cannot read this data.\n";
-//					tmp += "For Bio-Formats data, use Import -> Bio-Formats";
-//					JOptionPane.showMessageDialog(this, tmp);
 					IJ.showProgress(1.0);
 					return null;
 				}
@@ -1106,8 +1038,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 			mytitle = imp.getTitle();
 
 			k = Utility.parseInt(DicomTools.getTag(imp, "0028,0002"));
-
-//			k = ChoosePetCt.parseInt(ChoosePetCt.getDicomValue(info, "0028,0002"));
 			if (stack == null) {
 				samplePerPixel = k;
 				width = imp.getWidth();
@@ -1121,10 +1051,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 			if ((depth > 1 && n0 > 1) || width != imp.getWidth() || height != imp.getHeight() || k != samplePerPixel) {
 				if (k <= 0)
 					continue;
-//				imp.setProperty("bidb", curr1);
-				// imp.show(); // show a normal stack
-				// imgList.add(imp);
-//				curr1 = null;
 				stack = null;
 				depth = 0;
 				continue;
@@ -1153,10 +1079,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 				fi.fileName = "";
 				fi.directory = "";
 			}
-//			imp2 = new ImagePlus(getTitleInfo(currRow), stack);
 			imp2 = new ImagePlus(mytitle, stack);
 			imp2.getProcessor().setMinAndMax(min, max);
-//			imp2.setProperty("bidb", curr1);
 			if (n0 == 1 + bad || depth > 1)
 				imp2.setProperty("Info", info);
 			if (fi != null)
@@ -1165,24 +1089,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 			if (voxelDepth > 0.0 && cal != null)
 				cal.pixelDepth = voxelDepth;
 			imp2.setCalibration(cal);
-//			if (frameText != null)
-//				for (j = 0; j < frameText.length; j++) {
-//					label1 = frameText[j];
-//					if (label1 != null) {
-//						int i1 = j + 1;
-//						tmp = stack.getSliceLabel(i1);
-//						if (tmp != null) {
-//							// the slices are counted from the bottom up
-//							i1 = stack.getSize() - j;
-//							tmp = stack.getSliceLabel(i1);
-//							label1 += "\n" + tmp;
-//						}
-//						stack.setSliceLabel(label1, i1);
-//					}
-//				}
-//			imp2 = myMakeMontage(imp2, info, frameText != null, stack.getSize());
-//			imgList.add(imp2); // keep track of images loaded
-
 		}
 		IJ.showProgress(1.0);
 		return imp2;
@@ -1234,37 +1140,25 @@ public class Dosimetria_Lu177 implements PlugIn {
 	 */
 	static String stringaLaboriosa(String meta) {
 
-// 		dobbiamo usare l'immagine corretta, in quella taroccata dovrebbe chiamarsi CAVLO
 		m_patName = compressPatName(getDicomValue(meta, "0010,0010"));
 		String aux1 = "#600#\tm_patname= " + m_patName;
 		Utility.logAppend(pathPermanente, aux1);
-//		Utility.appendLog(pathVolatile, aux1);
-//		Utility.debugDeiPoveri("ciprovo");
-
-//		MyLog.log("m_patName >>>> CAVLO= " + m_patName);
 		String tmp = getDicomValue(meta, "0010,0030");
-//		MyLog.log("getDateTime: date= " + tmp + " time=" + null);
-
 		m_patBirthday = getDateTime(tmp, null);
-//		MyLog.log("m_patBirthday= " + m_patBirthday);
 		if (m_patBirthday != null) {
 			long sdyTime, birthTime, currDiff;
 			Integer years;
 			int type2 = -1;
 			Date studyDateTime = getStudyDateTime(meta, type2);
 			sdyTime = studyDateTime.getTime();
-//			sdyTime = getStudyDate().getTime();
 			birthTime = m_patBirthday.getTime();
 			currDiff = (sdyTime - birthTime) / (24 * 60 * 60 * 1000); // number of days
 			years = (int) (currDiff / 365.242199);
 			m_patYears = years.toString() + "y";
 		}
-//		MyLog.log("m_patYears= " + m_patYears);
 		m_patID = compressID(getDicomValue(meta, "0010,0020"));
-//		MyLog.log("m_patID= " + m_patID);
 		int type3 = -1;
 		Date studyDateTime1 = getStudyDateTime(meta, type3);
-//		MyLog.log("type3= " + type3 + " studyDateTime= " + studyDateTime1.toString());
 		m_serDate = UsaDateFormat(studyDateTime1);
 		m_styName = getDicomValue(meta, "0008,1030");
 		petSeriesName = getDicomValue(meta, "0008,103E");
@@ -1510,7 +1404,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		String ora0;
 		Double activity0;
 		String activity1;
-		boolean inputDebugMode = false;
 
 		MyLog.log("LP04 start");
 		GenericDialog gd11 = new GenericDialog("LP04 - Date/Time/Activity");
@@ -1619,8 +1512,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		GenericDialog conf11 = new GenericDialog("LP10 - CONFERMA DATI INSERITI");
 
-		conf11.addMessage("CONFERMA DATI SOMMINISTRAZIONE", this.titleFont);
-		conf11.setFont(this.defaultFont);
+		conf11.addMessage("CONFERMA DATI SOMMINISTRAZIONE", titleFont);
+		conf11.setFont(defaultFont);
 		conf11.addMessage("Data " + data11 + "   [dd-mm-yyyy]");
 		conf11.addMessage("Ora " + ora11 + "   [hh:mm:ss]");
 		conf11.addMessage("Attivita' introdotta " + activity11 + "   [MBq]");
@@ -1949,7 +1842,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		nonBlockingGenericDialog.setFont(defaultFont);
 		nonBlockingGenericDialog.addMessage(
 				"Attenzione: in DosimetryFolder sul Desktop ci sono le immagini \n" + str20[0] + " di " + str20[1],
-				this.defaultFont);
+				defaultFont);
 		nonBlockingGenericDialog.setCancelLabel("CONTINUA CON ALTRE LESIONI");
 		nonBlockingGenericDialog.setOKLabel("PASSA A NUOVO PAZIENTE");
 		nonBlockingGenericDialog.showDialog();

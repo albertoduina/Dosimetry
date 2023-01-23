@@ -104,6 +104,11 @@ public class Fegato_MIRD implements PlugIn {
 
 	}
 
+	/**
+	 * Elaborazione dei valori immagini fegato, ricavati unicamente dai log
+	 * 
+	 * @param arrLesioni lista delle lesioni, la posizione zero e' il fegato in toto
+	 */
 	public void anaLiver(ArrayList<String> arrLesioni) {
 
 		String aux1 = "";
@@ -203,7 +208,7 @@ public class Fegato_MIRD implements PlugIn {
 		
 		
 		// ==========================================================================================
-		// PARTE GRAFICA EDDECCHE ????
+		// PARTE relativa alle immagini 24/48/120h
 		// ==========================================================================================
 
 		// 24h

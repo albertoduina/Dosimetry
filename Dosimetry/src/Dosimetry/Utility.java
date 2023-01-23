@@ -225,7 +225,6 @@ public class Utility {
 	 */
 	public static void logRemoveLine(String path1, String tag) {
 
-		boolean ok = false;
 		try {
 			BufferedReader file = new BufferedReader(new FileReader(path1));
 			StringBuffer inputBuffer = new StringBuffer();
@@ -700,7 +699,7 @@ public class Utility {
 
 		double durata = in1[0]; // #018# acquisition duration
 		double conteggio = in1[1]; // #119# // pixel number over threshold
-		double activity = in1[2]; // #003# activity
+//		double activity = in1[2]; // #003# activity
 		double threshold = in1[3]; // #115# contouring threshold level
 		double integral = in1[4]; // #120# over threshold count integral
 
@@ -796,74 +795,8 @@ public class Utility {
 		return cf1;
 	}
 
-	/**
-	 * Calcolo Fit esponenziale
-	 * 
-	 * @param vetX
-	 * @param vetY
-	 */
-	static CurveFitter MIRD_curveFitterSpecialApache(double[] vetX, double[] vetY) {
 
-		MyLog.log("=== CURVE FITTER SPECIAL APACHE ====");
-		List<Point> pList = new ArrayList<Point>();
-		return null;
-	}
 
-//	public static PolynomialFunction getPolynomialFit(List<Point> pList) {
-//		PolynomialFunction result = null;/* from w w w. j a v a 2 s . c o m */
-//		if (pList == null) {
-//			return result;
-//		}
-//		try {
-//
-//			final WeightedObservedPoints obs = new WeightedObservedPoints();
-//			for (Point p : pList) {
-//				obs.add(p.getX(), p.getY());
-//			}
-//
-//			final ParametricUnivariateFunction function = new PolynomialFunction.Parametric();
-//			// Start fit from initial guesses that are far from the optimal
-//			// values.
-//			// final SimpleCurveFitter fitter =
-//			// SimpleCurveFitter.create(function,
-//			// new double[] { -1e20, 3e15, -5e25 });
-//			final SimpleCurveFitter fitter = SimpleCurveFitter.create(function, new double[] { -2e20, 1e15, -1e25 });
-//			// 2e2 ist 2*10^2 = 2*100
-//			final double[] best = fitter.fit(obs.toList());
-//			// System.out.println("Parameters: " + best.length);
-//			// funktion ausgeben
-//			result = new PolynomialFunction(best);
-//		} catch (Exception e) {
-//			// e.printStackTrace();
-//			System.out.println("PolynomialFunction: " + e);
-//		}
-//		return result;
-//	}
-
-	public ArrayList<double[]> fitExponential(double time[], double voltage[]) {
-		// length of time and voltage arrays should be in the power of 2
-//		  double size = time.length;
-//		  double v80 = voltage[0] * 0.8;
-//		  double rc = 0;
-//		  double[] vf = new double[time.length];
-//		  for (int k = 0; k < size - 1; k++) {
-//		    if (voltage[k] < v80) {
-//		      rc = time[k] / .223;
-//		      break;
-//		    }
-//		  }
-//		  double[] initialGuess = new double[]{voltage[0], rc, 0};
-//		  //initialize the optimizer and curve fitter.
-//		  LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
-//		  CurveFitter fitter = new org.apache.commons.math3.fitting.CurveFitter(optimizer);
-//		  for (int i = 0; i < time.length; i++)
-//		    fitter.addObservedPoint(time[i], voltage[i]);
-//		  double[] result = fitter.fit(exponentialParametricUnivariateFunction, initialGuess);    //result -> the fitted parameters.
-//		  for (int i = 0; i < time.length; i++)
-//		    vf[i] = result[0] * exp(-time[i] / result[1]) + result[2];
-//		return new ArrayList<double[]>(Arrays.asList(result, vf));
-		return null;
-	}
 
 	/**
 	 * Calcolo Fit esponenziale
