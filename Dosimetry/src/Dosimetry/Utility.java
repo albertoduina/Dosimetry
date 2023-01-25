@@ -12,6 +12,8 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -1311,7 +1313,7 @@ public class Utility {
 
 		String aux1 = "";
 		double aux2 = 0;
-		aux1 = readFromLog(path, "#001#", "=");
+		aux1 = readFromLog(path, "#002#", "=");
 		if (aux1 == null)
 			return false;
 		if (!Utility.isValidDateTime(aux1, "dd-MM-yyyy HH:mm:ss"))
@@ -1678,6 +1680,21 @@ public class Utility {
 		} else {
 			return false;
 		}
+
+	}
+
+	public static String getJarTitle() {
+
+		String jarName= "unknown";
+		try {
+			String jarPath = Utility.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+			jarName = jarPath.substring(jarPath.lastIndexOf("/") + 1);
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return jarName;
 
 	}
 

@@ -105,6 +105,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 		String aux5 = "";
 		int out1 = 0;
 
+		String IJversion = IJ.getVersion();
+		String JavaVersion = System.getProperty("java.version");
+
+		String jarName = Utility.getJarTitle();
+
 		// ===========================================================
 		// LEGGO CARTELLA DOSIMETRY FOLDER (E SOTTOCARTELLA IMAGES FOLDER)
 		// ===========================================================
@@ -163,15 +168,16 @@ public class Dosimetria_Lu177 implements PlugIn {
 			dataOraSomministrazione = getDateTime(dataToDicom(dataSomministrazione), oraToDicom(oraSomministrazione));
 
 			MyLog.log("NUOVO PAZIENTE, SCRITTURA DATI SOMMINISTRAZIONE SU VOLATILE");
-			Utility.logAppend(pathVolatile, "#000#\t-- SOMMINISTRAZIONE --");
 
 			SimpleDateFormat sdf = new SimpleDateFormat(format1);
 			String myDTT = sdf.format(dataOraSomministrazione);
 
 			String aux1 = "";
-			aux1 = "#001#\tDateTime administration= " + myDTT;
+			aux1 = "#000#\tImagejVersion= " + IJversion + " JavaVersion= " + JavaVersion + " JarName= " + jarName;
 			Utility.logAppend(pathVolatile, aux1);
-			aux1 = "#002#\tDummy";
+			aux1 = "#001#\t-- SOMMINISTRAZIONE --";
+			Utility.logAppend(pathVolatile, aux1);
+			aux1 = "#002#\tDateTime administration= " + myDTT;
 			Utility.logAppend(pathVolatile, aux1);
 			aux1 = "#003#\tActivity= " + activitySomministrazione;
 			Utility.logAppend(pathVolatile, aux1);
@@ -194,7 +200,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			Utility.logCopyRange(pathPermanente, pathVolatile, 0, 3);
 			// copia da permanente a volatile i dati di IMAGE INFO 24-48-120
 			Utility.logCopyRange(pathPermanente, pathVolatile, 10, 60);
-			dataOraSomministrazione = Utility.getDateTime(Utility.readFromLog(pathVolatile, "#001#", "="), format1);
+			dataOraSomministrazione = Utility.getDateTime(Utility.readFromLog(pathVolatile, "#002#", "="), format1);
 			// oraSomministrazione = Utility.readFromLog(pathVolatile, "#002#", "=");
 			activitySomministrazione = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "="));
 //			dataOraSomministrazione = getDateTime(dataToDicom(dataSomministrazione), oraToDicom(oraSomministrazione));
@@ -211,7 +217,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			Utility.logCopyRange(pathPermanente, pathVolatile, 0, 3);
 			// copia da permanente a volatile i dati di IMAGE INFO 24-48-120
 			Utility.logCopyRange(pathPermanente, pathVolatile, 10, 60);
-			dataOraSomministrazione = Utility.getDateTime(Utility.readFromLog(pathVolatile, "#001#", "="), format1);
+			dataOraSomministrazione = Utility.getDateTime(Utility.readFromLog(pathVolatile, "#002#", "="), format1);
 			// oraSomministrazione = Utility.readFromLog(pathVolatile, "#002#", "=");
 			activitySomministrazione = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "="));
 //			dataOraSomministrazione = getDateTime(dataToDicom(dataSomministrazione), oraToDicom(oraSomministrazione));
