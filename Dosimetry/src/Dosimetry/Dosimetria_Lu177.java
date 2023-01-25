@@ -93,9 +93,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 		desktopImagesSubfolderPath = desktopDosimetryFolderPath + File.separator + "ImagesFolder";
 
 		String petctviewerTitle = "";
-		Double activitySomministrazione;
-		String dataSomministrazione;
-		String oraSomministrazione;
+		Double activitySomministrazione = null;
+		String dataSomministrazione = null;
+		String oraSomministrazione = null;
 		Date dataOraSomministrazione = null;
 		boolean nuovoPaziente = false;
 		boolean nuovoDistretto = false;
@@ -155,19 +155,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 			Utility.logDeleteAll(desktopDosimetryFolderPath);
 			Utility.logInit(pathPermanente);
 			Utility.logInit(pathVolatile);
-			String[] datiSomministrazione = null;
-			boolean okDati = false;
-			do {
-				datiSomministrazione = dialogInputDatiSomministrazione_LP04();
-				if (datiSomministrazione == null) {
-					MyLog.log("datiSomministrazione NON PERVENUTI");
-					return;
-				}
-				okDati = dialogConfermaDatiSomministrazione_LP10(datiSomministrazione);
-			} while (!okDati);
-			dataSomministrazione = datiSomministrazione[0];
-			oraSomministrazione = datiSomministrazione[1];
-			activitySomministrazione = Double.parseDouble(datiSomministrazione[2]);
+
+			dataSomministrazione = dialogInputDataSomministrazione_LP11();
+			oraSomministrazione = dialogInputOraSomministrazione_LP12();
+			activitySomministrazione = dialogInputActivitySomministrazione_LP13();
+
 			dataOraSomministrazione = getDateTime(dataToDicom(dataSomministrazione), oraToDicom(oraSomministrazione));
 
 			MyLog.log("NUOVO PAZIENTE, SCRITTURA DATI SOMMINISTRAZIONE SU VOLATILE");
@@ -340,6 +332,19 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// possiamo passare a petCtViewer una stringa con gli UID delle immagini PET e
 		// CT da aprire
 		String seriesUID1 = petUID1 + ", " + ctUID2;
+
+		String aux11 = "";
+		int count55 = 520;
+		aux11 = "#" + String.format("%03d", count55++) + "#\t----------- DEBUG DEBUG DEBUG DEBUG ---------";
+		Utility.logAppend(pathVolatile, aux11);
+
+		aux11 = "#" + String.format("%03d", count55++) + "#\t24h SeriesUID PET_CT_VIEWER= " + seriesUID1;
+		Utility.logAppend(pathVolatile, aux11);
+		aux11 = "#" + String.format("%03d", count55++) + "#\t24h TitlePrimaImmagine= " + imp1.getTitle();
+		Utility.logAppend(pathVolatile, aux11);
+		aux11 = "#" + String.format("%03d", count55++) + "#\t24h TitleSecondaImmagine= " + imp2.getTitle();
+		Utility.logAppend(pathVolatile, aux11);
+
 		IJ.runPlugIn("Pet_Ct_Viewer", seriesUID1);
 		IJ.wait(500);
 
@@ -394,6 +399,14 @@ public class Dosimetria_Lu177 implements PlugIn {
 		ctUID4 = ctUID4.trim();
 
 		String seriesUID3 = petUID3 + ", " + ctUID4;
+		aux11 = "#" + String.format("%03d", count55++) + "#\t48h SeriesUID PET_CT_VIEWER= " + seriesUID3;
+		Utility.logAppend(pathVolatile, aux11);
+
+		aux11 = "#" + String.format("%03d", count55++) + "#\t48h TitlePrimaImmagine= " + imp3.getTitle();
+		Utility.logAppend(pathVolatile, aux11);
+		aux11 = "#" + String.format("%03d", count55++) + "#\t48h TitleSecondaImmagine= " + imp4.getTitle();
+		Utility.logAppend(pathVolatile, aux11);
+
 		IJ.runPlugIn("Pet_Ct_Viewer", seriesUID3);
 		IJ.wait(500);
 
@@ -449,6 +462,14 @@ public class Dosimetria_Lu177 implements PlugIn {
 		ctUID6 = ctUID6.trim();
 
 		String seriesUID5 = petUID5 + ", " + ctUID6;
+		aux11 = "#" + String.format("%03d", count55++) + "#\t120h SeriesUID PET_CT_VIEWER= " + seriesUID5;
+		Utility.logAppend(pathVolatile, aux11);
+
+		aux11 = "#" + String.format("%03d", count55++) + "#\t120h TitlePrimaImmagine= " + imp5.getTitle();
+		Utility.logAppend(pathVolatile, aux11);
+		aux11 = "#" + String.format("%03d", count55++) + "#\t120h TitleSecondaImmagine= " + imp6.getTitle();
+		Utility.logAppend(pathVolatile, aux11);
+
 		IJ.runPlugIn("Pet_Ct_Viewer", seriesUID5);
 		IJ.wait(500);
 
@@ -473,9 +494,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 		boolean solodue = false;
 		// ===========================================================================
 
-		boolean ok = dialogInstructions_LP30();
-		if (!ok)
-			return;
+		// boolean ok = dialogInstructions_LP30();
+		// if (!ok)
+		// return;
 
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		// PUNTO DI INIZIO DEI LOOP DI ELABORAZIONE, FINISCONO SOLO SE E QUANDO I
@@ -612,7 +633,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 																							// integral
 			out120 = Utility.MIRD_point(in1);
 
-
 			MIRD_vol120 = out120[0];
 			MIRD_fatCal120 = out120[1];
 			MIRD_attiv120 = out120[2];
@@ -641,7 +661,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 			double[] vetInput = null;
 
 			MIRD_display_LP66(MIRD_vol24, MIRD_vol48, MIRD_vol120);
-
 
 			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			// QUI TORNO PER PROBLEMI DI FIT DA LP08
@@ -681,7 +700,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 				s2 = vetOut4[19];
 				m1 = vetOut4[20];
 				m2 = vetOut4[21];
-
 
 				vetInput = new double[14];
 
@@ -756,8 +774,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 			}
 
 		} while (decis1 != 2);
-		
-		
 
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -896,9 +912,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// ==============================================================
 		// BATTESIMO DELLA LESIONE
 		// ==============================================================
-		
-		Utility.logDedupe(pathVolatile);   // ELIMINAZIONE DOPPIONI
-		
+
+		Utility.logDedupe(pathVolatile); // ELIMINAZIONE DOPPIONI
+
 		Utility.dialogBattezzaLesioni_LP27(pathVolatile);
 		Utility.chiudiTutto();
 		IJ.showMessage("FINE LAVORO");
@@ -1396,63 +1412,134 @@ public class Dosimetria_Lu177 implements PlugIn {
 	 * 
 	 * @return
 	 */
-	String[] dialogInputDatiSomministrazione_LP04() {
+	String dialogInputDataSomministrazione_LP11() {
 
-		MyLog.log("dialogInputDatiSomministrazione_LP04");
-		String[] out1 = new String[3];
+		MyLog.log("dialogInputDataSomministrazione_LP11");
 		String data0;
-		String ora0;
-		Double activity0;
-		String activity1;
 
-		MyLog.log("LP04 start");
-		GenericDialog gd11 = new GenericDialog("LP04 - Date/Time/Activity");
+		int day;
+		int month;
+		int year;
+		int year4;
+
+		MyLog.log("LP11 start");
+		GenericDialog gd11 = new GenericDialog("LP11 - Date input");
 		gd11.addMessage("Introduci i seguenti dati per il nuovo paziente", titleFont);
 		gd11.setFont(defaultFont);
-		String label11 = "Data [dd-mm-yyyy]";
-		String format11 = "dd-mm-yyyy";
-		int digits11 = 8;
+		String label11 = "Giorno 1-31";
+		String format11 = "0";
+		int digits11 = 4;
 		gd11.addStringField(label11, format11, digits11);
-		String label12 = "Ora [HH:mm:ss]";
-		String format12 = "HH:mm:ss";
-		int digits12 = 8;
-		gd11.addStringField(label12, format12, digits12);
-
-		String label13 = "Attivita' somministrata";
-		double default13 = 0.00;
-		int digits13 = 8;
-		gd11.addNumericField(label13, default13, digits13, 10, "[MBq]");
+		label11 = "Mese 1-12";
+		gd11.addStringField(label11, format11, digits11);
+		label11 = "Anno 23-2023";
+		gd11.addStringField(label11, format11, digits11);
 
 		gd11.setCancelLabel("Cancel");
 		gd11.showDialog();
 		if (gd11.wasCanceled()) {
-			MyLog.log("LP04 null Cancel");
+			MyLog.waitHere("Cancel");
 			return null;
 		}
 
-		data0 = gd11.getNextString();
+		String aux1 = "";
+		day = Utility.parseInt(gd11.getNextString());
+		month = Utility.parseInt(gd11.getNextString());
+		aux1 = gd11.getNextString();
+		year = Utility.parseInt(aux1);
+		if (aux1.length() == 4) {
+			year4 = year;
+		} else {
+			year4 = year + 2000;
+		}
+		// dopo varie prove fidandomi di java, ricostruisco da solo la data nel formato
+		// desiderato, in modo da non avere sgradite sorprese
+		data0 = String.format("%02d", day) + "-" + String.format("%02d", month) + "-" + String.format("%04d", year4);
+		format11 = "dd-MM-yyyy";
 		boolean ok1 = Utility.isValidDate(data0, format11);
-		if (!ok1) {
-			MyLog.log("LP04 null Data sbagliata");
+		if (ok1) {
+			return data0;
+		} else {
+			MyLog.waitHere("LP11 " + data0 + "Data inserita ERRATA");
+			return null;
+		}
+	}
+
+	/**
+	 * Dialogo inserimento dati iniezione
+	 * 
+	 * @return
+	 */
+	String dialogInputOraSomministrazione_LP12() {
+
+		MyLog.log("dialogInputOraSomministrazione_LP12");
+		String ora0;
+
+		int hour;
+		int minute;
+		int second = 0;
+
+		MyLog.log("LP12 start");
+		GenericDialog gd11 = new GenericDialog("LP12 - Hour input");
+		gd11.addMessage("Introduci i seguenti dati per il nuovo paziente", titleFont);
+		gd11.setFont(defaultFont);
+		String label11 = "Ora 1-23";
+		String format11 = "0";
+		int digits11 = 4;
+		gd11.addStringField(label11, format11, digits11);
+		label11 = "Minuto";
+		gd11.addStringField(label11, format11, digits11);
+		gd11.setCancelLabel("Cancel");
+		gd11.showDialog();
+		if (gd11.wasCanceled()) {
+			MyLog.waitHere("Cancel");
 			return null;
 		}
 
-		ora0 = gd11.getNextString();
-		boolean ok2 = Utility.isValidTime(ora0, format12);
-		if (!ok2) {
-			MyLog.log("LP04 null Ora sbagliata");
+		hour = Utility.parseInt(gd11.getNextString());
+		minute = Utility.parseInt(gd11.getNextString());
+		// dopo varie prove fidandomi di java, ricostruisco da solo la data nel formato
+		// desiderato, in modo da non avere sgradite sorprese
+		ora0 = String.format("%02d", hour) + ":" + String.format("%02d", minute) + ":" + String.format("%02d", second);
+		format11 = "HH:mm:ss";
+		boolean ok1 = Utility.isValidDate(ora0, format11);
+		if (ok1) {
+			return ora0;
+		} else {
+			MyLog.waitHere("LP12 " + ora0 + "Ora inserita ERRATA");
 			return null;
 		}
+	}
 
-		activity0 = gd11.getNextNumber();
-		if (activity0 == 0)
-			return null;
-		activity1 = "" + activity0;
-		out1[0] = data0;
-		out1[1] = ora0;
-		out1[2] = activity1;
-		MyLog.log("LP04 end");
-		return out1;
+	/**
+	 * Dialogo inserimento dati iniezione
+	 * 
+	 * @return
+	 */
+	double dialogInputActivitySomministrazione_LP13() {
+
+		MyLog.log("dialogInputActivitySomministrazione_LP13");
+		String activity2;
+
+		double activity1;
+
+		MyLog.log("LP13 start");
+		GenericDialog gd11 = new GenericDialog("LP13 - Activity input");
+		gd11.addMessage("Introduci i seguenti dati per il nuovo paziente", titleFont);
+		gd11.setFont(defaultFont);
+		String label13 = "Attivita' somministrata";
+		double default13 = 0.0;
+		int digits13 = 8;
+		gd11.addNumericField(label13, default13, digits13, 10, "[MBq]");
+		gd11.setCancelLabel("Cancel");
+		gd11.showDialog();
+		if (gd11.wasCanceled()) {
+			MyLog.waitHere("Cancel");
+			return Double.NaN;
+		}
+		activity1 = gd11.getNextNumber();
+
+		return activity1;
 	}
 
 	boolean dialogDistretto_LP07() {
@@ -2542,16 +2629,15 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		String titolo2 = "Punti_PP02";
 		Utility.MIRD_pointsPlotter(xp1, yp1, puntiSelezionatiFit, titolo2);
-		
+
 		aux5 = "#194#\t----- POINT SELECTION ------------------";
 		Utility.logModify(pathVolatile, "#194#", aux5);
-		
+
 		aux5 = "#195#\t Selezionati i punti 24h= " + puntiSelezionatiFit[0] + " 48h= " + puntiSelezionatiFit[1]
 				+ " 120h= " + puntiSelezionatiFit[2];
 
 		Utility.logModify(pathVolatile, "#195#", aux5);
-		
-		
+
 		int count2 = 0;
 		double[] xp2 = new double[count];
 		double[] yp2 = new double[count];

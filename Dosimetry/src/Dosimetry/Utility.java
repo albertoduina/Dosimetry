@@ -14,8 +14,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -160,8 +164,7 @@ public class Utility {
 					outArrayList.add(line2);
 				}
 			}
-			
-			
+
 			BufferedWriter out = new BufferedWriter(new FileWriter(path1, true));
 			for (int i1 = outArrayList.size() - 1; i1 >= 0; i1--) {
 				// in questo modo ribalto l'array di output
@@ -445,10 +448,10 @@ public class Utility {
 	 */
 	static boolean isValidDate(String date, String format) {
 
-		SimpleDateFormat sdf = new SimpleDateFormat(format);
-		sdf.setLenient(false);
 		try {
-			sdf.parse(date);
+			DateFormat sdfrmt = new SimpleDateFormat(format);
+			sdfrmt.setLenient(false);
+			sdfrmt.parse(date);
 			// MyLog.log("isValidDate TEST SUPERATO");
 			return true;
 		} catch (ParseException e) {
@@ -491,6 +494,18 @@ public class Utility {
 			format1.parse(timestamp);
 			return true;
 		} catch (ParseException e) {
+			return false;
+		}
+	}
+
+	static boolean isValidDateNew(String date, String format) {
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+
+		try {
+			formatter.parse(date);
+			return true;
+		} catch (DateTimeParseException e) {
 			return false;
 		}
 	}
@@ -794,9 +809,6 @@ public class Utility {
 		cf1.doFit(CurveFitter.EXPONENTIAL);
 		return cf1;
 	}
-
-
-
 
 	/**
 	 * Calcolo Fit esponenziale

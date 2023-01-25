@@ -28,7 +28,6 @@ public class Utility_Test {
 
 	}
 
-	
 	@Test
 	public final void test_FM02_DialogAltreLesioni() {
 
@@ -37,8 +36,6 @@ public class Utility_Test {
 		assertTrue(true);
 	}
 
-	
-	
 	@Test
 	public final void test_FM01_DialogFileSelection() {
 
@@ -48,7 +45,7 @@ public class Utility_Test {
 		Utility.debugDeiPoveri("SPETTA");
 		assertTrue(true);
 	}
-	
+
 	@Test
 	public final void test_LP06_DialogErrorMessage() {
 
@@ -283,8 +280,7 @@ public class Utility_Test {
 
 		Utility.debugDeiPoveri("SPETTA");
 	}
-	
-	
+
 	@Test
 	public final void test_logCoopyRange() {
 
@@ -297,7 +293,7 @@ public class Utility_Test {
 
 		Utility.logDeleteSingle(path3);
 		Utility.logInit(path3);
-		
+
 		Utility.debugDeiPoveri("SPETTA");
 
 		Utility.logCopyRange(path1, path3, 31, 150);
@@ -316,6 +312,34 @@ public class Utility_Test {
 			MyLog.log("" + aux);
 
 		Utility.debugDeiPoveri("SPETTA");
+
+	}
+
+	@Test
+	public final void test_isValidDate() {
+
+		String dateIn = "07-01-2023";
+		String formatIn = "dd-MM-yyyy";
+		boolean ok = Utility.isValidDate(dateIn, formatIn);
+
+		if (ok)
+			MyLog.waitHere("Data= " + dateIn + " VALIDA");
+		else
+			MyLog.waitHere("Data= " + dateIn + " ERRATA");
+
+	}	
+	
+	
+	@Test
+	public final void test_isValidDateNew() {
+
+		String dateIn = "12-03-23";
+		boolean ok = Utility.isValidDateNew(dateIn, "dd-MM-uuuu");
+
+		if (ok)
+			MyLog.waitHere("Data= " + dateIn + " VALIDA");
+		else
+			MyLog.waitHere("Data= " + dateIn + " ERRATA");
 
 	}
 

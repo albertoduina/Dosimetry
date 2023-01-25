@@ -135,7 +135,7 @@ public class Dosimetria_Lu177_Test {
 		Utility.debugDeiPoveri("SPETTA");
 		assertTrue(true);
 	}
-	
+
 	@Test
 	public final void test_LP07_DialogDistretto() {
 
@@ -144,7 +144,6 @@ public class Dosimetria_Lu177_Test {
 		Utility.debugDeiPoveri("SPETTA");
 		assertTrue(true);
 	}
-	
 
 	@Test
 	public final void test_LP05_DialogReview() {
@@ -163,16 +162,49 @@ public class Dosimetria_Lu177_Test {
 	}
 
 	@Test
-	public final void test_LP04_DialogInputDatiSomministrazione() {
+	public final void test_LP11_DialogInputDataSomministrazione() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
-		String[] out1 = dosimetria_Lu177.dialogInputDatiSomministrazione_LP04();
-		for (String aux : out1) {
-			MyLog.log("" + aux);
+		String out1 = dosimetria_Lu177.dialogInputDataSomministrazione_LP11();
+		if (out1 == null) {
+			MyLog.waitHere("out1==null");
+		} else {
+			MyLog.log("Data inserita " + out1 + " CORRETTA");
 		}
-		Utility.debugDeiPoveri("SPETTA ");
+		MyLog.waitHere("WAIT-HALT-SPETTA");
 		assertTrue(true);
 	}
+	
+	@Test
+	public final void test_LP12_DialogInputOraSomministrazione() {
+
+		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
+		String out1 = dosimetria_Lu177.dialogInputOraSomministrazione_LP12();
+		if (out1 == null) {
+			MyLog.waitHere("out1==null");
+		} else {
+			MyLog.log("Ora inserita " + out1 + " CORRETTA");
+		}
+		MyLog.waitHere("WAIT-HALT-SPETTA");
+		assertTrue(true);
+	}
+	
+	
+	@Test
+	public final void test_LP13_DialogInputActivitySomministrazione() {
+
+		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
+		
+		double out1 = dosimetria_Lu177.dialogInputActivitySomministrazione_LP13();
+		if (out1 == Double.NaN) {
+			MyLog.waitHere("out1==null");
+		} else {
+			MyLog.log("Attivita' inserita " + out1);
+		}
+		MyLog.waitHere("WAIT-HALT-SPETTA");
+		assertTrue(true);
+	}
+
 
 	@Test
 	public final void test_LP03_DialogConfirmFolder() {
