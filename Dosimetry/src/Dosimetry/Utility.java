@@ -38,7 +38,9 @@ import ij.gui.Plot;
 import ij.gui.WaitForUserDialog;
 import ij.io.DirectoryChooser;
 import ij.io.OpenDialog;
+import ij.io.Opener;
 import ij.measure.CurveFitter;
+import ij.plugin.DICOM;
 import ij.util.DicomTools;
 import ij.util.FontUtil;
 import ij.util.Tools;
@@ -553,10 +555,32 @@ public class Utility {
 				List<File> deeperList = getFileListing(file);
 				result.addAll(deeperList);
 			} else {
-				result.add(file);
+				if (isDicomImage(file.getPath())) // evita i file *.py
+					result.add(file);
 			}
 		}
 		return result;
+	}
+
+	/***
+	 * Testa se fileName1 e' un file dicom ed e' un immagine visualizzabile da
+	 * ImageJ, eventualmente scrive a log nome file e tipo di errore
+	 * 
+	 * @param fileName1
+	 * @return boolean
+	 */
+	
+	public static boolean isDicomImage(String fileName1) {
+		boolean ok = true;
+		String info = new DICOM().getInfo(fileName1);
+		if (info == null || info.length() == 0) {
+			IJ.log("File " + fileName1 + " >>> HAS NOT DICOM INFO");
+			ok = false;
+		} else if (!info.contains("7FE0,0010")) {
+			IJ.log("File " + fileName1 + " >>> HAS NOT PIXEL DATA");
+			ok = false;
+		}
+		return ok;
 	}
 
 	/***
@@ -1668,7 +1692,7 @@ public class Utility {
 
 	/**
 	 * Utilizzato per abilitare il flag per la stampa di IJ.log solo sul mio PC, per
-	 * il resto degli utenti la parola d'ordine e' OMERTA'
+	 * il resto degli utenti IL BUIO.
 	 * 
 	 * @return
 	 */
@@ -1685,7 +1709,7 @@ public class Utility {
 
 	public static String getJarTitle() {
 
-		String jarName= "unknown";
+		String jarName = "unknown";
 		try {
 			String jarPath = Utility.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
 			jarName = jarPath.substring(jarPath.lastIndexOf("/") + 1);

@@ -298,9 +298,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 		File fil1 = result1.get(0);
 		String path1 = fil1.getAbsolutePath();
 		imp1 = openImage(path1);
-		String tit1 = imp1.getTitle();
-		tit1 = "A024 ## " + tit1;
-		imp1.setTitle(tit1);
+//		String tit1 = imp1.getTitle();
+//		tit1 = "A024 ## " + tit1;
+//		imp1.setTitle(tit1);
 		imp1.show();
 		String meta1 = getMeta(slice1, imp1);
 
@@ -326,9 +326,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 		}
 		imp2 = readStackFiles(startingDir2);
 
-		String tit2 = imp2.getTitle();
-		tit2 = "B024 ## " + tit2;
-		imp2.setTitle(tit2);
+//		String tit2 = imp2.getTitle();
+//		tit2 = "B024 ## " + tit2;
+//		imp2.setTitle(tit2);
 		imp2.show();
 		// 0020,000E Series Instance UID:
 		// 1.2.840.113619.2.184.31108.1067210107.1661517437.7028981
@@ -344,12 +344,13 @@ public class Dosimetria_Lu177 implements PlugIn {
 		aux11 = "#" + String.format("%03d", count55++) + "#\t----------- DEBUG DEBUG DEBUG DEBUG ---------";
 		Utility.logAppend(pathVolatile, aux11);
 
-		aux11 = "#" + String.format("%03d", count55++) + "#\t24h SeriesUID PET_CT_VIEWER= " + seriesUID1;
-		Utility.logAppend(pathVolatile, aux11);
 		aux11 = "#" + String.format("%03d", count55++) + "#\t24h TitlePrimaImmagine= " + imp1.getTitle();
 		Utility.logAppend(pathVolatile, aux11);
 		aux11 = "#" + String.format("%03d", count55++) + "#\t24h TitleSecondaImmagine= " + imp2.getTitle();
 		Utility.logAppend(pathVolatile, aux11);
+		aux11 = "#" + String.format("%03d", count55++) + "#\t24h SeriesUID PET_CT_VIEWER= " + seriesUID1;
+		Utility.logAppend(pathVolatile, aux11);
+
 
 		IJ.runPlugIn("Pet_Ct_Viewer", seriesUID1);
 		IJ.wait(500);
@@ -371,9 +372,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 		File fil3 = result3.get(0);
 		String path3 = fil3.getAbsolutePath();
 		imp3 = openImage(path3);
-		String tit3 = imp3.getTitle();
-		tit3 = "A048 ## " + tit3;
-		imp3.setTitle(tit3);
+//		String tit3 = imp3.getTitle();
+//		tit3 = "A048 ## " + tit3;
+//		imp3.setTitle(tit3);
 		imp3.show();
 		String meta3 = getMeta(slice1, imp3);
 		if (nuoveImmagini) {
@@ -396,21 +397,21 @@ public class Dosimetria_Lu177 implements PlugIn {
 		}
 
 		imp4 = readStackFiles(startingDir4);
-		String tit4 = imp4.getTitle();
-		tit4 = "B048 ## " + tit4;
-		imp4.setTitle(tit4);
+//		String tit4 = imp4.getTitle();
+//		tit4 = "B048 ## " + tit4;
+//		imp4.setTitle(tit4);
 		imp4.show();
 
 		String ctUID4 = DicomTools.getTag(imp4, "0020,000E");
 		ctUID4 = ctUID4.trim();
 
 		String seriesUID3 = petUID3 + ", " + ctUID4;
-		aux11 = "#" + String.format("%03d", count55++) + "#\t48h SeriesUID PET_CT_VIEWER= " + seriesUID3;
-		Utility.logAppend(pathVolatile, aux11);
 
 		aux11 = "#" + String.format("%03d", count55++) + "#\t48h TitlePrimaImmagine= " + imp3.getTitle();
 		Utility.logAppend(pathVolatile, aux11);
 		aux11 = "#" + String.format("%03d", count55++) + "#\t48h TitleSecondaImmagine= " + imp4.getTitle();
+		Utility.logAppend(pathVolatile, aux11);
+		aux11 = "#" + String.format("%03d", count55++) + "#\t48h SeriesUID PET_CT_VIEWER= " + seriesUID3;
 		Utility.logAppend(pathVolatile, aux11);
 
 		IJ.runPlugIn("Pet_Ct_Viewer", seriesUID3);
@@ -432,9 +433,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 		File fil5 = result5.get(0);
 		String path5 = fil5.getAbsolutePath();
 		imp5 = openImage(path5);
-		String tit5 = imp5.getTitle();
-		tit5 = "A120 ## " + tit5;
-		imp5.setTitle(tit5);
+//		String tit5 = imp5.getTitle();
+//		tit5 = "A120 ## " + tit5;
+//		imp5.setTitle(tit5);
 		imp5.show();
 		String meta5 = getMeta(slice1, imp5);
 		if (nuoveImmagini) {
@@ -457,9 +458,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 		}
 
 		imp6 = readStackFiles(startingDir6);
-		String tit6 = imp6.getTitle();
-		tit6 = "B120 ## " + tit6;
-		imp6.setTitle(tit6);
+//		String tit6 = imp6.getTitle();
+//		tit6 = "B120 ## " + tit6;
+//		imp6.setTitle(tit6);
 		imp6.show();
 
 		// ==================================================
@@ -468,12 +469,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 		ctUID6 = ctUID6.trim();
 
 		String seriesUID5 = petUID5 + ", " + ctUID6;
-		aux11 = "#" + String.format("%03d", count55++) + "#\t120h SeriesUID PET_CT_VIEWER= " + seriesUID5;
-		Utility.logAppend(pathVolatile, aux11);
 
 		aux11 = "#" + String.format("%03d", count55++) + "#\t120h TitlePrimaImmagine= " + imp5.getTitle();
 		Utility.logAppend(pathVolatile, aux11);
 		aux11 = "#" + String.format("%03d", count55++) + "#\t120h TitleSecondaImmagine= " + imp6.getTitle();
+		Utility.logAppend(pathVolatile, aux11);
+		aux11 = "#" + String.format("%03d", count55++) + "#\t120h SeriesUID PET_CT_VIEWER= " + seriesUID5;
 		Utility.logAppend(pathVolatile, aux11);
 
 		IJ.runPlugIn("Pet_Ct_Viewer", seriesUID5);
