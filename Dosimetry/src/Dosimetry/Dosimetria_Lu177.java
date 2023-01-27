@@ -161,11 +161,21 @@ public class Dosimetria_Lu177 implements PlugIn {
 			Utility.logInit(pathPermanente);
 			Utility.logInit(pathVolatile);
 
-			dataSomministrazione = dialogInputDataSomministrazione_LP11();
-			oraSomministrazione = dialogInputOraSomministrazione_LP12();
-			activitySomministrazione = dialogInputActivitySomministrazione_LP13();
+			boolean ok1 = false;
+			do {
+				dataSomministrazione = dialogInputDataSomministrazione_LP11();
+				oraSomministrazione = dialogInputOraSomministrazione_LP12();
+				activitySomministrazione = dialogInputActivitySomministrazione_LP13();
 
-			dataOraSomministrazione = getDateTime(dataToDicom(dataSomministrazione), oraToDicom(oraSomministrazione));
+				dataOraSomministrazione = getDateTime(dataToDicom(dataSomministrazione),
+						oraToDicom(oraSomministrazione));
+
+				String[] in1 = new String[3];
+				in1[0] = dataSomministrazione;
+				in1[1] = oraSomministrazione;
+				in1[2] = "" + activitySomministrazione;
+				ok1 = dialogConfermaDatiSomministrazione_LP10(in1);
+			} while (!ok1);
 
 			MyLog.log("NUOVO PAZIENTE, SCRITTURA DATI SOMMINISTRAZIONE SU VOLATILE");
 
@@ -350,7 +360,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		Utility.logAppend(pathVolatile, aux11);
 		aux11 = "#" + String.format("%03d", count55++) + "#\t24h SeriesUID PET_CT_VIEWER= " + seriesUID1;
 		Utility.logAppend(pathVolatile, aux11);
-
 
 		IJ.runPlugIn("Pet_Ct_Viewer", seriesUID1);
 		IJ.wait(500);
@@ -1431,15 +1440,15 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		MyLog.log("LP11 start");
 		GenericDialog gd11 = new GenericDialog("LP11 - Date input");
-		gd11.addMessage("Introduci i seguenti dati per il nuovo paziente", titleFont);
+		gd11.addMessage("Giorno della somministrazione: ", titleFont);
 		gd11.setFont(defaultFont);
-		String label11 = "Giorno 1-31";
+		String label11 = "Giorno: ";
 		String format11 = "0";
 		int digits11 = 4;
 		gd11.addStringField(label11, format11, digits11);
-		label11 = "Mese 1-12";
+		label11 = "Mese: ";
 		gd11.addStringField(label11, format11, digits11);
-		label11 = "Anno 23-2023";
+		label11 = "Anno: ";
 		gd11.addStringField(label11, format11, digits11);
 
 		gd11.setCancelLabel("Cancel");
@@ -1488,13 +1497,13 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		MyLog.log("LP12 start");
 		GenericDialog gd11 = new GenericDialog("LP12 - Hour input");
-		gd11.addMessage("Introduci i seguenti dati per il nuovo paziente", titleFont);
+		gd11.addMessage("Orario somministrazione: ", titleFont);
 		gd11.setFont(defaultFont);
-		String label11 = "Ora 1-23";
+		String label11 = "Ora: ";
 		String format11 = "0";
 		int digits11 = 4;
 		gd11.addStringField(label11, format11, digits11);
-		label11 = "Minuto";
+		label11 = "Minuto: ";
 		gd11.addStringField(label11, format11, digits11);
 		gd11.setCancelLabel("Cancel");
 		gd11.showDialog();
