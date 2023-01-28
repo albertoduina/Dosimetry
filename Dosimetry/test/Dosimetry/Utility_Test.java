@@ -11,7 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import flanagan.analysis.Regression;
-import ij.IJ;
 import ij.ImageJ;
 import ij.measure.CurveFitter;
 
@@ -42,7 +41,7 @@ public class Utility_Test {
 		String message = "Select a fileO";
 		String defaultDirectory = "\testdata";
 		Utility.dialogFileSelection_FM01(message, defaultDirectory);
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 		assertTrue(true);
 	}
 
@@ -51,7 +50,16 @@ public class Utility_Test {
 
 		String paramString = "Messaggio di errore";
 		Utility.dialogErrorMessage_LP06(paramString);
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
+		assertTrue(true);
+	}
+	
+	@Test
+	public final void test_LP09_DialogErrorMessageWithCancel() {
+
+		String paramString = "Messaggio di errore";
+		Utility.dialogErrorMessageWithCancel_LP09(paramString);
+		MyLog.waitHere("SPETTA");
 		assertTrue(true);
 	}
 
@@ -60,7 +68,7 @@ public class Utility_Test {
 
 		String pathVolatile = "Messaggio di errore";
 		Utility.dialogBattezzaLesioni_LP27(pathVolatile);
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 		assertTrue(true);
 	}
 
@@ -68,7 +76,7 @@ public class Utility_Test {
 	public final void test_DD08_AltroDistretto() {
 
 		Utility.dialogAltroDistretto_DD08();
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 		assertTrue(true);
 	}
 
@@ -82,7 +90,7 @@ public class Utility_Test {
 
 		Utility.logCopyRange(pathSorgente, pathDestinazione, start, end);
 
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 
 	}
 
@@ -104,7 +112,7 @@ public class Utility_Test {
 //		
 //		String pathPermanente = "testdata/permanente.txt";
 //		Utility.removeLineLog(pathPermanente, "#030#");
-//		Utility.debugDeiPoveri("SPETTA");
+//		MyLog.waitHere("SPETTA");
 //
 //	}
 
@@ -125,7 +133,7 @@ public class Utility_Test {
 		}
 		String pathPermanente = "testdata/permanente.txt";
 		Utility.logModify(pathPermanente, "#030#", "#030# MODIFICATO");
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 
 	}
 
@@ -146,7 +154,7 @@ public class Utility_Test {
 		}
 		String pathPermanente = "testdata/permanente.txt";
 		Utility.logModify(pathPermanente, "#730#", "#730# MODIFICATO (AGGIUNTO)");
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 
 	}
 
@@ -158,7 +166,7 @@ public class Utility_Test {
 		for (String aux : out1) {
 			MyLog.log(aux);
 		}
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 
 	}
 
@@ -171,21 +179,19 @@ public class Utility_Test {
 		String out1 = Utility.readFromLog(pathSorgente, code1);
 		MyLog.log("TROVATO out1= " + out1);
 
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 
 	}
 
 	@Test
 	public final void test_MIRD_curveFitter() {
 
-		String pathSorgente = "testdata/sorgente.txt";
-
 		double[] vetX = { 24, 48, 120 };
 		double[] vetY = { 2.345, 4.897, 9.456 };
 
 		Utility.MIRD_curveFitterImageJ(vetX, vetY);
 
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 	}
 
 	@Test
@@ -198,7 +204,7 @@ public class Utility_Test {
 		CurveFitter cf = Utility.MIRD_curveFitterSpecialImageJ(vetX, vetY);
 		Utility.MIRD_curvePlotterSpecialImageJ(cf, vetX, vetY, selected);
 
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 	}
 
 	@Test
@@ -213,7 +219,7 @@ public class Utility_Test {
 		Regression reg = Utility.MIRD_curveFitterSpecialFlanagan(vetX, vetY);
 		Utility.MIRD_curvePlotterSpecialCombined(cf, reg, vetX, vetY);
 
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 	}
 
 	@Test
@@ -225,7 +231,7 @@ public class Utility_Test {
 		Regression reg = Utility.MIRD_curveFitterSpecialFlanagan(vetX, vetY);
 		Utility.MIRD_curvePlotterSpecialFlanagan(reg, vetX, vetY);
 
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 	}
 
 	@Test
@@ -237,7 +243,7 @@ public class Utility_Test {
 
 		Utility.MIRD_pointsPlotter(vetX, vetY, selected, "Titolo");
 
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 	}
 
 	@Test
@@ -252,10 +258,10 @@ public class Utility_Test {
 		Utility.MIRD_pointsPlotter(vetX, vetY, selected, tit1);
 		String tit2 = "Punti2";
 		Utility.MIRD_pointsPlotter(vetX, vetY2, selected, tit2);
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 		Utility.closePlot(tit1);
 
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 	}
 
 	@Test
@@ -274,11 +280,11 @@ public class Utility_Test {
 			MyLog.log("erroreCopia");
 			e.printStackTrace();
 		}
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 
 		Utility.logDedupe(path2);
 
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 	}
 
 	@Test
@@ -294,11 +300,11 @@ public class Utility_Test {
 		Utility.logDeleteSingle(path3);
 		Utility.logInit(path3);
 
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 
 		Utility.logCopyRange(path1, path3, 31, 150);
 
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 	}
 
 	@Test
@@ -311,7 +317,7 @@ public class Utility_Test {
 		for (double aux : output2)
 			MyLog.log("" + aux);
 
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 
 	}
 

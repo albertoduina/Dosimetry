@@ -50,7 +50,6 @@ import ij.util.FontUtil;
 public class Dosimetry_v2 implements PlugIn {
 
 	private ImagePlus dicomImage = null;
-	private String imagePath = null;
 	private int stackSize = 1;
 	private boolean referenceRadioButtonIndex = false;
 	// NUOVO
@@ -63,11 +62,10 @@ public class Dosimetry_v2 implements PlugIn {
 		MyLog.log("============================");
 		MyLog.log("START Dosimetry_v2");
 		MyLog.log("============================");
-		FontUtil fu = new FontUtil();
 		String fontStyle = "Arial";
-		Font titleFont = fu.getFont(fontStyle, 1, 18);
-		Font textFont = fu.getFont(fontStyle, 2, 16);
-		Font defaultFont = fu.getFont(fontStyle, 0, 14);
+		Font titleFont = FontUtil.getFont(fontStyle, 1, 18);
+		Font textFont = FontUtil.getFont(fontStyle, 2, 16);
+		Font defaultFont = FontUtil.getFont(fontStyle, 0, 14);
 		boolean ok24 = false;
 		boolean ok48 = false;
 		boolean ok120 = false;
@@ -191,14 +189,14 @@ public class Dosimetry_v2 implements PlugIn {
 
 				float[] pos = imageMaximum(dicomImage);
 
-				int xMax = (int) pos[0], yMax = (int) pos[1], zMax = (int) pos[2];
+//				int xMax = (int) pos[0], yMax = (int) pos[1], zMax = (int) pos[2];
 				float max = pos[3];
 				personalizedMaximum = (int) max;
 
 				/// FUNZIONA ANCORA !!!!
 				Utility.imageToFront(title1);
 				Utility.nonImageToFront(vetPetCtViewerTitle[point1]);
-				String aux10 = vetPetCtViewerTitle[point1];
+//				String aux10 = vetPetCtViewerTitle[point1];
 				MyLog.log("PRIMO PIANO= " + vetPetCtViewerTitle[point1]);
 				WaitForUserDialog waitForUserDialog = new WaitForUserDialog("DD12 ISTRUZIONI",
 						"PER CONTORNAMENTO CON THRESHOLD:\nda Edit-BrownFatROI visualizzare numero di fetta in cui ci si trova e ricordarselo.\n"
@@ -262,7 +260,7 @@ public class Dosimetry_v2 implements PlugIn {
 						return;
 					}
 
-					Vector referenceRadioButtonsRaw = dialogSlice.getRadioButtonGroups();
+					Vector<?> referenceRadioButtonsRaw = dialogSlice.getRadioButtonGroups();
 					CheckboxGroup referenceRadioButtons = (CheckboxGroup) referenceRadioButtonsRaw.get(0);
 					Checkbox referenceRadioButtonSelection = referenceRadioButtons.getSelectedCheckbox();
 					String referenceRadioButtonSelectionString = referenceRadioButtonSelection.getLabel();
@@ -334,7 +332,7 @@ public class Dosimetry_v2 implements PlugIn {
 				distanzaCaudoCraniale = fettaCaudoCraniale - posizioneLesione;
 				distanzaCranioCaudale = posizioneLesione - fettaCranioCaudale;
 
-				Vector radioButtonsRaw = dialog.getRadioButtonGroups();
+				Vector<?> radioButtonsRaw = dialog.getRadioButtonGroups();
 				CheckboxGroup radioButtons = (CheckboxGroup) radioButtonsRaw.get(0);
 				Checkbox radioButtonSelection = radioButtons.getSelectedCheckbox();
 				String radioButtonSelectionString = radioButtonSelection.getLabel();
@@ -383,7 +381,7 @@ public class Dosimetry_v2 implements PlugIn {
 							String path = IJ.getFilePath("Select csv file");
 							Scanner csvScanner = new Scanner(new File(path));
 
-							int pointsIndex = 0;
+//							int pointsIndex = 0;
 
 							while (csvScanner.hasNextLine()) {
 								MyLog.log("HHH2");
@@ -695,7 +693,7 @@ public class Dosimetry_v2 implements PlugIn {
 								histDialog.setFont(defaultFont);
 								histDialog.showDialog();
 
-								Vector histRadioButtonsRaw = histDialog.getRadioButtonGroups();
+								Vector<?> histRadioButtonsRaw = histDialog.getRadioButtonGroups();
 								CheckboxGroup histRadioButtons;
 								Checkbox histRadioButtonSelection;
 								String histRadioButtonSelectionString;
@@ -823,8 +821,8 @@ public class Dosimetry_v2 implements PlugIn {
 	}
 
 	boolean isSelectionEmpty() {
-		Macro macroRunner = new Macro();
-		String output = macroRunner.eval("selectionType");
+//		Macro macroRunner = new Macro();
+		String output = Macro.eval("selectionType");
 		String emptySelection = "-1";
 		return emptySelection.equals(output);
 
@@ -878,7 +876,7 @@ public class Dosimetry_v2 implements PlugIn {
 	public float[] imageMaximum(ImagePlus imp) {
 		int indexMax = 0, zMax = 0;
 		float max = -Float.MAX_VALUE;
-		float min = Float.MAX_VALUE;
+//		float min = Float.MAX_VALUE;
 		ImageStack stack = imp.getStack();
 		int width = imp.getWidth();
 		int height = imp.getHeight();
@@ -1019,7 +1017,7 @@ public class Dosimetry_v2 implements PlugIn {
 	}
 
 	private int convertFromPETCTReference(int inputPosition) {
-		this.stackSize = stackSize;
+	//	this.stackSize = stackSize;
 		return stackSize - inputPosition + 1;
 	}
 
@@ -1051,8 +1049,8 @@ public class Dosimetry_v2 implements PlugIn {
 
 			FileWriter fileW = new FileWriter(filePath, true);
 			fileW.write("counts_value;number_of_pixels" + ylabel + "\n");
-			int counterIndex = 1;
-			int cumulativo = 0;
+//			int counterIndex = 1;
+//			int cumulativo = 0;
 			for (int index = 0; index < x.length; index++)
 				fileW.write(x[index] + ";" + y[index] + "\n");
 			fileW.close();
@@ -1117,8 +1115,4 @@ public class Dosimetry_v2 implements PlugIn {
 		return histData;
 	}
 
-	private void debugDeiPoveri(String text) {
-		WaitForUserDialog wait = new WaitForUserDialog("Debug", text);
-		wait.show();
-	}
 }

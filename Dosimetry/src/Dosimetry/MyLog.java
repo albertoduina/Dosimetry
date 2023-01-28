@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import ij.IJ;
 import ij.gui.WaitForUserDialog;
 
+/**
+ * @author Alberto
+ *
+ */
 public class MyLog {
 
 	public static void here() {

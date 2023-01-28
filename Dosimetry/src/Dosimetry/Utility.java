@@ -3,7 +3,6 @@ package Dosimetry;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Point;
 import java.awt.Window;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -13,13 +12,11 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -35,10 +32,7 @@ import ij.gui.GenericDialog;
 import ij.gui.ImageWindow;
 import ij.gui.NonBlockingGenericDialog;
 import ij.gui.Plot;
-import ij.gui.WaitForUserDialog;
-import ij.io.DirectoryChooser;
 import ij.io.OpenDialog;
-import ij.io.Opener;
 import ij.measure.CurveFitter;
 import ij.plugin.DICOM;
 import ij.util.DicomTools;
@@ -99,7 +93,7 @@ public class Utility {
 	/**
 	 * Scrive FINE nel log
 	 * 
-	 * @param path
+	 * @param path PATH DEL LOG
 	 */
 	public static void logEnd(String path) {
 		logAppend(path, "---- FINE ---------");
@@ -117,7 +111,7 @@ public class Utility {
 			f1.delete();
 		}
 		if (f1.exists()) {
-			debugDeiPoveri("NON RIESCO A CANCELLARE " + path);
+			Utility.dialogErrorMessage_LP06(path);
 		}
 	}
 
@@ -187,9 +181,9 @@ public class Utility {
 	 * Se nel file esiste gia'una linea col tag, essa viene sostituita, se la linea
 	 * non esiste, essa viene aggiunta alla fine
 	 * 
-	 * @param path1
-	 * @param tag
-	 * @param newline
+	 * @param path1   path del log
+	 * @param tag     tag da sostituire
+	 * @param newline linea da inserire (completa di tag)
 	 */
 	public static void logModify(String path1, String tag, String newline) {
 
@@ -228,7 +222,6 @@ public class Utility {
 	 * 
 	 * @param path1
 	 * @param tag
-	 * @param newline
 	 */
 	public static void logRemoveLine(String path1, String tag) {
 
@@ -410,16 +403,6 @@ public class Utility {
 	}
 
 	/**
-	 * Sofisticatissimo strumento di test
-	 * 
-	 * @param paramString stringa da mostrare nel dialogo
-	 */
-	public static void debugDeiPoveri(String text) {
-		WaitForUserDialog wait = new WaitForUserDialog("Debug", text);
-		wait.show();
-	}
-
-	/**
 	 * Porta petctviewr toFront
 	 * 
 	 * @param name1 nome finestra
@@ -527,7 +510,6 @@ public class Utility {
 		try {
 			dateTime = format1.parse(timestamp);
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return dateTime;
@@ -569,7 +551,7 @@ public class Utility {
 	 * @param fileName1
 	 * @return boolean
 	 */
-	
+
 	public static boolean isDicomImage(String fileName1) {
 		boolean ok = true;
 		String info = new DICOM().getInfo(fileName1);
@@ -745,23 +727,23 @@ public class Utility {
 		double integral = in1[4]; // #120# over threshold count integral
 
 		double[][] myMatTable = matTable();
-		double t1 = 0;
+//		double t1 = 0;
 		double a1 = 0;
 		double b1 = 0;
 		double c1 = 0;
 
 		if (threshold <= 0.30) {
-			t1 = myMatTable[0][0];
+//			t1 = myMatTable[0][0];
 			a1 = myMatTable[1][0];
 			b1 = myMatTable[2][0];
 			c1 = myMatTable[3][0];
 		} else if (threshold > 0.30 && threshold < 0.50) {
-			t1 = myMatTable[0][1];
+//			t1 = myMatTable[0][1];
 			a1 = myMatTable[1][1];
 			b1 = myMatTable[2][1];
 			c1 = myMatTable[3][1];
 		} else {
-			t1 = myMatTable[0][2];
+//			t1 = myMatTable[0][2];
 			a1 = myMatTable[1][2];
 			b1 = myMatTable[2][2];
 			c1 = myMatTable[3][2];
@@ -867,7 +849,7 @@ public class Utility {
 
 		// reg.exponentialSimple();
 		reg.exponentialSimplePlot();
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 		double[] bestEstimates = reg.getBestEstimates();
 		for (double est : bestEstimates) {
 			MyLog.log("FLANAGAN bestEstimates= " + est);
@@ -883,7 +865,7 @@ public class Utility {
 		double adjustedCoeffOfDetermination = reg.getAdjustedCoefficientOfDetermination();
 		MyLog.log("FLANAGAN adjustedCoeffOfDetermination= " + adjustedCoeffOfDetermination);
 
-		Utility.debugDeiPoveri("SPETTA");
+		MyLog.waitHere("SPETTA");
 
 		MyLog.log("===============");
 
@@ -1104,7 +1086,7 @@ public class Utility {
 		int PLOT_WIDTH = 600;
 		int PLOT_HEIGHT = 350;
 		double[] px = new double[npoints];
-		double[] py = new double[npoints];
+//		double[] py = new double[npoints];
 
 		double inc = (xmax - xmin) / (npoints - 1);
 		double tmp = minMaxX[0];
@@ -1417,7 +1399,7 @@ public class Utility {
 		double Smassa = vetSdKnuth(vetVol);
 		double Stmezzo = Double.NaN;
 		double Stau = Double.NaN;
-		double Sdose = Double.NaN;
+//		double Sdose = Double.NaN;
 
 		if (errors != null) {
 			SA = errors[0];
@@ -1473,28 +1455,6 @@ public class Utility {
 		out1[22] = vetDose[5]; // m2;
 
 		return out1;
-	}
-
-	/**
-	 * Calcola la deviazione standard
-	 * 
-	 * @param num  Numero dei pixel
-	 * @param sum  Somma dei valori pixel
-	 * @param sum2 Somma dei quadrati dei valori dei pixel
-	 * @return deviazione standard
-	 */
-
-	private static double calculateStdDev(int num, double sum, double sum2) {
-		double sd1;
-		if (num > 0) {
-			sd1 = (num * sum2 - sum * sum) / num;
-			if (sd1 > 0.0)
-				sd1 = Math.sqrt(sd1 / (num - 1.0));
-			else
-				sd1 = 0.0;
-		} else
-			sd1 = 0.0;
-		return (sd1);
 	}
 
 	/**
@@ -1646,6 +1606,26 @@ public class Utility {
 		genericDialog.hideCancelButton();
 		genericDialog.showDialog();
 	}
+	
+	
+	/**
+	 * Visualizzazione messaggi di errore
+	 * 
+	 * @param paramString
+	 */
+	static boolean dialogErrorMessageWithCancel_LP09(String paramString) {
+
+		MyLog.log("dialogErrorMessagWithCancel_LP09");
+		GenericDialog gd1 = new GenericDialog("LP09 - Error");
+		gd1.setFont(defaultFont);
+		gd1.addMessage(paramString);
+		gd1.showDialog();
+		if (gd1.wasCanceled()) 
+			return true;
+		else 
+			return false;
+	}
+
 
 	/**
 	 * selezione di un file da parte dell'utilizzatore
@@ -1663,9 +1643,8 @@ public class Utility {
 
 	/**
 	 * selezione di un file da parte dell'utilizzatore
-	 * 
-	 * @param message messaggio per l'utilizzatore
-	 * @return path dell'immagine selezionata
+	 *
+	 * @return
 	 */
 	public static int dialogAltreLesioni_FM02() {
 
@@ -1699,7 +1678,7 @@ public class Utility {
 	public static boolean stampa() {
 
 		String username = System.getProperty("user.name");
-		if (username.equals("Alberto")) {
+		if (username.equals("Alberto2")) {
 			return true;
 		} else {
 			return false;

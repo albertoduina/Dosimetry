@@ -5,8 +5,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 
-import ij.IJ;
-import ij.ImagePlus;
 import ij.plugin.PlugIn;
 import ij.util.FontUtil;
 
@@ -26,12 +24,6 @@ public class Fegato_MIRD implements PlugIn {
 	static Font defaultFont = FontUtil.getFont(fontStyle, Font.PLAIN, 13);
 	static Font textFont = FontUtil.getFont(fontStyle, Font.ITALIC, 16);
 	static Font titleFont = FontUtil.getFont(fontStyle, Font.BOLD, 16);
-
-	public String[] lista;
-	public int numFile;
-	public int numTotal;
-	public int count2;
-	public int count;
 
 	static String m_patName;
 	static Date m_patBirthday = null;
@@ -62,13 +54,6 @@ public class Fegato_MIRD implements PlugIn {
 		MyLog.log("============================");
 		MyLog.log("START Fegato_MIRD");
 		MyLog.log("============================");
-		FontUtil fu = new FontUtil();
-		String fontStyle = "Arial";
-		Font titleFont = fu.getFont(fontStyle, 1, 18);
-		Font textFont = fu.getFont(fontStyle, 2, 16);
-		Font defaultFont = fu.getFont(fontStyle, 0, 14);
-		boolean ok1 = false;
-		int point1 = -1;
 		String pathToto = Utility.dialogFileSelection_FM01("Seleziona FEGATO IN TOTO",
 				desktopPath + File.separator + "DosimetryFolder" + File.separator);
 		if (pathToto != null)
