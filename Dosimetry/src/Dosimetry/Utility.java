@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Window;
+import java.awt.image.ColorModel;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -27,14 +28,19 @@ import java.util.List;
 import flanagan.analysis.Regression;
 import ij.IJ;
 import ij.ImagePlus;
+import ij.ImageStack;
 import ij.WindowManager;
 import ij.gui.GenericDialog;
 import ij.gui.ImageWindow;
 import ij.gui.NonBlockingGenericDialog;
 import ij.gui.Plot;
+import ij.io.FileInfo;
 import ij.io.OpenDialog;
+import ij.io.Opener;
+import ij.measure.Calibration;
 import ij.measure.CurveFitter;
 import ij.plugin.DICOM;
+import ij.process.ImageProcessor;
 import ij.util.DicomTools;
 import ij.util.FontUtil;
 import ij.util.Tools;
@@ -295,19 +301,6 @@ public class Utility {
 
 	}
 
-//	public static void logRewrite(String pathSorgente, String pathDestinazione) {
-//
-//		BufferedWriter out;
-//		try {
-//			out = new BufferedWriter(new FileWriter(pathDestinazione, true));
-//			out.write(linea);
-//			out.newLine();
-//			out.close();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//
-//	}
 
 	/**
 	 * Lettura di un tag dal log
@@ -544,26 +537,6 @@ public class Utility {
 		return result;
 	}
 
-	/***
-	 * Testa se fileName1 e' un file dicom ed e' un immagine visualizzabile da
-	 * ImageJ, eventualmente scrive a log nome file e tipo di errore
-	 * 
-	 * @param fileName1
-	 * @return boolean
-	 */
-
-	public static boolean isDicomImage(String fileName1) {
-		boolean ok = true;
-		String info = new DICOM().getInfo(fileName1);
-		if (info == null || info.length() == 0) {
-			IJ.log("File " + fileName1 + " >>> HAS NOT DICOM INFO");
-			ok = false;
-		} else if (!info.contains("7FE0,0010")) {
-			IJ.log("File " + fileName1 + " >>> HAS NOT PIXEL DATA");
-			ok = false;
-		}
-		return ok;
-	}
 
 	/***
 	 * Verifica la disponibilita' di una directory
@@ -1678,7 +1651,7 @@ public class Utility {
 	public static boolean stampa() {
 
 		String username = System.getProperty("user.name");
-		if (username.equals("Alberto2")) {
+		if (username.equals("Alberto")) {
 			return true;
 		} else {
 			return false;
@@ -1700,5 +1673,241 @@ public class Utility {
 		return jarName;
 
 	}
+	
+	/**
+	 * Apre una immagine dal path
+	 * 
+	 * @param path immagine da aprire
+	 * @return imageplus aperta
+	 */
+	public static ImagePlus openImage(String path) {
+
+		Opener opener = new Opener();
+		ImagePlus imp = opener.openImage(path);
+		if (imp == null) {
+			Utility.dialogErrorMessage_LP06(path);
+			return null;
+		}
+		return imp;
+	}
+	
+	
+	
+	public static ImagePlus openImage(File file) {
+		Opener opener = new Opener();
+		ImagePlus imp = opener.openImage(file.getPath());
+		if (imp == null) {
+			Utility.dialogErrorMessage_LP06(file.getPath());
+			return null;
+		}
+		return imp;
+	}
+
+
+	/**
+	 * Legge le immagini da una cartella e le inserisce in uno stack. Copiato da
+	 * https://github.com/ilan/fijiPlugins (Ilan Tal) Class: Read_CD. Ho disattivato
+	 * alcune parti di codice riguardanti tipi di immagini di cui non disponiamo
+	 * 
+	 * @param myDirPath
+	 * @return ImagePlus (stack)
+	 */
+
+	static ImagePlus readStackFiles(String myDirPath) {
+		int j, k, n0, width = -1, height = 0, depth = 0, samplePerPixel = 0;
+		int bad = 0, fails = 0;
+		Opener opener;
+		ImagePlus imp, imp2 = null;
+		ImageStack stack;
+		Calibration cal = null;
+		double min, max, progVal;
+		FileInfo fi = null;
+		String flName, flPath, info, label1, tmp;
+		String mytitle = "";
+
+		info = null;
+		min = Double.MAX_VALUE;
+		max = -Double.MAX_VALUE;
+		stack = null;
+		File vetDirPath = new File(myDirPath);
+		File checkEmpty;
+		File[] results = vetDirPath.listFiles();
+		boolean ok = false;
+		for (int i1 = 0; i1 < results.length; i1++) {
+			flName = results[i1].getName();
+			flPath = results[i1].getPath();
+			if (!isDicomImage(flPath))
+				ok = Utility
+						.dialogErrorMessageWithCancel_LP09("Il file " + flName + " non e'una immagine Dicom valida");
+			if (ok)
+				return null;
+		}
+
+		n0 = results.length;
+
+		for (j = 1; j <= n0; j++) {
+			progVal = ((double) j) / n0;
+			IJ.showStatus(j + "/" + n0);
+			IJ.showProgress(progVal);
+			opener = new Opener();
+			flName = results[j - 1].getPath();
+			checkEmpty = new File(flName); // remember for possible dicomdir
+			if (checkEmpty.length() == 0)
+				continue;
+			tmp = results[j - 1].getName();
+			if (tmp.equalsIgnoreCase("dirfile"))
+				continue;
+			k = opener.getFileType(flName);
+			opener.setSilentMode(true);
+			imp = opener.openImage(flName);
+			if (imp == null) {
+				fails++;
+				if (fails > 2) {
+					IJ.showProgress(1.0);
+					return null;
+				}
+				continue;
+			}
+			info = (String) imp.getProperty("Info");
+			mytitle = imp.getTitle();
+
+			k = Utility.parseInt(DicomTools.getTag(imp, "0028,0002"));
+			if (stack == null) {
+				samplePerPixel = k;
+				width = imp.getWidth();
+				height = imp.getHeight();
+				depth = imp.getStackSize();
+				cal = imp.getCalibration();
+				fi = imp.getOriginalFileInfo();
+				ColorModel cm = imp.getProcessor().getColorModel();
+				stack = new ImageStack(width, height, cm);
+			}
+			if ((depth > 1 && n0 > 1) || width != imp.getWidth() || height != imp.getHeight() || k != samplePerPixel) {
+				if (k <= 0)
+					continue;
+				stack = null;
+				depth = 0;
+				continue;
+			}
+			label1 = null;
+			if (depth == 1) {
+				label1 = imp.getTitle();
+				if (info != null)
+					label1 += "\n" + info;
+			}
+			ImageStack inputStack = imp.getStack();
+			for (int slice = 1; slice <= inputStack.getSize(); slice++) {
+				ImageProcessor ip = inputStack.getProcessor(slice);
+				if (ip.getMin() < min)
+					min = ip.getMin();
+				if (ip.getMax() > max)
+					max = ip.getMax();
+				stack.addSlice(label1, ip);
+			}
+		}
+
+		if (stack != null && stack.getSize() > 0) {
+			if (fi != null) {
+				fi.fileFormat = FileInfo.UNKNOWN;
+				fi.fileName = "";
+				fi.directory = "";
+			}
+			imp2 = new ImagePlus(mytitle, stack);
+			imp2.getProcessor().setMinAndMax(min, max);
+			if (n0 == 1 + bad || depth > 1)
+				imp2.setProperty("Info", info);
+			if (fi != null)
+				imp2.setFileInfo(fi);
+			double voxelDepth = DicomTools.getVoxelDepth(stack);
+			if (voxelDepth > 0.0 && cal != null)
+				cal.pixelDepth = voxelDepth;
+			imp2.setCalibration(cal);
+		}
+		IJ.showProgress(1.0);
+		return imp2;
+	}
+
+	
+	/***
+	 * Testa se fileName1 e' un file dicom ed e' un immagine visualizzabile da
+	 * ImageJ, eventualmente scrive a log nome file e tipo di errore
+	 * 
+	 * @param fileName1
+	 * @return boolean
+	 */
+
+	public static boolean isDicomImage(String fileName1) {
+		boolean ok = true;
+		String info = new DICOM().getInfo(fileName1);
+		if (info == null || info.length() == 0) {
+			IJ.log("File " + fileName1 + " >>> HAS NOT DICOM INFO");
+			ok = false;
+		} else if (!info.contains("7FE0,0010")) {
+			IJ.log("File " + fileName1 + " >>> HAS NOT PIXEL DATA");
+			ok = false;
+		}
+		return ok;
+	}
+
+
+	/**
+	 * Legge i dati header
+	 * 
+	 * @param slice
+	 * @param img1
+	 * @return
+	 */
+	static String getMeta(int slice, ImagePlus img1) {
+		// first check that the user hasn't closed the study
+		if (img1.getImage() == null)
+			return null;
+		String meta = img1.getStack().getSliceLabel(slice);
+		// meta will be null for SPECT studies
+		if (meta == null)
+			meta = (String) img1.getProperty("Info");
+		return meta;
+	}
+
+	/**
+	 * estrae una singola slice da uno stack. Estrae anche i dati header
+	 * 
+	 * @param stack stack contenente le slices
+	 * @param slice numero della slice da estrarre, deve partire da 1, non e'
+	 *              ammesso lo 0
+	 * @return ImagePlus della slice estratta
+	 */
+	public static ImagePlus imageFromStack(ImagePlus stack, int slice) {
+
+		if (stack == null) {
+			IJ.log("imageFromStack.stack== null");
+			return null;
+		}
+		// IJ.log("stack bitDepth= "+stack.getBitDepth());
+		ImageStack imaStack = stack.getImageStack();
+		if (imaStack == null) {
+			IJ.log("imageFromStack.imaStack== null");
+			return null;
+		}
+		if (slice == 0) {
+			IJ.log("imageFromStack.requested slice 0!");
+			return null;
+
+		}
+		if (slice > stack.getStackSize()) {
+			IJ.log("imageFromStack.requested slice > slices!");
+			return null;
+		}
+
+		ImageProcessor ipStack = imaStack.getProcessor(slice);
+
+		String titolo = "** " + slice + " **";
+		// String titolo = imaStack.getShortSliceLabel(slice);
+		String sliceInfo1 = imaStack.getSliceLabel(slice);
+
+		ImagePlus imp = new ImagePlus(titolo, ipStack);
+		imp.setProperty("Info", sliceInfo1);
+		return imp;
+	}
+
 
 }

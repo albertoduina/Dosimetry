@@ -213,11 +213,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// copia da permanente a volatile i dati di IMAGE INFO 24-48-120
 			Utility.logCopyRange(pathPermanente, pathVolatile, 10, 60);
 			dataOraSomministrazione = Utility.getDateTime(Utility.readFromLog(pathVolatile, "#002#", "="), format1);
-			// oraSomministrazione = Utility.readFromLog(pathVolatile, "#002#", "=");
 			activitySomministrazione = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "="));
-//			dataOraSomministrazione = getDateTime(dataToDicom(dataSomministrazione), oraToDicom(oraSomministrazione));
 			MyLog.log("dataOraSomministrazione= " + dataOraSomministrazione);
-//			MyLog.log("oraSomministrazione= " + oraSomministrazione);
 			azzeraFlags(pathPermanente);
 		} else {
 			// ============================================
@@ -230,11 +227,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// copia da permanente a volatile i dati di IMAGE INFO 24-48-120
 			Utility.logCopyRange(pathPermanente, pathVolatile, 10, 60);
 			dataOraSomministrazione = Utility.getDateTime(Utility.readFromLog(pathVolatile, "#002#", "="), format1);
-			// oraSomministrazione = Utility.readFromLog(pathVolatile, "#002#", "=");
 			activitySomministrazione = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "="));
-//			dataOraSomministrazione = getDateTime(dataToDicom(dataSomministrazione), oraToDicom(oraSomministrazione));
 			MyLog.log("dataOraSomministrazione= " + dataOraSomministrazione);
-//			MyLog.log("oraSomministrazione= " + oraSomministrazione);
 			azzeraFlags(pathPermanente);
 		}
 
@@ -301,9 +295,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 		String path1 = fil1.getAbsolutePath();
 		imp1 =
 
-				openImage(path1);
+				Utility.openImage(path1);
 		imp1.show();
-		String meta1 = getMeta(slice1, imp1);
+		String meta1 = Utility.getMeta(slice1, imp1);
 
 		if (nuoveImmagini) {
 			petctviewerTitle = stringaLaboriosa(meta1);
@@ -325,8 +319,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		for (File file2a : result2) {
 			list2[j2++] = file2a.getPath();
 		}
-		imp2 = readStackFiles(startingDir2);
-
+		imp2 = Utility.readStackFiles(startingDir2);
 		imp2.show();
 		// 0020,000E Series Instance UID:
 		// 1.2.840.113619.2.184.31108.1067210107.1661517437.7028981
@@ -368,12 +361,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		File fil3 = result3.get(0);
 		String path3 = fil3.getAbsolutePath();
-		imp3 = openImage(path3);
+		imp3 = Utility.openImage(path3);
 //		String tit3 = imp3.getTitle();
 //		tit3 = "A048 ## " + tit3;
 //		imp3.setTitle(tit3);
 		imp3.show();
-		String meta3 = getMeta(slice1, imp3);
+		String meta3 = Utility.getMeta(slice1, imp3);
 		if (nuoveImmagini) {
 			petctviewerTitle = stringaLaboriosa(meta3);
 			Utility.logAppend(pathPermanente, "48h=" + petctviewerTitle);
@@ -393,7 +386,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			list4[j4++] = file4a.getPath();
 		}
 
-		imp4 = readStackFiles(startingDir4);
+		imp4 = Utility.readStackFiles(startingDir4);
 		imp4.show();
 
 		String ctUID4 = DicomTools.getTag(imp4, "0020,000E");
@@ -426,9 +419,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		File fil5 = result5.get(0);
 		String path5 = fil5.getAbsolutePath();
-		imp5 = openImage(path5);
+		imp5 = Utility.openImage(path5);
 		imp5.show();
-		String meta5 = getMeta(slice1, imp5);
+		String meta5 = Utility.getMeta(slice1, imp5);
 		if (nuoveImmagini) {
 			petctviewerTitle = stringaLaboriosa(meta5);
 			Utility.logAppend(pathPermanente, "120h=" + petctviewerTitle);
@@ -448,7 +441,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			list6[j6++] = file6.getPath();
 		}
 
-		imp6 = readStackFiles(startingDir6);
+		imp6 = Utility.readStackFiles(startingDir6);
 		if (imp6 == null)
 			return;
 		imp6.show();
@@ -907,183 +900,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		}
 	}
 
-	/**
-	 * Apre una immagine dal path
-	 * 
-	 * @param path immagine da aprire
-	 * @return imageplus aperta
-	 */
-	public ImagePlus openImage(String path) {
-
-		Opener opener = new Opener();
-		ImagePlus imp = opener.openImage(path);
-		if (imp == null) {
-			Utility.dialogErrorMessage_LP06(path);
-			return null;
-		}
-		return imp;
-	}
-
-	/**
-	 * Legge le immagini da una cartella e le inserisce in uno stack. Copiato da
-	 * https://github.com/ilan/fijiPlugins (Ilan Tal) Class: Read_CD. Ho disattivato
-	 * alcune parti di codice riguardanti tipi di immagini di cui non disponiamo
-	 * 
-	 * @param myDirPath
-	 * @return ImagePlus (stack)
-	 */
-
-	ImagePlus readStackFiles(String myDirPath) {
-		int j, k, n0, width = -1, height = 0, depth = 0, samplePerPixel = 0;
-		int bad = 0, fails = 0;
-		Opener opener;
-		ImagePlus imp, imp2 = null;
-		ImageStack stack;
-		Calibration cal = null;
-		double min, max, progVal;
-		FileInfo fi = null;
-		String flName, flPath, info, label1, tmp;
-		String mytitle = "";
-
-		info = null;
-		min = Double.MAX_VALUE;
-		max = -Double.MAX_VALUE;
-		stack = null;
-		File vetDirPath = new File(myDirPath);
-		File checkEmpty;
-		File[] results = vetDirPath.listFiles();
-		boolean ok = false;
-		for (int i1 = 0; i1 < results.length; i1++) {
-			flName = results[i1].getName();
-			flPath = results[i1].getPath();
-			if (!isDicomImage(flPath))
-				ok = Utility
-						.dialogErrorMessageWithCancel_LP09("Il file " + flName + " non e'una immagine Dicom valida");
-			if (ok)
-				return null;
-		}
-
-		n0 = results.length;
-
-		for (j = 1; j <= n0; j++) {
-			progVal = ((double) j) / n0;
-			IJ.showStatus(j + "/" + n0);
-			IJ.showProgress(progVal);
-			opener = new Opener();
-			flName = results[j - 1].getPath();
-			checkEmpty = new File(flName); // remember for possible dicomdir
-			if (checkEmpty.length() == 0)
-				continue;
-			tmp = results[j - 1].getName();
-			if (tmp.equalsIgnoreCase("dirfile"))
-				continue;
-			k = opener.getFileType(flName);
-			opener.setSilentMode(true);
-			imp = opener.openImage(flName);
-			if (imp == null) {
-				fails++;
-				if (fails > 2) {
-					IJ.showProgress(1.0);
-					return null;
-				}
-				continue;
-			}
-			info = (String) imp.getProperty("Info");
-			mytitle = imp.getTitle();
-
-			k = Utility.parseInt(DicomTools.getTag(imp, "0028,0002"));
-			if (stack == null) {
-				samplePerPixel = k;
-				width = imp.getWidth();
-				height = imp.getHeight();
-				depth = imp.getStackSize();
-				cal = imp.getCalibration();
-				fi = imp.getOriginalFileInfo();
-				ColorModel cm = imp.getProcessor().getColorModel();
-				stack = new ImageStack(width, height, cm);
-			}
-			if ((depth > 1 && n0 > 1) || width != imp.getWidth() || height != imp.getHeight() || k != samplePerPixel) {
-				if (k <= 0)
-					continue;
-				stack = null;
-				depth = 0;
-				continue;
-			}
-			label1 = null;
-			if (depth == 1) {
-				label1 = imp.getTitle();
-				if (info != null)
-					label1 += "\n" + info;
-			}
-			ImageStack inputStack = imp.getStack();
-			for (int slice = 1; slice <= inputStack.getSize(); slice++) {
-				ImageProcessor ip = inputStack.getProcessor(slice);
-				if (ip.getMin() < min)
-					min = ip.getMin();
-				if (ip.getMax() > max)
-					max = ip.getMax();
-				stack.addSlice(label1, ip);
-			}
-		}
-
-		if (stack != null && stack.getSize() > 0) {
-			if (fi != null) {
-				fi.fileFormat = FileInfo.UNKNOWN;
-				fi.fileName = "";
-				fi.directory = "";
-			}
-			imp2 = new ImagePlus(mytitle, stack);
-			imp2.getProcessor().setMinAndMax(min, max);
-			if (n0 == 1 + bad || depth > 1)
-				imp2.setProperty("Info", info);
-			if (fi != null)
-				imp2.setFileInfo(fi);
-			double voxelDepth = DicomTools.getVoxelDepth(stack);
-			if (voxelDepth > 0.0 && cal != null)
-				cal.pixelDepth = voxelDepth;
-			imp2.setCalibration(cal);
-		}
-		IJ.showProgress(1.0);
-		return imp2;
-	}
-
-	/***
-	 * Testa se fileName1 e' un file dicom ed e' un immagine visualizzabile da
-	 * ImageJ, eventualmente scrive a log nome file e tipo di errore
-	 * 
-	 * @param fileName1 file da esaminare
-	 * @return boolean true se il file e'una vera immagine dicom
-	 */
-	public boolean isDicomImage(String fileName1) {
-		boolean ok = true;
-		String info = new DICOM().getInfo(fileName1);
-		if (info == null || info.length() == 0) {
-			MyLog.log("il file " + fileName1 + " risulta INDIGESTO ad ImageJ >>> NOT DICOM INFO");
-			ok = false;
-		} else if (!info.contains("7FE0,0010")) {
-			MyLog.log("il file " + fileName1 + " risulta INDIGESTO ad ImageJ >>> NOT IMAGE");
-			ok = false;
-		}
-		return ok;
-	}
-
-	/**
-	 * Legge i dati header
-	 * 
-	 * @param slice
-	 * @param img1
-	 * @return
-	 */
-	static String getMeta(int slice, ImagePlus img1) {
-		// first check that the user hasn't closed the study
-		if (img1.getImage() == null)
-			return null;
-		String meta = img1.getStack().getSliceLabel(slice);
-		// meta will be null for SPECT studies
-		if (meta == null)
-			meta = (String) img1.getProperty("Info");
-		return meta;
-	}
 
 	/**
 	 * Tentativo di partorire la laboriosa stringa usata come titolo del PetCtViewer
@@ -1840,7 +1656,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		if (list1.size() == 0)
 			return null;
 		String path2 = list1.get(0).toString();
-		ImagePlus imp2 = openImage(path2);
+		ImagePlus imp2 = Utility.openImage(path2);
 		if (imp2 == null)
 			return null;
 		String nome = DicomTools.getTag(imp2, "0010,0010");
