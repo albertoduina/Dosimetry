@@ -1475,6 +1475,25 @@ public class Utility {
 		double mean = sum / data.length;
 		return mean;
 	}
+	/**
+	 * Calcola la media di un vettore
+	 * 
+	 * @param data
+	 * @return
+	 */
+
+	public static float vetMean(float[] data) {
+		final int n = data.length;
+		if (n < 1) {
+			return Float.NaN;
+		}
+		float sum = 0;
+		for (int i1 = 0; i1 < data.length; i1++) {
+			sum += data[i1];
+		}
+		float mean = sum / data.length;
+		return mean;
+	}
 
 	/**
 	 * Calcolo della dose e scrittura risultati nel file di log

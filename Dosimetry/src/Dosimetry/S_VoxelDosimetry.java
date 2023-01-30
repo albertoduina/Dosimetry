@@ -10,9 +10,12 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.OvalRoi;
 import ij.gui.Roi;
+import ij.gui.WaitForUserDialog;
 import ij.io.FileSaver;
+import ij.plugin.ContrastEnhancer;
 import ij.plugin.PlugIn;
 import ij.process.ImageProcessor;
+import ij.util.ArrayUtil;
 
 /**
  * @version v3
@@ -41,7 +44,6 @@ public class S_VoxelDosimetry implements PlugIn {
 
 		String startingDir1 = str1 + "24h" + File.separator + "SPECT";
 		caricaMemoriazza(startingDir1, str2);
-		MyLog.waitHere();
 	}
 
 	void caricaMemoriazza(String startingDir1, String str2) {
@@ -63,53 +65,102 @@ public class S_VoxelDosimetry implements PlugIn {
 		// nessuno che la usa: FA AL CASO NOSTRO SICURAMENTE!!!
 
 		ImageStack sta1 = imp1.getImageStack();
-//		sta1.convertToFloat();
 
-		// confermato sperimentalmente;
-		// si fornisconi le coordinate xyz del pixel 0 (in alto a sx prima fetta) e poi
-		// si forniscono le dimensioni del voxel. I valori, nel vettore vengono messi,
-		// nel nostro caso: x0,y0,z0; x1,y0,z0; ... x0, y1, z0; x1,y1,z0; .... x0, y0,
-		// z1; x1, y0, z1 ecc
-		// quanto al null fornito, sarebbe il posto di un vettore float in input, che
-		// deve coincidere come dimensionicon WxHxD, non ho chiaro a che scopo
+		/**
+		 * // sta1.convertToFloat();
+		 * 
+		 * // confermato sperimentalmente; // si fornisconi le coordinate xyz del pixel
+		 * 0 (in alto a sx prima fetta) e poi // si forniscono le dimensioni del voxel.
+		 * I valori, nel vettore vengono messi, // nel nostro caso: x0,y0,z0; x1,y0,z0;
+		 * ... x0, y1, z0; x1,y1,z0; .... x0, y0, // z1; x1, y0, z1 ecc // quanto al
+		 * null fornito, sarebbe il posto di un vettore float in input, che // deve
+		 * coincidere come dimensionicon WxHxD, non ho chiaro a che scopo
+		 * 
+		 * int x0 = 52; int y0 = 60; int z0 = 26; int width2 = 60; int height2 = 60; int
+		 * depth2 = 60;
+		 * 
+		 * float[] vetVox1 = sta1.getVoxels(x0, y0, z0, width2, height2, depth2, null);
+		 * 
+		 * // ed ora provo la riscrittura dell'intero cubetto 3x3, per esperimento
+		 * aggiungo // 3000 al segnale di ognuno dei pixel
+		 * 
+		 * for (int i1 = 0; i1 < vetVox1.length; i1++) { vetVox1[i1] = vetVox1[i1] +
+		 * 3000; } sta1.setVoxels(x0, y0, z0, width2, height2, depth2, vetVox1);
+		 * 
+		 * // ed ora facciamo un cubetto nero, coassiale for (int i1 = 0; i1 <
+		 * vetVox1.length; i1++) { vetVox1[i1] = vetVox1[i1] - 3000; }
+		 * 
+		 * sta1.setVoxels(x0 + 25, y0 + 25, z0 + 25, 10, 10, 10, vetVox1);
+		 * 
+		 * // ed ora gli impianto un singolo pixel, che si vede benissimo in fetta 57,
+		 * si // apprezza che la coordinata e' in integer, e' appena appena spostato
+		 * rispetto // al centro perfeetto !!
+		 * 
+		 * sta1.setVoxel(x0 + 30, y0 + 30, z0 + 30, 33500.0);
+		 * 
+		 * MyLog.waitHere("SEMPRE PIU'DIFFICILE");
+		 */
 
-		int x0 = 52;
-		int y0 = 60;
-		int z0 = 26;
-		int width = 60;
-		int height = 60;
-		int depth = 60;
-		
+		// in pratica ora imposto il mio cuBBetto in modo che "viaggi" per tutto il
+		// nostro stack, il pixel centrale del cubo, sara' la media di tutti i pixel del
+		// cuBBo e verra' scritto nella corrispondente posizione delo stack di output
 
-		float[] vetVox1 = sta1.getVoxels(x0, y0, z0, width, height, depth, null);
+		new WaitForUserDialog("ABBIATE PASIENSA E GUARDATEVI LA BARRA DI STATUS").show();
 
-//		int count = 0;
-//		for (float aux1 : vetVox1) {
-//			MyLog.log("" + count++ + " " + aux1);
-//		}
+		ImageStack sta2 = imp1.getImageStack();
+		ImageStack sta3 = sta2.duplicate();
+		int width1 = sta2.getWidth();
+		int height1 = sta2.getHeight();
+		int depth1 = sta2.getSize();
+		int width2 = 30;
+		int height2 = 30;
+		int depth2 = 30;
 
-		// ed ora provo la riscrittura dell'intero cubetto 3x3, per esperimento aggiungo
-		// 3000 al segnale di ognuno dei pixel
+//		
+// non viene azzerata la prima fetta, potrebbe essere un bug di ImageJ, riverificare e mandare mail a Wayne Rasband oppure al gruppo
+//
+		for (int i1 = 0; i1 < depth1; i1++) {
 
-		for (int i1 = 0; i1 < vetVox1.length; i1++) {
-			vetVox1[i1] = vetVox1[i1] + 3000;
+			for (int i2 = 0; i2 < width1; i2++) {
+
+				for (int i3 = 0; i3 < height1; i3++) {
+					IJ.showStatus("  " + i1 + " / " + (depth1));
+					sta3.setVoxel(i2, i3, i1, 32768); // 32768 qui equivale a zero!
+				}
+			}
 		}
-		sta1.setVoxels(x0, y0, z0, width, height, depth, vetVox1);
 
-		// ed ora facciamo un cubetto nero, coassiale
-		for (int i1 = 0; i1 < vetVox1.length; i1++) {
-			vetVox1[i1] = vetVox1[i1] - 3000;
+		// sappiamo che possiamo "telecomandare" il cuBBetto fornendo la coordinata
+		// dell'angolo in alto a sx del cuBBo
+
+		for (int i1 = 0; i1 < depth1 - depth2; i1++) {
+
+			for (int i2 = 0; i2 < width1 - width2; i2++) {
+
+				for (int i3 = 0; i3 < height1 - height2; i3++) {
+					IJ.showStatus("  " + i1 + " / " + (depth1 - depth2));
+					float[] vetVox2 = sta2.getVoxels(i2, i3, i1, width2, height2, depth2, null);
+					// per ora mi limito a fare una media, poi ci si puo'sbizzarrire, tenendo pero'
+					// conto di come vengano restituiti i vari pixel
+
+					ArrayUtil arrayUtil = new ArrayUtil(vetVox2);
+					double out2 = arrayUtil.getMean();
+
+//					float out2 = Utility.vetMean(vetVox2);
+//					double out3 = sta3.getVoxel(i2 + width2 / 2, i3 + height2 / 2, i1 + depth2);
+					sta3.setVoxel(i2 + width2 / 2, i3 + height2 / 2, i1 + depth2 / 2, (float) out2);
+				}
+			}
 		}
 
-		sta1.setVoxels(x0 + 25, y0 + 25, z0 + 25, 10, 10, 10, vetVox1);
+		ImagePlus imp3 = new ImagePlus("IMMAGINE CUBBOMEDIATA", sta3);
+		ContrastEnhancer contrastEnhancer = new ContrastEnhancer();
+		contrastEnhancer.equalize(imp3);
 
-		// ed ora gli impianto un singolo pixel, che si vede benissimo in fetta 57, si
-		// apprezza che la coordinata e' in integer, e' appena appena spostato rispetto
-		// al centro perfeetto !!
-
-		sta1.setVoxel(x0 + 30, y0 + 30, z0 + 30, 33500.0);
-
-		MyLog.waitHere("STICAZZI");
+		imp3.show();
+		new WaitForUserDialog(
+				"Ecco il primo stack cuBBomediato dela storia\nRicordatevi di fare Adjust, io sono troppo pigro per farvelo!")
+				.show();
 
 	}
 
