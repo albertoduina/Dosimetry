@@ -3,17 +3,20 @@ package Dosimetry;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.image.ColorModel;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -32,6 +35,7 @@ import ij.ImageStack;
 import ij.WindowManager;
 import ij.gui.GenericDialog;
 import ij.gui.ImageWindow;
+import ij.gui.NewImage;
 import ij.gui.NonBlockingGenericDialog;
 import ij.gui.Plot;
 import ij.io.FileInfo;
@@ -40,6 +44,7 @@ import ij.io.Opener;
 import ij.measure.Calibration;
 import ij.measure.CurveFitter;
 import ij.plugin.DICOM;
+import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
 import ij.util.DicomTools;
 import ij.util.FontUtil;
@@ -57,6 +62,7 @@ import ij.util.Tools;
 
 public class Utility {
 
+	private static final Object[][] matrice = null;
 	static String fontStyle = "Arial";
 	static Font defaultFont = FontUtil.getFont(fontStyle, Font.PLAIN, 13);
 	static Font textFont = FontUtil.getFont(fontStyle, Font.ITALIC, 16);
@@ -69,17 +75,52 @@ public class Utility {
 	 * @param path1 path del file, completo di nome
 	 * @return vettore stringhe
 	 */
-	public static String[] readSimpleText(String path1) {
+	public static String[] readSimpleText2(String path1) {
 
 		List<String> out1 = null;
 		try {
-			out1 = Files.readAllLines(Paths.get(path1));
+			out1 = Files.readAllLines(Path.of(path1));
 			// MyLog.log("lette= " + out1.size() + " linee");
 		} catch (IOException e) {
 			MyLog.log("errore lettura " + path1);
 			e.printStackTrace();
 		}
 		String[] out2 = out1.toArray(new String[0]);
+		return out2;
+	}
+
+	/**
+	 * Legge tutte le linee di un file testo e le restituisce come vettore di
+	 * stringhe
+	 * 
+	 * @param path1 path del file, completo di nome
+	 * @return vettore stringhe
+	 */
+	public static String[] readSimpleText(String path1) {
+
+		List<String> lines = new ArrayList<String>();
+		BufferedReader br = null;
+		try {
+			br = new BufferedReader(new FileReader(path1));
+		} catch (FileNotFoundException e) {
+			MyLog.waitHere("fileNotFound error= " + path1);
+			e.printStackTrace();
+		}
+		String line = null;
+		try {
+			line = br.readLine();
+			while (line != null) {
+				lines.add(line);
+				line = br.readLine();
+			}
+			br.close();
+
+		} catch (IOException e) {
+			MyLog.waitHere("reading error= " + path1);
+			e.printStackTrace();
+		}
+
+		String[] out2 = lines.toArray(new String[0]);
 		return out2;
 	}
 
@@ -301,7 +342,6 @@ public class Utility {
 
 	}
 
-
 	/**
 	 * Lettura di un tag dal log
 	 * 
@@ -338,17 +378,27 @@ public class Utility {
 	 */
 	static String readFromLog(String path1, String code1, String separator) {
 
-		// leggo una stringa dal log
+		if (path1 == null)
+			MyLog.waitHere("path1==null");
 		String[] vetText = Utility.readSimpleText(path1);
+		if (vetText == null)
+			MyLog.waitHere("vetText==null");
+
 		String[] vetAux1;
 		String out1 = null;
+		boolean trovato = false;
 		if (vetText.length > 0) {
 			for (int i1 = 0; i1 < vetText.length; i1++) {
 				if (vetText[i1].contains(code1)) {
 					vetAux1 = vetText[i1].split(separator);
 					out1 = vetAux1[1].trim();
+					trovato = true;
 				}
 			}
+		}
+		if (!trovato) {
+			MyLog.waitHere("non trovo " + code1);
+			return null;
 		}
 		return out1;
 	}
@@ -537,7 +587,6 @@ public class Utility {
 		return result;
 	}
 
-
 	/***
 	 * Verifica la disponibilita' di una directory
 	 * 
@@ -651,6 +700,48 @@ public class Utility {
 			return null;
 		ImagePlus dicomImage1 = scelta1.getNextImage();
 		return dicomImage1;
+	}
+
+	static String dialogSceltaLesione_SV02(String path) {
+
+		File path1 = new File(path);
+		File[] filesAndDirs = path1.listFiles();
+		File file = null;
+		String name;
+		ArrayList<String> scelta = new ArrayList<String>();
+
+		if (filesAndDirs == null)
+			return null;
+		for (int i1 = 0; i1 < filesAndDirs.length; i1++) {
+			file = filesAndDirs[i1];
+			if (file.isFile()) {
+				name = file.getName();
+				if (name.contains(".")) {
+					String[] parts = name.split("\\.");
+					if (parts[1].equals("txt")) {
+						if ((!parts[0].equals("volatile")) && (!parts[0].equals("permanente")))
+							scelta.add(parts[0]);
+					}
+				} else {
+					Utility.dialogErrorMessage_LP06("NON CI SONO LESIONI SALVATE");
+					return null;
+				}
+
+			}
+		}
+
+		// se è un file guardo se l'estensione e' txt
+
+		String[] scelta2 = Utility.arrayListToArrayString(scelta);
+
+		NonBlockingGenericDialog scelta1 = new NonBlockingGenericDialog("SV02 - Selezionare nome lesione");
+		scelta1.addChoice("scelta lesione", scelta2, scelta2[0]);
+		scelta1.showDialog();
+
+		if (scelta1.wasCanceled())
+			return null;
+		String out = scelta1.getNextChoice();
+		return out;
 	}
 
 	/**
@@ -1113,7 +1204,7 @@ public class Utility {
 	 * @param pathVolatile
 	 * @param pathPermanente
 	 */
-	static void dialogBattezzaLesioni_LP27(String pathVolatile) {
+	static String dialogBattezzaLesioni_LP27(String pathVolatile) {
 		// alla fine del nostro reiterativo lavoro decidiamo che dobbiamo salvare il
 		// tutto CHE COSA POTRA'MAI ANDARE STORTO???
 		NonBlockingGenericDialog compliments1 = new NonBlockingGenericDialog("LP27 - Battezza lesioni");
@@ -1137,6 +1228,7 @@ public class Utility {
 		Utility.logEnd(pathVolatile);
 		Utility.logMove(pathLesione, pathVolatile);
 		Utility.logInit(pathVolatile);
+		return lesionName;
 	}
 
 	/**
@@ -1475,6 +1567,7 @@ public class Utility {
 		double mean = sum / data.length;
 		return mean;
 	}
+
 	/**
 	 * Calcola la media di un vettore
 	 * 
@@ -1598,8 +1691,7 @@ public class Utility {
 		genericDialog.hideCancelButton();
 		genericDialog.showDialog();
 	}
-	
-	
+
 	/**
 	 * Visualizzazione messaggi di errore
 	 * 
@@ -1612,12 +1704,11 @@ public class Utility {
 		gd1.setFont(defaultFont);
 		gd1.addMessage(paramString);
 		gd1.showDialog();
-		if (gd1.wasCanceled()) 
+		if (gd1.wasCanceled())
 			return true;
-		else 
+		else
 			return false;
 	}
-
 
 	/**
 	 * selezione di un file da parte dell'utilizzatore
@@ -1692,7 +1783,7 @@ public class Utility {
 		return jarName;
 
 	}
-	
+
 	/**
 	 * Apre una immagine dal path
 	 * 
@@ -1709,9 +1800,7 @@ public class Utility {
 		}
 		return imp;
 	}
-	
-	
-	
+
 	public static ImagePlus openImage(File file) {
 		Opener opener = new Opener();
 		ImagePlus imp = opener.openImage(file.getPath());
@@ -1721,7 +1810,6 @@ public class Utility {
 		}
 		return imp;
 	}
-
 
 	/**
 	 * Legge le immagini da una cartella e le inserisce in uno stack. Copiato da
@@ -1751,6 +1839,11 @@ public class Utility {
 		File vetDirPath = new File(myDirPath);
 		File checkEmpty;
 		File[] results = vetDirPath.listFiles();
+		if ((results == null) || (results.length == 0)) {
+			MyLog.waitHere("pare non esistano files in " + myDirPath);
+			return null;
+		}
+
 		boolean ok = false;
 		for (int i1 = 0; i1 < results.length; i1++) {
 			flName = results[i1].getName();
@@ -1846,7 +1939,6 @@ public class Utility {
 		return imp2;
 	}
 
-	
 	/***
 	 * Testa se fileName1 e' un file dicom ed e' un immagine visualizzabile da
 	 * ImageJ, eventualmente scrive a log nome file e tipo di errore
@@ -1867,7 +1959,6 @@ public class Utility {
 		}
 		return ok;
 	}
-
 
 	/**
 	 * Legge i dati header
@@ -1928,5 +2019,148 @@ public class Utility {
 		return imp;
 	}
 
+	/**
+	 * Questa tabella di taratura e'relativa ad un cubbo 6x6x6, infatti ha 216
+	 * elementi! Notare che ho manipolato e taroccato i dati forniti sul file
+	 * Formule, in modo che l'ultima colonna, quella relativa ad S [mGy/(MBq·s)] sia
+	 * disposta analogamente ai pixel restituiti da getVoxels di ImageStack. In
+	 * pratica la tabella del testo e' disposta in modo che cambi piu'velocemente la
+	 * colonna z (k) e meno velocemente la colonna x (i), al contrario ImageJ cambia
+	 * piu'velocemente la colonna x e meno velocemente la colonna z. Qui
+	 * TabellaBella e'disposta proprio come ImageJ. Ora che ti ho ben confuso le
+	 * idee possiamo continuare!!!
+	 * 
+	 * @return
+	 */
+	public static double[][] tabellaBella() {
+		double[][] mat = { { 0, 0, 0, 2.26E-01 }, { 1, 0, 0, 3.39E-03 }, { 2, 0, 0, 1.88E-05 }, { 3, 0, 0, 8.43E-06 },
+				{ 4, 0, 0, 4.83E-06 }, { 5, 0, 0, 3.14E-06 }, { 0, 1, 0, 3.39E-03 }, { 1, 1, 0, 1.19E-04 },
+				{ 2, 1, 0, 1.51E-05 }, { 3, 1, 0, 7.60E-06 }, { 4, 1, 0, 4.56E-06 }, { 5, 1, 0, 3.04E-06 },
+				{ 0, 2, 0, 1.88E-05 }, { 1, 2, 0, 1.51E-05 }, { 2, 2, 0, 9.48E-06 }, { 3, 2, 0, 5.90E-06 },
+				{ 4, 2, 0, 3.89E-06 }, { 5, 2, 0, 2.74E-06 }, { 0, 3, 0, 8.43E-06 }, { 1, 3, 0, 7.60E-06 },
+				{ 2, 3, 0, 5.90E-06 }, { 3, 3, 0, 4.32E-06 }, { 4, 3, 0, 3.14E-06 }, { 5, 3, 0, 2.35E-06 },
+				{ 0, 4, 0, 4.83E-06 }, { 1, 4, 0, 4.56E-06 }, { 2, 4, 0, 3.89E-06 }, { 3, 4, 0, 3.14E-06 },
+				{ 4, 4, 0, 2.50E-06 }, { 5, 4, 0, 1.98E-06 }, { 0, 5, 0, 3.14E-06 }, { 1, 5, 0, 3.04E-06 },
+				{ 2, 5, 0, 2.74E-06 }, { 3, 5, 0, 2.35E-06 }, { 4, 5, 0, 1.98E-06 }, { 5, 5, 0, 1.61E-06 },
+				{ 0, 0, 1, 3.39E-03 }, { 1, 0, 1, 1.19E-04 }, { 2, 0, 1, 1.51E-05 }, { 3, 0, 1, 7.60E-06 },
+				{ 4, 0, 1, 4.56E-06 }, { 5, 0, 1, 3.04E-06 }, { 0, 1, 1, 1.19E-04 }, { 1, 1, 1, 2.82E-05 },
+				{ 2, 1, 1, 1.26E-05 }, { 3, 1, 1, 6.94E-06 }, { 4, 1, 1, 4.32E-06 }, { 5, 1, 1, 2.93E-06 },
+				{ 0, 2, 1, 1.51E-05 }, { 1, 2, 1, 1.26E-05 }, { 2, 2, 1, 8.46E-06 }, { 3, 2, 1, 5.49E-06 },
+				{ 4, 2, 1, 3.72E-06 }, { 5, 2, 1, 2.64E-06 }, { 0, 3, 1, 7.60E-06 }, { 1, 3, 1, 6.94E-06 },
+				{ 2, 3, 1, 5.49E-06 }, { 3, 3, 1, 4.09E-06 }, { 4, 3, 1, 3.04E-06 }, { 5, 3, 1, 2.29E-06 },
+				{ 0, 4, 1, 4.56E-06 }, { 1, 4, 1, 4.32E-06 }, { 2, 4, 1, 3.72E-06 }, { 3, 4, 1, 3.04E-06 },
+				{ 4, 4, 1, 2.42E-06 }, { 5, 4, 1, 1.92E-06 }, { 0, 5, 1, 3.04E-06 }, { 1, 5, 1, 2.93E-06 },
+				{ 2, 5, 1, 2.64E-06 }, { 3, 5, 1, 2.29E-06 }, { 4, 5, 1, 1.92E-06 }, { 5, 5, 1, 1.60E-06 },
+				{ 0, 0, 2, 1.88E-05 }, { 1, 0, 2, 1.51E-05 }, { 2, 0, 2, 9.48E-06 }, { 3, 0, 2, 5.90E-06 },
+				{ 4, 0, 2, 3.89E-06 }, { 5, 0, 2, 2.74E-06 }, { 0, 1, 2, 1.51E-05 }, { 1, 1, 2, 1.26E-05 },
+				{ 2, 1, 2, 8.46E-06 }, { 3, 1, 2, 5.49E-06 }, { 4, 1, 2, 3.72E-06 }, { 5, 1, 2, 2.64E-06 },
+				{ 0, 2, 2, 9.48E-06 }, { 1, 2, 2, 8.46E-06 }, { 2, 2, 2, 6.36E-06 }, { 3, 2, 2, 4.56E-06 },
+				{ 4, 2, 2, 3.28E-06 }, { 5, 2, 2, 2.42E-06 }, { 0, 3, 2, 5.90E-06 }, { 1, 3, 2, 5.49E-06 },
+				{ 2, 3, 2, 4.56E-06 }, { 3, 3, 2, 3.57E-06 }, { 4, 3, 2, 2.74E-06 }, { 5, 3, 2, 2.12E-06 },
+				{ 0, 4, 2, 3.89E-06 }, { 1, 4, 2, 3.72E-06 }, { 2, 4, 2, 3.28E-06 }, { 3, 4, 2, 2.74E-06 },
+				{ 4, 4, 2, 2.23E-06 }, { 5, 4, 2, 1.80E-06 }, { 0, 5, 2, 2.74E-06 }, { 1, 5, 2, 2.64E-06 },
+				{ 2, 5, 2, 2.42E-06 }, { 3, 5, 2, 2.12E-06 }, { 4, 5, 2, 1.80E-06 }, { 5, 5, 2, 1.51E-06 },
+				{ 0, 0, 3, 8.43E-06 }, { 1, 0, 3, 7.60E-06 }, { 2, 0, 3, 5.90E-06 }, { 3, 0, 3, 4.32E-06 },
+				{ 4, 0, 3, 3.14E-06 }, { 5, 0, 3, 2.35E-06 }, { 0, 1, 3, 7.60E-06 }, { 1, 1, 3, 6.94E-06 },
+				{ 2, 1, 3, 5.49E-06 }, { 3, 1, 3, 4.09E-06 }, { 4, 1, 3, 3.04E-06 }, { 5, 1, 3, 2.29E-06 },
+				{ 0, 2, 3, 5.90E-06 }, { 1, 2, 3, 5.49E-06 }, { 2, 2, 3, 4.56E-06 }, { 3, 2, 3, 3.57E-06 },
+				{ 4, 2, 3, 2.74E-06 }, { 5, 2, 3, 2.12E-06 }, { 0, 3, 3, 4.32E-06 }, { 1, 3, 3, 4.09E-06 },
+				{ 2, 3, 3, 3.57E-06 }, { 3, 3, 3, 2.92E-06 }, { 4, 3, 3, 2.35E-06 }, { 5, 3, 3, 1.88E-06 },
+				{ 0, 4, 3, 3.14E-06 }, { 1, 4, 3, 3.04E-06 }, { 2, 4, 3, 2.74E-06 }, { 3, 4, 3, 2.35E-06 },
+				{ 4, 4, 3, 1.97E-06 }, { 5, 4, 3, 1.63E-06 }, { 0, 5, 3, 2.35E-06 }, { 1, 5, 3, 2.29E-06 },
+				{ 2, 5, 3, 2.12E-06 }, { 3, 5, 3, 1.88E-06 }, { 4, 5, 3, 1.63E-06 }, { 5, 5, 3, 1.39E-06 },
+				{ 0, 0, 4, 4.83E-06 }, { 1, 0, 4, 4.56E-06 }, { 2, 0, 4, 3.89E-06 }, { 3, 0, 4, 3.14E-06 },
+				{ 4, 0, 4, 2.50E-06 }, { 5, 0, 4, 1.98E-06 }, { 0, 1, 4, 4.56E-06 }, { 1, 1, 4, 4.32E-06 },
+				{ 2, 1, 4, 3.72E-06 }, { 3, 1, 4, 3.04E-06 }, { 4, 1, 4, 2.42E-06 }, { 5, 1, 4, 1.92E-06 },
+				{ 0, 2, 4, 3.89E-06 }, { 1, 2, 4, 3.72E-06 }, { 2, 2, 4, 3.28E-06 }, { 3, 2, 4, 2.74E-06 },
+				{ 4, 2, 4, 2.23E-06 }, { 5, 2, 4, 1.80E-06 }, { 0, 3, 4, 3.14E-06 }, { 1, 3, 4, 3.04E-06 },
+				{ 2, 3, 4, 2.74E-06 }, { 3, 3, 4, 2.35E-06 }, { 4, 3, 4, 1.97E-06 }, { 5, 3, 4, 1.63E-06 },
+				{ 0, 4, 4, 2.50E-06 }, { 1, 4, 4, 2.42E-06 }, { 2, 4, 4, 2.23E-06 }, { 3, 4, 4, 1.97E-06 },
+				{ 4, 4, 4, 1.70E-06 }, { 5, 4, 4, 1.44E-06 }, { 0, 5, 4, 1.98E-06 }, { 1, 5, 4, 1.92E-06 },
+				{ 2, 5, 4, 1.80E-06 }, { 3, 5, 4, 1.63E-06 }, { 4, 5, 4, 1.44E-06 }, { 5, 5, 4, 1.25E-06 },
+				{ 0, 0, 5, 3.14E-06 }, { 1, 0, 5, 3.04E-06 }, { 2, 0, 5, 2.74E-06 }, { 3, 0, 5, 2.35E-06 },
+				{ 4, 0, 5, 1.98E-06 }, { 5, 0, 5, 1.61E-06 }, { 0, 1, 5, 3.04E-06 }, { 1, 1, 5, 2.93E-06 },
+				{ 2, 1, 5, 2.64E-06 }, { 3, 1, 5, 2.29E-06 }, { 4, 1, 5, 1.92E-06 }, { 5, 1, 5, 1.60E-06 },
+				{ 0, 2, 5, 2.74E-06 }, { 1, 2, 5, 2.64E-06 }, { 2, 2, 5, 2.42E-06 }, { 3, 2, 5, 2.12E-06 },
+				{ 4, 2, 5, 1.80E-06 }, { 5, 2, 5, 1.51E-06 }, { 0, 3, 5, 2.35E-06 }, { 1, 3, 5, 2.29E-06 },
+				{ 2, 3, 5, 2.12E-06 }, { 3, 3, 5, 1.88E-06 }, { 4, 3, 5, 1.63E-06 }, { 5, 3, 5, 1.39E-06 },
+				{ 0, 4, 5, 1.98E-06 }, { 1, 4, 5, 1.92E-06 }, { 2, 4, 5, 1.80E-06 }, { 3, 4, 5, 1.63E-06 },
+				{ 4, 4, 5, 1.44E-06 }, { 5, 4, 5, 1.25E-06 }, { 0, 5, 5, 1.61E-06 }, { 1, 5, 5, 1.60E-06 },
+				{ 2, 5, 5, 1.51E-06 }, { 3, 5, 5, 1.39E-06 }, { 4, 5, 5, 1.25E-06 }, { 5, 5, 5, 1.12E-06 } };
+		return mat;
+	}
+
+	/**
+	 * Idea copiata da Laurent Thomas, & Pierre Trehin. (2021, July 22) github :
+	 * LauLauThom/MaskFromRois-Fiji un plugin in pitonato (in pyton)
+	 * 
+	 * 
+	 * @param impStack
+	 * @return
+	 */
+	public static ImagePlus stackMask(ImagePlus impStack) {
+
+		ImageStack myImageStack = impStack.getImageStack();
+		int width = myImageStack.getWidth();
+		int height = myImageStack.getHeight();
+		int size = myImageStack.getSize();
+		ByteProcessor mask1 = new ByteProcessor(width, height); // ora ho una maschera in cui 0 significa che il pixel
+																// non fa parte di alcuna patata o buccia
+
+		ImageStack myMaskStack = new ImageStack(width, height, size);
+
+		for (int i1 = 0; i1 < size; i1++) {
+			ImageProcessor ipSlice = myImageStack.getProcessor(i1);
+			ImageProcessor maskSlice = ipSlice.getMask();
+			myMaskStack.addSlice(maskSlice);
+		}
+		ImagePlus myMaskImage = new ImagePlus("CARNIVAL", myMaskStack);
+		return myMaskImage;
+	}
+
+	/**
+	 * Inserisce la mask ottenuta all'interno di una immagine, utilizzando il
+	 * boundingRectangle
+	 * 
+	 * @param ipMask
+	 * @param r1
+	 * @param width
+	 * @param height
+	 * @return
+	 */
+	static ImageProcessor patatizeMask(ImageProcessor ipMask, Rectangle r1, int width, int height) {
+		ImagePlus impMyPatata = NewImage.createByteImage("Simulata", width, height, 1, NewImage.FILL_BLACK);
+		ImageProcessor ipMyPatata = impMyPatata.getProcessor();
+
+		short pix1 = 0;
+		for (int y = 0; y < r1.height; y++) {
+			for (int x = 0; x < r1.width; x++) {
+				pix1 = (short) ipMask.getPixelValue(x, y);
+				ipMyPatata.putPixelValue(x + r1.x, y + r1.y, pix1);
+			}
+		}
+		return ipMyPatata;
+
+	}
+
+	/**
+	 * 
+	 * @param oldname
+	 * @param newname
+	 */
+	static void rinominaImmagini(String oldname, String newname) {
+		File old1 = new File(oldname);
+		File new1 = new File(newname);
+		old1.renameTo(new1);
+	}
+
+	public static String[] arrayListToArrayString(ArrayList<String> inArrayList) {
+		Object[] objArr = inArrayList.toArray();
+		String[] outStrArr = new String[objArr.length];
+		for (int i1 = 0; i1 < objArr.length; i1++) {
+			outStrArr[i1] = objArr[i1].toString();
+		}
+		return outStrArr;
+	}
 
 }

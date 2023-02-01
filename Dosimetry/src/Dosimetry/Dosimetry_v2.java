@@ -25,6 +25,7 @@ import ij.Undo;
 import ij.WindowManager;
 import ij.gui.GenericDialog;
 import ij.gui.ImageWindow;
+import ij.gui.NewImage;
 import ij.gui.NonBlockingGenericDialog;
 import ij.gui.Overlay;
 import ij.gui.Plot;
@@ -181,6 +182,15 @@ public class Dosimetry_v2 implements PlugIn {
 				ImageStack stack = dicomImage.getStack();
 				stackSize = stack.getSize();
 				Undo.reset();
+
+				// ##################
+				// iw2ayv 310123
+				ImageStack stackMyPatata = new ImageStack(stack.getWidth(), stack.getHeight());
+				ImagePlus impMyPatataSlice = NewImage.createByteImage("Simulata", stack.getWidth(), stack.getHeight(),
+						1, NewImage.FILL_BLACK);
+				ImageProcessor ipMyPatata = impMyPatataSlice.getProcessor();
+
+				// ##################
 
 				Dimension screen = IJ.getScreenSize();
 				ImageWindow window = dicomImage.getWindow();
@@ -444,7 +454,9 @@ public class Dosimetry_v2 implements PlugIn {
 							dicomImage.setRoi(guscioEsterno);
 
 						ImageProcessor mask = guscioEsterno.getMask();
+
 						Rectangle r = guscioEsterno.getBounds();
+
 						tmpMax = calculateMax(r, ip, mask);
 
 						if (roiMax < tmpMax) {
@@ -464,6 +476,16 @@ public class Dosimetry_v2 implements PlugIn {
 
 					Overlay overlay = new Overlay();
 					int[] totalHistogram = new int[0];
+
+					// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+					// aggiungiamo allo stack le fette nere precedenti la patataMask
+					for (int i1 = 0; i1 < fettaCranioCaudale-1; i1++) {
+						stackMyPatata.addSlice(ipMyPatata);
+					}
+
+					// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+					
+
 					for (int fetta = fettaCranioCaudale; fetta <= fettaCaudoCraniale; fetta++) {
 						roiManager.reset();
 						IJ.run("Select None");
@@ -481,15 +503,15 @@ public class Dosimetry_v2 implements PlugIn {
 									guscioEsterno = roiPerFetta.get(posizioneFetta);
 								else
 									guscioEsterno = null;
+								
 							}
-
 							dicomImage.setRoi(guscioEsterno);
 
 							if (!isSelectionEmpty()) {
 
 								roiManager.runCommand(dicomImage, "Add");
 								roiManager.runCommand(dicomImage, "AND");
-
+								
 								if (!isSelectionEmpty()) {
 									roiManager.runCommand(dicomImage, "Add");
 									Roi[] roisArray = roiManager.getRoisAsArray();
@@ -498,6 +520,13 @@ public class Dosimetry_v2 implements PlugIn {
 									overlay.add(thresholdRoi, numeroLesione + "_" + posizioneLesione);
 									ImageProcessor mask = thresholdRoi.getMask();
 									Rectangle r = thresholdRoi.getBounds();
+
+									// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+									ImageProcessor fettazza = Utility.patatizeMask(mask, r, dicomImage.getWidth(),
+											dicomImage.getHeight());
+									stackMyPatata.addSlice(fettazza); // aggiungo la mask allo stack patata
+									// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 									stat = calculateStat(r, ip, mask);
 									conteggio += (int) stat[0];
 									integrale += (int) stat[1];
@@ -514,13 +543,21 @@ public class Dosimetry_v2 implements PlugIn {
 							}
 						}
 					}
-
+					
 					dicomImage.setSlice(posizioneMax);
 					dicomImage.setOverlay(overlay);
 					if (threshold == -1)
 						IJ.resetThreshold();
 					IJ.run("Select None");
 					MyLog.log("eseguito reset004");
+
+					// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+					for (int i1 = fettaCaudoCranialeFinal; i1 < stackSize; i1++) { 
+						// queste sono le fette nere seguenti la patata 
+						stackMyPatata.addSlice(ipMyPatata);
+					} 
+					ImagePlus impMyPatata = new ImagePlus("PATATA", stackMyPatata); 
+					// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 					boolean continua = false;
 					boolean ricontorna = false;
@@ -549,6 +586,7 @@ public class Dosimetry_v2 implements PlugIn {
 							ricontorna = true;
 							prosegui = false;
 							lavora = true;
+
 							// TESTATO, RITORNA ALLA SELEZIONE FETTA / DEFINIZIONE ROI
 						} else if (resultsDialog.wasCanceled()) {
 							// PREMUTO PROSEGUI
@@ -585,12 +623,17 @@ public class Dosimetry_v2 implements PlugIn {
 							// SCRITTURA DEI RISULTATI IN UN FILE DI TESTO VOLATILE.TXT, CHE VERRA' IN
 							// SEGUITO TRASFERITO IN UN FILE COL NOME DELLA LESIONE ESAMINATA, DIGITATO
 							// DALL'OPERATORE. QUESTO NEL dosimetria_Lu177
+							// DEVO ANCHE SALVARE L'IMMAGINE PATATA CON LO STACKMASK
 							// ==========================================================================
 
 							// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+							String aux8 = desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile"
+									+ aux2;
+							IJ.saveAsTiff(impMyPatata, aux8);
+							// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 							MyLog.log("ESEGUO MemorizeResults con point1= " + point1);
-							
+
 							aux1 = "#" + count++ + "#\t--- PATIENT INFO " + aux2 + " ---";
 							MyLog.log(aux1);
 							Utility.logAppend(pathVolatile, aux1);
@@ -608,7 +651,7 @@ public class Dosimetry_v2 implements PlugIn {
 							aux1 = "#" + count++ + "#\tPatient sex= " + DicomTools.getTag(dicomImage, "0010,0040");
 							MyLog.log(aux1);
 							Utility.logAppend(pathVolatile, aux1);
-							count = countbase + 13;   /// proprio tredici, corbezzoli !!!, se metto dieci si pianta
+							count = countbase + 13; /// proprio tredici, corbezzoli !!!, se metto dieci si pianta
 							// count = count + 10;
 
 							// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -1017,7 +1060,7 @@ public class Dosimetry_v2 implements PlugIn {
 	}
 
 	private int convertFromPETCTReference(int inputPosition) {
-	//	this.stackSize = stackSize;
+		// this.stackSize = stackSize;
 		return stackSize - inputPosition + 1;
 	}
 
@@ -1113,6 +1156,17 @@ public class Dosimetry_v2 implements PlugIn {
 			histData[i][2] = cumulativo;
 		}
 		return histData;
+	}
+
+	void extractStackMaskPatata(ImagePlus imageStack) {
+		MyLog.log("sono in extractStackMaskPatata");
+		MyLog.waitHere("sono in extractStackMaskPatata");
+
+	}
+
+	void extractStackMaskBuccia(ImagePlus imageStack) {
+		MyLog.log("sono in extractStackMaskBuccia");
+		MyLog.waitHere("sono in extractStackMaskBuccia");
 	}
 
 }

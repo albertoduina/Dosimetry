@@ -1,0 +1,6 @@
+TabellaBella
+
+Dopo qualche esperimento mi rassegno: devo verificare a mano le coordinate dei pixel restituiti da getVoxels!
+Per evitare di dover leggere i valori di un cubo di lato 6 (216 pixels) faccio un cubo di lato 3 (solo 27 pixels), 
+tanto poi le coordinate sono gestite sempre allo stesso modo!
+

@@ -865,7 +865,13 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		Utility.logDedupe(pathVolatile); // ELIMINAZIONE DOPPIONI
 
-		Utility.dialogBattezzaLesioni_LP27(pathVolatile);
+		String lesionName = Utility.dialogBattezzaLesioni_LP27(pathVolatile);
+		String path22 = desktopPath + File.separator + "DosimetryFolder" + File.separator;
+
+		Utility.rinominaImmagini(path22 + "volatile24h.tif", path22 + lesionName + "24h.tif");
+		Utility.rinominaImmagini(path22 + "volatile48h.tif", path22 + lesionName + "48h.tif");
+		Utility.rinominaImmagini(path22 + "volatile120h.tif", path22 + lesionName + "120h.tif");
+
 		Utility.chiudiTutto();
 		IJ.showMessage("FINE LAVORO");
 	}
@@ -899,7 +905,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 			fileOutputStream.close();
 		}
 	}
-
 
 	/**
 	 * Tentativo di partorire la laboriosa stringa usata come titolo del PetCtViewer
