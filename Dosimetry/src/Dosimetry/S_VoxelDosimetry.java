@@ -1,5 +1,6 @@
 package Dosimetry;
 
+import java.awt.Font;
 import java.awt.Rectangle;
 import java.io.File;
 import java.util.ArrayList;
@@ -20,12 +21,18 @@ import ij.plugin.PlugIn;
 import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 import ij.util.ArrayUtil;
+import ij.util.FontUtil;
 
 /**
  * @version v3
  * @author Date 05 dec 2022
  */
 public class S_VoxelDosimetry implements PlugIn {
+
+	static String fontStyle = "Arial";
+	static Font defaultFont = FontUtil.getFont(fontStyle, Font.PLAIN, 13);
+	static Font textFont = FontUtil.getFont(fontStyle, Font.ITALIC, 16);
+	static Font titleFont = FontUtil.getFont(fontStyle, Font.BOLD, 16);
 
 	public void run(String arg) {
 
@@ -130,6 +137,9 @@ public class S_VoxelDosimetry implements PlugIn {
 		// utilizzare la mask, dopo che abbiamo applicato le formule formulate in
 		// formule11012023 scriviamo il risultato nel corrispondente pixel float dello
 		// stackout
+		// ####################################################
+		// MATILDE
+		// ####################################################
 
 		double voxSignal = 0;
 		double ahhVoxel = 0;
@@ -162,8 +172,14 @@ public class S_VoxelDosimetry implements PlugIn {
 
 		ImagePlus impMatilde = new ImagePlus("mAtilde", stackOut1);
 		impMatilde.show();
+		double[] totto = Utility.MyStackStatistics(impMatilde, impStackMask);
+
 		Utility.autoAdjust(impMatilde, impMatilde.getProcessor());
 		new WaitForUserDialog("MATILDE con " + count2 + " pixel >0").show();
+
+		// ####################################################
+		// PATATA
+		// ####################################################
 
 		width2 = 6;
 		height2 = 6;
@@ -211,25 +227,53 @@ public class S_VoxelDosimetry implements PlugIn {
 
 		double[] tapata = Utility.MyStackStatistics(impPatata);
 
-		int minStackX = (int) tapata[0];
-		int minStackY = (int) tapata[1];
-		int minStackZ = (int) tapata[2];
-		double minStackVal = tapata[3];
-		int maxStackX = (int) tapata[4];
-		int maxStackY = (int) tapata[5];
-		int maxStackZ = (int) tapata[6];
-		double maxStackVal = tapata[7];
-		long pixCount = (long) tapata[8];
-		double meanStackVal = tapata[9];
+		int minStackX1 = (int) totto[0];
+		int minStackY1 = (int) totto[1];
+		int minStackZ1 = (int) totto[2];
+		double minStackVal1 = totto[3];
+		int maxStackX1 = (int) totto[4];
+		int maxStackY1 = (int) totto[5];
+		int maxStackZ1 = (int) totto[6];
+		double maxStackVal1 = totto[7];
+		long pixCount1 = (long) totto[8];
+		double meanStackVal1 = totto[9];
+		double integral1 = totto[10];
+
+		int minStackX2 = (int) tapata[0];
+		int minStackY2 = (int) tapata[1];
+		int minStackZ2 = (int) tapata[2];
+		double minStackVal2 = tapata[3];
+		int maxStackX2 = (int) tapata[4];
+		int maxStackY2 = (int) tapata[5];
+		int maxStackZ2 = (int) tapata[6];
+		double maxStackVal2 = tapata[7];
+		long pixCount2 = (long) tapata[8];
+		double meanStackVal2 = tapata[9];
+		double integral2 = tapata[10];
 
 		NonBlockingGenericDialog resultsDialog = new NonBlockingGenericDialog("SV05 - Results");
-		resultsDialog.addMessage("Results");
-		resultsDialog.addMessage(
-				"minStackVal= " + minStackVal + "    x= " + minStackX + "    y= " + minStackY + "    z= " + minStackZ);
-		resultsDialog.addMessage(
-				"maxStackVal= " + maxStackVal + "    x= " + maxStackX + "    y= " + maxStackY + "    z= " + maxStackZ);
+		resultsDialog.addMessage("Results", titleFont);
+		resultsDialog.setFont(defaultFont);
 
-		resultsDialog.addMessage("meanStackVal= " + meanStackVal + "        pixCount= " + pixCount);
+		resultsDialog.addMessage("============ MATILDE MASCHERATA ===============");
+		resultsDialog.addMessage("minStackVal= " + String.format("%.4f", minStackVal1) + "    x= " + minStackX1
+				+ "    y= " + minStackY1 + "    z= " + minStackZ1);
+		resultsDialog.addMessage("maxStackVal= " + String.format("%.4f", maxStackVal1) + "    x= " + maxStackX1
+				+ "    y= " + maxStackY1 + "    z= " + maxStackZ1);
+
+		resultsDialog
+				.addMessage("meanStackVal= " + String.format("%.4f", meanStackVal1) + "        pixCount= " + pixCount1);
+		resultsDialog.addMessage("integral= " + String.format("%.4f", integral1));
+
+		resultsDialog.addMessage("================== PATATA =====================");
+		resultsDialog.addMessage("minStackVal= " + String.format("%.4f", minStackVal2) + "    x= " + minStackX2
+				+ "    y= " + minStackY2 + "    z= " + minStackZ2);
+		resultsDialog.addMessage("maxStackVal= " + String.format("%.4f", maxStackVal2) + "    x= " + maxStackX2
+				+ "    y= " + maxStackY2 + "    z= " + maxStackZ2);
+
+		resultsDialog
+				.addMessage("meanStackVal= " + String.format("%.4f", meanStackVal2) + "        pixCount= " + pixCount2);
+		resultsDialog.addMessage("integral= " + String.format("%.4f", integral2));
 		resultsDialog.showDialog();
 
 	}
