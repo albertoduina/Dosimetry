@@ -2190,8 +2190,7 @@ public class Utility {
 		}
 		return (pixels);
 	} // truePixels
-	
-	
+
 	/**
 	 * esegue l'autoAdjust del contrasto immagine
 	 * 
@@ -2241,5 +2240,62 @@ public class Utility {
 		}
 	}
 
+	static double[] MyStackStatistics(ImagePlus impStackIn) {
+
+		ImageStack stackIn = impStackIn.getImageStack();
+		int width1 = stackIn.getWidth();
+		int height1 = stackIn.getHeight();
+		int depth1 = stackIn.getSize();
+		ImageProcessor inSlice1 = null;
+		double pixel = 0;
+		double minStackVal = Double.MAX_VALUE;
+		double maxStackVal = Double.MIN_VALUE;
+		double meanStackVal = Double.NaN;
+		double sumPix = 0;
+		int[] minStackCoord = new int[3];
+		int[] maxStackCoord = new int[3];
+		long pixCount = 0;
+
+		for (int z1 = 0; z1 < depth1; z1++) {
+			inSlice1 = stackIn.getProcessor(z1 + 1);
+			for (int x1 = 0; x1 < width1; x1++) {
+				for (int y1 = 0; y1 < height1; y1++) {
+					IJ.showStatus("  " + z1 + " / " + (depth1));
+					pixel = inSlice1.getPixelValue(x1, y1);
+					if (pixel > 0) {
+						sumPix = sumPix + pixel;
+						pixCount++;
+						if (pixel < minStackVal) {
+							minStackVal = pixel;
+							minStackCoord[0] = x1;
+							minStackCoord[1] = y1;
+							minStackCoord[2] = z1;
+						}
+						if (pixel > maxStackVal) {
+							maxStackVal = pixel;
+							maxStackCoord[0] = x1;
+							maxStackCoord[1] = y1;
+							maxStackCoord[2] = z1;
+						}
+					}
+				}
+			}
+
+		}
+		meanStackVal = sumPix / pixCount;
+		double[] out1 = new double[10];
+		out1[0] = (double) minStackCoord[0];
+		out1[1] = (double) minStackCoord[1];
+		out1[2] = (double) minStackCoord[2];
+		out1[3] = minStackVal;
+		out1[4] = (double) maxStackCoord[0];
+		out1[5] = (double) maxStackCoord[1];
+		out1[6] = (double) maxStackCoord[2];
+		out1[7] = maxStackVal;
+		out1[8] = pixCount;
+		out1[9] = meanStackVal;
+
+		return out1;
+	}
 
 }

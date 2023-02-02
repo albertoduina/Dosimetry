@@ -9,6 +9,7 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.NewImage;
+import ij.gui.NonBlockingGenericDialog;
 import ij.gui.OvalRoi;
 import ij.gui.Roi;
 import ij.gui.WaitForUserDialog;
@@ -98,22 +99,6 @@ public class S_VoxelDosimetry implements PlugIn {
 		impStackIn = Utility.readStackFiles(pathStackIn);
 		new ImageConverter(impStackIn).convertToGray32();
 
-//		Calibration cal = impStackInCalibrated.getCalibration();
-//		if (cal.isSigned16Bit()) {
-//			MyLog.waitHere("calibrated");
-//			impStackIn = Utility.removeCalibration(impStackInCalibrated);
-//			
-//			
-//			cal.setSigned16BitCalibration();
-//			cal.disableDensityCalibration();
-//		}
-//		impStackIn.updateAndDraw();
-
-//		  cal = imp.getCalibration();
-//		  if (!cal.isSigned16Bit())
-//		     IJ.error("Signed 16-bit image required");
-//		  cal.disableDensityCalibration();
-
 		impStackIn.setTitle("INPUT");
 		impStackIn.show();
 		MyLog.waitHere("INPUT");
@@ -140,30 +125,6 @@ public class S_VoxelDosimetry implements PlugIn {
 		ImagePlus impBlack = NewImage.createShortImage("NERA", width1, height1, 1, NewImage.FILL_BLACK);
 		new ImageConverter(impBlack).convertToGray32();
 		ImageProcessor ipBlack = impBlack.getProcessor();
-
-//		for (int i1 = 0; i1 < depth1; i1++) {
-//			stackOut1.addSlice(ipBlack);
-//			stackOut2.addSlice(ipBlack);
-//		}
-
-//		ImageStack stackOut1NoCal = stackIn.duplicate();
-//		ImageStack stackOut2NoCal = stackIn.duplicate();
-
-//		//
-//		// forse non viene azzerata la prima fetta, potrebbe essere un bug di ImageJ, se
-//		// si ripete riverificare e mandare mail Wayne Rasband oppure al gruppo
-//		//
-//		for (int z1 = 0; z1 < depth1; z1++) {
-//			for (int x1 = 0; x1 < width1; x1++) {
-//				for (int y1 = 0; y1 < height1; y1++) {
-//					IJ.showStatus("  " + z1 + " / " + (depth1));
-//					stackOut1NoCal.setVoxel(x1, y1, z1, 0);
-//					stackOut2NoCal.setVoxel(x1, y1, z1, 0);
-//				}
-//			}
-//		}
-//		stackOut1NoCal.convertToFloat();
-//		stackOut2NoCal.convertToFloat();
 
 		// elaborazione pixel per pixel dell'intera immagine di input, senza quindi
 		// utilizzare la mask, dopo che abbiamo applicato le formule formulate in
@@ -202,7 +163,6 @@ public class S_VoxelDosimetry implements PlugIn {
 		ImagePlus impMatilde = new ImagePlus("mAtilde", stackOut1);
 		impMatilde.show();
 		Utility.autoAdjust(impMatilde, impMatilde.getProcessor());
-
 		new WaitForUserDialog("MATILDE con " + count2 + " pixel >0").show();
 
 		width2 = 6;
@@ -248,6 +208,29 @@ public class S_VoxelDosimetry implements PlugIn {
 		Utility.autoAdjust(impPatata, impPatata.getProcessor());
 
 		new WaitForUserDialog("PATATA con " + count + " pixel che dovrebbero essere con mask>0").show();
+
+		double[] tapata = Utility.MyStackStatistics(impPatata);
+
+		int minStackX = (int) tapata[0];
+		int minStackY = (int) tapata[1];
+		int minStackZ = (int) tapata[2];
+		double minStackVal = tapata[3];
+		int maxStackX = (int) tapata[4];
+		int maxStackY = (int) tapata[5];
+		int maxStackZ = (int) tapata[6];
+		double maxStackVal = tapata[7];
+		long pixCount = (long) tapata[8];
+		double meanStackVal = tapata[9];
+
+		NonBlockingGenericDialog resultsDialog = new NonBlockingGenericDialog("SV05 - Results");
+		resultsDialog.addMessage("Results");
+		resultsDialog.addMessage(
+				"minStackVal= " + minStackVal + "    x= " + minStackX + "    y= " + minStackY + "    z= " + minStackZ);
+		resultsDialog.addMessage(
+				"maxStackVal= " + maxStackVal + "    x= " + maxStackX + "    y= " + maxStackY + "    z= " + maxStackZ);
+
+		resultsDialog.addMessage("meanStackVal= " + meanStackVal + "        pixCount= " + pixCount);
+		resultsDialog.showDialog();
 
 	}
 
