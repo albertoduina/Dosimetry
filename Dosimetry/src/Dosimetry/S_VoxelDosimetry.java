@@ -8,12 +8,15 @@ import java.util.List;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.gui.NewImage;
 import ij.gui.OvalRoi;
 import ij.gui.Roi;
 import ij.gui.WaitForUserDialog;
 import ij.io.FileSaver;
+import ij.measure.Calibration;
 import ij.plugin.ContrastEnhancer;
 import ij.plugin.PlugIn;
+import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 import ij.util.ArrayUtil;
 
@@ -61,6 +64,7 @@ public class S_VoxelDosimetry implements PlugIn {
 				"pathStackin= " + pathStackIn + "\npathStackMask= " + pathStackMask + "\npathLesione= " + pathLesione);
 
 		ImagePlus impStackIn = null;
+		ImagePlus impStackInCalibrated = null;
 		ImagePlus impStackMask = null;
 		int width2 = 0;
 		int height2 = 0;
@@ -92,10 +96,32 @@ public class S_VoxelDosimetry implements PlugIn {
 		double par_a = Double.parseDouble(Utility.readFromLog(pathLesione, "#302#", "="));
 
 		impStackIn = Utility.readStackFiles(pathStackIn);
+		new ImageConverter(impStackIn).convertToGray32();
+
+//		Calibration cal = impStackInCalibrated.getCalibration();
+//		if (cal.isSigned16Bit()) {
+//			MyLog.waitHere("calibrated");
+//			impStackIn = Utility.removeCalibration(impStackInCalibrated);
+//			
+//			
+//			cal.setSigned16BitCalibration();
+//			cal.disableDensityCalibration();
+//		}
+//		impStackIn.updateAndDraw();
+
+//		  cal = imp.getCalibration();
+//		  if (!cal.isSigned16Bit())
+//		     IJ.error("Signed 16-bit image required");
+//		  cal.disableDensityCalibration();
+
+		impStackIn.setTitle("INPUT");
 		impStackIn.show();
+		MyLog.waitHere("INPUT");
 
 		impStackMask = Utility.openImage(pathStackMask);
+		impStackMask.setTitle("MASK");
 		impStackMask.show();
+		MyLog.waitHere("MASK");
 
 		// in pratica ora imposto il mio cuBBetto in modo che "viaggi" per tutto il
 		// nostro stack, il pixel centrale del cubo, sara' la media di tutti i pixel del
@@ -103,27 +129,41 @@ public class S_VoxelDosimetry implements PlugIn {
 
 		ImageStack stackMask = impStackMask.getImageStack();
 		ImageStack stackIn = impStackIn.getImageStack();
-		ImageStack stackOut1 = stackIn.duplicate();
-		ImageStack stackOut2 = stackIn.duplicate();
 		int width1 = stackIn.getWidth();
 		int height1 = stackIn.getHeight();
 		int depth1 = stackIn.getSize();
 
-		//
-		// forse non viene azzerata la prima fetta, potrebbe essere un bug di ImageJ, se
-		// si ripete riverificare e mandare mail Wayne Rasband oppure al gruppo
-		//
-		for (int z1 = 0; z1 < depth1; z1++) {
-			for (int x1 = 0; x1 < width1; x1++) {
-				for (int y1 = 0; y1 < height1; y1++) {
-					IJ.showStatus("  " + z1 + " / " + (depth1));
-					stackOut1.setVoxel(x1, y1, z1, 0);
-					stackOut2.setVoxel(x1, y1, z1, 0);
-				}
-			}
-		}
-		stackOut1.convertToFloat();
-		stackOut2.convertToFloat();
+		ImageStack stackOut1 = new ImageStack(width1, height1);
+		ImageStack stackOut2 = new ImageStack(width1, height1);
+		stackOut1.setBitDepth(32);
+		stackOut2.setBitDepth(32);
+		ImagePlus impBlack = NewImage.createShortImage("NERA", width1, height1, 1, NewImage.FILL_BLACK);
+		new ImageConverter(impBlack).convertToGray32();
+		ImageProcessor ipBlack = impBlack.getProcessor();
+
+//		for (int i1 = 0; i1 < depth1; i1++) {
+//			stackOut1.addSlice(ipBlack);
+//			stackOut2.addSlice(ipBlack);
+//		}
+
+//		ImageStack stackOut1NoCal = stackIn.duplicate();
+//		ImageStack stackOut2NoCal = stackIn.duplicate();
+
+//		//
+//		// forse non viene azzerata la prima fetta, potrebbe essere un bug di ImageJ, se
+//		// si ripete riverificare e mandare mail Wayne Rasband oppure al gruppo
+//		//
+//		for (int z1 = 0; z1 < depth1; z1++) {
+//			for (int x1 = 0; x1 < width1; x1++) {
+//				for (int y1 = 0; y1 < height1; y1++) {
+//					IJ.showStatus("  " + z1 + " / " + (depth1));
+//					stackOut1NoCal.setVoxel(x1, y1, z1, 0);
+//					stackOut2NoCal.setVoxel(x1, y1, z1, 0);
+//				}
+//			}
+//		}
+//		stackOut1NoCal.convertToFloat();
+//		stackOut2NoCal.convertToFloat();
 
 		// elaborazione pixel per pixel dell'intera immagine di input, senza quindi
 		// utilizzare la mask, dopo che abbiamo applicato le formule formulate in
@@ -134,23 +174,36 @@ public class S_VoxelDosimetry implements PlugIn {
 		double ahhVoxel = 0;
 		double aVoxel = 0;
 		double aTildeVoxel = 0;
+		ImageProcessor inSlice1 = null;
+		ImageProcessor outSlice1 = null;
+		int count2 = 0;
 
 		for (int z1 = 0; z1 < depth1; z1++) {
+			inSlice1 = stackIn.getProcessor(z1 + 1);
+			outSlice1 = ipBlack.duplicate();
 			for (int x1 = 0; x1 < width1; x1++) {
 				for (int y1 = 0; y1 < height1; y1++) {
 					IJ.showStatus("  " + z1 + " / " + (depth1));
-					voxSignal = stackIn.getVoxel(x1, y1, z1); // leggo il valore del pixel
+					// voxSignal = stackIn.getVoxel(x1, y1, z1); // leggo il valore del pixel
+					// voxSignal = (short) cal.getRawValue(voxSignal);
+					voxSignal = inSlice1.getPixelValue(x1, y1);
 					ahhVoxel = voxSignal / (acqDuration * fatCal);
 					aVoxel = ahhVoxel / Math.exp(par_a * deltaT);
 					aTildeVoxel = (aVoxel / par_a) * 3600;
-
-					MyLog.waitHere("voxSignal= " + voxSignal + "\nahhVoxel= " + ahhVoxel + "\naVoxel= " + aVoxel
-							+ "\naTildeVoxel= " + aTildeVoxel);
-
-					stackOut1.setVoxel(x1, y1, z1, aTildeVoxel);
+					if (aTildeVoxel > 0.1)
+						count2++;
+					// stackOut1NoCal.setVoxel(x1, y1, z1, aTildeVoxel);
+					outSlice1.putPixelValue(x1, y1, aTildeVoxel);
 				}
 			}
+			stackOut1.addSlice(outSlice1);
 		}
+
+		ImagePlus impMatilde = new ImagePlus("mAtilde", stackOut1);
+		impMatilde.show();
+		Utility.autoAdjust(impMatilde, impMatilde.getProcessor());
+
+		new WaitForUserDialog("MATILDE con " + count2 + " pixel >0").show();
 
 		width2 = 6;
 		height2 = 6;
@@ -161,37 +214,40 @@ public class S_VoxelDosimetry implements PlugIn {
 		float[] vetTabella = null;
 		float doseVoxel = 0;
 		long count = 0;
+		ImageProcessor inSlice2 = null;
+		ImageProcessor outSlice2 = null;
+
 		// nel gran finale facciamo una elaborazione del CUBBO
 
 		for (int z1 = 0; z1 < depth1 - depth2; z1++) {
+			inSlice2 = stackIn.getProcessor(z1 + 1);
+			outSlice2 = ipBlack.duplicate();
 			for (int x1 = 0; x1 < width1 - width2; x1++) {
 				for (int y1 = 0; y1 < height1 - height2; y1++) {
+					doseVoxel = 0;
 					IJ.showStatus("  " + z1 + " / " + (depth1 - depth2));
 					voxMask = stackMask.getVoxel(x1, y1, z1);
 					if (voxMask > 0) {
 						vetVox = stackOut1.getVoxels(x1, y1, z1, width2, height2, depth2, null);
 						vetTabella = extractTabella(Utility.tabellaBella());
-						for (int i1 = 0; i1 < vetVox.length; i1++) {
-							MyLog.log("" + i1 + " " + vetVox[i1] + " " + vetTabella[i1]);
-						}
-						MyLog.waitHere();
 						doseVoxel = patataACubetti(vetVox, vetTabella);
+						// IJ.log("doseVoxel= " + x1 + " " + y1 + " " + z1 + " " + doseVoxel);
 						count++;
 					}
-					stackOut2.setVoxel(x1 + width2 / 2, y1 + height2 / 2, z1 + depth2 / 2, doseVoxel);
+					outSlice2.putPixelValue(x1, y1, doseVoxel);
+					// stackOut2.setVoxel(x1 + width2 / 2, y1 + height2 / 2, z1 + depth2 / 2,
+					// doseVoxel);
 				}
 			}
+			stackOut2.addSlice(outSlice2);
 		}
 
-		MyLog.waitHere("sono stati sintetizzati " + count + " pixels");
-		ImagePlus imp3 = new ImagePlus("IMMAGINE SINTETIZZATA", stackOut2);
-//		ContrastEnhancer contrastEnhancer = new ContrastEnhancer();
-//		contrastEnhancer.equalize(imp3);
+		ImagePlus impPatata = new ImagePlus("pAtatata", stackOut2);
+		impPatata.show();
 
-		imp3.show();
-		new WaitForUserDialog(
-				"Ecco il primo stack cuBBomediato dela storia\nRicordatevi di fare Adjust, io sono troppo pigro per farvelo!")
-				.show();
+		Utility.autoAdjust(impPatata, impPatata.getProcessor());
+
+		new WaitForUserDialog("PATATA con " + count + " pixel che dovrebbero essere con mask>0").show();
 
 	}
 
@@ -219,9 +275,12 @@ public class S_VoxelDosimetry implements PlugIn {
 	float patataACubetti(float[] vetVox, float[] vetTabella) {
 
 		float voxOut = 0;
+		float aux1 = 0;
 
 		for (int i1 = 0; i1 < vetVox.length; i1++) {
-			voxOut = (vetVox[i1] * vetTabella[i1]) / 1000;
+
+			aux1 = aux1 + (vetVox[i1] * vetTabella[i1]);
+			voxOut = aux1 / 1000;
 		}
 		return voxOut;
 	}
@@ -348,5 +407,33 @@ public class S_VoxelDosimetry implements PlugIn {
 	// OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
 	// =================================================================================
 	// =================================================================================
+
+	// This script implements the Plugins>Filters>Signed 16-bit
+	// to Unsigned command, which converts signed 16-bit
+	// images and stacks to unsigned.
+
+//	appunto 
+//	
+//	  imp = IJ.getImage();
+//	  stack = imp.getStack();
+//	  if (stack.isVirtual())
+//	     IJ.error("Non-virtual stack required");
+//	  cal = imp.getCalibration();
+//	  if (!cal.isSigned16Bit())
+//	     IJ.error("Signed 16-bit image required");
+//	  cal.disableDensityCalibration();
+//	  ip = imp.getProcessor();
+//	  min = ip.getMin();
+//	  max = ip.getMax();
+//	  stats = new StackStatistics(imp);
+//	  minv = stats.min;
+//	  for (i=1; i<=stack.getSize(); i++) {
+//	     ip = stack.getProcessor(i);
+//	     ip.add(-minv);
+//	  }
+//	  imp.setStack(stack);
+//	  ip = imp.getProcessor();
+//	  ip.setMinAndMax(min-minv, max-minv);
+//	  imp.updateAndDraw();
 
 }

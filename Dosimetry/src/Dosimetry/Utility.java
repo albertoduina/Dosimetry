@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,6 +37,7 @@ import ij.gui.ImageWindow;
 import ij.gui.NewImage;
 import ij.gui.NonBlockingGenericDialog;
 import ij.gui.Plot;
+import ij.gui.Roi;
 import ij.io.FileInfo;
 import ij.io.OpenDialog;
 import ij.io.Opener;
@@ -46,6 +46,7 @@ import ij.measure.CurveFitter;
 import ij.plugin.DICOM;
 import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
+import ij.process.ImageStatistics;
 import ij.util.DicomTools;
 import ij.util.FontUtil;
 import ij.util.Tools;
@@ -62,7 +63,7 @@ import ij.util.Tools;
 
 public class Utility {
 
-	private static final Object[][] matrice = null;
+//	private static final Object[][] matrice = null;
 	static String fontStyle = "Arial";
 	static Font defaultFont = FontUtil.getFont(fontStyle, Font.PLAIN, 13);
 	static Font textFont = FontUtil.getFont(fontStyle, Font.ITALIC, 16);
@@ -2162,5 +2163,83 @@ public class Utility {
 		}
 		return outStrArr;
 	}
+
+	public static ImagePlus removeCalibration(ImagePlus imp1) {
+
+		ImagePlus imp2 = NewImage.createShortImage("uncalibrated", imp1.getWidth(), imp1.getHeight(), 1,
+				NewImage.FILL_BLACK);
+		ImageProcessor ip2 = imp2.getProcessor();
+		short[] pixels1 = truePixels(imp1);
+		short[] pixels2 = (short[]) ip2.getPixels();
+		for (int i1 = 0; i1 < pixels1.length; i1++) {
+			pixels2[i1] = pixels1[i1];
+		}
+		ip2.resetMinAndMax();
+		imp2.updateImage();
+
+		return imp2;
+	}
+
+	public static short[] truePixels(ImagePlus imp) {
+
+		ImageProcessor ip = imp.getProcessor();
+		Calibration cal = imp.getCalibration();
+		short[] pixels = (short[]) ip.getPixelsCopy();
+		for (int i1 = 0; i1 < pixels.length; i1++) {
+			pixels[i1] = (short) cal.getRawValue(pixels[i1]);
+		}
+		return (pixels);
+	} // truePixels
+	
+	
+	/**
+	 * esegue l'autoAdjust del contrasto immagine
+	 * 
+	 * Author Terry Wu, Ph.D., University of Minnesota, <JavaPlugins@yahoo.com>
+	 * (from ij.plugin.frame. ContrastAdjuster by Wayne Rasband
+	 * <wayne@codon.nih.gov>)*** modified version *** Alberto Duina - Spedali Civili
+	 * di Brescia - Servizio di Fisica Sanitaria 2006
+	 * 
+	 * 
+	 * @param imp ImagePlus da regolare
+	 * @param ip  ImageProcessor dell'immagine
+	 * 
+	 */
+	public static void autoAdjust(ImagePlus imp, ImageProcessor ip) {
+		double min, max;
+
+		Calibration cal = imp.getCalibration();
+		imp.setCalibration(null);
+		ImageStatistics stats = imp.getStatistics();
+		imp.setCalibration(cal);
+		int[] histogram = stats.histogram;
+		int threshold = stats.pixelCount / 5000;
+		int i = -1;
+		boolean found = false;
+		do {
+			i++;
+			found = histogram[i] > threshold;
+		} while (!found && i < 255);
+		int hmin = i;
+		i = 256;
+		do {
+			i--;
+			found = histogram[i] > threshold;
+		} while (!found && i > 0);
+		int hmax = i;
+		if (hmax > hmin) {
+			imp.killRoi();
+			min = stats.histMin + hmin * stats.binSize;
+			max = stats.histMin + hmax * stats.binSize;
+			ip.setMinAndMax(min, max);
+		}
+		Roi roi = imp.getRoi();
+		if (roi != null) {
+			ImageProcessor mask = roi.getMask();
+			if (mask != null)
+				ip.reset(mask);
+		}
+	}
+
 
 }
