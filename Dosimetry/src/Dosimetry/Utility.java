@@ -1667,7 +1667,7 @@ public class Utility {
 
 		double dose = (mAtilde / 1000) * (((s2 - s1) / (m2 - m1)) * (massa - m1) + s1);
 
-//		int count5 = 500;
+//		int count5 = 550;
 //		String aux5 = "#" + String.format("%03d", count5++) + "#\t-------- CALCOLO DOSE -----------";
 //		Utility.logAppend(pathVolatile, aux5);
 //		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose s1= " + s1;
@@ -1688,6 +1688,8 @@ public class Utility {
 					+ Math.pow((mAtilde / 1000) * ((s2 - s1) / (m2 - m1)) * Smassa, 2));
 
 		}
+//		MyLog.waitHere("s1= " + s1 + " s2= " + s2 + " m1= " + m1 + " m2= " + m2);
+
 		double[] out1 = new double[6];
 		out1[0] = dose;
 		out1[1] = Sdose;
@@ -1813,7 +1815,6 @@ public class Utility {
 			String jarPath = Utility.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
 			jarName = jarPath.substring(jarPath.lastIndexOf("/") + 1);
 		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -2166,7 +2167,7 @@ public class Utility {
 	 * @return
 	 */
 	static ImageProcessor patatizeMask(ImageProcessor ipMask, Rectangle r1, int width, int height) {
-		
+
 		ImagePlus impMyPatata = NewImage.createByteImage("Simulata", width, height, 1, NewImage.FILL_BLACK);
 		ImageProcessor ipMyPatata = impMyPatata.getProcessor();
 
@@ -2187,14 +2188,14 @@ public class Utility {
 	 * @param newname
 	 */
 	static void rinominaImmagini(String oldname, String newname) {
-		
+
 		File old1 = new File(oldname);
 		File new1 = new File(newname);
 		old1.renameTo(new1);
 	}
 
 	public static String[] arrayListToArrayString(ArrayList<String> inArrayList) {
-		
+
 		Object[] objArr = inArrayList.toArray();
 		String[] outStrArr = new String[objArr.length];
 		for (int i1 = 0; i1 < objArr.length; i1++) {
@@ -2444,8 +2445,51 @@ public class Utility {
 				slice = z1;
 			}
 		}
-		
+
 		return slice;
+	}
+
+	static void myScalaColori() {
+
+		int count = 0;
+		int maxcount = 0;
+		int slice = 0;
+		double voxMask = 0;
+		int width = 128;
+		int height = 128;
+		int depth = 128;
+		int lato = 6;
+		int bitdepth = 24;
+
+		ImageStack stack = ImageStack.create(width, height, depth, bitdepth);
+
+		for (int z1 = 1; z1 < depth; z1 = z1 + 6) {
+			count = 0;
+			for (int x1 = 0; x1 < width; x1 = x1 + 6) {
+				for (int y1 = 0; y1 < height; y1 = y1 + 6) {
+					int pippo = Utility.rainbowPixel((double) x1, (double) y1);
+					float[] puppo = new float[6 * 6 * 6];
+					for (int i1 = 0; i1 < puppo.length; i1++)
+						puppo[i1] = (float) pippo;
+
+					stack.setVoxels(z1, x1, y1, 6, 6, 6, puppo);
+				}
+			}
+		}
+
+		ImagePlus imp1 = new ImagePlus("TITOLO", stack);
+		imp1.show();
+
+		return;
+	}
+
+	private static int rainbowPixel(double xspan, double yspan) {
+
+		double red = 255. - yspan * 255. * (1.0 + Math.sin(6.3 * xspan)) / 2.;
+		double green = 255. - yspan * 255. * (1.0 + Math.cos(6.3 * xspan)) / 2.;
+		double blue = 255. - yspan * 255. * (1.0 - Math.sin(6.3 * xspan)) / 2.;
+
+		return ((int) red << 16) + ((int) green << 8) + (int) blue;
 	}
 
 }

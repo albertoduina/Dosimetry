@@ -330,17 +330,17 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// CT da aprire
 		String seriesUID1 = petUID1 + ", " + ctUID2;
 
-		String aux11 = "";
-		int count55 = 520;
-		aux11 = "#" + String.format("%03d", count55++) + "#\t----------- DEBUG DEBUG DEBUG DEBUG ---------";
-		Utility.logAppend(pathVolatile, aux11);
-
-		aux11 = "#" + String.format("%03d", count55++) + "#\t24h TitlePrimaImmagine= " + imp1.getTitle();
-		Utility.logAppend(pathVolatile, aux11);
-		aux11 = "#" + String.format("%03d", count55++) + "#\t24h TitleSecondaImmagine= " + imp2.getTitle();
-		Utility.logAppend(pathVolatile, aux11);
-		aux11 = "#" + String.format("%03d", count55++) + "#\t24h SeriesUID PET_CT_VIEWER= " + seriesUID1;
-		Utility.logAppend(pathVolatile, aux11);
+//		String aux11 = "";
+//		int count55 = 520;
+//		aux11 = "#" + String.format("%03d", count55++) + "#\t----------- DEBUG DEBUG DEBUG DEBUG ---------";
+//		Utility.logAppend(pathVolatile, aux11);
+//
+//		aux11 = "#" + String.format("%03d", count55++) + "#\t24h TitlePrimaImmagine= " + imp1.getTitle();
+//		Utility.logAppend(pathVolatile, aux11);
+//		aux11 = "#" + String.format("%03d", count55++) + "#\t24h TitleSecondaImmagine= " + imp2.getTitle();
+//		Utility.logAppend(pathVolatile, aux11);
+//		aux11 = "#" + String.format("%03d", count55++) + "#\t24h SeriesUID PET_CT_VIEWER= " + seriesUID1;
+//		Utility.logAppend(pathVolatile, aux11);
 
 		IJ.runPlugIn("Pet_Ct_Viewer", seriesUID1);
 		IJ.wait(500);
@@ -394,12 +394,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		String seriesUID3 = petUID3 + ", " + ctUID4;
 
-		aux11 = "#" + String.format("%03d", count55++) + "#\t48h TitlePrimaImmagine= " + imp3.getTitle();
-		Utility.logAppend(pathVolatile, aux11);
-		aux11 = "#" + String.format("%03d", count55++) + "#\t48h TitleSecondaImmagine= " + imp4.getTitle();
-		Utility.logAppend(pathVolatile, aux11);
-		aux11 = "#" + String.format("%03d", count55++) + "#\t48h SeriesUID PET_CT_VIEWER= " + seriesUID3;
-		Utility.logAppend(pathVolatile, aux11);
+//		aux11 = "#" + String.format("%03d", count55++) + "#\t48h TitlePrimaImmagine= " + imp3.getTitle();
+//		Utility.logAppend(pathVolatile, aux11);
+//		aux11 = "#" + String.format("%03d", count55++) + "#\t48h TitleSecondaImmagine= " + imp4.getTitle();
+//		Utility.logAppend(pathVolatile, aux11);
+//		aux11 = "#" + String.format("%03d", count55++) + "#\t48h SeriesUID PET_CT_VIEWER= " + seriesUID3;
+//		Utility.logAppend(pathVolatile, aux11);
 
 		IJ.runPlugIn("Pet_Ct_Viewer", seriesUID3);
 		IJ.wait(500);
@@ -453,12 +453,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		String seriesUID5 = petUID5 + ", " + ctUID6;
 
-		aux11 = "#" + String.format("%03d", count55++) + "#\t120h TitlePrimaImmagine= " + imp5.getTitle();
-		Utility.logAppend(pathVolatile, aux11);
-		aux11 = "#" + String.format("%03d", count55++) + "#\t120h TitleSecondaImmagine= " + imp6.getTitle();
-		Utility.logAppend(pathVolatile, aux11);
-		aux11 = "#" + String.format("%03d", count55++) + "#\t120h SeriesUID PET_CT_VIEWER= " + seriesUID5;
-		Utility.logAppend(pathVolatile, aux11);
+//		aux11 = "#" + String.format("%03d", count55++) + "#\t120h TitlePrimaImmagine= " + imp5.getTitle();
+//		Utility.logAppend(pathVolatile, aux11);
+//		aux11 = "#" + String.format("%03d", count55++) + "#\t120h TitleSecondaImmagine= " + imp6.getTitle();
+//		Utility.logAppend(pathVolatile, aux11);
+//		aux11 = "#" + String.format("%03d", count55++) + "#\t120h SeriesUID PET_CT_VIEWER= " + seriesUID5;
+//		Utility.logAppend(pathVolatile, aux11);
 
 		IJ.runPlugIn("Pet_Ct_Viewer", seriesUID5);
 		IJ.wait(500);
@@ -647,10 +647,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 				dose = vetOut4[16];
 				Sdose = vetOut4[17];
 				Rsquared = vetOut4[18];
-				s1 = vetOut4[18];
-				s2 = vetOut4[19];
-				m1 = vetOut4[20];
-				m2 = vetOut4[21];
+				s1 = vetOut4[19];
+				s2 = vetOut4[20];
+				m1 = vetOut4[21];
+				m2 = vetOut4[22];
+
+				// MyLog.waitHere("s1= " + s1 + " s2= " + s2 + " m1= " + m1 + " m2= " + m2);
 
 				vetInput = new double[14];
 
@@ -2351,6 +2353,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			m1 = out2[21];
 			m2 = out2[22];
 		}
+		// MyLog.waitHere("s1= " + s1 + " s2= " + s2 + " m1= " + m1 + " m2= " + m2);
 
 		MyLog.log("==== PRIMA DI REVIEW =====");
 		MyLog.log("count2= " + count2);

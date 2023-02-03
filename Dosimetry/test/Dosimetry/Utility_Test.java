@@ -383,6 +383,15 @@ public class Utility_Test {
 
 
 	}
+	
+	@Test
+	public final void test_myScalColori() {
+		
+		Utility.myScalaColori();
+		MyLog.waitHere("VERIFICA");
+		
+	}
+
 
 
 }
