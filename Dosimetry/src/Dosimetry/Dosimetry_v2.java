@@ -120,10 +120,10 @@ public class Dosimetry_v2 implements PlugIn {
 		// Dosimetry_v2. In particolare sono utilizzati per comunicare di quale immagine
 		// vogliamo effettuare nuovamente l'analisi, dopo avere preso visione del plot
 		// ==========================================================================
-		ok24 = Boolean.parseBoolean(Utility.readFromLog(pathPermanente, "#901#", "="));
-		ok48 = Boolean.parseBoolean(Utility.readFromLog(pathPermanente, "#902#", "="));
-		ok120 = Boolean.parseBoolean(Utility.readFromLog(pathPermanente, "#903#", "="));
-		okk = Boolean.parseBoolean(Utility.readFromLog(pathPermanente, "#904#", "="));
+		ok24 = Boolean.parseBoolean(Utility.readFromLog(pathPermanente, "#901#", "=", true));
+		ok48 = Boolean.parseBoolean(Utility.readFromLog(pathPermanente, "#902#", "=", true));
+		ok120 = Boolean.parseBoolean(Utility.readFromLog(pathPermanente, "#903#", "=",true));
+		okk = Boolean.parseBoolean(Utility.readFromLog(pathPermanente, "#904#", "=",true));
 
 		// ======================================================
 		// PARTE NUOVA CICLO ESTERNO PER LA SELEZIONE IMMAGINE
@@ -185,11 +185,10 @@ public class Dosimetry_v2 implements PlugIn {
 
 				// ##################
 				// iw2ayv 310123
-				ImageStack stackMyPatata = new ImageStack(stack.getWidth(), stack.getHeight());
-				ImagePlus impMyPatataSlice = NewImage.createByteImage("Simulata", stack.getWidth(), stack.getHeight(),
-						1, NewImage.FILL_BLACK);
-				ImageProcessor ipMyPatata = impMyPatataSlice.getProcessor();
-
+				ImageStack stackMyPatata= ImageStack.create(stack.getWidth(), stack.getHeight(), stackSize, 8);
+				for (int i1=1; i1 < stackSize; i1++) {
+					stackMyPatata.setSliceLabel("BLANK_"+i1, i1);
+				}
 				// ##################
 
 				Dimension screen = IJ.getScreenSize();
@@ -477,15 +476,6 @@ public class Dosimetry_v2 implements PlugIn {
 					Overlay overlay = new Overlay();
 					int[] totalHistogram = new int[0];
 
-					// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-					// aggiungiamo allo stack le fette nere precedenti la patataMask
-					for (int i1 = 0; i1 < fettaCranioCaudale-1; i1++) {
-						stackMyPatata.addSlice(ipMyPatata);
-					}
-
-					// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-					
-
 					for (int fetta = fettaCranioCaudale; fetta <= fettaCaudoCraniale; fetta++) {
 						roiManager.reset();
 						IJ.run("Select None");
@@ -503,7 +493,7 @@ public class Dosimetry_v2 implements PlugIn {
 									guscioEsterno = roiPerFetta.get(posizioneFetta);
 								else
 									guscioEsterno = null;
-								
+
 							}
 							dicomImage.setRoi(guscioEsterno);
 
@@ -511,7 +501,7 @@ public class Dosimetry_v2 implements PlugIn {
 
 								roiManager.runCommand(dicomImage, "Add");
 								roiManager.runCommand(dicomImage, "AND");
-								
+
 								if (!isSelectionEmpty()) {
 									roiManager.runCommand(dicomImage, "Add");
 									Roi[] roisArray = roiManager.getRoisAsArray();
@@ -524,7 +514,8 @@ public class Dosimetry_v2 implements PlugIn {
 									// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 									ImageProcessor fettazza = Utility.patatizeMask(mask, r, dicomImage.getWidth(),
 											dicomImage.getHeight());
-									stackMyPatata.addSlice(fettazza); // aggiungo la mask allo stack patata
+									Utility.stackSliceUpdater(stackMyPatata, fettazza, fetta);
+
 									// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 									stat = calculateStat(r, ip, mask);
@@ -543,7 +534,7 @@ public class Dosimetry_v2 implements PlugIn {
 							}
 						}
 					}
-					
+
 					dicomImage.setSlice(posizioneMax);
 					dicomImage.setOverlay(overlay);
 					if (threshold == -1)
@@ -552,11 +543,11 @@ public class Dosimetry_v2 implements PlugIn {
 					MyLog.log("eseguito reset004");
 
 					// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-					for (int i1 = fettaCaudoCranialeFinal; i1 < stackSize; i1++) { 
-						// queste sono le fette nere seguenti la patata 
-						stackMyPatata.addSlice(ipMyPatata);
-					} 
-					ImagePlus impMyPatata = new ImagePlus("PATATA", stackMyPatata); 
+					// for (int i1 = fettaCaudoCranialeFinal; i1 < stackSize; i1++) {
+					// // queste sono le fette nere seguenti la patata
+					// stackMyPatata.addSlice(ipMyPatata);
+					// }
+					 ImagePlus impMyPatata = new ImagePlus("PATATA", stackMyPatata);
 					// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 					boolean continua = false;

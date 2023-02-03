@@ -405,6 +405,42 @@ public class Utility {
 	}
 
 	/**
+	 * Lettura di un tag dal log
+	 * 
+	 * @param path1
+	 * @param code1
+	 * @param separator
+	 * @return
+	 */
+	static String readFromLog(String path1, String code1, String separator, boolean error) {
+
+		if (path1 == null)
+			MyLog.waitHere("path1==null");
+		String[] vetText = Utility.readSimpleText(path1);
+		if (vetText == null)
+			MyLog.waitHere("vetText==null");
+
+		String[] vetAux1;
+		String out1 = null;
+		boolean trovato = false;
+		if (vetText.length > 0) {
+			for (int i1 = 0; i1 < vetText.length; i1++) {
+				if (vetText[i1].contains(code1)) {
+					vetAux1 = vetText[i1].split(separator);
+					out1 = vetAux1[1].trim();
+					trovato = true;
+				}
+			}
+		}
+		if (!trovato) {
+			if (!error)
+				MyLog.waitHere("non trovo " + code1);
+			return null;
+		}
+		return out1;
+	}
+
+	/**
 	 * Restituisce l'intera linea del log per il tag
 	 * 
 	 * @param path1
@@ -2105,8 +2141,8 @@ public class Utility {
 		int width = myImageStack.getWidth();
 		int height = myImageStack.getHeight();
 		int size = myImageStack.getSize();
-		ByteProcessor mask1 = new ByteProcessor(width, height); // ora ho una maschera in cui 0 significa che il pixel
-																// non fa parte di alcuna patata o buccia
+//		ByteProcessor mask1 = new ByteProcessor(width, height); // ora ho una maschera in cui 0 significa che il pixel
+//																// non fa parte di alcuna patata o buccia
 
 		ImageStack myMaskStack = new ImageStack(width, height, size);
 
@@ -2130,6 +2166,7 @@ public class Utility {
 	 * @return
 	 */
 	static ImageProcessor patatizeMask(ImageProcessor ipMask, Rectangle r1, int width, int height) {
+		
 		ImagePlus impMyPatata = NewImage.createByteImage("Simulata", width, height, 1, NewImage.FILL_BLACK);
 		ImageProcessor ipMyPatata = impMyPatata.getProcessor();
 
@@ -2150,12 +2187,14 @@ public class Utility {
 	 * @param newname
 	 */
 	static void rinominaImmagini(String oldname, String newname) {
+		
 		File old1 = new File(oldname);
 		File new1 = new File(newname);
 		old1.renameTo(new1);
 	}
 
 	public static String[] arrayListToArrayString(ArrayList<String> inArrayList) {
+		
 		Object[] objArr = inArrayList.toArray();
 		String[] outStrArr = new String[objArr.length];
 		for (int i1 = 0; i1 < objArr.length; i1++) {
@@ -2204,7 +2243,7 @@ public class Utility {
 	 * @param ip  ImageProcessor dell'immagine
 	 * 
 	 */
-	public static void autoAdjust(ImagePlus imp, ImageProcessor ip) {
+	public static void autoAdjust2(ImagePlus imp, ImageProcessor ip) {
 		double min, max;
 
 		Calibration cal = imp.getCalibration();
@@ -2238,6 +2277,21 @@ public class Utility {
 			if (mask != null)
 				ip.reset(mask);
 		}
+	}
+
+	/**
+	 * Aggiorna il contenuto di una immagine dello stack
+	 * 
+	 * @param stack
+	 * @param ipSlice
+	 * @param num
+	 */
+	static void stackSliceUpdater(ImageStack stack, ImageProcessor ipSlice, int num) {
+
+		stack.deleteSlice(num);
+		stack.addSlice("", ipSlice, num - 1);
+		stack.setSliceLabel("MASK_" + num, num);
+
 	}
 
 	static double[] MyStackStatistics(ImagePlus impStackIn, ImagePlus impMask) {
@@ -2299,7 +2353,7 @@ public class Utility {
 		out1[7] = maxStackVal;
 		out1[8] = pixCount;
 		out1[9] = meanStackVal;
-		out1[10]= sumPix;
+		out1[10] = sumPix;
 
 		return out1;
 	}
@@ -2358,9 +2412,40 @@ public class Utility {
 		out1[7] = maxStackVal;
 		out1[8] = pixCount;
 		out1[9] = meanStackVal;
-		out1[10]= sumPix;
+		out1[10] = sumPix;
 
 		return out1;
+	}
+
+	static int MyStackCountPixels(ImagePlus impMaskStack) {
+
+		int count = 0;
+		int maxcount = 0;
+		int slice = 0;
+		double voxMask = 0;
+		int width = impMaskStack.getWidth();
+		int heigth = impMaskStack.getHeight();
+		int depth = impMaskStack.getNSlices();
+
+		ImageStack stackMask = impMaskStack.getImageStack();
+
+		for (int z1 = 1; z1 < depth; z1++) {
+			count = 0;
+			for (int x1 = 0; x1 < width; x1++) {
+				for (int y1 = 0; y1 < heigth; y1++) {
+					voxMask = stackMask.getVoxel(x1, y1, z1);
+					if (voxMask > 0)
+						count++;
+				}
+			}
+
+			if (count >= maxcount) {
+				maxcount = count;
+				slice = z1;
+			}
+		}
+		
+		return slice;
 	}
 
 }

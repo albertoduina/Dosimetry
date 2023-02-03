@@ -12,7 +12,11 @@ import org.junit.Test;
 
 import flanagan.analysis.Regression;
 import ij.ImageJ;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.io.Opener;
 import ij.measure.CurveFitter;
+import ij.process.ImageProcessor;
 
 public class Utility_Test {
 
@@ -348,5 +352,37 @@ public class Utility_Test {
 			MyLog.waitHere("Data= " + dateIn + " ERRATA");
 
 	}
+	
+	
+	@Test
+	public final void test_stackSliceUpdater() {
+
+		int width=128;
+		int height=128;
+		int depth=128;
+		
+		String pathSorgente = "testdata/uno.tif";
+		Opener opener1 = new Opener();
+		ImagePlus imp1 = opener1.openImage(pathSorgente);
+		imp1.show();
+		ImageProcessor ip1=imp1.getProcessor();
+		MyLog.waitHere();
+	
+		ImageStack stack2= ImageStack.create(width, height, depth, 8);
+		for (int i1=1; i1 < stack2.size(); i1++) {
+			stack2.setSliceLabel("FETTA_"+i1, i1);
+		}
+		ImagePlus imp2= new ImagePlus("TITLE", stack2);
+		imp2.show();
+		MyLog.waitHere();
+		
+		int num=10;
+		Utility.stackSliceUpdater(stack2, ip1, num);
+		imp2.updateAndDraw();
+		MyLog.waitHere("VERIFICA");
+
+
+	}
+
 
 }
