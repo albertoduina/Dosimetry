@@ -69,12 +69,14 @@ public class S_VoxelDosimetry implements PlugIn {
 
 		switch (ore) {
 		case 24:
-			acqDuration = Double.parseDouble(Utility.readFromLog(pathLesione, "#018#", "=", true)); // acqduration 24h																						// // 24h
+			acqDuration = Double.parseDouble(Utility.readFromLog(pathLesione, "#018#", "=", true)); // acqduration 24h
+																									// // // 24h
 			deltaT = Double.parseDouble(Utility.readFromLog(pathLesione, "#019#", "=", true)); // deltaT 24h
 			fatCal = Double.parseDouble(Utility.readFromLog(pathLesione, "#202#", "=", true)); // fatCal24h
 			break;
 		case 48:
-			acqDuration = Double.parseDouble(Utility.readFromLog(pathLesione, "#038#", "=", true)); // acqduration 48																								// // 48h
+			acqDuration = Double.parseDouble(Utility.readFromLog(pathLesione, "#038#", "=", true)); // acqduration 48 //
+																									// // 48h
 			deltaT = Double.parseDouble(Utility.readFromLog(pathLesione, "#039#", "=", true)); // deltaT 24h
 			fatCal = Double.parseDouble(Utility.readFromLog(pathLesione, "#222#", "=", true)); // fatCal48h
 			break;
@@ -151,7 +153,7 @@ public class S_VoxelDosimetry implements PlugIn {
 					aVoxel = ahhVoxel / Math.exp(par_a * deltaT);
 					aTildeVoxel = (aVoxel / par_a) * 3600;
 					if (aTildeVoxel > 0.1)
-					outSlice1.putPixelValue(x1, y1, aTildeVoxel);
+						outSlice1.putPixelValue(x1, y1, aTildeVoxel);
 				}
 			}
 			stackOut1.addSlice(outSlice1);
@@ -164,7 +166,6 @@ public class S_VoxelDosimetry implements PlugIn {
 		impMatilde.setSlice((int) tapata2[6]);
 
 		impMatilde.show();
-
 
 		// ####################################################
 		// PATATA
@@ -188,15 +189,16 @@ public class S_VoxelDosimetry implements PlugIn {
 					doseVoxel = 0;
 					IJ.showStatus("  " + z1 + " / " + (depth1 - depth2));
 					voxMask = stackMask.getVoxel(x1, y1, z1);
+					// if (voxMask > 0) {
+					vetVox = stackOut1.getVoxels(x1, y1, z1, width2, height2, depth2, null);
+					vetTabella = extractTabella(Utility.tabellaBella());
+					doseVoxel = patataACubetti(vetVox, vetTabella);
 					if (voxMask > 0) {
-						vetVox = stackOut1.getVoxels(x1, y1, z1, width2, height2, depth2, null);
-						vetTabella = extractTabella(Utility.tabellaBella());
-						doseVoxel = patataACubetti(vetVox, vetTabella);
+						outSlice2.putPixelValue(x1, y1, doseVoxel);
 					}
-					outSlice2.putPixelValue(x1, y1, doseVoxel);
-					}
+				}
+				stackOut2.addSlice(outSlice2);
 			}
-			stackOut2.addSlice(outSlice2);
 		}
 
 		ImagePlus impPatata = new ImagePlus("pAtatata", stackOut2);
@@ -279,7 +281,7 @@ public class S_VoxelDosimetry implements PlugIn {
 	}
 
 	/**
-	 * Estrazione dell'array  dalla tabella
+	 * Estrazione dell'array dalla tabella
 	 * 
 	 * @param tabellaBella
 	 * @return
@@ -314,9 +316,5 @@ public class S_VoxelDosimetry implements PlugIn {
 		}
 		return voxOut;
 	}
-
-
-
-
 
 }

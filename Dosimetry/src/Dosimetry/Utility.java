@@ -2463,12 +2463,12 @@ public class Utility {
 
 		ImageStack stack = ImageStack.create(width, height, depth, bitdepth);
 
-		for (int z1 = 1; z1 < depth; z1 = z1 + 6) {
+		for (int z1 = 1; z1 < depth; z1 = z1 + 8) {
 			count = 0;
-			for (int x1 = 0; x1 < width; x1 = x1 + 6) {
-				for (int y1 = 0; y1 < height; y1 = y1 + 6) {
+			for (int x1 = 0; x1 < width; x1 = x1 + 8) {
+				for (int y1 = 0; y1 < height; y1 = y1 + 8) {
 					int pippo = Utility.rainbowPixel((double) x1, (double) y1);
-					float[] puppo = new float[6 * 6 * 6];
+					float[] puppo = new float[8 * 8 * 8];
 					for (int i1 = 0; i1 < puppo.length; i1++)
 						puppo[i1] = (float) pippo;
 
@@ -2483,6 +2483,17 @@ public class Utility {
 		return;
 	}
 
+	private static int rainbowPixel2(double xspan, double yspan) {
+
+		double red = 255. - yspan * 255. * (1.0 + Math.sin(6.3 * xspan)) / 2.;
+		double green = 255. - yspan * 255. * (1.0 + Math.cos(6.3 * xspan)) / 2.;
+		double blue = 255. - yspan * 255. * (1.0 - Math.sin(6.3 * xspan)) / 2.;
+
+		return ((int) red << 16) + ((int) green << 8) + (int) blue;
+		
+		
+	}	
+	
 	private static int rainbowPixel(double xspan, double yspan) {
 
 		double red = 255. - yspan * 255. * (1.0 + Math.sin(6.3 * xspan)) / 2.;
