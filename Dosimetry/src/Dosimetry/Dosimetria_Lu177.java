@@ -1585,7 +1585,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 				File[] arrayOfFile = file.listFiles();
 				for (File file5 : arrayOfFile) {
 					count1++;
-					IJ.showStatus(count1 + "/" + len1);
+					IJ.showStatus("AAA " + count1 + "/" + len1);
+					if (b2 == 0 && count1 == 1)
+						MyLog.waitHere("");
+
 					File file6 = null;
 					if (file5.getName().contains("IRAC")) {
 						file6 = new File(desktopImagesSubfolderPath + File.separator + arrayOfString[b2]

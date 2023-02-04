@@ -37,6 +37,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		String lesione1 = "";
 		String lesione2 = "";
 		String lesione3 = "";
+		String lesione4 = "";
 		String out1 = "";
 		String startingDir1 = "";
 
@@ -50,11 +51,12 @@ public class S_VoxelDosimetry implements PlugIn {
 		int[] vetH = { 24, 48, 120 };
 		for (int i1 = 0; i1 < 3; i1++) {
 			lesione1 = str2 + out1 + vetH[i1] + "h.tif";
-			lesione3 = str2 + out1 + "_PATATA" + vetH[i1] + "h.tif";
+			lesione3 = str2 + out1 + "_PATATA" + vetH[i1] + "h.nii";
+			lesione4 = str2 + out1 + "_MATILDE" + vetH[i1] + "h.nii";
 			lesione2 = str2 + out1 + ".txt";
 			startingDir1 = str1 + vetH[i1] + "h" + File.separator + "SPECT";
 
-			caricaMemoriazza(startingDir1, lesione1, vetH[i1], lesione2, lesione3);
+			caricaMemoriazza(startingDir1, lesione1, vetH[i1], lesione2, lesione3, lesione4);
 
 			File fil = new File(lesione1);
 			Utility.deleteFile(fil);
@@ -75,7 +77,7 @@ public class S_VoxelDosimetry implements PlugIn {
 	 * @param ore
 	 * @param pathLesione
 	 */
-	void caricaMemoriazza(String pathStackIn, String pathStackMask, int ore, String pathLesione, String pathOut) {
+	void caricaMemoriazza(String pathStackIn, String pathStackMask, int ore, String pathLesione, String pathOut, String pathOut2) {
 
 		ImagePlus impStackIn = null;
 		ImagePlus impStackMask = null;
@@ -166,7 +168,10 @@ public class S_VoxelDosimetry implements PlugIn {
 			outSlice1 = ipBlack.duplicate();
 			for (int x1 = 0; x1 < width1; x1++) {
 				for (int y1 = 0; y1 < height1; y1++) {
-					IJ.showStatus("  " + z1 + " / " + (depth1));
+					IJ.showStatus("BBB " + z1 + " / " + (depth1));
+//					if (z1 == 0 && x1 == 0 && y1 == 0)
+//						MyLog.waitHere();
+
 					voxSignal = inSlice1.getPixelValue(x1, y1);
 					ahhVoxel = voxSignal / (acqDuration * fatCal);
 					aVoxel = ahhVoxel / Math.exp(par_a * deltaT);
@@ -185,6 +190,10 @@ public class S_VoxelDosimetry implements PlugIn {
 		impMatilde.setSlice((int) tapata2[6]);
 
 		impMatilde.show();
+		
+		
+		IJ.run(impMatilde, "NIfTI-1", "save=" + pathOut2);
+
 
 		// ####################################################
 		// PATATA
@@ -206,7 +215,10 @@ public class S_VoxelDosimetry implements PlugIn {
 			for (int x1 = 0; x1 < width1 - width2; x1++) {
 				for (int y1 = 0; y1 < height1 - height2; y1++) {
 					doseVoxel = 0;
-					IJ.showStatus("  " + z1 + " / " + (depth1 - depth2));
+					IJ.showStatus("CCC " + z1 + " / " + (depth1 - depth2));
+//					if (z1 == 0 && x1 == 0 && y1 == 0)
+//						MyLog.waitHere("");
+
 					voxMask = stackMask.getVoxel(x1, y1, z1);
 					vetVox = stackOut1.getVoxels(x1, y1, z1, width2, height2, depth2, null);
 					vetTabella = extractTabella(Utility.tabellaBella());
@@ -219,6 +231,11 @@ public class S_VoxelDosimetry implements PlugIn {
 			stackOut2.addSlice(outSlice2);
 		}
 
+		for (int z1 = 0; z1 < depth2; z1++) {
+			outSlice2 = ipBlack.duplicate();
+			stackOut2.addSlice(outSlice2);
+		}
+
 		ImagePlus impPatata = new ImagePlus("PATATA", stackOut2);
 		double[] tapata3 = Utility.MyStackStatistics(impPatata);
 
@@ -226,6 +243,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		impPatata.setSlice((int) tapata3[6]);
 		impPatata.show();
 		IJ.saveAsTiff(impPatata, pathOut);
+		IJ.run(impPatata, "NIfTI-1", "save=" + pathOut);
 
 		int minStackX3 = (int) tapata1[0];
 		int minStackY3 = (int) tapata1[1];
@@ -298,8 +316,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		resultsDialog.showDialog();
 
 		Utility.calculateDVH(impPatata);
-		MyLog.waitHere();
-	}
+		}
 
 	/**
 	 * Estrazione dell'array dalla tabella
