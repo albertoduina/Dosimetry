@@ -2,7 +2,6 @@ package Dosimetry;
 
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.image.ColorModel;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -18,17 +17,11 @@ import java.util.Locale;
 import flanagan.analysis.Regression;
 import ij.IJ;
 import ij.ImagePlus;
-import ij.ImageStack;
 import ij.gui.GenericDialog;
 import ij.gui.NonBlockingGenericDialog;
 import ij.io.DirectoryChooser;
-import ij.io.FileInfo;
-import ij.io.Opener;
-import ij.measure.Calibration;
 import ij.measure.CurveFitter;
-import ij.plugin.DICOM;
 import ij.plugin.PlugIn;
-import ij.process.ImageProcessor;
 import ij.util.DicomTools;
 import ij.util.FontUtil;
 
@@ -873,6 +866,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 		Utility.rinominaImmagini(path22 + "volatile24h.tif", path22 + lesionName + "24h.tif");
 		Utility.rinominaImmagini(path22 + "volatile48h.tif", path22 + lesionName + "48h.tif");
 		Utility.rinominaImmagini(path22 + "volatile120h.tif", path22 + lesionName + "120h.tif");
+
+		IJ.runPlugIn("Dosimetry.S_VoxelDosimetry", lesionName);
 
 		Utility.chiudiTutto();
 		IJ.showMessage("FINE LAVORO");

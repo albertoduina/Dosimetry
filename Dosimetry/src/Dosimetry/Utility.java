@@ -664,6 +664,16 @@ public class Utility {
 	}
 
 	/**
+	 * 
+	 * 
+	 * @param dir
+	 */
+	public static void deleteFile(File file1) {
+
+		file1.delete();
+	}
+
+	/**
 	 * Cancella directory pure se piena
 	 * 
 	 * @param file
@@ -2204,6 +2214,16 @@ public class Utility {
 		return outStrArr;
 	}
 
+	public static double[] arrayListToArrayDouble(List<Double> inArrayList) {
+
+		double[] outIntArr = new double[inArrayList.size()];
+		int i1 = 0;
+		for (Double n : inArrayList) {
+			outIntArr[i1++] = n;
+		}
+		return outIntArr;
+	}
+
 	public static ImagePlus removeCalibration(ImagePlus imp1) {
 
 		ImagePlus imp2 = NewImage.createShortImage("uncalibrated", imp1.getWidth(), imp1.getHeight(), 1,
@@ -2451,7 +2471,9 @@ public class Utility {
 
 	static void myScalaColori() {
 
-		int count = 0;
+		int countx = 0;
+		int county = 0;
+		int countz = 0;
 		int maxcount = 0;
 		int slice = 0;
 		double voxMask = 0;
@@ -2463,16 +2485,20 @@ public class Utility {
 
 		ImageStack stack = ImageStack.create(width, height, depth, bitdepth);
 
-		for (int z1 = 1; z1 < depth; z1 = z1 + 8) {
-			count = 0;
-			for (int x1 = 0; x1 < width; x1 = x1 + 8) {
-				for (int y1 = 0; y1 < height; y1 = y1 + 8) {
-					int pippo = Utility.rainbowPixel((double) x1, (double) y1);
+		for (int z1 = 1; z1 < depth; z1 = z1 + 4) {
+			countz++;
+			countx = 0;
+			for (int x1 = 0; x1 < width; x1 = x1 + 4) {
+				countx++;
+				county = 0;
+				for (int y1 = 0; y1 < height; y1 = y1 + 4) {
+					county++;
+					int pippo = Utility.rainbowPixel(countx, county, countz);
 					float[] puppo = new float[8 * 8 * 8];
 					for (int i1 = 0; i1 < puppo.length; i1++)
 						puppo[i1] = (float) pippo;
 
-					stack.setVoxels(z1, x1, y1, 6, 6, 6, puppo);
+					stack.setVoxels(z1, x1, y1, 8, 8, 8, puppo);
 				}
 			}
 		}
@@ -2490,17 +2516,46 @@ public class Utility {
 		double blue = 255. - yspan * 255. * (1.0 - Math.sin(6.3 * xspan)) / 2.;
 
 		return ((int) red << 16) + ((int) green << 8) + (int) blue;
-		
-		
-	}	
-	
-	private static int rainbowPixel(double xspan, double yspan) {
 
-		double red = 255. - yspan * 255. * (1.0 + Math.sin(6.3 * xspan)) / 2.;
-		double green = 255. - yspan * 255. * (1.0 + Math.cos(6.3 * xspan)) / 2.;
-		double blue = 255. - yspan * 255. * (1.0 - Math.sin(6.3 * xspan)) / 2.;
+	}
 
-		return ((int) red << 16) + ((int) green << 8) + (int) blue;
+	private static int rainbowPixel(int xcount, int ycount, int zcount) {
+
+		double red = 256 / xcount;
+		double green = 255 / ycount;
+		double blue = 255 / zcount;
+		int aux1 = ((int) red << 16) + ((int) green << 8) + (int) blue;
+//		IJ.log("" + xcount + " " + ycount + "  " + zcount + " " + aux1);
+		return aux1;
+	}
+
+	static void calculateDVH(ImagePlus patata) {
+
+		ImageStack stack = patata.getImageStack();
+
+		int width = stack.getWidth();
+		int height = stack.getHeight();
+		int depth = stack.getSize();
+		double voxel = 0;
+		double[] vetVoxel = null;
+
+		ArrayList<Double> arrList = new ArrayList<Double>();
+		for (int z1 = 1; z1 < depth; z1++) {
+			for (int x1 = 0; x1 < width; x1++) {
+				for (int y1 = 0; y1 < height; y1++) {
+					voxel = stack.getVoxel(x1, y1, z1);
+					if (voxel > 0)
+						arrList.add(voxel);
+				}
+			}
+		}
+		vetVoxel = Utility.arrayListToArrayDouble(arrList);
+		Arrays.sort(vetVoxel);
+
+		for (int i1 = 0; i1 < vetVoxel.length; i1++) {
+			IJ.log("" + vetVoxel[i1]);
+		}
+
 	}
 
 }

@@ -32,15 +32,34 @@ public class S_VoxelDosimetry implements PlugIn {
 				+ File.separator;
 		String str3 = System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "DosimetryFolder";
 
-		String out1 = Utility.dialogSceltaLesione_SV02(str3);
-
 		// iniziamo esaminando la 48h, some da spoecifiche
-		String startingDir1 = str1 + "48h" + File.separator + "SPECT";
 
-		String lesione1 = str2 + out1 + "48h.tif";
-		String lesione2 = str2 + out1 + ".txt";
+		String lesione1 = "";
+		String lesione2 = "";
+		String lesione3 = "";
+		String out1 = "";
+		String startingDir1 = "";
 
-		caricaMemoriazza(startingDir1, lesione1, 48, lesione2);
+		if (arg == "") {
+			out1 = Utility.dialogSceltaLesione_SV02(str3);
+
+		} else {
+			out1 = arg;
+		}
+
+		int[] vetH = { 24, 48, 120 };
+		for (int i1 = 0; i1 < 3; i1++) {
+			lesione1 = str2 + out1 + vetH[i1] + "h.tif";
+			lesione3 = str2 + out1 + "_PATATA" + vetH[i1] + "h.tif";
+			lesione2 = str2 + out1 + ".txt";
+			startingDir1 = str1 + vetH[i1] + "h" + File.separator + "SPECT";
+
+			caricaMemoriazza(startingDir1, lesione1, vetH[i1], lesione2, lesione3);
+
+			File fil = new File(lesione1);
+			Utility.deleteFile(fil);
+			Utility.chiudiTutto();
+		}
 
 		// C:\Users\Alberto\Desktop\DosimetryFolder\ImagesFolder\48h\SPECT
 	}
@@ -56,7 +75,7 @@ public class S_VoxelDosimetry implements PlugIn {
 	 * @param ore
 	 * @param pathLesione
 	 */
-	void caricaMemoriazza(String pathStackIn, String pathStackMask, int ore, String pathLesione) {
+	void caricaMemoriazza(String pathStackIn, String pathStackMask, int ore, String pathLesione, String pathOut) {
 
 		ImagePlus impStackIn = null;
 		ImagePlus impStackMask = null;
@@ -189,7 +208,6 @@ public class S_VoxelDosimetry implements PlugIn {
 					doseVoxel = 0;
 					IJ.showStatus("  " + z1 + " / " + (depth1 - depth2));
 					voxMask = stackMask.getVoxel(x1, y1, z1);
-					// if (voxMask > 0) {
 					vetVox = stackOut1.getVoxels(x1, y1, z1, width2, height2, depth2, null);
 					vetTabella = extractTabella(Utility.tabellaBella());
 					doseVoxel = patataACubetti(vetVox, vetTabella);
@@ -197,16 +215,17 @@ public class S_VoxelDosimetry implements PlugIn {
 						outSlice2.putPixelValue(x1, y1, doseVoxel);
 					}
 				}
-				stackOut2.addSlice(outSlice2);
 			}
+			stackOut2.addSlice(outSlice2);
 		}
 
-		ImagePlus impPatata = new ImagePlus("pAtatata", stackOut2);
+		ImagePlus impPatata = new ImagePlus("PATATA", stackOut2);
 		double[] tapata3 = Utility.MyStackStatistics(impPatata);
 
 		impPatata.setDisplayRange(tapata3[3], tapata3[7]);
 		impPatata.setSlice((int) tapata3[6]);
 		impPatata.show();
+		IJ.saveAsTiff(impPatata, pathOut);
 
 		int minStackX3 = (int) tapata1[0];
 		int minStackY3 = (int) tapata1[1];
@@ -278,6 +297,8 @@ public class S_VoxelDosimetry implements PlugIn {
 		resultsDialog.addMessage("integral= " + String.format("%.4f", integral2));
 		resultsDialog.showDialog();
 
+		Utility.calculateDVH(impPatata);
+		MyLog.waitHere();
 	}
 
 	/**
