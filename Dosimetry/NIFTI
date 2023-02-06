@@ -1,0 +1,13 @@
+Procedimento seguito per salvare Patata in formato NIFTI e verificare che sia caricato da un altro viewer
+
+
+In ImageJ ho installato il plugin nifti_io.jar, scaricato dal sito di Imagej
+NIfTI Input/Output
+Author:	Guy Williams (gbw1000 at wbic.cam.ac.uk)
+Source:	In nifti_io.jar
+
+Posso salvare patata facendo SaveAs e scegliendo giù in fondo NIfTI-1
+il file viene salvato con l'estensione nii. Per poterlo ricaricare, ovviamente va bene ImageJ ma volevo verificare con un altro programma, 
+ho trovato il programma MRIcron scaricandolo dal sito https://www.nitrc.org/projects/mricron
+Una volta installato ho provato a caricare pAtatata.nii, ricordiamoci che e'uno stack. Comunque viene caricato e ci vuole un po'di Pazienza e Culo, 
+per trovare la lesione. Cosi'ho verificato che ImageJ salva correttamente ed un programma esterno e'in grado di caricare l'immagine.

@@ -15,9 +15,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
@@ -26,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import flanagan.analysis.Regression;
 import ij.IJ;
@@ -1802,20 +1806,22 @@ public class Utility {
 	}
 
 	/**
-	 * Utilizzato per abilitare il flag per la stampa di IJ.log solo sul mio PC, per
-	 * il resto degli utenti IL BUIO.
+	 * Utilizzato per abilitare il flag per la stampa di MyLog.log solo sul mio PC,
+	 * per il resto degli utenti IL BUIO.
 	 * 
 	 * @return
 	 */
 	public static boolean stampa() {
 
-		String username = System.getProperty("user.name");
-		if (username.equals("Alberto")) {
+		String[] config = Utility.leggiConfig("DosimetryConfig.txt");
+		if (config == null)
+			return false;
+		String strIn = config[0];
+		if (strIn.equalsIgnoreCase("SI")) {
 			return true;
 		} else {
 			return false;
 		}
-
 	}
 
 	public static String getJarTitle() {
@@ -1999,10 +2005,10 @@ public class Utility {
 		boolean ok = true;
 		String info = new DICOM().getInfo(fileName1);
 		if (info == null || info.length() == 0) {
-			IJ.log("File " + fileName1 + " >>> HAS NOT DICOM INFO");
+			MyLog.log("File " + fileName1 + " >>> HAS NOT DICOM INFO");
 			ok = false;
 		} else if (!info.contains("7FE0,0010")) {
-			IJ.log("File " + fileName1 + " >>> HAS NOT PIXEL DATA");
+			MyLog.log("File " + fileName1 + " >>> HAS NOT PIXEL DATA");
 			ok = false;
 		}
 		return ok;
@@ -2037,22 +2043,22 @@ public class Utility {
 	public static ImagePlus imageFromStack(ImagePlus stack, int slice) {
 
 		if (stack == null) {
-			IJ.log("imageFromStack.stack== null");
+			MyLog.log("imageFromStack.stack== null");
 			return null;
 		}
-		// IJ.log("stack bitDepth= "+stack.getBitDepth());
+		// MyLog.log("stack bitDepth= "+stack.getBitDepth());
 		ImageStack imaStack = stack.getImageStack();
 		if (imaStack == null) {
-			IJ.log("imageFromStack.imaStack== null");
+			MyLog.log("imageFromStack.imaStack== null");
 			return null;
 		}
 		if (slice == 0) {
-			IJ.log("imageFromStack.requested slice 0!");
+			MyLog.log("imageFromStack.requested slice 0!");
 			return null;
 
 		}
 		if (slice > stack.getStackSize()) {
-			IJ.log("imageFromStack.requested slice > slices!");
+			MyLog.log("imageFromStack.requested slice > slices!");
 			return null;
 		}
 
@@ -2527,11 +2533,11 @@ public class Utility {
 		double green = 255 / ycount;
 		double blue = 255 / zcount;
 		int aux1 = ((int) red << 16) + ((int) green << 8) + (int) blue;
-//		IJ.log("" + xcount + " " + ycount + "  " + zcount + " " + aux1);
+//		MyLog.log("" + xcount + " " + ycount + "  " + zcount + " " + aux1);
 		return aux1;
 	}
 
-	static void calculateDVH(ImagePlus patata) {
+	static void calculateDVH(ImagePlus patata, int ore) {
 
 		ImageStack stack = patata.getImageStack();
 
@@ -2546,18 +2552,186 @@ public class Utility {
 			for (int x1 = 0; x1 < width; x1++) {
 				for (int y1 = 0; y1 < height; y1++) {
 					voxel = stack.getVoxel(x1, y1, z1);
-					if (voxel > 0)
+					if (voxel > 0) {
 						arrList.add(voxel);
+					}
 				}
 			}
 		}
 		vetVoxel = Utility.arrayListToArrayDouble(arrList);
+		calcDVH_1(vetVoxel);
+
+	}
+
+	static double[][] calcDVH_1(double[] vetVoxel) {
+
+//		for (int i1 = 0; i1 < vetVoxel.length; i1++) {
+//			double aa = vetVoxel[i1] * 100;
+//			int bb = (int) (aa / 10.0);
+//			vetVoxel[i1] = (double) bb;
+//		}
+
+//		MyLog.log("------ VOXELS SIGNAL --------");
+//		for (int i1 = 0; i1 < vetVoxel.length; i1++) {
+//			MyLog.log("input " + vetVoxel[i1]);
+//		}
+
 		Arrays.sort(vetVoxel);
 
-		for (int i1 = 0; i1 < vetVoxel.length; i1++) {
-			IJ.log("" + vetVoxel[i1]);
+//		MyLog.log("------ SORTED ARRAY --------");
+		int n1 = vetVoxel.length;
+		double[] temp = new double[n1];
+//		for (int i1 = 0; i1 < vetVoxel.length; i1++) {
+//			MyLog.log("sorted " + vetVoxel[i1]);
+//		}
+
+//		MyLog.log("------ REMOVE DUPED VALUES --------");
+		int j1 = 0;
+
+		for (int i1 = 0; i1 < n1 - 1; i1++) {
+			if (Double.compare(vetVoxel[i1], vetVoxel[i1 + 1]) != 0) {
+				temp[j1++] = vetVoxel[i1];
+			}
+		}
+		temp[j1++] = vetVoxel[n1 - 1];
+
+		double[] vetRemoved = new double[j1];
+		for (int i1 = 0; i1 < j1; i1++) {
+			vetRemoved[i1] = temp[i1];
 		}
 
+//		for (int i1 = 0; i1 < vetRemoved.length; i1++) {
+//			MyLog.log("removed " + vetRemoved[i1]);
+//		}
+
+		double[][] pippo = new double[vetRemoved.length][2];
+		for (int i1 = 0; i1 < vetRemoved.length; i1++) {
+			pippo[i1][0] = vetRemoved[i1];
+		}
+
+		double aux1 = 0;
+		for (int i1 = 0; i1 < vetVoxel.length; i1++) {
+			aux1 = vetVoxel[i1];
+			for (int i2 = 0; i2 < pippo.length; i2++) {
+				int comp = Double.compare(aux1, pippo[i2][0]);
+				if (comp == 0) {
+					pippo[i2][1] = pippo[i2][1] + 1.0;
+				}
+			}
+		}
+
+		double[] xdata = new double[pippo.length];
+		double[] ydata = new double[pippo.length];
+		MyLog.log("-------- NUMEROSITA' ------------");
+		for (int i1 = 0; i1 < pippo.length; i1++) {
+			MyLog.log("" + pippo[i1][0] + "  " + pippo[i1][1]);
+			xdata[i1] = pippo[i1][0];
+			ydata[i1] = pippo[i1][1];
+		}
+
+		Plot plot2 = new Plot("Dose Volume Histogram", "Dose", "Volume");
+		plot2.setLineWidth(2);
+		plot2.setColor(Color.GREEN);
+
+		plot2.add("line", xdata, ydata);
+		plot2.show();
+		MyLog.log("HISTOGRAM");
+
+		return pippo;
+	}
+
+	static String[] leggiConfig(String target) {
+
+		URL url3 = Utility.class.getResource("Dosimetria_Lu177.class");
+		String myString = url3.toString();
+		int start = myString.indexOf("plugins");
+		int end = myString.lastIndexOf("!");
+		String myPart1 = myString.substring(start, end);
+		int end2 = myPart1.lastIndexOf("/");
+		String myPart2 = myPart1.substring(0, end2);
+		String myPath = myPart2 + File.separator + target;
+		File f1 = new File(myPath);
+		if (!f1.isFile())
+			return null;
+		String[] puffi = new String[3];
+		puffi[0] = Utility.readFromLog(myPath, "#001#", "=");
+		puffi[1] = Utility.readFromLog(myPath, "#002#", "=");
+		puffi[2] = Utility.readFromLog(myPath, "#003#", "=");
+		return puffi;
+	}
+
+	static int[] leggiCoordinateVoxels(String[] puffi) {
+		String strIn = puffi[2];
+		String[] vet = strIn.split(",");
+		int[] vetOut = new int[vet.length];
+		for (int i1 = 0; i1 < vet.length; i1++) {
+			vetOut[i1] = Utility.parseInt(vet[i1]);
+		}
+		return vetOut;
+	}
+
+	static boolean leggiLogVoxelsConfig(String[] puffi) {
+		String strIn = puffi[1];
+		if (strIn.equalsIgnoreCase("SI"))
+			return true;
+		else
+			return false;
+	}
+
+	static void loggoVoxels2(ImagePlus impStack, int[] coordinateVoxels) {
+
+		int x1 = coordinateVoxels[0];
+		int y1 = coordinateVoxels[1];
+		int z1 = coordinateVoxels[2];
+
+		Calibration cal = impStack.getCalibration();
+		ImageStack imagestack = impStack.getImageStack();
+		double calSignal = imagestack.getVoxel(x1, y1, z1);
+		double voxSignal = cal.getCValue(calSignal);
+
+		MyLog.log("#############################################");
+//		MyLog.log("immagine_" + impStack.getTitle() + "_raw= " + calSignal + " at " + x1 + ", " + y1 + ", " + z1);
+		MyLog.log("immagine_" + impStack.getTitle() + "_cal= " + voxSignal + " at " + x1 + ", " + y1 + ", " + z1);
+	}
+
+	static void loggoCuxels2(ImagePlus impStack, int[] coordinateVoxels) {
+
+		int x1 = coordinateVoxels[0] - 3;
+		int y1 = coordinateVoxels[1] - 3;
+		int z1 = coordinateVoxels[2] - 3;
+
+//		Calibration cal = impStack.getCalibration();
+		ImageStack imagestack = impStack.getImageStack();
+		float[] calSignal = imagestack.getVoxels(x1, y1, z1, 6, 6, 6, null);
+//		float[] voxSignal = cal.getCValue(calSignal);
+
+		MyLog.log("############ immagine_" + impStack.getTitle() + "_CUBE #############");
+		String aux1 = "";
+		for (int i3 = 0; i3 < 6; i3++) {
+			aux1 = aux1 + String.format("%04d", i3) + ";             ";
+		}
+		MyLog.log("____pixel;               " + aux1);
+
+		int count = 0;
+		for (int i1 = 0; i1 < calSignal.length - 5; i1 = i1 + 6) {
+			aux1 = "";
+
+			aux1 = "";
+			for (int i2 = 0; i2 < 6; i2++) {
+				aux1 = aux1 + String.format("%010.4f", calSignal[i1 + i2]) + ";  ";
+			}
+			MyLog.log("riga " + String.format("%04d", count) + ";    " + aux1);
+			count++;
+		}
+
+//		MyLog.log("immagine " + impStack.getTitle() + " cal " + voxSignal + " at " + x1 + ", " + y1 + ", " + z1);
+	}
+
+	void decimalFormatSymbols() {
+//		DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance();
+//		dfs.setDecimalSeparator('.');
+//		new DecimalFormat("0.00", dfs).format(d);
+		Locale.setDefault(Locale.US);
 	}
 
 }

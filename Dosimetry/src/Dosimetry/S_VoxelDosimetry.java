@@ -2,6 +2,7 @@ package Dosimetry;
 
 import java.awt.Font;
 import java.io.File;
+import java.util.Locale;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -23,16 +24,30 @@ public class S_VoxelDosimetry implements PlugIn {
 	static Font defaultFont = FontUtil.getFont(fontStyle, Font.PLAIN, 13);
 	static Font textFont = FontUtil.getFont(fontStyle, Font.ITALIC, 16);
 	static Font titleFont = FontUtil.getFont(fontStyle, Font.BOLD, 16);
+	String[] config = null;
+	boolean loggoVoxels = false;
+	int[] coordinateVoxels = null;
 
 	public void run(String arg) {
+
+		Locale.setDefault(Locale.US);
 
 		String str1 = System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "DosimetryFolder"
 				+ File.separator + "ImagesFolder" + File.separator;
 		String str2 = System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "DosimetryFolder"
 				+ File.separator;
 		String str3 = System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "DosimetryFolder";
+		config = Utility.leggiConfig("DosimetryConfig.txt");
+		if (config == null) {
+			loggoVoxels = false;
+		} else {
+			loggoVoxels = Utility.leggiLogVoxelsConfig(config);
 
-		// iniziamo esaminando la 48h, some da spoecifiche
+			coordinateVoxels = Utility.leggiCoordinateVoxels(config);
+//			MyLog.waitHere("loggoVoxels= " + loggoVoxels + "\ncoordinateVoxels[0]= " + coordinateVoxels[0]
+//					+ "\ncoordinateVoxels[1]= " + coordinateVoxels[1] + "\ncoordinateVoxels[2]= "
+//					+ coordinateVoxels[2]);
+		}
 
 		String lesione1 = "";
 		String lesione2 = "";
@@ -49,19 +64,18 @@ public class S_VoxelDosimetry implements PlugIn {
 		}
 
 		int[] vetH = { 24, 48, 120 };
-		for (int i1 = 0; i1 < 3; i1++) {
-			lesione1 = str2 + out1 + vetH[i1] + "h.tif";
-			lesione3 = str2 + out1 + "_PATATA" + vetH[i1] + "h.nii";
-			lesione4 = str2 + out1 + "_MATILDE" + vetH[i1] + "h.nii";
-			lesione2 = str2 + out1 + ".txt";
-			startingDir1 = str1 + vetH[i1] + "h" + File.separator + "SPECT";
+		int i1 = 2;
+		lesione1 = str2 + out1 + vetH[i1] + "h.tif";
+		lesione3 = str2 + out1 + "_PATATA" + vetH[i1] + "h.nii";
+		lesione4 = str2 + out1 + "_MATILDE" + vetH[i1] + "h.nii";
+		lesione2 = str2 + out1 + ".txt";
+		startingDir1 = str1 + vetH[i1] + "h" + File.separator + "SPECT";
 
-			caricaMemoriazza(startingDir1, lesione1, vetH[i1], lesione2, lesione3, lesione4);
+		caricaMemoriazza(startingDir1, lesione1, vetH[i1], lesione2, lesione3, lesione4);
 
-			File fil = new File(lesione1);
-			Utility.deleteFile(fil);
-			Utility.chiudiTutto();
-		}
+		File fil = new File(lesione1);
+		// Utility.deleteFile(fil); // ESCLUSO PER PROVE CAXXXO MI TIRAVA SCEMO
+		// Utility.chiudiTutto();
 
 		// C:\Users\Alberto\Desktop\DosimetryFolder\ImagesFolder\48h\SPECT
 	}
@@ -77,7 +91,8 @@ public class S_VoxelDosimetry implements PlugIn {
 	 * @param ore
 	 * @param pathLesione
 	 */
-	void caricaMemoriazza(String pathStackIn, String pathStackMask, int ore, String pathLesione, String pathOut, String pathOut2) {
+	void caricaMemoriazza(String pathStackIn, String pathStackMask, int ore, String pathLesione, String pathOut,
+			String pathOut2) {
 
 		ImagePlus impStackIn = null;
 		ImagePlus impStackMask = null;
@@ -110,6 +125,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		double par_a = Double.parseDouble(Utility.readFromLog(pathLesione, "#302#", "=", true));
 
 		impStackIn = Utility.readStackFiles(pathStackIn);
+
 		new ImageConverter(impStackIn).convertToGray32();
 
 		impStackIn.setTitle("INPUT");
@@ -121,6 +137,12 @@ public class S_VoxelDosimetry implements PlugIn {
 
 		impStackMask.setTitle("MASK");
 		impStackMask.show();
+
+		if (loggoVoxels) {
+			Utility.loggoVoxels2(impStackMask, coordinateVoxels);
+			Utility.loggoVoxels2(impStackIn, coordinateVoxels);
+			Utility.loggoCuxels2(impStackIn, coordinateVoxels);
+		}
 
 		// in pratica ora imposto il mio cuBBetto in modo che "viaggi" per tutto il
 		// nostro stack, il pixel centrale del cubo, sara' la media di tutti i pixel del
@@ -184,16 +206,19 @@ public class S_VoxelDosimetry implements PlugIn {
 		}
 
 		ImagePlus impMatilde = new ImagePlus("mAtilde", stackOut1);
+		if (loggoVoxels) {
+			Utility.loggoVoxels2(impMatilde, coordinateVoxels);
+			Utility.loggoCuxels2(impMatilde, coordinateVoxels);
+		}
+
 		double[] tapata2 = Utility.MyStackStatistics(impMatilde, impStackMask);
 
 		impMatilde.setDisplayRange(tapata2[3], tapata2[7]);
 		impMatilde.setSlice((int) tapata2[6]);
 
 		impMatilde.show();
-		
-		
-		IJ.run(impMatilde, "NIfTI-1", "save=" + pathOut2);
 
+		IJ.run(impMatilde, "NIfTI-1", "save=" + pathOut2);
 
 		// ####################################################
 		// PATATA
@@ -236,7 +261,17 @@ public class S_VoxelDosimetry implements PlugIn {
 			stackOut2.addSlice(outSlice2);
 		}
 
+		if (loggoVoxels) {
+			loggoTabellaBella(vetTabella);
+		}
+
 		ImagePlus impPatata = new ImagePlus("PATATA", stackOut2);
+		if (loggoVoxels) {
+			Utility.loggoVoxels2(impPatata, coordinateVoxels);
+			Utility.loggoCuxels2(impPatata, coordinateVoxels);
+			Utility.loggoCuxels2(impStackMask, coordinateVoxels);
+		}
+
 		double[] tapata3 = Utility.MyStackStatistics(impPatata);
 
 		impPatata.setDisplayRange(tapata3[3], tapata3[7]);
@@ -282,7 +317,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		double integral2 = tapata3[10];
 
 		NonBlockingGenericDialog resultsDialog = new NonBlockingGenericDialog("SV05 - Results");
-		resultsDialog.addMessage("Results", titleFont);
+		resultsDialog.addMessage("Results " + ore + "h", titleFont);
 		resultsDialog.setFont(defaultFont);
 
 		resultsDialog.addMessage("============ IMMAGINE MASCHERATA ===============");
@@ -315,8 +350,8 @@ public class S_VoxelDosimetry implements PlugIn {
 		resultsDialog.addMessage("integral= " + String.format("%.4f", integral2));
 		resultsDialog.showDialog();
 
-		Utility.calculateDVH(impPatata);
-		}
+		Utility.calculateDVH(impPatata, ore);
+	}
 
 	/**
 	 * Estrazione dell'array dalla tabella
@@ -353,6 +388,25 @@ public class S_VoxelDosimetry implements PlugIn {
 			voxOut = aux1 / 1000;
 		}
 		return voxOut;
+	}
+
+	void loggoTabellaBella(float[] vetTabella) {
+
+		MyLog.log("############## vetTabella VALORI CONVERSIONE ##############");
+		String aux1 = "";
+		for (int i3 = 0; i3 < 6; i3++) {
+			aux1 = aux1 + String.format("%04d", i3) + ";            ";
+		}
+		MyLog.log("____pixel;               " + aux1);
+		int count = 0;
+		for (int i1 = 0; i1 < vetTabella.length - 5; i1 = i1 + 6) {
+			aux1 = "";
+			for (int i2 = 0; i2 < 6; i2++) {
+				aux1 = aux1 + String.format("%010.4e", vetTabella[i1 + i2]) + ";  ";
+			}
+			MyLog.log("riga " + String.format("%04d", count) + "    " + aux1);
+			count++;
+		}
 	}
 
 }

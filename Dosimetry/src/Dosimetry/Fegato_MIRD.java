@@ -4,6 +4,7 @@ import java.awt.Font;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 import ij.plugin.PlugIn;
 import ij.util.FontUtil;
@@ -43,6 +44,7 @@ public class Fegato_MIRD implements PlugIn {
 
 	public void run(String arg) {
 
+		Locale.setDefault(Locale.US);
 		desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
 		pathPermanente = desktopPath + File.separator + "DosimetryFolder" + File.separator + "permanente.txt";
 		pathVolatile = desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";

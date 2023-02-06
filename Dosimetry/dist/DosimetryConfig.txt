@@ -1,0 +1,5 @@
+---- INIZIO ---------
+#001# Visualizza IJ.log= SI
+#002# Log voxels= SI
+#003# Coordinate [x,y,z] Voxel centrale del cubo 6x6 di cui fare il log = 98,81,68
+---- FINE ---------

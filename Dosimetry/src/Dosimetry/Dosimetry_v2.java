@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.Vector;
 
@@ -60,6 +61,7 @@ public class Dosimetry_v2 implements PlugIn {
 
 	public void run(String arg) {
 
+		Locale.setDefault(Locale.US);
 		MyLog.log("============================");
 		MyLog.log("START Dosimetry_v2");
 		MyLog.log("============================");

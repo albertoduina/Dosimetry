@@ -64,9 +64,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 	static String pathVolatile;
 	static String[] arrayOfString = { "24h", "48h", "120h" };
 	String format1 = "dd-MM-yyyy HH:mm:ss";
+	String[] config=null;
 
 	public void run(String paramString) {
 
+		Locale.setDefault(Locale.US);
 		desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
 		pathPermanente = desktopPath + File.separator + "DosimetryFolder" + File.separator + "permanente.txt";
 		pathVolatile = desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
@@ -90,6 +92,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 		String JavaVersion = System.getProperty("java.version");
 
 		String jarName = Utility.getJarTitle();
+
+		config= Utility.leggiConfig("Dosimetry_Config.txt");
 
 		// ===========================================================
 		// LEGGO CARTELLA DOSIMETRY FOLDER (E SOTTOCARTELLA IMAGES FOLDER)
@@ -1586,8 +1590,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 				for (File file5 : arrayOfFile) {
 					count1++;
 					IJ.showStatus("AAA " + count1 + "/" + len1);
-					if (b2 == 0 && count1 == 1)
-						MyLog.waitHere("");
+//					if (b2 == 0 && count1 == 1)
+//						MyLog.waitHere("");
 
 					File file6 = null;
 					if (file5.getName().contains("IRAC")) {
