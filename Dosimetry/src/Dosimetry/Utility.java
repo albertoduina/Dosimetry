@@ -1806,8 +1806,7 @@ public class Utility {
 	}
 
 	/**
-	 * Utilizzato per abilitare il flag per la stampa di MyLog.log solo sul mio PC,
-	 * per il resto degli utenti IL BUIO.
+	 * Introdotto il file DosimetryConfig.txt
 	 * 
 	 * @return
 	 */
@@ -2678,11 +2677,7 @@ public class Utility {
 			return false;
 	}
 
-	static void loggoVoxels2(ImagePlus impStack, int[] coordinateVoxels) {
-
-		int x1 = coordinateVoxels[0];
-		int y1 = coordinateVoxels[1];
-		int z1 = coordinateVoxels[2];
+	static void loggoVoxels2(ImagePlus impStack, int x1, int y1, int z1) {
 
 		Calibration cal = impStack.getCalibration();
 		ImageStack imagestack = impStack.getImageStack();
@@ -2694,11 +2689,7 @@ public class Utility {
 		MyLog.log("immagine_" + impStack.getTitle() + "_cal= " + voxSignal + " at " + x1 + ", " + y1 + ", " + z1);
 	}
 
-	static void loggoCuxels2(ImagePlus impStack, int[] coordinateVoxels) {
-
-		int x1 = coordinateVoxels[0] - 3;
-		int y1 = coordinateVoxels[1] - 3;
-		int z1 = coordinateVoxels[2] - 3;
+	static void loggoCuxels2(ImagePlus impStack, int x1, int y1, int z1) {
 
 //		Calibration cal = impStack.getCalibration();
 		ImageStack imagestack = impStack.getImageStack();
@@ -2708,9 +2699,9 @@ public class Utility {
 		MyLog.log("############ immagine_" + impStack.getTitle() + "_CUBE #############");
 		String aux1 = "";
 		for (int i3 = 0; i3 < 6; i3++) {
-			aux1 = aux1 + String.format("%04d", i3) + ";             ";
+			aux1 = aux1 + ";_______" + String.format("%04d", i3);
 		}
-		MyLog.log("____pixel;               " + aux1);
+		MyLog.log("____pixel " + aux1);
 
 		int count = 0;
 		for (int i1 = 0; i1 < calSignal.length - 5; i1 = i1 + 6) {

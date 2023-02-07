@@ -44,9 +44,9 @@ public class S_VoxelDosimetry implements PlugIn {
 			loggoVoxels = Utility.leggiLogVoxelsConfig(config);
 
 			coordinateVoxels = Utility.leggiCoordinateVoxels(config);
-//			MyLog.waitHere("loggoVoxels= " + loggoVoxels + "\ncoordinateVoxels[0]= " + coordinateVoxels[0]
-//					+ "\ncoordinateVoxels[1]= " + coordinateVoxels[1] + "\ncoordinateVoxels[2]= "
-//					+ coordinateVoxels[2]);
+			MyLog.waitHere("loggoVoxels= " + loggoVoxels + "\ncoordinateVoxels[0]= " + coordinateVoxels[0]
+					+ "\ncoordinateVoxels[1]= " + coordinateVoxels[1] + "\ncoordinateVoxels[2]= "
+					+ coordinateVoxels[2]);
 		}
 
 		String lesione1 = "";
@@ -102,6 +102,12 @@ public class S_VoxelDosimetry implements PlugIn {
 		double acqDuration = 0;
 		double fatCal = 0;
 		double deltaT = 0;
+		int x2 = 0;
+		int y2 = 0;
+		int z2 = 0;
+		int x3 = 0;
+		int y3 = 0;
+		int z3 = 0;
 
 		switch (ore) {
 		case 24:
@@ -139,9 +145,16 @@ public class S_VoxelDosimetry implements PlugIn {
 		impStackMask.show();
 
 		if (loggoVoxels) {
-			Utility.loggoVoxels2(impStackMask, coordinateVoxels);
-			Utility.loggoVoxels2(impStackIn, coordinateVoxels);
-			Utility.loggoCuxels2(impStackIn, coordinateVoxels);
+			x2 = coordinateVoxels[0];
+			y2 = coordinateVoxels[1];
+			z2 = coordinateVoxels[2];
+			x3 = x2 - 3;
+			y3 = y2 - 3;
+			z3 = z2 - 3;
+
+			Utility.loggoVoxels2(impStackMask, x2, y2, z2);
+			Utility.loggoVoxels2(impStackIn, x2, y2, z2);
+			Utility.loggoCuxels2(impStackIn, x3, y3, z3);
 		}
 
 		// in pratica ora imposto il mio cuBBetto in modo che "viaggi" per tutto il
@@ -207,8 +220,8 @@ public class S_VoxelDosimetry implements PlugIn {
 
 		ImagePlus impMatilde = new ImagePlus("mAtilde", stackOut1);
 		if (loggoVoxels) {
-			Utility.loggoVoxels2(impMatilde, coordinateVoxels);
-			Utility.loggoCuxels2(impMatilde, coordinateVoxels);
+			Utility.loggoVoxels2(impMatilde, x2, y2, z2);
+			Utility.loggoCuxels2(impMatilde, x3, y3, z3);
 		}
 
 		double[] tapata2 = Utility.MyStackStatistics(impMatilde, impStackMask);
@@ -267,9 +280,9 @@ public class S_VoxelDosimetry implements PlugIn {
 
 		ImagePlus impPatata = new ImagePlus("PATATA", stackOut2);
 		if (loggoVoxels) {
-			Utility.loggoVoxels2(impPatata, coordinateVoxels);
-			Utility.loggoCuxels2(impPatata, coordinateVoxels);
-			Utility.loggoCuxels2(impStackMask, coordinateVoxels);
+			Utility.loggoVoxels2(impPatata, x2, y2, z2);
+			Utility.loggoCuxels2(impPatata, x3, y3, z3);
+			Utility.loggoCuxels2(impStackMask, x3, y3, z3);
 		}
 
 		double[] tapata3 = Utility.MyStackStatistics(impPatata);
@@ -395,9 +408,9 @@ public class S_VoxelDosimetry implements PlugIn {
 		MyLog.log("############## vetTabella VALORI CONVERSIONE ##############");
 		String aux1 = "";
 		for (int i3 = 0; i3 < 6; i3++) {
-			aux1 = aux1 + String.format("%04d", i3) + ";            ";
+			aux1 = aux1 + String.format("%04d", i3) + ";______";
 		}
-		MyLog.log("____pixel;               " + aux1);
+		MyLog.log("____pixel;_________" + aux1);
 		int count = 0;
 		for (int i1 = 0; i1 < vetTabella.length - 5; i1 = i1 + 6) {
 			aux1 = "";
