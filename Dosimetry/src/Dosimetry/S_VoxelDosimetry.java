@@ -64,14 +64,15 @@ public class S_VoxelDosimetry implements PlugIn {
 		}
 
 		int[] vetH = { 24, 48, 120 };
-		int i1 = 2;
-		lesione1 = str2 + out1 + vetH[i1] + "h.tif";
-		lesione3 = str2 + out1 + "_PATATA" + vetH[i1] + "h.nii";
-		lesione4 = str2 + out1 + "_MATILDE" + vetH[i1] + "h.nii";
-		lesione2 = str2 + out1 + ".txt";
-		startingDir1 = str1 + vetH[i1] + "h" + File.separator + "SPECT";
+		for (int i1 = 0; i1 < vetH.length; i1++) {
+			lesione1 = str2 + out1 + vetH[i1] + "h.tif";
+			lesione3 = str2 + out1 + "_PATATA" + vetH[i1] + "h.nii";
+			lesione4 = str2 + out1 + "_MATILDE" + vetH[i1] + "h.nii";
+			lesione2 = str2 + out1 + ".txt";
+			startingDir1 = str1 + vetH[i1] + "h" + File.separator + "SPECT";
 
-		caricaMemoriazza(startingDir1, lesione1, vetH[i1], lesione2, lesione3, lesione4);
+			caricaMemoriazza(startingDir1, lesione1, vetH[i1], lesione2, lesione3, lesione4);
+		}
 
 		File fil = new File(lesione1);
 		// Utility.deleteFile(fil); // ESCLUSO PER PROVE CAXXXO MI TIRAVA SCEMO
