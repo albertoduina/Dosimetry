@@ -44,10 +44,13 @@ public class S_VoxelDosimetry implements PlugIn {
 			loggoVoxels = Utility.leggiLogVoxelsConfig(config);
 
 			coordinateVoxels = Utility.leggiCoordinateVoxels(config);
-			MyLog.waitHere("loggoVoxels= " + loggoVoxels + "\ncoordinateVoxels[0]= " + coordinateVoxels[0]
-					+ "\ncoordinateVoxels[1]= " + coordinateVoxels[1] + "\ncoordinateVoxels[2]= "
+			MyLog.waitHere("loggoVoxels= " + loggoVoxels + "\ncoordinateVoxels[0] X= " + coordinateVoxels[0]
+					+ "\ncoordinateVoxels[1] Y= " + coordinateVoxels[1] + "\ncoordinateVoxels[2] Z= "
 					+ coordinateVoxels[2]);
 		}
+
+		float[] vetTabella = extractTabella(Utility.tabellaBella());
+		creoStackTabellaBella(vetTabella);
 
 		String lesione1 = "";
 		String lesione2 = "";
@@ -64,6 +67,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		}
 
 		int[] vetH = { 24, 48, 120 };
+		boolean ok = false;
 		for (int i1 = 0; i1 < vetH.length; i1++) {
 			lesione1 = str2 + out1 + vetH[i1] + "h.tif";
 			lesione3 = str2 + out1 + "_PATATA" + vetH[i1] + "h.nii";
@@ -71,7 +75,10 @@ public class S_VoxelDosimetry implements PlugIn {
 			lesione2 = str2 + out1 + ".txt";
 			startingDir1 = str1 + vetH[i1] + "h" + File.separator + "SPECT";
 
-			caricaMemoriazza(startingDir1, lesione1, vetH[i1], lesione2, lesione3, lesione4);
+			ok = caricaMemoriazza(startingDir1, lesione1, vetH[i1], lesione2, lesione3, lesione4);
+			if (!ok)
+				break;
+
 		}
 
 		File fil = new File(lesione1);
@@ -79,6 +86,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		// Utility.chiudiTutto();
 
 		// C:\Users\Alberto\Desktop\DosimetryFolder\ImagesFolder\48h\SPECT
+
 	}
 
 	/**
@@ -92,7 +100,7 @@ public class S_VoxelDosimetry implements PlugIn {
 	 * @param ore
 	 * @param pathLesione
 	 */
-	void caricaMemoriazza(String pathStackIn, String pathStackMask, int ore, String pathLesione, String pathOut,
+	boolean caricaMemoriazza(String pathStackIn, String pathStackMask, int ore, String pathLesione, String pathOut,
 			String pathOut2) {
 
 		ImagePlus impStackIn = null;
@@ -135,14 +143,14 @@ public class S_VoxelDosimetry implements PlugIn {
 
 		new ImageConverter(impStackIn).convertToGray32();
 
-		impStackIn.setTitle("INPUT");
+		impStackIn.setTitle("INPUT " + ore + "h");
 
 		impStackMask = Utility.openImage(pathStackMask);
 		int sl = Utility.MyStackCountPixels(impStackMask);
 		impStackMask.setDisplayRange(50, 255);
 		impStackMask.setSlice(sl);
 
-		impStackMask.setTitle("MASK");
+		impStackMask.setTitle("MASK " + ore + "h");
 		impStackMask.show();
 
 		if (loggoVoxels) {
@@ -156,6 +164,17 @@ public class S_VoxelDosimetry implements PlugIn {
 			Utility.loggoVoxels2(impStackMask, x2, y2, z2);
 			Utility.loggoVoxels2(impStackIn, x2, y2, z2);
 			Utility.loggoCuxels2(impStackIn, x3, y3, z3);
+			int lato = 12;
+			Utility.loggoCuxels3(impStackIn, x2, y2, z2, lato);
+			MyLog.log("**********************************");
+			MyLog.log("**********************************");
+			MyLog.log("**********************************");
+			MyLog.log("**********************************");
+			Utility.loggoCuxels3(impStackIn, x2, y2, z2, 6);
+			MyLog.log("**********************************");
+			MyLog.log("**********************************");
+			MyLog.log("**********************************");
+			MyLog.log("**********************************");
 		}
 
 		// in pratica ora imposto il mio cuBBetto in modo che "viaggi" per tutto il
@@ -205,21 +224,18 @@ public class S_VoxelDosimetry implements PlugIn {
 			for (int x1 = 0; x1 < width1; x1++) {
 				for (int y1 = 0; y1 < height1; y1++) {
 					IJ.showStatus("BBB " + z1 + " / " + (depth1));
-//					if (z1 == 0 && x1 == 0 && y1 == 0)
-//						MyLog.waitHere();
-
 					voxSignal = inSlice1.getPixelValue(x1, y1);
 					ahhVoxel = voxSignal / (acqDuration * fatCal);
-					aVoxel = ahhVoxel / Math.exp(par_a * deltaT);
+					aVoxel = ahhVoxel / Math.exp(-(par_a * deltaT));
 					aTildeVoxel = (aVoxel / par_a) * 3600;
-					if (aTildeVoxel > 0.1)
+					if (aTildeVoxel > 0.00001)
 						outSlice1.putPixelValue(x1, y1, aTildeVoxel);
 				}
 			}
 			stackOut1.addSlice(outSlice1);
 		}
 
-		ImagePlus impMatilde = new ImagePlus("mAtilde", stackOut1);
+		ImagePlus impMatilde = new ImagePlus("mAtilde " + ore + "h", stackOut1);
 		if (loggoVoxels) {
 			Utility.loggoVoxels2(impMatilde, x2, y2, z2);
 			Utility.loggoCuxels2(impMatilde, x3, y3, z3);
@@ -279,7 +295,7 @@ public class S_VoxelDosimetry implements PlugIn {
 			loggoTabellaBella(vetTabella);
 		}
 
-		ImagePlus impPatata = new ImagePlus("PATATA", stackOut2);
+		ImagePlus impPatata = new ImagePlus("PATATA  " + ore + "h", stackOut2);
 		if (loggoVoxels) {
 			Utility.loggoVoxels2(impPatata, x2, y2, z2);
 			Utility.loggoCuxels2(impPatata, x3, y3, z3);
@@ -364,7 +380,11 @@ public class S_VoxelDosimetry implements PlugIn {
 		resultsDialog.addMessage("integral= " + String.format("%.4f", integral2));
 		resultsDialog.showDialog();
 
+		if (resultsDialog.wasCanceled())
+			return false;
+
 		Utility.calculateDVH(impPatata, ore);
+		return true;
 	}
 
 	/**
@@ -421,6 +441,41 @@ public class S_VoxelDosimetry implements PlugIn {
 			MyLog.log("riga " + String.format("%04d", count) + "    " + aux1);
 			count++;
 		}
+	}
+
+	void creoStackTabellaBella(float[] vetTabella) {
+
+		int width = 6;
+		int height = 6;
+		int depth = 6;
+		int bitdepth = 32;
+
+		ImageStack stack = ImageStack.create(width, height, depth, bitdepth);
+
+//		MyLog.waitHere("length= " + vetTabella.length);
+		stack.setVoxels(0, 0, 0, 6, 6, 6, vetTabella);
+
+		ImagePlus impStack = new ImagePlus("tabella", stack);
+		impStack.show();
+	}
+
+	static double stoCazzoDiTest(double voxSignal, double acqDuration, double fatCal, double par_a, double deltaT) {
+
+		double ahhVoxel = 0;
+		double aVoxel = 0;
+		double aTildeVoxel = 0;
+
+		// vedi S_VoxelDosimetry circa linea 230
+
+		ahhVoxel = voxSignal / (acqDuration * fatCal);
+		aVoxel = ahhVoxel / Math.exp(-(par_a * deltaT));
+		aTildeVoxel = (aVoxel / par_a) * 3600;
+
+		IJ.log("voxSignal= " + voxSignal + " acqDuration= " + acqDuration + " fatCal= " + fatCal + " ahhVoxel= "
+				+ ahhVoxel);
+		IJ.log("ahhVoxel= " + ahhVoxel + " par_a= " + par_a + " deltaT= " + deltaT + " aVoxel= " + aVoxel);
+		IJ.log("aVoxel= " + aVoxel + " par_a= " + par_a + " aTildeVoxel= " + aTildeVoxel);
+		return aTildeVoxel;
 	}
 
 }
