@@ -39,9 +39,11 @@ public class S_VoxelDosimetry implements PlugIn {
 		String str3 = System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "DosimetryFolder";
 		config = Utility.leggiConfig("DosimetryConfig.txt");
 		if (config == null) {
+			IJ.log("MANCA CONFIG");
 			loggoVoxels = false;
 		} else {
 			loggoVoxels = Utility.leggiLogVoxelsConfig(config);
+			IJ.log("LOGGO VOXELS= " + loggoVoxels);
 
 			coordinateVoxels = Utility.leggiCoordinateVoxels(config);
 			MyLog.waitHere("loggoVoxels= " + loggoVoxels + "\ncoordinateVoxels[0] X= " + coordinateVoxels[0]
@@ -165,7 +167,7 @@ public class S_VoxelDosimetry implements PlugIn {
 			Utility.loggoVoxels2(impStackIn, x2, y2, z2);
 			Utility.loggoCuxels2(impStackIn, x3, y3, z3);
 			int lato = 12;
-			Utility.loggoCuxels3(impStackIn, x2, y2, z2, lato);
+			// Utility.loggoCuxels3(impStackIn, x2, y2, z2, lato);
 			MyLog.log("**********************************");
 			MyLog.log("**********************************");
 			MyLog.log("**********************************");

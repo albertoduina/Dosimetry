@@ -43,14 +43,31 @@ public class MyLog {
 
 	public static void logArrayList(ArrayList<String> arrList) {
 		if (arrList == null) {
-			IJ.log("Warning vector = null");
+			MyLog.log("Warning vector = null");
 		} else {
-			IJ.log("----------- [ " + arrList.size() + " ] -----------");
+			MyLog.log("----------- [ " + arrList.size() + " ] -----------");
 			for (int j1 = 0; j1 < arrList.size(); j1++) {
-				IJ.log(arrList.get(j1));
+				MyLog.log(arrList.get(j1));
 			}
-			IJ.log("---------------------------------------------");
+			MyLog.log("---------------------------------------------");
 		}
 	}
+	
+	
+	public static void logVector(double vect[], String nome) {
+		String stri = "";
+		if (vect == null) {
+			MyLog.log("Warning vector " + nome + " = null");
+		} else {
+			MyLog.log("----------- " + nome + "  [ " + vect.length + " ] -----------");
+
+			for (int i1 = 0; i1 < vect.length; i1++) {
+				stri = stri + vect[i1] + ",  ";
+			}
+			MyLog.log(stri);
+		}
+		MyLog.log("---------------------------------------------");
+	}
+
 
 }

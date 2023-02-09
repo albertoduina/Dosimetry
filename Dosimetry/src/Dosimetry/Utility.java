@@ -1527,7 +1527,7 @@ public class Utility {
 
 			Stmezzo = (Math.log(2) * Sa) / Math.pow(aa, 2);
 			Stau = SmAtilde / somministrata;
-			MyLog.here("flanagan errors");
+			MyLog.log("flanagan errors");
 		}
 
 		double[] vetDose = MIRD_calcoloDose(massa, mAtilde, SmAtilde, Smassa, pathVolatile);
@@ -2654,6 +2654,13 @@ public class Utility {
 		float[] calSignal = imagestack.getVoxels(x1 - semi, y1 - semi, z1 - semi, lato, lato, lato, null);
 //		float[] voxSignal = cal.getCValue(calSignal);
 
+		IJ.log("*******************************");
+		for (int i1 = 0; i1 < calSignal.length; i1++)
+			IJ.log("tabellaBella " + i1 + "  " + calSignal[i1]);
+		IJ.log("*******************************");
+
+		MyLog.waitHere();
+
 		MyLog.log("###### CUXELS3  immagine_" + impStack.getTitle() + "_CUBE #############");
 		String aux2 = "";
 		for (int i3 = x1 - semi; i3 < x1 + semi; i3++) {
@@ -2764,8 +2771,7 @@ public class Utility {
 	}
 
 	public static double[][] tabellaDiCacca() {
-		double[][] mat = { 
-				{ 0, 0, 0, 2.26E-01 }, { 0, 0, 1, 3.39E-03 }, { 0, 0, 2, 1.88E-05 }, { 0, 0, 3, 8.43E-06 },
+		double[][] mat = { { 0, 0, 0, 2.26E-01 }, { 0, 0, 1, 3.39E-03 }, { 0, 0, 2, 1.88E-05 }, { 0, 0, 3, 8.43E-06 },
 				{ 0, 0, 4, 4.83E-06 }, { 0, 0, 5, 3.14E-06 }, { 0, 1, 0, 3.39E-03 }, { 0, 1, 1, 1.19E-04 },
 				{ 0, 1, 2, 1.51E-05 }, { 0, 1, 3, 7.60E-06 }, { 0, 1, 4, 4.56E-06 }, { 0, 1, 5, 3.04E-06 },
 				{ 0, 2, 0, 1.88E-05 }, { 0, 2, 1, 1.51E-05 }, { 0, 2, 2, 9.48E-06 }, { 0, 2, 3, 5.90E-06 },
@@ -2818,11 +2824,8 @@ public class Utility {
 				{ 5, 3, 2, 2.12E-06 }, { 5, 3, 3, 1.88E-06 }, { 5, 3, 4, 1.63E-06 }, { 5, 3, 5, 1.39E-06 },
 				{ 5, 4, 0, 1.98E-06 }, { 5, 4, 1, 1.92E-06 }, { 5, 4, 2, 1.80E-06 }, { 5, 4, 3, 1.63E-06 },
 				{ 5, 4, 4, 1.44E-06 }, { 5, 4, 5, 1.25E-06 }, { 5, 5, 0, 1.61E-06 }, { 5, 5, 1, 1.60E-06 },
-				{ 5, 5, 2, 1.51E-06 }, { 5, 5, 3, 1.39E-06 }, { 5, 5, 4, 1.25E-06 }, { 5, 5, 5, 1.12E-06 } 
-				};
-		
-		
-		
+				{ 5, 5, 2, 1.51E-06 }, { 5, 5, 3, 1.39E-06 }, { 5, 5, 4, 1.25E-06 }, { 5, 5, 5, 1.12E-06 } };
+
 		return mat;
 	}
 
@@ -2845,6 +2848,12 @@ public class Utility {
 		}
 
 		return null;
+	}
+
+	public void appunto() {
+
+		// COME IMAGEJ SCRIVE E LEGGE I VOXELS
+
 	}
 
 }

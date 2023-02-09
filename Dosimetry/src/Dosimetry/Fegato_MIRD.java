@@ -102,9 +102,15 @@ public class Fegato_MIRD implements PlugIn {
 		// leggiamo i valori dal fegato in toto e dai vari file lesione e mettiamo il
 		// tutto in un array in cui l'elemento0 e' il fegato in toto
 
-		ArrayList<Integer> arrRoiMax = new ArrayList<Integer>();
-		ArrayList<Double> arrThreshold = new ArrayList<Double>();
-		ArrayList<Integer> arrConteggio = new ArrayList<Integer>();
+		ArrayList<Integer> arrRoiMax24 = new ArrayList<Integer>();
+		ArrayList<Integer> arrRoiMax48 = new ArrayList<Integer>();
+		ArrayList<Integer> arrRoiMax120 = new ArrayList<Integer>();
+		ArrayList<Double> arrThreshold24 = new ArrayList<Double>();
+		ArrayList<Double> arrThreshold48 = new ArrayList<Double>();
+		ArrayList<Double> arrThreshold120 = new ArrayList<Double>();
+		ArrayList<Integer> arrConteggio24 = new ArrayList<Integer>();
+		ArrayList<Integer> arrConteggio48 = new ArrayList<Integer>();
+		ArrayList<Integer> arrConteggio120 = new ArrayList<Integer>();
 		ArrayList<Integer> arrIntegrale24 = new ArrayList<Integer>();
 		ArrayList<Integer> arrIntegrale48 = new ArrayList<Integer>();
 		ArrayList<Integer> arrIntegrale120 = new ArrayList<Integer>();
@@ -148,21 +154,39 @@ public class Fegato_MIRD implements PlugIn {
 
 		for (int i1 = 0; i1 < arrLesioni.size(); i1++) {
 			aux1 = arrLesioni.get(i1);
-			int roiMax = Utility.parseInt(Utility.readFromLog(aux1, "#114#", "=")); // #114#
-			MyLog.log("#114# roiMax= " + roiMax);
-			double threshold = Double.parseDouble(Utility.readFromLog(aux1, "#115#", "=")); // #115#
-			MyLog.log("#115# threshold= " + threshold);
-			int conteggio = Utility.parseInt(Utility.readFromLog(aux1, "#121#", "=")); // #121#
-			MyLog.log("#121# conteggio= " + conteggio);
+			int roiMax24 = Utility.parseInt(Utility.readFromLog(aux1, "#114#", "=")); // #114#
+			MyLog.log("#114# roiMax= " + roiMax24);
+			int roiMax48 = Utility.parseInt(Utility.readFromLog(aux1, "#144#", "=")); // #144#
+			MyLog.log("#114# roiMax= " + roiMax48);
+			int roiMax120 = Utility.parseInt(Utility.readFromLog(aux1, "#174#", "=")); // #174#
+			MyLog.log("#114# roiMax= " + roiMax120);
+			double threshold24 = Double.parseDouble(Utility.readFromLog(aux1, "#115#", "=")); // #115#
+			MyLog.log("#115# threshold= " + threshold24);
+			double threshold48 = Double.parseDouble(Utility.readFromLog(aux1, "#145#", "=")); // #145#
+			MyLog.log("#115# threshold= " + threshold24);
+			double threshold120 = Double.parseDouble(Utility.readFromLog(aux1, "#175#", "=")); // #175#
+			MyLog.log("#115# threshold= " + threshold24);
+			int conteggio24 = Utility.parseInt(Utility.readFromLog(aux1, "#121#", "=")); // #121#
+			MyLog.log("#121# conteggio24= " + conteggio24);
+			int conteggio48 = Utility.parseInt(Utility.readFromLog(aux1, "#151#", "=")); // #151#
+			MyLog.log("#151# conteggio48= " + conteggio48);
+			int conteggio120 = Utility.parseInt(Utility.readFromLog(aux1, "#181#", "=")); // #181#
+			MyLog.log("#181# conteggio120= " + conteggio120);
 			int integrale24 = Utility.parseInt(Utility.readFromLog(aux1, "#122#", "=")); // #122#
 			MyLog.log("#122# integrale24= " + integrale24);
 			int integrale48 = Utility.parseInt(Utility.readFromLog(aux1, "#152#", "=")); // #152#
 			MyLog.log("#152# integrale48= " + integrale48);
 			int integrale120 = Utility.parseInt(Utility.readFromLog(aux1, "#182#", "=")); // #182#
 			MyLog.log("#182# integrale120= " + integrale120);
-			arrRoiMax.add(roiMax);
-			arrThreshold.add(threshold);
-			arrConteggio.add(conteggio);
+			arrRoiMax24.add(roiMax24);
+			arrRoiMax48.add(roiMax48);
+			arrRoiMax120.add(roiMax120);
+			arrThreshold24.add(threshold24);
+			arrThreshold48.add(threshold48);
+			arrThreshold120.add(threshold120);
+			arrConteggio24.add(conteggio24);
+			arrConteggio48.add(conteggio48);
+			arrConteggio120.add(conteggio120);
 			arrIntegrale24.add(integrale24);
 			arrIntegrale48.add(integrale48);
 			arrIntegrale120.add(integrale120);
@@ -179,18 +203,30 @@ public class Fegato_MIRD implements PlugIn {
 
 		// nella routine subtract sottraiamo all'elemento 0 tutti i successivi elementi
 		// e poi restituiamo il risultato
-		int roiMaxPulito = subtractInteger(arrRoiMax);
-		MyLog.log("roiMaxPulito=" + roiMaxPulito);
-		double thresholdPulito = subtractDouble(arrThreshold);
-		MyLog.log("thresholdPulito=" + thresholdPulito);
-		int conteggioPulito = subtractInteger(arrConteggio);
-		MyLog.log("conteggioPulito=" + conteggioPulito);
-		int integrale24 = subtractInteger(arrIntegrale24);
-		MyLog.log("integrale24=" + integrale24);
-		int integrale48 = subtractInteger(arrIntegrale48);
-		MyLog.log("integrale48=" + integrale48);
-		int integrale120 = subtractInteger(arrIntegrale120);
-		MyLog.log("integrale120=" + integrale120);
+		int roiMaxPulito24 = subtractInteger(arrRoiMax24);
+		MyLog.log("roiMaxPulito24=" + roiMaxPulito24);
+		int roiMaxPulito48 = subtractInteger(arrRoiMax48);
+		MyLog.log("roiMaxPulito48=" + roiMaxPulito48);
+		int roiMaxPulito120 = subtractInteger(arrRoiMax120);
+		MyLog.log("roiMaxPulito120=" + roiMaxPulito120);
+		double thresholdPulito24 = subtractDouble(arrThreshold24);
+		MyLog.log("thresholdPulito24=" + thresholdPulito24);
+		double thresholdPulito48 = subtractDouble(arrThreshold48);
+		MyLog.log("thresholdPulito48=" + thresholdPulito48);
+		double thresholdPulito120 = subtractDouble(arrThreshold120);
+		MyLog.log("thresholdPulito120=" + thresholdPulito120);
+		int conteggioPulito24 = subtractInteger(arrConteggio24);
+		MyLog.log("conteggioPulito24=" + conteggioPulito24);
+		int conteggioPulito48 = subtractInteger(arrConteggio48);
+		MyLog.log("conteggioPulito48=" + conteggioPulito48);
+		int conteggioPulito120 = subtractInteger(arrConteggio120);
+		MyLog.log("conteggioPulito120=" + conteggioPulito120);
+		int integralePulito24 = subtractInteger(arrIntegrale24);
+		MyLog.log("integralePulito24=" + integralePulito24);
+		int integralePulito48 = subtractInteger(arrIntegrale48);
+		MyLog.log("integralePulito48=" + integralePulito48);
+		int integralePulito120 = subtractInteger(arrIntegrale120);
+		MyLog.log("integralePulito120=" + integralePulito120);
 		
 		
 		
@@ -205,46 +241,65 @@ public class Fegato_MIRD implements PlugIn {
 		if (Utility.readFromLog(pathVolatile, "#121#", "=") == null)
 			return;
 
-		double[] in1 = new double[5];
-		in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#018#", "=")); // acquisition duration
-		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#121#", "=")); // pixel number over
+		double[] in24 = new double[5];
+//		double[] in1 = new double[5];
+//		double[] in1 = new double[5];
+		in24[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#018#", "=")); // acquisition duration
+//		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#121#", "=")); // pixel number over
 																						// threshold
-		in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
-		in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#115#", "=")); // contouring threshold
+		in24[1]=conteggioPulito24;
+		
+		in24[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
+		in24[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#115#", "=")); // contouring threshold
 																						// level
-		in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#122#", "=")); // over threshold count
-																						// integral
-		out24 = Utility.MIRD_point(in1);
+//		in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#122#", "=")); // over threshold count
+		in24[4]= integralePulito24;
+		// integral
+		MyLog.logVector(in24, "in24");
+
+		out24 = Utility.MIRD_point(in24);
+		MyLog.logVector(out24, "out24");
 
 		// 48h
 		// se non mi ha scritto il tag #151# di volatile vuol dire che Dosimetry_v2 non
 		// ha analizzato la immagine 24h (probabile cancel dato al menu)
 		if (Utility.readFromLog(pathVolatile, "#151#", "=") == null)
 			return;
-		in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#038#", "=")); // acquisition duration
-		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#151#", "=")); // pixel number over
+		double[] in48 = new double[5];
+		in48[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#038#", "=")); // acquisition duration
+//		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#151#", "=")); // pixel number over
 																						// threshold
-		in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
-		in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#145#", "=")); // contouring threshold
+		in48[1]=conteggioPulito48;			
+		in48[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
+		in48[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#145#", "=")); // contouring threshold
 																						// level
-		in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#152#", "=")); // over threshold count
+//		in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#152#", "=")); // over threshold count
+		in48[4]= integralePulito48;
 																						// integral
-		out48 = Utility.MIRD_point(in1);
+		MyLog.logVector(in48, "in48");
+		out48 = Utility.MIRD_point(in48);
+		MyLog.logVector(out48, "out48");
 
 		// 120h
 		// se non mi ha scritto il tag #181# di volatile vuol dire che Dosimetry_v2 non
 		// ha analizzato la immagine 24h (probabile cancel dato al menu)
 		if (Utility.readFromLog(pathVolatile, "#181#", "=") == null)
 			return;
-		in1[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#058#", "=")); // acquisition duration
-		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#181#", "=")); // pixel number over
+		double[] in120 = new double[5];
+		in120[0] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#058#", "=")); // acquisition duration
+//		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#181#", "=")); // pixel number over
+		in120[1]=conteggioPulito120;
 																						// threshold
-		in1[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
-		in1[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#175#", "=")); // contouring threshold
+		in120[2] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "=")); // activity
+		in120[3] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#175#", "=")); // contouring threshold
 																						// level
-		in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#182#", "=")); // over threshold count
+//		in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#182#", "=")); // over threshold count
+		in120[4]= integralePulito120;
 																						// integral
-		out120 = Utility.MIRD_point(in1);
+		MyLog.logVector(in120, "in120");
+		out120 = Utility.MIRD_point(in120);
+		
+		MyLog.logVector(out120, "out120");
 
 
 		// Mostro i 3 volumi calcolati ed i punti, senza fit, in modo che, con LP33
@@ -254,9 +309,9 @@ public class Fegato_MIRD implements PlugIn {
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
-		yp1[0] = integrale24;
-		yp1[1] = integrale48;
-		yp1[2] = integrale120;
+		yp1[0] = integralePulito24;
+		yp1[1] = integralePulito48;
+		yp1[2] = integralePulito120;
 
 		int count5 = 194;
 		String aux5 = "";
@@ -324,17 +379,36 @@ public class Fegato_MIRD implements PlugIn {
 
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
-		// Vado a riscrivere i TAG #122#, #152à, #182#
+		// Vado a riscrivere i TAG #122#, #152, #182#
 
 		aux5 = "";
-		aux5 = "#122#\tintegrale24 AGGIORNATO= " + integrale24;
-//		Utility.logAppend(pathVolatile, aux5);
+		
+//		aux5 = "#114#\tMaximum lesion count AGGIORNATO= " + roiMaxPulito24;
+//		Utility.logModify(pathVolatile, "#114#", aux5);
+//		aux5 = "#144#\tMaximum lesion count AGGIORNATO= " + roiMaxPulito48;
+//		Utility.logModify(pathVolatile, "#144#", aux5);
+//		aux5 = "#174#\tMaximum lesion count AGGIORNATO= " + roiMaxPulito120;
+//		Utility.logModify(pathVolatile, "#174#", aux5);
+//
+//		aux5 = "#115#\tContouring threshold level AGGIORNATO= " + thresholdPulito24;
+//		Utility.logModify(pathVolatile, "#115#", aux5);
+//		aux5 = "#145#\tContouring threshold level AGGIORNATO= " + thresholdPulito48;
+//		Utility.logModify(pathVolatile, "#145#", aux5);
+//		aux5 = "#175#\tContouring threshold level AGGIORNATO= " + thresholdPulito120;
+//		Utility.logModify(pathVolatile, "#175#", aux5);
+			
+		aux5 = "#121#\tPixel number over threshold level AGGIORNATO= " + conteggioPulito24;
+		Utility.logModify(pathVolatile, "#121#", aux5);
+		aux5 = "#151#\tPixel number over threshold level AGGIORNATO= " + conteggioPulito48;
+		Utility.logModify(pathVolatile, "#151#", aux5);
+		aux5 = "#181#\tPixel number over threshold level AGGIORNATO= " + conteggioPulito120;
+		Utility.logModify(pathVolatile, "#181#", aux5);
+		
+		aux5 = "#122#\tintegrale24 AGGIORNATO= " + integralePulito24;
 		Utility.logModify(pathVolatile, "#122#", aux5);
-		aux5 = "#152#\tintegrale48 AGGIORNATO= " + integrale48;
-//		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#152#\tintegrale48 AGGIORNATO= " + integralePulito48;
 		Utility.logModify(pathVolatile, "#152#", aux5);
-		aux5 = "#182#\tintegrale120 AGGIORNATO= " + integrale120;
-//		Utility.logAppend(pathVolatile, aux5);
+		aux5 = "#182#\tintegrale120 AGGIORNATO= " + integralePulito120;
 		Utility.logModify(pathVolatile, "#182#", aux5);
 
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
@@ -358,28 +432,38 @@ public class Fegato_MIRD implements PlugIn {
 		Utility.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol24= " + out24[0];
 		Utility.logAppend(pathVolatile, aux5);
+		MyLog.log(aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal24= " + out24[1];
 		Utility.logAppend(pathVolatile, aux5);
+		MyLog.log(aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv24= " + out24[2];
 		Utility.logAppend(pathVolatile, aux5);
+		MyLog.log(aux5);
 		count5 = 220;
 		aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD CALCULATION 48h ----";
 		Utility.logAppend(pathVolatile, aux5);
+		MyLog.log(aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol48= " + out48[0];
 		Utility.logAppend(pathVolatile, aux5);
+		MyLog.log(aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal48= " + out48[1];
 		Utility.logAppend(pathVolatile, aux5);
+		MyLog.log(aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv48= " + out48[2];
 		Utility.logAppend(pathVolatile, aux5);
+		MyLog.log(aux5);
 		count5 = 240;
 		aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD CALCULATION 120h ----";
 		Utility.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol120= " + out120[0];
 		Utility.logAppend(pathVolatile, aux5);
+		MyLog.log(aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal120= " + out120[1];
 		Utility.logAppend(pathVolatile, aux5);
+		MyLog.log(aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120= " + out120[2];
 		Utility.logAppend(pathVolatile, aux5);
+		MyLog.log(aux5);
 
 		if (!flanagan) {
 			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
