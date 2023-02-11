@@ -49,6 +49,7 @@ import ij.measure.Calibration;
 import ij.measure.CurveFitter;
 import ij.plugin.DICOM;
 import ij.process.ByteProcessor;
+import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
 import ij.util.DicomTools;
@@ -2249,6 +2250,13 @@ public class Utility {
 
 	}
 
+	/**
+	 * Cerco massimo, minimo e relative posizioni
+	 * 
+	 * @param impStackIn
+	 * @param impMask
+	 * @return
+	 */
 	static double[] MyStackStatistics(ImagePlus impStackIn, ImagePlus impMask) {
 
 		ImageStack stackIn = impStackIn.getImageStack();
@@ -2273,7 +2281,7 @@ public class Utility {
 			maskSlice1 = stackMask.getProcessor(z1 + 1);
 			for (int x1 = 0; x1 < width1; x1++) {
 				for (int y1 = 0; y1 < height1; y1++) {
-					IJ.showStatus("DDD  " + z1 + " / " + (depth1));
+					IJ.showStatus("" + z1 + " / " + (depth1));
 					pixel = inSlice1.getPixelValue(x1, y1);
 					mask = maskSlice1.getPixelValue(x1, y1);
 					if (pixel > 0 && mask > 0) {
@@ -2321,8 +2329,8 @@ public class Utility {
 		int depth1 = stackIn.getSize();
 		ImageProcessor inSlice1 = null;
 		double pixel = 0;
-		double minStackVal = Double.MAX_VALUE;
-		double maxStackVal = Double.MIN_VALUE;
+		double minStackVal = Double.NaN;
+		double maxStackVal = Double.NaN;
 		double meanStackVal = Double.NaN;
 		double sumPix = 0;
 		int[] minStackCoord = new int[3];
@@ -2333,7 +2341,7 @@ public class Utility {
 			inSlice1 = stackIn.getProcessor(z1 + 1);
 			for (int x1 = 0; x1 < width1; x1++) {
 				for (int y1 = 0; y1 < height1; y1++) {
-					IJ.showStatus("EEE  " + z1 + " / " + (depth1));
+					IJ.showStatus("" + z1 + " / " + (depth1));
 //					if (z1 == 0 && x1 == 0 && y1 == 0)
 //						MyLog.waitHere();
 					pixel = inSlice1.getPixelValue(x1, y1);
@@ -2654,13 +2662,6 @@ public class Utility {
 		float[] calSignal = imagestack.getVoxels(x1 - semi, y1 - semi, z1 - semi, lato, lato, lato, null);
 //		float[] voxSignal = cal.getCValue(calSignal);
 
-		IJ.log("*******************************");
-		for (int i1 = 0; i1 < calSignal.length; i1++)
-			IJ.log("tabellaBella " + i1 + "  " + calSignal[i1]);
-		IJ.log("*******************************");
-
-		MyLog.waitHere();
-
 		MyLog.log("###### CUXELS3  immagine_" + impStack.getTitle() + "_CUBE #############");
 		String aux2 = "";
 		for (int i3 = x1 - semi; i3 < x1 + semi; i3++) {
@@ -2675,9 +2676,9 @@ public class Utility {
 		for (int i1 = 0; i1 < (calSignal.length - lato) + 1; i1 = i1 + lato) {
 			aux1 = "";
 			for (int i2 = 0; i2 < lato; i2++) {
-				aux1 = aux1 + String.format("%08.2f", calSignal[i1 + i2]) + ";  ";
+				aux1 = aux1 + String.format("%+08.2f", calSignal[i1 + i2]) + ";  ";
 			}
-			MyLog.log("coord y " + String.format("%03d", count) + ";    " + aux1);
+			MyLog.log("coord y " + String.format("%03d", count) + ";   " + aux1);
 			count++;
 			count2++;
 			if (count2 == lato) {
@@ -2700,160 +2701,254 @@ public class Utility {
 	}
 
 	/**
-	 * Questa tabella di taratura e'relativa ad un cubbo 6x6x6, infatti ha 216
-	 * elementi! Notare che ho manipolato e taroccato i dati forniti sul file
-	 * Formule, in modo che l'ultima colonna, quella relativa ad S [mGy/(MBq·s)] sia
-	 * disposta analogamente ai pixel restituiti da getVoxels di ImageStack. In
-	 * pratica la tabella del testo e' disposta in modo che cambi piu'velocemente la
-	 * colonna z (k) e meno velocemente la colonna x (i), al contrario ImageJ cambia
-	 * piu'velocemente la colonna x e meno velocemente la colonna z. Qui
-	 * TabellaBella e'disposta proprio come ImageJ. Ora che ti ho ben confuso le
-	 * idee possiamo continuare!!!
+	 * Questa e'la tabella fornita nel file txt, solo trasformata in file csv e
+	 * messe le " e le {} per averla in formato stringa, senza dover rileggere il
+	 * file testo
 	 * 
 	 * @return
 	 */
-	public static double[][] tabellaBella() {
-		double[][] mat = { { 0, 0, 0, 2.26E-01 }, { 1, 0, 0, 3.39E-03 }, { 2, 0, 0, 1.88E-05 }, { 3, 0, 0, 8.43E-06 },
-				{ 4, 0, 0, 4.83E-06 }, { 5, 0, 0, 3.14E-06 }, { 0, 1, 0, 3.39E-03 }, { 1, 1, 0, 1.19E-04 },
-				{ 2, 1, 0, 1.51E-05 }, { 3, 1, 0, 7.60E-06 }, { 4, 1, 0, 4.56E-06 }, { 5, 1, 0, 3.04E-06 },
-				{ 0, 2, 0, 1.88E-05 }, { 1, 2, 0, 1.51E-05 }, { 2, 2, 0, 9.48E-06 }, { 3, 2, 0, 5.90E-06 },
-				{ 4, 2, 0, 3.89E-06 }, { 5, 2, 0, 2.74E-06 }, { 0, 3, 0, 8.43E-06 }, { 1, 3, 0, 7.60E-06 },
-				{ 2, 3, 0, 5.90E-06 }, { 3, 3, 0, 4.32E-06 }, { 4, 3, 0, 3.14E-06 }, { 5, 3, 0, 2.35E-06 },
-				{ 0, 4, 0, 4.83E-06 }, { 1, 4, 0, 4.56E-06 }, { 2, 4, 0, 3.89E-06 }, { 3, 4, 0, 3.14E-06 },
-				{ 4, 4, 0, 2.50E-06 }, { 5, 4, 0, 1.98E-06 }, { 0, 5, 0, 3.14E-06 }, { 1, 5, 0, 3.04E-06 },
-				{ 2, 5, 0, 2.74E-06 }, { 3, 5, 0, 2.35E-06 }, { 4, 5, 0, 1.98E-06 }, { 5, 5, 0, 1.61E-06 },
-				{ 0, 0, 1, 3.39E-03 }, { 1, 0, 1, 1.19E-04 }, { 2, 0, 1, 1.51E-05 }, { 3, 0, 1, 7.60E-06 },
-				{ 4, 0, 1, 4.56E-06 }, { 5, 0, 1, 3.04E-06 }, { 0, 1, 1, 1.19E-04 }, { 1, 1, 1, 2.82E-05 },
-				{ 2, 1, 1, 1.26E-05 }, { 3, 1, 1, 6.94E-06 }, { 4, 1, 1, 4.32E-06 }, { 5, 1, 1, 2.93E-06 },
-				{ 0, 2, 1, 1.51E-05 }, { 1, 2, 1, 1.26E-05 }, { 2, 2, 1, 8.46E-06 }, { 3, 2, 1, 5.49E-06 },
-				{ 4, 2, 1, 3.72E-06 }, { 5, 2, 1, 2.64E-06 }, { 0, 3, 1, 7.60E-06 }, { 1, 3, 1, 6.94E-06 },
-				{ 2, 3, 1, 5.49E-06 }, { 3, 3, 1, 4.09E-06 }, { 4, 3, 1, 3.04E-06 }, { 5, 3, 1, 2.29E-06 },
-				{ 0, 4, 1, 4.56E-06 }, { 1, 4, 1, 4.32E-06 }, { 2, 4, 1, 3.72E-06 }, { 3, 4, 1, 3.04E-06 },
-				{ 4, 4, 1, 2.42E-06 }, { 5, 4, 1, 1.92E-06 }, { 0, 5, 1, 3.04E-06 }, { 1, 5, 1, 2.93E-06 },
-				{ 2, 5, 1, 2.64E-06 }, { 3, 5, 1, 2.29E-06 }, { 4, 5, 1, 1.92E-06 }, { 5, 5, 1, 1.60E-06 },
-				{ 0, 0, 2, 1.88E-05 }, { 1, 0, 2, 1.51E-05 }, { 2, 0, 2, 9.48E-06 }, { 3, 0, 2, 5.90E-06 },
-				{ 4, 0, 2, 3.89E-06 }, { 5, 0, 2, 2.74E-06 }, { 0, 1, 2, 1.51E-05 }, { 1, 1, 2, 1.26E-05 },
-				{ 2, 1, 2, 8.46E-06 }, { 3, 1, 2, 5.49E-06 }, { 4, 1, 2, 3.72E-06 }, { 5, 1, 2, 2.64E-06 },
-				{ 0, 2, 2, 9.48E-06 }, { 1, 2, 2, 8.46E-06 }, { 2, 2, 2, 6.36E-06 }, { 3, 2, 2, 4.56E-06 },
-				{ 4, 2, 2, 3.28E-06 }, { 5, 2, 2, 2.42E-06 }, { 0, 3, 2, 5.90E-06 }, { 1, 3, 2, 5.49E-06 },
-				{ 2, 3, 2, 4.56E-06 }, { 3, 3, 2, 3.57E-06 }, { 4, 3, 2, 2.74E-06 }, { 5, 3, 2, 2.12E-06 },
-				{ 0, 4, 2, 3.89E-06 }, { 1, 4, 2, 3.72E-06 }, { 2, 4, 2, 3.28E-06 }, { 3, 4, 2, 2.74E-06 },
-				{ 4, 4, 2, 2.23E-06 }, { 5, 4, 2, 1.80E-06 }, { 0, 5, 2, 2.74E-06 }, { 1, 5, 2, 2.64E-06 },
-				{ 2, 5, 2, 2.42E-06 }, { 3, 5, 2, 2.12E-06 }, { 4, 5, 2, 1.80E-06 }, { 5, 5, 2, 1.51E-06 },
-				{ 0, 0, 3, 8.43E-06 }, { 1, 0, 3, 7.60E-06 }, { 2, 0, 3, 5.90E-06 }, { 3, 0, 3, 4.32E-06 },
-				{ 4, 0, 3, 3.14E-06 }, { 5, 0, 3, 2.35E-06 }, { 0, 1, 3, 7.60E-06 }, { 1, 1, 3, 6.94E-06 },
-				{ 2, 1, 3, 5.49E-06 }, { 3, 1, 3, 4.09E-06 }, { 4, 1, 3, 3.04E-06 }, { 5, 1, 3, 2.29E-06 },
-				{ 0, 2, 3, 5.90E-06 }, { 1, 2, 3, 5.49E-06 }, { 2, 2, 3, 4.56E-06 }, { 3, 2, 3, 3.57E-06 },
-				{ 4, 2, 3, 2.74E-06 }, { 5, 2, 3, 2.12E-06 }, { 0, 3, 3, 4.32E-06 }, { 1, 3, 3, 4.09E-06 },
-				{ 2, 3, 3, 3.57E-06 }, { 3, 3, 3, 2.92E-06 }, { 4, 3, 3, 2.35E-06 }, { 5, 3, 3, 1.88E-06 },
-				{ 0, 4, 3, 3.14E-06 }, { 1, 4, 3, 3.04E-06 }, { 2, 4, 3, 2.74E-06 }, { 3, 4, 3, 2.35E-06 },
-				{ 4, 4, 3, 1.97E-06 }, { 5, 4, 3, 1.63E-06 }, { 0, 5, 3, 2.35E-06 }, { 1, 5, 3, 2.29E-06 },
-				{ 2, 5, 3, 2.12E-06 }, { 3, 5, 3, 1.88E-06 }, { 4, 5, 3, 1.63E-06 }, { 5, 5, 3, 1.39E-06 },
-				{ 0, 0, 4, 4.83E-06 }, { 1, 0, 4, 4.56E-06 }, { 2, 0, 4, 3.89E-06 }, { 3, 0, 4, 3.14E-06 },
-				{ 4, 0, 4, 2.50E-06 }, { 5, 0, 4, 1.98E-06 }, { 0, 1, 4, 4.56E-06 }, { 1, 1, 4, 4.32E-06 },
-				{ 2, 1, 4, 3.72E-06 }, { 3, 1, 4, 3.04E-06 }, { 4, 1, 4, 2.42E-06 }, { 5, 1, 4, 1.92E-06 },
-				{ 0, 2, 4, 3.89E-06 }, { 1, 2, 4, 3.72E-06 }, { 2, 2, 4, 3.28E-06 }, { 3, 2, 4, 2.74E-06 },
-				{ 4, 2, 4, 2.23E-06 }, { 5, 2, 4, 1.80E-06 }, { 0, 3, 4, 3.14E-06 }, { 1, 3, 4, 3.04E-06 },
-				{ 2, 3, 4, 2.74E-06 }, { 3, 3, 4, 2.35E-06 }, { 4, 3, 4, 1.97E-06 }, { 5, 3, 4, 1.63E-06 },
-				{ 0, 4, 4, 2.50E-06 }, { 1, 4, 4, 2.42E-06 }, { 2, 4, 4, 2.23E-06 }, { 3, 4, 4, 1.97E-06 },
-				{ 4, 4, 4, 1.70E-06 }, { 5, 4, 4, 1.44E-06 }, { 0, 5, 4, 1.98E-06 }, { 1, 5, 4, 1.92E-06 },
-				{ 2, 5, 4, 1.80E-06 }, { 3, 5, 4, 1.63E-06 }, { 4, 5, 4, 1.44E-06 }, { 5, 5, 4, 1.25E-06 },
-				{ 0, 0, 5, 3.14E-06 }, { 1, 0, 5, 3.04E-06 }, { 2, 0, 5, 2.74E-06 }, { 3, 0, 5, 2.35E-06 },
-				{ 4, 0, 5, 1.98E-06 }, { 5, 0, 5, 1.61E-06 }, { 0, 1, 5, 3.04E-06 }, { 1, 1, 5, 2.93E-06 },
-				{ 2, 1, 5, 2.64E-06 }, { 3, 1, 5, 2.29E-06 }, { 4, 1, 5, 1.92E-06 }, { 5, 1, 5, 1.60E-06 },
-				{ 0, 2, 5, 2.74E-06 }, { 1, 2, 5, 2.64E-06 }, { 2, 2, 5, 2.42E-06 }, { 3, 2, 5, 2.12E-06 },
-				{ 4, 2, 5, 1.80E-06 }, { 5, 2, 5, 1.51E-06 }, { 0, 3, 5, 2.35E-06 }, { 1, 3, 5, 2.29E-06 },
-				{ 2, 3, 5, 2.12E-06 }, { 3, 3, 5, 1.88E-06 }, { 4, 3, 5, 1.63E-06 }, { 5, 3, 5, 1.39E-06 },
-				{ 0, 4, 5, 1.98E-06 }, { 1, 4, 5, 1.92E-06 }, { 2, 4, 5, 1.80E-06 }, { 3, 4, 5, 1.63E-06 },
-				{ 4, 4, 5, 1.44E-06 }, { 5, 4, 5, 1.25E-06 }, { 0, 5, 5, 1.61E-06 }, { 1, 5, 5, 1.60E-06 },
-				{ 2, 5, 5, 1.51E-06 }, { 3, 5, 5, 1.39E-06 }, { 4, 5, 5, 1.25E-06 }, { 5, 5, 5, 1.12E-06 } };
-		return mat;
+	public static String[] generaTabella() {
+
+		String[] tabellaBella = { "0;0;0;2.26E-01", "0;0;1;3.39E-03", "0;0;2;1.88E-05", "0;0;3;8.43E-06",
+				"0;0;4;4.83E-06", "0;0;5;3.14E-06", "0;1;0;3.39E-03", "0;1;1;1.19E-04", "0;1;2;1.51E-05",
+				"0;1;3;7.60E-06", "0;1;4;4.56E-06", "0;1;5;3.04E-06", "0;2;0;1.88E-05", "0;2;1;1.51E-05",
+				"0;2;2;9.48E-06", "0;2;3;5.90E-06", "0;2;4;3.89E-06", "0;2;5;2.74E-06", "0;3;0;8.43E-06",
+				"0;3;1;7.60E-06", "0;3;2;5.90E-06", "0;3;3;4.32E-06", "0;3;4;3.14E-06", "0;3;5;2.35E-06",
+				"0;4;0;4.83E-06", "0;4;1;4.56E-06", "0;4;2;3.89E-06", "0;4;3;3.14E-06", "0;4;4;2.50E-06",
+				"0;4;5;1.98E-06", "0;5;0;3.14E-06", "0;5;1;3.04E-06", "0;5;2;2.74E-06", "0;5;3;2.35E-06",
+				"0;5;4;1.98E-06", "0;5;5;1.61E-06", "1;0;0;3.39E-03", "1;0;1;1.19E-04", "1;0;2;1.51E-05",
+				"1;0;3;7.60E-06", "1;0;4;4.56E-06", "1;0;5;3.04E-06", "1;1;0;1.19E-04", "1;1;1;2.82E-05",
+				"1;1;2;1.26E-05", "1;1;3;6.94E-06", "1;1;4;4.32E-06", "1;1;5;2.93E-06", "1;2;0;1.51E-05",
+				"1;2;1;1.26E-05", "1;2;2;8.46E-06", "1;2;3;5.49E-06", "1;2;4;3.72E-06", "1;2;5;2.64E-06",
+				"1;3;0;7.60E-06", "1;3;1;6.94E-06", "1;3;2;5.49E-06", "1;3;3;4.09E-06", "1;3;4;3.04E-06",
+				"1;3;5;2.29E-06", "1;4;0;4.56E-06", "1;4;1;4.32E-06", "1;4;2;3.72E-06", "1;4;3;3.04E-06",
+				"1;4;4;2.42E-06", "1;4;5;1.92E-06", "1;5;0;3.04E-06", "1;5;1;2.93E-06", "1;5;2;2.64E-06",
+				"1;5;3;2.29E-06", "1;5;4;1.92E-06", "1;5;5;1.60E-06", "2;0;0;1.88E-05", "2;0;1;1.51E-05",
+				"2;0;2;9.48E-06", "2;0;3;5.90E-06", "2;0;4;3.89E-06", "2;0;5;2.74E-06", "2;1;0;1.51E-05",
+				"2;1;1;1.26E-05", "2;1;2;8.46E-06", "2;1;3;5.49E-06", "2;1;4;3.72E-06", "2;1;5;2.64E-06",
+				"2;2;0;9.48E-06", "2;2;1;8.46E-06", "2;2;2;6.36E-06", "2;2;3;4.56E-06", "2;2;4;3.28E-06",
+				"2;2;5;2.42E-06", "2;3;0;5.90E-06", "2;3;1;5.49E-06", "2;3;2;4.56E-06", "2;3;3;3.57E-06",
+				"2;3;4;2.74E-06", "2;3;5;2.12E-06", "2;4;0;3.89E-06", "2;4;1;3.72E-06", "2;4;2;3.28E-06",
+				"2;4;3;2.74E-06", "2;4;4;2.23E-06", "2;4;5;1.80E-06", "2;5;0;2.74E-06", "2;5;1;2.64E-06",
+				"2;5;2;2.42E-06", "2;5;3;2.12E-06", "2;5;4;1.80E-06", "2;5;5;1.51E-06", "3;0;0;8.43E-06",
+				"3;0;1;7.60E-06", "3;0;2;5.90E-06", "3;0;3;4.32E-06", "3;0;4;3.14E-06", "3;0;5;2.35E-06",
+				"3;1;0;7.60E-06", "3;1;1;6.94E-06", "3;1;2;5.49E-06", "3;1;3;4.09E-06", "3;1;4;3.04E-06",
+				"3;1;5;2.29E-06", "3;2;0;5.90E-06", "3;2;1;5.49E-06", "3;2;2;4.56E-06", "3;2;3;3.57E-06",
+				"3;2;4;2.74E-06", "3;2;5;2.12E-06", "3;3;0;4.32E-06", "3;3;1;4.09E-06", "3;3;2;3.57E-06",
+				"3;3;3;2.92E-06", "3;3;4;2.35E-06", "3;3;5;1.88E-06", "3;4;0;3.14E-06", "3;4;1;3.04E-06",
+				"3;4;2;2.74E-06", "3;4;3;2.35E-06", "3;4;4;1.97E-06", "3;4;5;1.63E-06", "3;5;0;2.35E-06",
+				"3;5;1;2.29E-06", "3;5;2;2.12E-06", "3;5;3;1.88E-06", "3;5;4;1.63E-06", "3;5;5;1.39E-06",
+				"4;0;0;4.83E-06", "4;0;1;4.56E-06", "4;0;2;3.89E-06", "4;0;3;3.14E-06", "4;0;4;2.50E-06",
+				"4;0;5;1.98E-06", "4;1;0;4.56E-06", "4;1;1;4.32E-06", "4;1;2;3.72E-06", "4;1;3;3.04E-06",
+				"4;1;4;2.42E-06", "4;1;5;1.92E-06", "4;2;0;3.89E-06", "4;2;1;3.72E-06", "4;2;2;3.28E-06",
+				"4;2;3;2.74E-06", "4;2;4;2.23E-06", "4;2;5;1.80E-06", "4;3;0;3.14E-06", "4;3;1;3.04E-06",
+				"4;3;2;2.74E-06", "4;3;3;2.35E-06", "4;3;4;1.97E-06", "4;3;5;1.63E-06", "4;4;0;2.50E-06",
+				"4;4;1;2.42E-06", "4;4;2;2.23E-06", "4;4;3;1.97E-06", "4;4;4;1.70E-06", "4;4;5;1.44E-06",
+				"4;5;0;1.98E-06", "4;5;1;1.92E-06", "4;5;2;1.80E-06", "4;5;3;1.63E-06", "4;5;4;1.44E-06",
+				"4;5;5;1.25E-06", "5;0;0;3.14E-06", "5;0;1;3.04E-06", "5;0;2;2.74E-06", "5;0;3;2.35E-06",
+				"5;0;4;1.98E-06", "5;0;5;1.61E-06", "5;1;0;3.04E-06", "5;1;1;2.93E-06", "5;1;2;2.64E-06",
+				"5;1;3;2.29E-06", "5;1;4;1.92E-06", "5;1;5;1.60E-06", "5;2;0;2.74E-06", "5;2;1;2.64E-06",
+				"5;2;2;2.42E-06", "5;2;3;2.12E-06", "5;2;4;1.80E-06", "5;2;5;1.51E-06", "5;3;0;2.35E-06",
+				"5;3;1;2.29E-06", "5;3;2;2.12E-06", "5;3;3;1.88E-06", "5;3;4;1.63E-06", "5;3;5;1.39E-06",
+				"5;4;0;1.98E-06", "5;4;1;1.92E-06", "5;4;2;1.80E-06", "5;4;3;1.63E-06", "5;4;4;1.44E-06",
+				"5;4;5;1.25E-06", "5;5;0;1.61E-06", "5;5;1;1.60E-06", "5;5;2;1.51E-06", "5;5;3;1.39E-06",
+				"5;5;4;1.25E-06", "5;5;5;1.12E-06" };
+		return tabellaBella;
 	}
 
-	public static double[][] tabellaDiCacca() {
-		double[][] mat = { { 0, 0, 0, 2.26E-01 }, { 0, 0, 1, 3.39E-03 }, { 0, 0, 2, 1.88E-05 }, { 0, 0, 3, 8.43E-06 },
-				{ 0, 0, 4, 4.83E-06 }, { 0, 0, 5, 3.14E-06 }, { 0, 1, 0, 3.39E-03 }, { 0, 1, 1, 1.19E-04 },
-				{ 0, 1, 2, 1.51E-05 }, { 0, 1, 3, 7.60E-06 }, { 0, 1, 4, 4.56E-06 }, { 0, 1, 5, 3.04E-06 },
-				{ 0, 2, 0, 1.88E-05 }, { 0, 2, 1, 1.51E-05 }, { 0, 2, 2, 9.48E-06 }, { 0, 2, 3, 5.90E-06 },
-				{ 0, 2, 4, 3.89E-06 }, { 0, 2, 5, 2.74E-06 }, { 0, 3, 0, 8.43E-06 }, { 0, 3, 1, 7.60E-06 },
-				{ 0, 3, 2, 5.90E-06 }, { 0, 3, 3, 4.32E-06 }, { 0, 3, 4, 3.14E-06 }, { 0, 3, 5, 2.35E-06 },
-				{ 0, 4, 0, 4.83E-06 }, { 0, 4, 1, 4.56E-06 }, { 0, 4, 2, 3.89E-06 }, { 0, 4, 3, 3.14E-06 },
-				{ 0, 4, 4, 2.50E-06 }, { 0, 4, 5, 1.98E-06 }, { 0, 5, 0, 3.14E-06 }, { 0, 5, 1, 3.04E-06 },
-				{ 0, 5, 2, 2.74E-06 }, { 0, 5, 3, 2.35E-06 }, { 0, 5, 4, 1.98E-06 }, { 0, 5, 5, 1.61E-06 },
-				{ 1, 0, 0, 3.39E-03 }, { 1, 0, 1, 1.19E-04 }, { 1, 0, 2, 1.51E-05 }, { 1, 0, 3, 7.60E-06 },
-				{ 1, 0, 4, 4.56E-06 }, { 1, 0, 5, 3.04E-06 }, { 1, 1, 0, 1.19E-04 }, { 1, 1, 1, 2.82E-05 },
-				{ 1, 1, 2, 1.26E-05 }, { 1, 1, 3, 6.94E-06 }, { 1, 1, 4, 4.32E-06 }, { 1, 1, 5, 2.93E-06 },
-				{ 1, 2, 0, 1.51E-05 }, { 1, 2, 1, 1.26E-05 }, { 1, 2, 2, 8.46E-06 }, { 1, 2, 3, 5.49E-06 },
-				{ 1, 2, 4, 3.72E-06 }, { 1, 2, 5, 2.64E-06 }, { 1, 3, 0, 7.60E-06 }, { 1, 3, 1, 6.94E-06 },
-				{ 1, 3, 2, 5.49E-06 }, { 1, 3, 3, 4.09E-06 }, { 1, 3, 4, 3.04E-06 }, { 1, 3, 5, 2.29E-06 },
-				{ 1, 4, 0, 4.56E-06 }, { 1, 4, 1, 4.32E-06 }, { 1, 4, 2, 3.72E-06 }, { 1, 4, 3, 3.04E-06 },
-				{ 1, 4, 4, 2.42E-06 }, { 1, 4, 5, 1.92E-06 }, { 1, 5, 0, 3.04E-06 }, { 1, 5, 1, 2.93E-06 },
-				{ 1, 5, 2, 2.64E-06 }, { 1, 5, 3, 2.29E-06 }, { 1, 5, 4, 1.92E-06 }, { 1, 5, 5, 1.60E-06 },
-				{ 2, 0, 0, 1.88E-05 }, { 2, 0, 1, 1.51E-05 }, { 2, 0, 2, 9.48E-06 }, { 2, 0, 3, 5.90E-06 },
-				{ 2, 0, 4, 3.89E-06 }, { 2, 0, 5, 2.74E-06 }, { 2, 1, 0, 1.51E-05 }, { 2, 1, 1, 1.26E-05 },
-				{ 2, 1, 2, 8.46E-06 }, { 2, 1, 3, 5.49E-06 }, { 2, 1, 4, 3.72E-06 }, { 2, 1, 5, 2.64E-06 },
-				{ 2, 2, 0, 9.48E-06 }, { 2, 2, 1, 8.46E-06 }, { 2, 2, 2, 6.36E-06 }, { 2, 2, 3, 4.56E-06 },
-				{ 2, 2, 4, 3.28E-06 }, { 2, 2, 5, 2.42E-06 }, { 2, 3, 0, 5.90E-06 }, { 2, 3, 1, 5.49E-06 },
-				{ 2, 3, 2, 4.56E-06 }, { 2, 3, 3, 3.57E-06 }, { 2, 3, 4, 2.74E-06 }, { 2, 3, 5, 2.12E-06 },
-				{ 2, 4, 0, 3.89E-06 }, { 2, 4, 1, 3.72E-06 }, { 2, 4, 2, 3.28E-06 }, { 2, 4, 3, 2.74E-06 },
-				{ 2, 4, 4, 2.23E-06 }, { 2, 4, 5, 1.80E-06 }, { 2, 5, 0, 2.74E-06 }, { 2, 5, 1, 2.64E-06 },
-				{ 2, 5, 2, 2.42E-06 }, { 2, 5, 3, 2.12E-06 }, { 2, 5, 4, 1.80E-06 }, { 2, 5, 5, 1.51E-06 },
-				{ 3, 0, 0, 8.43E-06 }, { 3, 0, 1, 7.60E-06 }, { 3, 0, 2, 5.90E-06 }, { 3, 0, 3, 4.32E-06 },
-				{ 3, 0, 4, 3.14E-06 }, { 3, 0, 5, 2.35E-06 }, { 3, 1, 0, 7.60E-06 }, { 3, 1, 1, 6.94E-06 },
-				{ 3, 1, 2, 5.49E-06 }, { 3, 1, 3, 4.09E-06 }, { 3, 1, 4, 3.04E-06 }, { 3, 1, 5, 2.29E-06 },
-				{ 3, 2, 0, 5.90E-06 }, { 3, 2, 1, 5.49E-06 }, { 3, 2, 2, 4.56E-06 }, { 3, 2, 3, 3.57E-06 },
-				{ 3, 2, 4, 2.74E-06 }, { 3, 2, 5, 2.12E-06 }, { 3, 3, 0, 4.32E-06 }, { 3, 3, 1, 4.09E-06 },
-				{ 3, 3, 2, 3.57E-06 }, { 3, 3, 3, 2.92E-06 }, { 3, 3, 4, 2.35E-06 }, { 3, 3, 5, 1.88E-06 },
-				{ 3, 4, 0, 3.14E-06 }, { 3, 4, 1, 3.04E-06 }, { 3, 4, 2, 2.74E-06 }, { 3, 4, 3, 2.35E-06 },
-				{ 3, 4, 4, 1.97E-06 }, { 3, 4, 5, 1.63E-06 }, { 3, 5, 0, 2.35E-06 }, { 3, 5, 1, 2.29E-06 },
-				{ 3, 5, 2, 2.12E-06 }, { 3, 5, 3, 1.88E-06 }, { 3, 5, 4, 1.63E-06 }, { 3, 5, 5, 1.39E-06 },
-				{ 4, 0, 0, 4.83E-06 }, { 4, 0, 1, 4.56E-06 }, { 4, 0, 2, 3.89E-06 }, { 4, 0, 3, 3.14E-06 },
-				{ 4, 0, 4, 2.50E-06 }, { 4, 0, 5, 1.98E-06 }, { 4, 1, 0, 4.56E-06 }, { 4, 1, 1, 4.32E-06 },
-				{ 4, 1, 2, 3.72E-06 }, { 4, 1, 3, 3.04E-06 }, { 4, 1, 4, 2.42E-06 }, { 4, 1, 5, 1.92E-06 },
-				{ 4, 2, 0, 3.89E-06 }, { 4, 2, 1, 3.72E-06 }, { 4, 2, 2, 3.28E-06 }, { 4, 2, 3, 2.74E-06 },
-				{ 4, 2, 4, 2.23E-06 }, { 4, 2, 5, 1.80E-06 }, { 4, 3, 0, 3.14E-06 }, { 4, 3, 1, 3.04E-06 },
-				{ 4, 3, 2, 2.74E-06 }, { 4, 3, 3, 2.35E-06 }, { 4, 3, 4, 1.97E-06 }, { 4, 3, 5, 1.63E-06 },
-				{ 4, 4, 0, 2.50E-06 }, { 4, 4, 1, 2.42E-06 }, { 4, 4, 2, 2.23E-06 }, { 4, 4, 3, 1.97E-06 },
-				{ 4, 4, 4, 1.70E-06 }, { 4, 4, 5, 1.44E-06 }, { 4, 5, 0, 1.98E-06 }, { 4, 5, 1, 1.92E-06 },
-				{ 4, 5, 2, 1.80E-06 }, { 4, 5, 3, 1.63E-06 }, { 4, 5, 4, 1.44E-06 }, { 4, 5, 5, 1.25E-06 },
-				{ 5, 0, 0, 3.14E-06 }, { 5, 0, 1, 3.04E-06 }, { 5, 0, 2, 2.74E-06 }, { 5, 0, 3, 2.35E-06 },
-				{ 5, 0, 4, 1.98E-06 }, { 5, 0, 5, 1.61E-06 }, { 5, 1, 0, 3.04E-06 }, { 5, 1, 1, 2.93E-06 },
-				{ 5, 1, 2, 2.64E-06 }, { 5, 1, 3, 2.29E-06 }, { 5, 1, 4, 1.92E-06 }, { 5, 1, 5, 1.60E-06 },
-				{ 5, 2, 0, 2.74E-06 }, { 5, 2, 1, 2.64E-06 }, { 5, 2, 2, 2.42E-06 }, { 5, 2, 3, 2.12E-06 },
-				{ 5, 2, 4, 1.80E-06 }, { 5, 2, 5, 1.51E-06 }, { 5, 3, 0, 2.35E-06 }, { 5, 3, 1, 2.29E-06 },
-				{ 5, 3, 2, 2.12E-06 }, { 5, 3, 3, 1.88E-06 }, { 5, 3, 4, 1.63E-06 }, { 5, 3, 5, 1.39E-06 },
-				{ 5, 4, 0, 1.98E-06 }, { 5, 4, 1, 1.92E-06 }, { 5, 4, 2, 1.80E-06 }, { 5, 4, 3, 1.63E-06 },
-				{ 5, 4, 4, 1.44E-06 }, { 5, 4, 5, 1.25E-06 }, { 5, 5, 0, 1.61E-06 }, { 5, 5, 1, 1.60E-06 },
-				{ 5, 5, 2, 1.51E-06 }, { 5, 5, 3, 1.39E-06 }, { 5, 5, 4, 1.25E-06 }, { 5, 5, 5, 1.12E-06 } };
+	/**
+	 * Estrae da tabellaBella i tre puntatori i,j,k e li mette in un array
+	 * bidimensionale che e' appaiato a quello degli Svalues
+	 * 
+	 * @param tabellaBella
+	 * @return
+	 */
+	static int[][] tabellaPuntatori(String[] tabellaBella) {
 
-		return mat;
+		String[] parsed = null;
+		String riga = "";
+		int[][] tabPuntatori = new int[tabellaBella.length][3];
+		for (int i1 = 0; i1 < tabellaBella.length; i1++) {
+			riga = tabellaBella[i1];
+			parsed = riga.split(";");
+			tabPuntatori[i1][0] = Utility.parseInt(parsed[0]);
+			tabPuntatori[i1][1] = Utility.parseInt(parsed[1]);
+			tabPuntatori[i1][2] = Utility.parseInt(parsed[2]);
+		}
+		return tabPuntatori;
 	}
 
-	public static double[][] tabellonaBrutta(double[][] tabellaBella) {
+	/**
+	 * Estrae da tabellaBella gli Svalues e li mette in un array double, che e'
+	 * appaiato a quello dei puntatori
+	 * 
+	 * @param tabellaBella
+	 * @return
+	 */
+	static double[] tabellaSValues(String[] tabellaBella) {
 
-		int lato2 = 12;
+		String[] parsed = null;
+		String riga = "";
+		double[] vetValori = new double[tabellaBella.length];
+		for (int i1 = 0; i1 < tabellaBella.length; i1++) {
+			riga = tabellaBella[i1];
+			parsed = riga.split(";");
+			vetValori[i1] = Double.parseDouble(parsed[3]);
+		}
+		return vetValori;
+	}
 
-		double[][] mat = new double[lato2 * lato2 * lato2][4];
 
-		int lato1 = 6;
-		int len1 = tabellaBella.length;
-		if (len1 != (lato1 * lato1 * lato1))
-			MyLog.waitHere("dimensioni cannate");
-		for (int z1 = 0; z1 < lato1; z1++) {
-			for (int x1 = 0; x1 < lato1; x1++) {
-				for (int y1 = 0; y1 < lato1; y1++) {
+	
+	/**
+	 * Date le coordinate del voxel centrale del walking cube e il lato, calcola il
+	 * valore da assegnare al pixel corrispondente in output
+	 * 
+	 * @param vetVoxels
+	 * @param vetSvalues
+	 * @param x9
+	 * @param y9
+	 * @param z9
+	 * @param mezzo
+	 * @param vetAuxInputs
+	 * @return
+	 */
+	public static double myProcessVoxels11x11(float[] vetVoxels, float[] vetSvalues, int x9, int y9, int z9, int mezzo, double[] vetAuxInputs) {
 
+		double voxel = 0;
+		double svalue = 0;
+		double matilde = 0;
+		double acqDuration = vetAuxInputs[0];
+		double fatCal = vetAuxInputs[1];
+		double deltaT = vetAuxInputs[2];
+		double par_a = vetAuxInputs[3];
+
+		int offset = -1;
+		double patatadolce = 0;
+
+		for (int i9 = -mezzo; i9 <= mezzo; i9++) {
+			for (int j9 = -mezzo; j9 <= mezzo; j9++) {
+				for (int k9 = -mezzo; k9 <= mezzo; k9++) {
+					// ###############################################################################à
+					offset++;
+					voxel = vetVoxels[offset];
+					matilde = Utility.matildeSingleVoxel(voxel, acqDuration, fatCal, deltaT, par_a);
+					svalue = vetSvalues[offset];
+					patatadolce = patatadolce + matilde * svalue;
+					// ##################################################################################
+				}
+			}
+		}
+		return patatadolce;
+	}
+
+	
+	/**
+	 * Genera un cubo 11x11x11 con i corretti valori di S_value
+	 * TESTATO E FUNZIONANTE
+	 * 
+	 * @return
+	 */
+	public static ImagePlus inCubo() {
+
+		String[] tabellaStringhe = Utility.generaTabella();
+		int[][] tabellaBella = Utility.tabellaPuntatori(tabellaStringhe);
+		double[] valuesBella = Utility.tabellaSValues(tabellaStringhe);
+		int lato = 11;
+		int bitdepth = 32;
+		ImageStack stackRubik = ImageStack.create(lato, lato, lato, bitdepth);
+
+		int mezzo = 5;
+		double svalue = 0;
+		int counti = -1;
+		int countj = -1;
+		int countk = -1;
+		for (int i9 = -mezzo; i9 <= mezzo; i9++) {
+			counti++;
+			countj = -1;
+			for (int j9 = -mezzo; j9 <= mezzo; j9++) {
+				countj++;
+				countk = -1;
+				for (int k9 = -mezzo; k9 <= mezzo; k9++) {
+					countk++;
+					svalue = Utility.searchValue(tabellaBella, valuesBella, i9, j9, k9);
+					stackRubik.setVoxel(counti, countj, countk, svalue);
+				}
+			}
+		}
+		ImagePlus impSvalue = new ImagePlus("SRubik11x11x11", stackRubik);
+		return impSvalue;
+
+	}
+
+
+	public static double matildeSingleVoxel(double voxSignal, double acqDuration, double fatCal, double deltaT,
+			double par_a) {
+
+		double ahhVoxel = voxSignal / (acqDuration * fatCal);
+		double aVoxel = ahhVoxel / Math.exp(-(par_a * deltaT));
+		double aTildeVoxel = (aVoxel / par_a) * 3600;
+
+		return aTildeVoxel;
+	}
+
+	public static double searchValue(int[][] tabellaBella, double[] valuesBella, int i9, int j9, int k9) {
+
+		int i8 = Math.abs(i9);
+		int j8 = Math.abs(j9);
+		int k8 = Math.abs(k9);
+
+		double sValue = 0;
+
+		for (int i1 = 0; i1 < tabellaBella.length; i1++) {
+			if (tabellaBella[i1][2] == k8) {
+				if (tabellaBella[i1][1] == j8) {
+					if (tabellaBella[i1][0] == i8) {
+						sValue = valuesBella[i1];
+//						IJ.log("search "+i9+" "+j9+" "+k9+ " trovato a = "+i8+" "+j8+" "+k8 +" value= "+sValue);
+						break;
+					}
 				}
 			}
 		}
 
-		return null;
+		return sValue;
 	}
 
-	public void appunto() {
+	public static void matrixEnlarger(ImagePlus impMatrix) {
 
-		// COME IMAGEJ SCRIVE E LEGGE I VOXELS
+		ImageStack stack = impMatrix.getStack();
 
+	}
+
+	public static void logVector(String vect[], String nome) {
+		String stri = "";
+		if (vect == null) {
+			IJ.log("Warning vector " + nome + " = null");
+		} else {
+			IJ.log("----------- " + nome + "  [ " + vect.length + " ] -----------");
+
+			for (int i1 = 0; i1 < vect.length; i1++) {
+				stri = stri + vect[i1] + ",  ";
+			}
+			IJ.log(stri);
+		}
+		IJ.log("---------------------------------------------");
+	}
+
+	public static void logVector(double vect[], String nome) {
+		String stri = "";
+		if (vect == null) {
+			IJ.log("Warning vector " + nome + " = null");
+		} else {
+			IJ.log("----------- " + nome + "  [ " + vect.length + " ] -----------");
+
+			for (int i1 = 0; i1 < vect.length; i1++) {
+				stri = stri + vect[i1] + ",  ";
+			}
+			IJ.log(stri);
+		}
+		IJ.log("---------------------------------------------");
 	}
 
 }

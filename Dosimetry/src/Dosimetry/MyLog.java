@@ -3,6 +3,7 @@ package Dosimetry;
 import java.util.ArrayList;
 
 import ij.IJ;
+import ij.ImagePlus;
 import ij.gui.WaitForUserDialog;
 
 /**
@@ -52,16 +53,18 @@ public class MyLog {
 			MyLog.log("---------------------------------------------");
 		}
 	}
-	
-	
+
 	public static void logVector(double vect[], String nome) {
 		String stri = "";
 		if (vect == null) {
 			MyLog.log("Warning vector " + nome + " = null");
 		} else {
-			MyLog.log("----------- " + nome + "  [ " + vect.length + " ] -----------");
+			MyLog.waitHere("length= " + vect.length);
+
+			MyLog.log("-double ---------- " + nome + "  [ " + vect.length + " ] -----------");
 
 			for (int i1 = 0; i1 < vect.length; i1++) {
+				IJ.log("" + i1);
 				stri = stri + vect[i1] + ",  ";
 			}
 			MyLog.log(stri);
@@ -69,5 +72,62 @@ public class MyLog {
 		MyLog.log("---------------------------------------------");
 	}
 
+	public static String logElapsed(long start, long end) {
+
+		long elapsed = end - start;
+
+		int seconds = (int) (elapsed / 1000) % 60;
+		int minutes = (int) (elapsed / (1000 * 60));
+		int hours = (int) (elapsed / (1000 * 60 * 60));
+
+		String aux1 = "elapsed [hh:mm:ss] " + String.format("%02d:%02d:%02d", hours, minutes, seconds);
+
+		MyLog.log("elapsed [hh:mm:ss] " + String.format("%02d:%02d:%02d", hours, minutes, seconds));
+		return aux1;
+	}
+
+	public static void logVector(String vect[], String nome) {
+		String stri = "";
+		if (vect == null) {
+			IJ.log("Warning vector " + nome + " = null");
+		} else {
+			IJ.log("----------- " + nome + "  [ " + vect.length + " ] -----------");
+
+			for (int i1 = 0; i1 < vect.length; i1++) {
+				stri = stri + vect[i1] + ",  ";
+			}
+			IJ.log(stri);
+		}
+		IJ.log("---------------------------------------------");
+	}
+
+	public static void logMatrix(int mat[][], String nome) {
+		String stri = "";
+		int rows = 0;
+		int columns = 0;
+		if (mat == null) {
+			MyLog.waitHere("Warning matrix " + nome + " = null");
+			return;
+		} else {
+			rows = mat.length;
+			if (rows == 0) {
+				MyLog.waitHere("Warning matrix " + nome + " length=0");
+				return;
+			}
+
+			columns = mat[0].length;
+			// IJ.log("rows=" + rows + " columns= " + columns);
+
+			IJ.log("---- " + nome + " [ " + rows + "x" + columns + " ] ----");
+			for (int i1 = 0; i1 < rows; i1++) {
+				stri = "";
+				for (int i2 = 0; i2 < columns; i2++) {
+					stri += mat[i1][i2] + ",  ";
+				}
+				IJ.log(stri);
+			}
+		}
+		IJ.log("---------------------------------------------");
+	}
 
 }

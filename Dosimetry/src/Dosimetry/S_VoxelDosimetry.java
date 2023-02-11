@@ -51,8 +51,8 @@ public class S_VoxelDosimetry implements PlugIn {
 					+ coordinateVoxels[2]);
 		}
 
-		float[] vetTabella = extractTabella(Utility.tabellaBella());
-		creoStackTabellaBella(vetTabella);
+//		float[] vetTabella = extractTabella(Utility.generaTabellaBella());
+//		creoStackTabellaBella(vetTabella);
 
 		String lesione1 = "";
 		String lesione2 = "";
@@ -88,7 +88,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		// Utility.chiudiTutto();
 
 		// C:\Users\Alberto\Desktop\DosimetryFolder\ImagesFolder\48h\SPECT
-
+		MyLog.waitHere("FINE LAVORO");
 	}
 
 	/**
@@ -119,6 +119,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		int x3 = 0;
 		int y3 = 0;
 		int z3 = 0;
+
 
 		switch (ore) {
 		case 24:
@@ -166,13 +167,12 @@ public class S_VoxelDosimetry implements PlugIn {
 			Utility.loggoVoxels2(impStackMask, x2, y2, z2);
 			Utility.loggoVoxels2(impStackIn, x2, y2, z2);
 			Utility.loggoCuxels2(impStackIn, x3, y3, z3);
-			int lato = 12;
-			// Utility.loggoCuxels3(impStackIn, x2, y2, z2, lato);
+
 			MyLog.log("**********************************");
 			MyLog.log("**********************************");
 			MyLog.log("**********************************");
 			MyLog.log("**********************************");
-			Utility.loggoCuxels3(impStackIn, x2, y2, z2, 6);
+			Utility.loggoCuxels3(impStackIn, x2, y2, z2, 11);
 			MyLog.log("**********************************");
 			MyLog.log("**********************************");
 			MyLog.log("**********************************");
@@ -181,7 +181,7 @@ public class S_VoxelDosimetry implements PlugIn {
 
 		// in pratica ora imposto il mio cuBBetto in modo che "viaggi" per tutto il
 		// nostro stack, il pixel centrale del cubo, sara' la media di tutti i pixel del
-		// cuBBo e verra' scritto nella corrispondente posizione delo stack di output
+		// cuBBo e verra' scritto nella corrispondente posizione dello stack di output
 
 		ImageStack stackMask = impStackMask.getImageStack();
 		ImageStack stackIn = impStackIn.getImageStack();
@@ -213,6 +213,9 @@ public class S_VoxelDosimetry implements PlugIn {
 		// MATILDE
 		// ####################################################
 
+		long start = System.currentTimeMillis();
+
+
 		double voxSignal = 0;
 		double ahhVoxel = 0;
 		double aVoxel = 0;
@@ -220,12 +223,50 @@ public class S_VoxelDosimetry implements PlugIn {
 		ImageProcessor inSlice1 = null;
 		ImageProcessor outSlice1 = null;
 
+		double[] valIn = new double[4];
+		valIn[0] = acqDuration;
+		valIn[1] = fatCal;
+		valIn[2] = deltaT;
+		valIn[3] = par_a;
+
+		int lato = 11;
+		int mezzo = 0;
+
+		if (lato % 2 == 0)
+			mezzo = lato / 2;
+		else
+			mezzo = (lato - 1) / 2;
+
+		// creazione dello stack nero di output
+		int bitdepth1 = 32;
+		ImageStack moroOut = ImageStack.create(width1, height1, depth1, bitdepth1);
+
+		// creazione del cubo con Svalues
+		ImagePlus impRubik = Utility.inCubo();
+		ImageStack stackRubik = impRubik.getImageStack();
+
+		for (int z1 = 1 + mezzo; z1 < (depth1 - mezzo) - 2; z1++) {
+			for (int y1 = mezzo; y1 < (height1 - mezzo); y1++) {
+				IJ.showStatus("" + z1 + " / " + ((depth1 - mezzo) - 2));
+				for (int x1 = mezzo; x1 < (width1 - mezzo); x1++) {
+					float[] vetVoxels = stackIn.getVoxels(x1 - mezzo, y1 - mezzo, z1 - mezzo, lato, lato, lato, null);
+					float[] vetSvalues = stackRubik.getVoxels(0, 0, 0, lato, lato, lato, null);
+					double valPatataCompleta = Utility.myProcessVoxels11x11(vetVoxels, vetSvalues, x1, y1, z1, mezzo, valIn);
+					moroOut.setVoxel(x1, y1, z1, valPatataCompleta);
+					}
+			}
+		}
+
+		ImagePlus impMoro = new ImagePlus("bellaPatata", moroOut);
+		impMoro.show();
+
+
 		for (int z1 = 0; z1 < depth1; z1++) {
 			inSlice1 = stackIn.getProcessor(z1 + 1);
 			outSlice1 = ipBlack.duplicate();
 			for (int x1 = 0; x1 < width1; x1++) {
 				for (int y1 = 0; y1 < height1; y1++) {
-					IJ.showStatus("BBB " + z1 + " / " + (depth1));
+					IJ.showStatus("" + z1 + " / " + (depth1));
 					voxSignal = inSlice1.getPixelValue(x1, y1);
 					ahhVoxel = voxSignal / (acqDuration * fatCal);
 					aVoxel = ahhVoxel / Math.exp(-(par_a * deltaT));
@@ -278,8 +319,8 @@ public class S_VoxelDosimetry implements PlugIn {
 
 					voxMask = stackMask.getVoxel(x1, y1, z1);
 					vetVox = stackOut1.getVoxels(x1, y1, z1, width2, height2, depth2, null);
-					vetTabella = extractTabella(Utility.tabellaBella());
-					doseVoxel = patataACubetti(vetVox, vetTabella);
+					// vetTabella = extractTabella(Utility.generaTabellaBella());
+					// doseVoxel = patataACubetti(vetVox, vetTabella);
 					if (voxMask > 0) {
 						outSlice2.putPixelValue(x1, y1, doseVoxel);
 					}
@@ -293,9 +334,9 @@ public class S_VoxelDosimetry implements PlugIn {
 			stackOut2.addSlice(outSlice2);
 		}
 
-		if (loggoVoxels) {
-			loggoTabellaBella(vetTabella);
-		}
+//		if (loggoVoxels) {
+//			loggoTabellaBella(vetTabella);
+//		}
 
 		ImagePlus impPatata = new ImagePlus("PATATA  " + ore + "h", stackOut2);
 		if (loggoVoxels) {
@@ -311,6 +352,11 @@ public class S_VoxelDosimetry implements PlugIn {
 		impPatata.show();
 		IJ.saveAsTiff(impPatata, pathOut);
 		IJ.run(impPatata, "NIfTI-1", "save=" + pathOut);
+		
+		long end = System.currentTimeMillis();
+		MyLog.logElapsed(start, end);
+		MyLog.waitHere();
+		
 
 		int minStackX3 = (int) tapata1[0];
 		int minStackY3 = (int) tapata1[1];

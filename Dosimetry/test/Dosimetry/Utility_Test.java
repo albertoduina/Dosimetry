@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import flanagan.analysis.Regression;
+import ij.IJ;
 import ij.ImageJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -57,7 +58,7 @@ public class Utility_Test {
 		MyLog.waitHere("SPETTA");
 		assertTrue(true);
 	}
-	
+
 	@Test
 	public final void test_LP09_DialogErrorMessageWithCancel() {
 
@@ -337,9 +338,8 @@ public class Utility_Test {
 		else
 			MyLog.waitHere("Data= " + dateIn + " ERRATA");
 
-	}	
-	
-	
+	}
+
 	@Test
 	public final void test_isValidDateNew() {
 
@@ -352,44 +352,56 @@ public class Utility_Test {
 			MyLog.waitHere("Data= " + dateIn + " ERRATA");
 
 	}
-	
-	
+
 	@Test
 	public final void test_stackSliceUpdater() {
 
-		int width=128;
-		int height=128;
-		int depth=128;
-		
+		int width = 128;
+		int height = 128;
+		int depth = 128;
+
 		String pathSorgente = "testdata/uno.tif";
 		Opener opener1 = new Opener();
 		ImagePlus imp1 = opener1.openImage(pathSorgente);
 		imp1.show();
-		ImageProcessor ip1=imp1.getProcessor();
+		ImageProcessor ip1 = imp1.getProcessor();
 		MyLog.waitHere();
-	
-		ImageStack stack2= ImageStack.create(width, height, depth, 8);
-		for (int i1=1; i1 < stack2.size(); i1++) {
-			stack2.setSliceLabel("FETTA_"+i1, i1);
+
+		ImageStack stack2 = ImageStack.create(width, height, depth, 8);
+		for (int i1 = 1; i1 < stack2.size(); i1++) {
+			stack2.setSliceLabel("FETTA_" + i1, i1);
 		}
-		ImagePlus imp2= new ImagePlus("TITLE", stack2);
+		ImagePlus imp2 = new ImagePlus("TITLE", stack2);
 		imp2.show();
 		MyLog.waitHere();
-		
-		int num=10;
+
+		int num = 10;
 		Utility.stackSliceUpdater(stack2, ip1, num);
 		imp2.updateAndDraw();
 		MyLog.waitHere("VERIFICA");
 
+	}
+
+	@Test
+	public final void test_inCubo() {
+
+		ImagePlus impRubik = Utility.inCubo();
+
+		impRubik.show();
+		MyLog.waitHere("VERIFICA");
+		
 
 	}
+
+	
+	
 	
 	@Test
 	public final void test_myScalColori() {
-		
+
 		Utility.myScalaColori();
 		MyLog.waitHere("VERIFICA");
-		
+
 	}
 
 	@Test
@@ -398,21 +410,53 @@ public class Utility_Test {
 		double[] vetVoxel = { 1.2345, 1.3456, 1.2346, 2.234, 1.237, 2.3456, 3.4567, 1.23468, 2.3459 };
 		Utility.calcDVH_1(vetVoxel);
 
-
 		MyLog.waitHere("SPETTA");
 
 	}
+
 	@Test
 	public final void test_cercaFile() {
 
 		double[] vetVoxel = { 1.2345, 1.3456, 1.2346, 2.234, 1.237, 2.3456, 3.4567, 1.23468, 2.3459 };
-		Utility.leggiConfig("Dosimetry_Config.txt") ;
-
+		Utility.leggiConfig("Dosimetry_Config.txt");
 
 		MyLog.waitHere("SPETTA");
 
 	}
 
+	@Test
+	public final void test_generaTabella() {
 
+		String[] pippo = Utility.generaTabella();
+		MyLog.logVector(pippo, "pippo");
 
+		MyLog.waitHere("SPETTA");
+
+	}
+
+	@Test
+	public final void test_tabellaPuntatori() {
+
+		String[] tabellaBella = Utility.generaTabella();
+
+		int[][] tabellaPuntatori = Utility.tabellaPuntatori(tabellaBella);
+		double[] tabellasval = Utility.tabellaSValues(tabellaBella);
+		MyLog.logMatrix(tabellaPuntatori, "tabellapuntatori");
+		MyLog.waitHere();
+		MyLog.logVector(tabellasval, "tabellasval");
+		MyLog.waitHere("GHET FRESA? POLSA!!!");
+
+	}
+
+	@Test
+	public final void test_tabellaSValues() {
+
+		String[] tabellaBella = Utility.generaTabella();
+		double[] tabellasval = Utility.tabellaSValues(tabellaBella);
+		MyLog.waitHere("tabellaBellaLength= " + tabellaBella.length + " tabellasvalLength= " + tabellasval.length);
+		for (double aux1 : tabellasval)
+			IJ.log("" + aux1);
+		MyLog.waitHere("GHET FRESA? POLSA!!!");
+
+	}
 }
