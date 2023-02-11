@@ -407,7 +407,10 @@ public class Utility_Test {
 	@Test
 	public final void test_calcDVH_1() {
 
-		double[] vetVoxel = { 1.2345, 1.3456, 1.2346, 2.234, 1.237, 2.3456, 3.4567, 1.23468, 2.3459 };
+		// double[] vetVoxel = { 1.2345, 1.3456, 1.2346, 2.234, 1.237, 2.3456, 3.4567, 1.23468, 2.3459 };
+		double[] vetVoxel = { 10., 12., 13., 17., 20., 12., 20., 41., 30., 17., 14., 24., 37., 27., 15., 13., 15., 12., 11., 10. };
+
+		
 		Utility.calcDVH_1(vetVoxel);
 
 		MyLog.waitHere("SPETTA");

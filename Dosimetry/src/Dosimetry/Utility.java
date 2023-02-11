@@ -2504,24 +2504,26 @@ public class Utility {
 			}
 		}
 		vetVoxel = Utility.arrayListToArrayDouble(arrList);
+
+//		double[] vetVoxel = { 10, 12, 13, 17, 20, 12, 20, 41, 30, 17, 14, 24, 37, 27, 15, 13, 15, 12, 11, 10 };
+
 		calcDVH_1(vetVoxel);
 
 	}
 
 	static double[][] calcDVH_1(double[] vetVoxel) {
 
+//		IJ.log("------ VOXELS SIGNAL UNSORTED --------");
 //		for (int i1 = 0; i1 < vetVoxel.length; i1++) {
-//			double aa = vetVoxel[i1] * 100;
-//			int bb = (int) (aa / 10.0);
-//			vetVoxel[i1] = (double) bb;
-//		}
-
-//		MyLog.log("------ VOXELS SIGNAL --------");
-//		for (int i1 = 0; i1 < vetVoxel.length; i1++) {
-//			MyLog.log("input " + vetVoxel[i1]);
+//			IJ.log("" + vetVoxel[i1]);
 //		}
 
 		Arrays.sort(vetVoxel);
+
+//		IJ.log("------ VOXELS SIGNAL SORTED --------");
+//		for (int i1 = 0; i1 < vetVoxel.length; i1++) {
+//			IJ.log("" + vetVoxel[i1]);
+//		}
 
 //		MyLog.log("------ SORTED ARRAY --------");
 		int n1 = vetVoxel.length;
@@ -2530,7 +2532,6 @@ public class Utility {
 //			MyLog.log("sorted " + vetVoxel[i1]);
 //		}
 
-//		MyLog.log("------ REMOVE DUPED VALUES --------");
 		int j1 = 0;
 
 		for (int i1 = 0; i1 < n1 - 1; i1++) {
@@ -2545,11 +2546,12 @@ public class Utility {
 			vetRemoved[i1] = temp[i1];
 		}
 
+//		IJ.log("------ REMOVE DUPED VALUES --------");
 //		for (int i1 = 0; i1 < vetRemoved.length; i1++) {
-//			MyLog.log("removed " + vetRemoved[i1]);
+//			IJ.log("" + vetRemoved[i1]);
 //		}
 
-		double[][] pippo = new double[vetRemoved.length][2];
+		double[][] pippo = new double[vetRemoved.length][3];
 		for (int i1 = 0; i1 < vetRemoved.length; i1++) {
 			pippo[i1][0] = vetRemoved[i1];
 		}
@@ -2565,14 +2567,34 @@ public class Utility {
 			}
 		}
 
+		for (int i2 = pippo.length - 1; i2 >= 0; i2--) {
+			if (i2 == pippo.length - 1) {
+				pippo[i2][2] = pippo[i2][1] / vetVoxel.length * 100;
+//				MyLog.waitHere("eseguo pippo " + pippo[i2][2]);
+			} else {
+
+				pippo[i2][2] = pippo[i2][1] / vetVoxel.length * 100 + pippo[i2 + 1][2];
+//				MyLog.waitHere("" + pippo[i2][2] + "=" + pippo[i2][1] + " / " + vetVoxel.length + " * " + 100 + " + "
+//						+ pippo[i2 + 1][1]);
+			}
+		}
+
+//		IJ.log("------ PERCENTUVALI --------");
+//		for (int i1 = 0; i1 < pippo.length; i1++) {
+//			IJ.log("" + pippo[i1][0] + " " + pippo[i1][1] + " " + pippo[i1][2]);
+//		}
+//
+//		MyLog.waitHere("BERCENTUBALLI");
+
 		double[] xdata = new double[pippo.length];
 		double[] ydata = new double[pippo.length];
-		MyLog.log("-------- NUMEROSITA' ------------");
+//		IJ.log("-------- NUMEROSITA' ------------");
 		for (int i1 = 0; i1 < pippo.length; i1++) {
-			MyLog.log("" + pippo[i1][0] + "  " + pippo[i1][1]);
+//			IJ.log("" + pippo[i1][0] + "  " + pippo[i1][1]);
 			xdata[i1] = pippo[i1][0];
-			ydata[i1] = pippo[i1][1];
+			ydata[i1] = pippo[i1][2];
 		}
+//		MyLog.waitHere();
 
 		Plot plot2 = new Plot("Dose Volume Histogram", "Dose", "Volume");
 		plot2.setLineWidth(2);
@@ -2580,7 +2602,7 @@ public class Utility {
 
 		plot2.add("line", xdata, ydata);
 		plot2.show();
-		MyLog.log("HISTOGRAM");
+//		IJ.log("HISTOGRAM");
 
 		return pippo;
 	}
