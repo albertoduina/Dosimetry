@@ -73,6 +73,14 @@ public class Utility {
 	static Font defaultFont = FontUtil.getFont(fontStyle, Font.PLAIN, 13);
 	static Font textFont = FontUtil.getFont(fontStyle, Font.ITALIC, 16);
 	static Font titleFont = FontUtil.getFont(fontStyle, Font.BOLD, 16);
+	long start1;
+	long start2;
+	long start3;
+	long start4;
+	long end1;
+	long end2;
+	long end3;
+	long end4;
 
 	/**
 	 * Legge tutte le linee di un file testo e le restituisce come vettore di
@@ -2251,7 +2259,8 @@ public class Utility {
 	}
 
 	/**
-	 * Cerco massimo, minimo e relative posizioni
+	 * A scopo di test cerco massimo, minimo e relative posizioni all'interno dello
+	 * stack. Le usero' anche per impostare l'adjust delle immagini (ma MALE!)
 	 * 
 	 * @param impStackIn
 	 * @param impMask
@@ -2329,8 +2338,8 @@ public class Utility {
 		int depth1 = stackIn.getSize();
 		ImageProcessor inSlice1 = null;
 		double pixel = 0;
-		double minStackVal = Double.NaN;
-		double maxStackVal = Double.NaN;
+		double minStackVal = Double.MAX_VALUE;
+		double maxStackVal = Double.MIN_VALUE;
 		double meanStackVal = Double.NaN;
 		double sumPix = 0;
 		int[] minStackCoord = new int[3];
@@ -2660,8 +2669,6 @@ public class Utility {
 		ImageStack imagestack = impStack.getImageStack();
 		int semi = lato / 2;
 		float[] calSignal = imagestack.getVoxels(x1 - semi, y1 - semi, z1 - semi, lato, lato, lato, null);
-//		float[] voxSignal = cal.getCValue(calSignal);
-
 		MyLog.log("###### CUXELS3  immagine_" + impStack.getTitle() + "_CUBE #############");
 		String aux2 = "";
 		for (int i3 = x1 - semi; i3 < x1 + semi; i3++) {
@@ -2689,14 +2696,13 @@ public class Utility {
 				count = y1 - semi;
 			}
 		}
-
-//		MyLog.log("immagine " + impStack.getTitle() + " cal " + voxSignal + " at " + x1 + ", " + y1 + ", " + z1);
 	}
 
+	/**
+	 * fa in modo che anche le stampe di Java siano coìn il separatore decimale
+	 * punto, come per ImageJ
+	 */
 	void decimalFormatSymbols() {
-//		DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance();
-//		dfs.setDecimalSeparator('.');
-//		new DecimalFormat("0.00", dfs).format(d);
 		Locale.setDefault(Locale.US);
 	}
 
@@ -2798,8 +2804,6 @@ public class Utility {
 		return vetValori;
 	}
 
-
-	
 	/**
 	 * Date le coordinate del voxel centrale del walking cube e il lato, calcola il
 	 * valore da assegnare al pixel corrispondente in output
@@ -2813,7 +2817,8 @@ public class Utility {
 	 * @param vetAuxInputs
 	 * @return
 	 */
-	public static double myProcessVoxels11x11(float[] vetVoxels, float[] vetSvalues, int x9, int y9, int z9, int mezzo, double[] vetAuxInputs) {
+	public static double myProcessVoxels11x11(float[] vetVoxels, float[] vetSvalues, int x9, int y9, int z9, int mezzo,
+			double[] vetAuxInputs) {
 
 		double voxel = 0;
 		double svalue = 0;
@@ -2842,10 +2847,9 @@ public class Utility {
 		return patatadolce;
 	}
 
-	
 	/**
-	 * Genera un cubo 11x11x11 con i corretti valori di S_value
-	 * TESTATO E FUNZIONANTE
+	 * Genera un cubo 11x11x11 con i corretti valori di S_value TESTATO E
+	 * FUNZIONANTE
 	 * 
 	 * @return
 	 */
@@ -2880,7 +2884,6 @@ public class Utility {
 		return impSvalue;
 
 	}
-
 
 	public static double matildeSingleVoxel(double voxSignal, double acqDuration, double fatCal, double deltaT,
 			double par_a) {
