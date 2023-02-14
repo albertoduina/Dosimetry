@@ -212,7 +212,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 			dataOraSomministrazione = Utility.getDateTime(Utility.readFromLog(pathVolatile, "#002#", "="), format1);
 			activitySomministrazione = Double.parseDouble(Utility.readFromLog(pathVolatile, "#003#", "="));
 			MyLog.log("dataOraSomministrazione= " + dataOraSomministrazione);
+			raccoltaDati(arrayOfFile2, dataOraSomministrazione);
+			// copia da volatile a permanente i dati di IMAGE INFO 24-48-120
+			Utility.logCopyRange(pathVolatile, pathPermanente, 10, 60);
 			azzeraFlags(pathPermanente);
+
 		} else {
 			// ============================================
 			// STESSO PAZIENTE, STESSO DISTRETTO, NUOVA LESIONE

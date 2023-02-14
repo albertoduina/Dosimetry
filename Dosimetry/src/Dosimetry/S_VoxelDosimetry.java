@@ -234,7 +234,7 @@ public class S_VoxelDosimetry implements PlugIn {
 
 		for (int z1 = 1 + mezzo; z1 < (depth1 - mezzo) - 2; z1++) {
 			for (int y1 = mezzo; y1 < (height1 - mezzo); y1++) {
-				IJ.showStatus("" + z1 + " / " + ((depth1 - mezzo) - 2));
+				IJ.showStatus("bbb" + z1 + " / " + depth1);
 				for (int x1 = mezzo; x1 < (width1 - mezzo); x1++) {
 					float[] vetVoxels = stackIn.getVoxels(x1 - mezzo, y1 - mezzo, z1 - mezzo, lato, lato, lato, null);
 					float[] vetSvalues = stackRubik.getVoxels(0, 0, 0, lato, lato, lato, null);
@@ -275,7 +275,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		for (int z1 = 0; z1 < depth1 - depth2; z1++) {
 			for (int x1 = 0; x1 < width1 - width2; x1++) {
 				for (int y1 = 0; y1 < height1 - height2; y1++) {
-					IJ.showStatus("" + z1 + " / " + (depth1 - depth2));
+					IJ.showStatus("aaa" + z1 + " / " + (depth1 - depth2));
 					voxMask = stackMask.getVoxel(x1, y1, z1);
 					voxDose = stackMatilde.getVoxel(x1, y1, z1);
 					if (voxMask > 0) {
