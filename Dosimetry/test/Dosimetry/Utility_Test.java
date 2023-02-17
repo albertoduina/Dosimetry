@@ -389,13 +389,9 @@ public class Utility_Test {
 
 		impRubik.show();
 		MyLog.waitHere("VERIFICA");
-		
 
 	}
 
-	
-	
-	
 	@Test
 	public final void test_myScalColori() {
 
@@ -407,10 +403,11 @@ public class Utility_Test {
 	@Test
 	public final void test_calcDVH_1() {
 
-		// double[] vetVoxel = { 1.2345, 1.3456, 1.2346, 2.234, 1.237, 2.3456, 3.4567, 1.23468, 2.3459 };
-		double[] vetVoxel = { 10., 12., 13., 17., 20., 12., 20., 41., 30., 17., 14., 24., 37., 27., 15., 13., 15., 12., 11., 10. };
+		// double[] vetVoxel = { 1.2345, 1.3456, 1.2346, 2.234, 1.237, 2.3456, 3.4567,
+		// 1.23468, 2.3459 };
+		double[] vetVoxel = { 10., 12., 13., 17., 20., 12., 20., 41., 30., 17., 14., 24., 37., 27., 15., 13., 15., 12.,
+				11., 10. };
 
-		
 		Utility.calcDVH_1(vetVoxel);
 
 		MyLog.waitHere("SPETTA");
@@ -459,6 +456,22 @@ public class Utility_Test {
 		MyLog.waitHere("tabellaBellaLength= " + tabellaBella.length + " tabellasvalLength= " + tabellasval.length);
 		for (double aux1 : tabellasval)
 			IJ.log("" + aux1);
+		MyLog.waitHere("GHET FRESA? POLSA!!!");
+
+	}
+
+	@Test
+	public final void test_matildeSingleVoxel() {
+
+		double voxSignal = 0;
+		double acqDuration = 0;
+		double fatCal = 0;
+		double deltaT = 0;
+		double par_a = 0;
+		boolean log1=false;
+
+		double vox1 = Utility.matildeSingleVoxel(voxSignal, acqDuration, fatCal, deltaT, par_a, log1);
+
 		MyLog.waitHere("GHET FRESA? POLSA!!!");
 
 	}

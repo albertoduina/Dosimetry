@@ -19,8 +19,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
@@ -48,8 +46,6 @@ import ij.io.Opener;
 import ij.measure.Calibration;
 import ij.measure.CurveFitter;
 import ij.plugin.DICOM;
-import ij.process.ByteProcessor;
-import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
 import ij.util.DicomTools;
@@ -81,6 +77,17 @@ public class Utility {
 	long end2;
 	long end3;
 	long end4;
+	static int coordX;
+	static int coordY;
+	static int coordZ;
+
+	public static int latoCubo() {
+		// ATTENZIONE il lato DEVE essere dispari
+		// in questo modo avremo un pixel centrale
+		int lato = 5;
+
+		return lato;
+	}
 
 	/**
 	 * Legge tutte le linee di un file testo e le restituisce come vettore di
@@ -1921,7 +1928,7 @@ public class Utility {
 
 		for (j = 1; j <= n0; j++) {
 			progVal = ((double) j) / n0;
-			IJ.showStatus("eee"+j + "/" + n0);
+			IJ.showStatus("eee" + j + "/" + n0);
 			IJ.showProgress(progVal);
 			opener = new Opener();
 			flName = results[j - 1].getPath();
@@ -2624,6 +2631,11 @@ public class Utility {
 		puffi[0] = Utility.readFromLog(myPath, "#001#", "=");
 		puffi[1] = Utility.readFromLog(myPath, "#002#", "=");
 		puffi[2] = Utility.readFromLog(myPath, "#003#", "=");
+
+		coordX = parseInt(puffi[0]);
+		coordY = parseInt(puffi[1]);
+		coordZ = parseInt(puffi[2]);
+
 		return puffi;
 	}
 
@@ -2653,61 +2665,31 @@ public class Utility {
 		double voxSignal = cal.getCValue(calSignal);
 
 		MyLog.log("#############################################");
-//		MyLog.log("immagine_" + impStack.getTitle() + "_raw= " + calSignal + " at " + x1 + ", " + y1 + ", " + z1);
 		MyLog.log("immagine_" + impStack.getTitle() + "_cal= " + voxSignal + " at " + x1 + ", " + y1 + ", " + z1);
 	}
 
-	static void loggoCuxels2(ImagePlus impStack, int x1, int y1, int z1) {
-
-//		Calibration cal = impStack.getCalibration();
-		ImageStack imagestack = impStack.getImageStack();
-		float[] calSignal = imagestack.getVoxels(x1, y1, z1, 6, 6, 6, null);
-//		float[] voxSignal = cal.getCValue(calSignal);
-
-		MyLog.log("############ immagine_" + impStack.getTitle() + "_CUBE #############");
-		String aux1 = "";
-		for (int i3 = 0; i3 < 6; i3++) {
-			aux1 = aux1 + ";_______" + String.format("%04d", i3);
-		}
-		MyLog.log("____pixel " + aux1);
-
-		int count = 0;
-		for (int i1 = 0; i1 < calSignal.length - 5; i1 = i1 + 6) {
-			aux1 = "";
-
-			aux1 = "";
-			for (int i2 = 0; i2 < 6; i2++) {
-				aux1 = aux1 + String.format("%010.4f", calSignal[i1 + i2]) + ";  ";
-			}
-			MyLog.log("riga " + String.format("%04d", count) + ";    " + aux1);
-			count++;
-		}
-
-//		MyLog.log("immagine " + impStack.getTitle() + " cal " + voxSignal + " at " + x1 + ", " + y1 + ", " + z1);
-	}
-
-	static void loggoCuxels3(ImagePlus impStack, int x1, int y1, int z1, int lato) {
+	static void loggoCuxels2(ImagePlus impStack, int x1, int y1, int z1, int lato, int mezzo) {
 
 		ImageStack imagestack = impStack.getImageStack();
-		int semi = lato / 2;
-		float[] calSignal = imagestack.getVoxels(x1 - semi, y1 - semi, z1 - semi, lato, lato, lato, null);
-		MyLog.log("###### CUXELS3  immagine_" + impStack.getTitle() + "_CUBE #############");
+		float[] calSignal = imagestack.getVoxels(x1, y1, z1, lato, lato, lato, null);
+		MyLog.log("###### CUXELS2  immagine_" + impStack.getTitle() + "_CUBE #############");
+
 		String aux2 = "";
-		for (int i3 = x1 - semi; i3 < x1 + semi; i3++) {
-			aux2 = aux2 + ";....... x " + String.format("%03d", i3);
+		for (int i3 = x1 - mezzo; i3 < x1 + mezzo + 1; i3++) {
+			aux2 = aux2 + "; coordX " + String.format("%03d", i3);
 		}
 
-		int count = y1 - semi;
-		int count2 = 0;
-		int slice = z1 - semi;
-		MyLog.log("slice " + slice + "+++" + aux2);
 		String aux1 = "";
-		for (int i1 = 0; i1 < (calSignal.length - lato) + 1; i1 = i1 + lato) {
+		int count = y1 - mezzo;
+		int count2 = 0;
+		int slice = z1 - mezzo;
+		MyLog.log("slice " + slice + "+++" + aux2);
+		for (int i1 = 0; i1 < calSignal.length - lato - 1; i1 = i1 + lato) {
 			aux1 = "";
 			for (int i2 = 0; i2 < lato; i2++) {
 				aux1 = aux1 + String.format("%+08.2f", calSignal[i1 + i2]) + ";  ";
 			}
-			MyLog.log("coord y " + String.format("%03d", count) + ";   " + aux1);
+			MyLog.log("coordY " + String.format("%03d", count) + ";   " + aux1);
 			count++;
 			count2++;
 			if (count2 == lato) {
@@ -2715,7 +2697,93 @@ public class Utility {
 				slice++;
 				if (i1 < (calSignal.length - lato))
 					MyLog.log("slice " + slice + "+++" + aux2);
-				count = y1 - semi;
+				count = y1 - mezzo;
+			}
+		}
+	}
+
+	static void loggoCuxels3(ImagePlus impStack, int x1, int y1, int z1, int lato, int mezzo) {
+
+		int a1;
+		int b1;
+		int c1;
+		a1 = x1 - mezzo;
+		b1 = y1 - mezzo;
+		c1 = z1 - mezzo;
+		IJ.log("a1= " + a1 + " b1= " + b1 + " c1= " + c1);
+
+		ImageStack imagestack = impStack.getImageStack();
+		float[] calSignal = imagestack.getVoxels(a1, b1, c1, lato, lato, lato, null);
+
+		MyLog.log("###### CUXELS3  immagine_" + impStack.getTitle() + "_CUBE #############");
+
+		String aux2 = "";
+		for (int i3 = x1 - mezzo; i3 < x1 + mezzo + 1; i3++) {
+			aux2 = aux2 + "; coordX " + String.format("%03d", i3);
+		}
+
+		String aux1 = "";
+		int count = y1 - mezzo;
+		int count2 = 0;
+		int slice = z1 - mezzo;
+		MyLog.log("slice " + slice + "+++" + aux2);
+		for (int i1 = 0; i1 < (calSignal.length - lato) + 1; i1 = i1 + lato) {
+			aux1 = "";
+			for (int i2 = 0; i2 < lato; i2++) {
+				aux1 = aux1 + String.format("%+08.2f", calSignal[i1 + i2]) + ";  ";
+			}
+			MyLog.log("coordY " + String.format("%03d", count) + ";   " + aux1);
+			count++;
+			count2++;
+			if (count2 == lato) {
+				count2 = 0;
+				slice++;
+				if (i1 < (calSignal.length - lato))
+					MyLog.log("slice " + slice + "+++" + aux2);
+				count = y1 - mezzo;
+			}
+		}
+	}
+
+	static void loggoCuxels4(ImagePlus impStack, int x1, int y1, int z1, int lato, int mezzo) {
+
+		int a1;
+		int b1;
+		int c1;
+		a1 = x1 - mezzo;
+		b1 = y1 - mezzo;
+		c1 = z1 - mezzo;
+		IJ.log("a1= " + a1 + " b1= " + b1 + " c1= " + c1);
+
+		ImageStack imagestack = impStack.getImageStack();
+		float[] calSignal = imagestack.getVoxels(a1, b1, c1, lato, lato, lato, null);
+
+		MyLog.log("###### CUXELS3  immagine_" + impStack.getTitle() + "_CUBE #############");
+
+		String aux2 = "";
+		for (int i3 = x1 - mezzo; i3 < x1 + mezzo + 1; i3++) {
+			aux2 = aux2 + "; coordX " + String.format("%03d", i3);
+		}
+
+		String aux1 = "";
+		int count = y1 - mezzo;
+		int count2 = 0;
+		int slice = z1 - mezzo;
+		MyLog.log("slice " + slice + "+++" + aux2);
+		for (int i1 = 0; i1 < (calSignal.length - lato) + 1; i1 = i1 + lato) {
+			aux1 = "";
+			for (int i2 = 0; i2 < lato; i2++) {
+				aux1 = aux1 + String.format("%+.2E", calSignal[i1 + i2]) + ";  ";
+			}
+			MyLog.log("coordY " + String.format("%03d", count) + ";   " + aux1);
+			count++;
+			count2++;
+			if (count2 == lato) {
+				count2 = 0;
+				slice++;
+				if (i1 < (calSignal.length - lato))
+					MyLog.log("slice " + slice + "+++" + aux2);
+				count = y1 - mezzo;
 			}
 		}
 	}
@@ -2840,7 +2908,7 @@ public class Utility {
 	 * @return
 	 */
 	public static double myProcessVoxels11x11(float[] vetVoxels, float[] vetSvalues, int x9, int y9, int z9, int mezzo,
-			double[] vetAuxInputs) {
+			double[] vetAuxInputs, boolean log2) {
 
 		double voxel = 0;
 		double svalue = 0;
@@ -2849,6 +2917,8 @@ public class Utility {
 		double fatCal = vetAuxInputs[1];
 		double deltaT = vetAuxInputs[2];
 		double par_a = vetAuxInputs[3];
+		boolean log1 = false;
+		double aux1 = 0;
 
 		int offset = -1;
 		double patatadolce = 0;
@@ -2856,12 +2926,20 @@ public class Utility {
 		for (int i9 = -mezzo; i9 <= mezzo; i9++) {
 			for (int j9 = -mezzo; j9 <= mezzo; j9++) {
 				for (int k9 = -mezzo; k9 <= mezzo; k9++) {
+					if (i9 == 0 && j9 == 0 && k9 == 0)
+						log1 = log2;
+					else
+						log1 = false;
+
 					// ###############################################################################à
 					offset++;
 					voxel = vetVoxels[offset];
-					matilde = Utility.matildeSingleVoxel(voxel, acqDuration, fatCal, deltaT, par_a);
+					matilde = Utility.matildeSingleVoxel(voxel, acqDuration, fatCal, deltaT, par_a, log1);
 					svalue = vetSvalues[offset];
-					patatadolce = patatadolce + matilde * svalue;
+					aux1 = matilde * svalue;
+					if (log1)
+						IJ.log("matilde= " + matilde + "\nsvalue= " + svalue + "\npatata= " + aux1);
+					patatadolce = patatadolce + aux1;
 					// ##################################################################################
 				}
 			}
@@ -2870,8 +2948,7 @@ public class Utility {
 	}
 
 	/**
-	 * Genera un cubo 11x11x11 con i corretti valori di S_value TESTATO E
-	 * FUNZIONANTE
+	 * Genera un cubo 11x11x11 con i corretti valori di S_value
 	 * 
 	 * @return
 	 */
@@ -2880,11 +2957,10 @@ public class Utility {
 		String[] tabellaStringhe = Utility.generaTabella();
 		int[][] tabellaBella = Utility.tabellaPuntatori(tabellaStringhe);
 		double[] valuesBella = Utility.tabellaSValues(tabellaStringhe);
-		int lato = 11;
+		int lato = Utility.latoCubo();
+		int mezzo = (lato - 1) / 2;
 		int bitdepth = 32;
 		ImageStack stackRubik = ImageStack.create(lato, lato, lato, bitdepth);
-
-		int mezzo = 5;
 		double svalue = 0;
 		int counti = -1;
 		int countj = -1;
@@ -2908,11 +2984,16 @@ public class Utility {
 	}
 
 	public static double matildeSingleVoxel(double voxSignal, double acqDuration, double fatCal, double deltaT,
-			double par_a) {
+			double par_a, boolean log1) {
 
 		double ahhVoxel = voxSignal / (acqDuration * fatCal);
 		double aVoxel = ahhVoxel / Math.exp(-(par_a * deltaT));
 		double aTildeVoxel = (aVoxel / par_a) * 3600;
+		if (log1)
+			IJ.log("matildeSingleVoxel inputs: \nvoxSignal= " + voxSignal + "\nacqDuration= " + acqDuration
+					+ "\nfatCal= " + fatCal + "\ndeltaT= " + deltaT + "\npar_a= " + par_a
+					+ "\nmatildeSingleVoxel calculations: \nahhVoxel= " + ahhVoxel + "\naVoxel= " + aVoxel
+					+ "\naTildeVoxel= " + aTildeVoxel);
 
 		return aTildeVoxel;
 	}

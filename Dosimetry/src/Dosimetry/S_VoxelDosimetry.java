@@ -7,11 +7,9 @@ import java.util.Locale;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
-import ij.gui.NewImage;
 import ij.gui.NonBlockingGenericDialog;
 import ij.plugin.PlugIn;
 import ij.process.ImageConverter;
-import ij.process.ImageProcessor;
 import ij.util.FontUtil;
 
 /**
@@ -27,6 +25,9 @@ public class S_VoxelDosimetry implements PlugIn {
 	String[] config = null;
 	boolean loggoVoxels = false;
 	int[] coordinateVoxels = null;
+	static int coordX;
+	static int coordY;
+	static int coordZ;
 	long start1;
 	long start2;
 	long start3;
@@ -35,10 +36,14 @@ public class S_VoxelDosimetry implements PlugIn {
 	long end2;
 	long end3;
 	long end4;
+	int lato;
+	int mezzo;
 
 	public void run(String arg) {
 
 		Locale.setDefault(Locale.US);
+		lato = Utility.latoCubo();
+		mezzo = (lato - 1) / 2;
 
 		String str1 = System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "DosimetryFolder"
 				+ File.separator + "ImagesFolder" + File.separator;
@@ -57,6 +62,14 @@ public class S_VoxelDosimetry implements PlugIn {
 			MyLog.waitHere("loggoVoxels= " + loggoVoxels + "\ncoordinateVoxels[0] X= " + coordinateVoxels[0]
 					+ "\ncoordinateVoxels[1] Y= " + coordinateVoxels[1] + "\ncoordinateVoxels[2] Z= "
 					+ coordinateVoxels[2]);
+			coordX = coordinateVoxels[0];
+			coordY = coordinateVoxels[1];
+			coordZ = coordinateVoxels[2];
+			MyLog.log("coordX= " + coordinateVoxels[0]);
+			MyLog.log("coordY= " + coordinateVoxels[1]);
+			MyLog.log("coordZ= " + coordinateVoxels[2]);
+			MyLog.log("lato= " + lato);
+			MyLog.log("mezzo= " + mezzo);
 		}
 
 		String lesione1 = "";
@@ -82,6 +95,8 @@ public class S_VoxelDosimetry implements PlugIn {
 			lesione2 = str2 + out1 + ".txt";
 			startingDir1 = str1 + vetH[i1] + "h" + File.separator + "SPECT";
 			start1 = System.currentTimeMillis();
+
+//			start1 = System.nanoTime();
 
 			ok = caricaMemoriazza(startingDir1, lesione1, vetH[i1], lesione2, lesione3, lesione4);
 			if (!ok)
@@ -165,19 +180,15 @@ public class S_VoxelDosimetry implements PlugIn {
 			x2 = coordinateVoxels[0];
 			y2 = coordinateVoxels[1];
 			z2 = coordinateVoxels[2];
-			x3 = x2 - 5;
-			y3 = y2 - 5;
-			z3 = z2 - 5;
+			x3 = x2 - mezzo;
+			y3 = y2 - mezzo;
+			z3 = z2 - mezzo;
 
-			Utility.loggoVoxels2(impStackMask, x2, y2, z2);
 			Utility.loggoVoxels2(impStackIn, x2, y2, z2);
-			Utility.loggoCuxels2(impStackIn, x3, y3, z3);
+			Utility.loggoCuxels3(impStackIn, x2, y2, z2, lato, mezzo);
+			Utility.loggoVoxels2(impStackMask, x2, y2, z2);
+			Utility.loggoCuxels3(impStackMask, x2, y2, z2, lato, mezzo);
 
-			MyLog.log("**********************************");
-			MyLog.log("**********************************");
-			Utility.loggoCuxels3(impStackIn, x2, y2, z2, 11);
-			MyLog.log("**********************************");
-			MyLog.log("**********************************");
 		}
 		//
 		// Imposto il mio cubetto in modo che "viaggi" per tutto lo stack cubico, il
@@ -213,14 +224,6 @@ public class S_VoxelDosimetry implements PlugIn {
 		valIn[2] = deltaT;
 		valIn[3] = par_a;
 
-		int lato = 11;
-		int mezzo = 0;
-
-		if (lato % 2 == 0)
-			mezzo = lato / 2;
-		else
-			mezzo = (lato - 1) / 2;
-
 		// ####################################################################################
 		// ELABORAZIONE IMMAGINE COMPLETA, SENZA MASCHERA
 		// ####################################################################################
@@ -230,16 +233,23 @@ public class S_VoxelDosimetry implements PlugIn {
 
 		// creazione del cubo con Svalues
 		ImagePlus impRubik = Utility.inCubo();
+		impRubik.show();
 		ImageStack stackRubik = impRubik.getImageStack();
+		boolean log2;
 
 		for (int z1 = 1 + mezzo; z1 < (depth1 - mezzo) - 2; z1++) {
 			for (int y1 = mezzo; y1 < (height1 - mezzo); y1++) {
 				IJ.showStatus("bbb" + z1 + " / " + depth1);
 				for (int x1 = mezzo; x1 < (width1 - mezzo); x1++) {
+					if (x1 == coordX && y1 == coordY && z1 == coordZ)
+						log2 = true;
+					else
+						log2 = false;
+
 					float[] vetVoxels = stackIn.getVoxels(x1 - mezzo, y1 - mezzo, z1 - mezzo, lato, lato, lato, null);
 					float[] vetSvalues = stackRubik.getVoxels(0, 0, 0, lato, lato, lato, null);
 					double valPatataCompleta = Utility.myProcessVoxels11x11(vetVoxels, vetSvalues, x1, y1, z1, mezzo,
-							valIn);
+							valIn, log2);
 					stackMatilde.setVoxel(x1, y1, z1, valPatataCompleta);
 				}
 			}
@@ -250,7 +260,8 @@ public class S_VoxelDosimetry implements PlugIn {
 
 		if (loggoVoxels) {
 			Utility.loggoVoxels2(impMatilde, x2, y2, z2);
-			Utility.loggoCuxels2(impMatilde, x3, y3, z3);
+			Utility.loggoCuxels4(impRubik, mezzo, mezzo, mezzo, lato, mezzo);
+			Utility.loggoCuxels3(impMatilde, x2, y2, z2, lato, mezzo);
 		}
 
 		double[] tapata2 = Utility.MyStackStatistics(impMatilde, impStackMask);
@@ -264,9 +275,9 @@ public class S_VoxelDosimetry implements PlugIn {
 		// APPLICAZIONE MASCHERA AD IMMAGINE COMPLETA GIA'OTTENUTA
 		// ####################################################################################
 
-		width2 = 6;
-		height2 = 6;
-		depth2 = 6;
+		width2 = lato;
+		height2 = lato;
+		depth2 = lato;
 		double voxMask = 0;
 		double voxDose = 0;
 
@@ -288,8 +299,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		ImagePlus impPatata = new ImagePlus("PATATA  " + ore + "h", stackPatata);
 		if (loggoVoxels) {
 			Utility.loggoVoxels2(impPatata, x2, y2, z2);
-			Utility.loggoCuxels2(impPatata, x3, y3, z3);
-			Utility.loggoCuxels2(impStackMask, x3, y3, z3);
+			Utility.loggoCuxels3(impPatata, x2, y2, z2, lato, mezzo);
 		}
 
 		// IMMAGINE INPUT MASCHERATA
@@ -302,6 +312,9 @@ public class S_VoxelDosimetry implements PlugIn {
 //		IJ.run(impPatata, "NIfTI-1", "save=" + pathOut);
 
 		end1 = System.currentTimeMillis();
+
+//		end1 = System.nanoTime();
+
 		String time1 = MyLog.logElapsed(start1, end1);
 
 		int minStackX3 = (int) tapata1[0];
@@ -382,55 +395,19 @@ public class S_VoxelDosimetry implements PlugIn {
 		return true;
 	}
 
-	/**
-	 * Estrazione dell'array dalla tabella
-	 * 
-	 * @param tabellaBella
-	 * @return
-	 */
-	float[] extractTabella(double[][] tabellaBella) {
-
-		float[] vetTabella = new float[tabellaBella.length];
-		for (int i1 = 0; i1 < tabellaBella.length; i1++) {
-			vetTabella[i1] = (float) tabellaBella[i1][3];
-		}
-
-		return vetTabella;
-	}
-
-	/**
-	 * Elabora i pixel "mascherati" dell'immagine calcolata utilizzando un cubo e
-	 * moltiplicando i col corrispondente cubo della tabella
-	 * 
-	 * @param vetVox
-	 * @param vetTabella
-	 * @return
-	 */
-	float patataACubetti(float[] vetVox, float[] vetTabella) {
-
-		float voxOut = 0;
-		float aux1 = 0;
-
-		for (int i1 = 0; i1 < vetVox.length; i1++) {
-
-			aux1 = aux1 + (vetVox[i1] * vetTabella[i1]);
-			voxOut = aux1 / 1000;
-		}
-		return voxOut;
-	}
 
 	void loggoTabellaBella(float[] vetTabella) {
 
 		MyLog.log("############## vetTabella VALORI CONVERSIONE ##############");
 		String aux1 = "";
-		for (int i3 = 0; i3 < 6; i3++) {
+		for (int i3 = 0; i3 < lato; i3++) {
 			aux1 = aux1 + String.format("%04d", i3) + ";______";
 		}
 		MyLog.log("____pixel;_________" + aux1);
 		int count = 0;
-		for (int i1 = 0; i1 < vetTabella.length - 5; i1 = i1 + 6) {
+		for (int i1 = 0; i1 < vetTabella.length - lato + 1; i1 = i1 + lato) {
 			aux1 = "";
-			for (int i2 = 0; i2 < 6; i2++) {
+			for (int i2 = 0; i2 < lato; i2++) {
 				aux1 = aux1 + String.format("%010.4e", vetTabella[i1 + i2]) + ";  ";
 			}
 			MyLog.log("riga " + String.format("%04d", count) + "    " + aux1);
@@ -440,15 +417,15 @@ public class S_VoxelDosimetry implements PlugIn {
 
 	void creoStackTabellaBella(float[] vetTabella) {
 
-		int width = 6;
-		int height = 6;
-		int depth = 6;
+		int width = lato;
+		int height = lato;
+		int depth = lato;
 		int bitdepth = 32;
 
 		ImageStack stack = ImageStack.create(width, height, depth, bitdepth);
 
 //		MyLog.waitHere("length= " + vetTabella.length);
-		stack.setVoxels(0, 0, 0, 6, 6, 6, vetTabella);
+		stack.setVoxels(0, 0, 0, lato, lato, lato, vetTabella);
 
 		ImagePlus impStack = new ImagePlus("tabella", stack);
 		impStack.show();

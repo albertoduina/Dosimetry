@@ -75,16 +75,18 @@ public class MyLog {
 	public static String logElapsed(long start, long end) {
 
 		long elapsed = end - start;
-
+		
+		int fractions= (int) elapsed % 60;
 		int seconds = (int) (elapsed / 1000) % 60;
 		int minutes = (int) (elapsed / (1000 * 60));
 		int hours = (int) (elapsed / (1000 * 60 * 60));
 
-		String aux1 = "elapsed [hh:mm:ss] " + String.format("%02d:%02d:%02d", hours, minutes, seconds);
+		String aux1 = "elapsed [hh:mm:ss] " + String.format("%02d:%02d:%02d.%d", hours, minutes, seconds, fractions);
 
 		MyLog.log("elapsed [hh:mm:ss] " + String.format("%02d:%02d:%02d", hours, minutes, seconds));
 		return aux1;
 	}
+	
 
 	public static void logVector(String vect[], String nome) {
 		String stri = "";
