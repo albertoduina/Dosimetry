@@ -44,6 +44,7 @@ public class S_VoxelDosimetry_Test {
 		MyLog.log("aTildeVoxel_______ = " + aTildeVoxel + "\naTildeVoxelExpected= " + aTildeVoxelExpected);
 		MyLog.waitHere();
 
+		assertEquals(aTildeVoxel, aTildeVoxelExpected );
 	}
 
 }

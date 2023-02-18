@@ -300,7 +300,7 @@ public class S_VoxelDosimetry implements PlugIn {
 					// -------------------------------------
 					double valPatataCompleta = 0;
 					for (int i1 = 0; i1 < vetVoxels.length; i1++) {
-						valPatataCompleta = valPatataCompleta + vetVoxels[i1] * vetSvalues[i1];
+						valPatataCompleta = valPatataCompleta + (vetVoxels[i1] * vetSvalues[i1]) / 1000.;
 					}
 					stackPatataCompleta.setVoxel(x1, y1, z1, valPatataCompleta);
 				}
