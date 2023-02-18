@@ -84,7 +84,7 @@ public class Utility {
 	public static int latoCubo() {
 		// ATTENZIONE il lato DEVE essere dispari
 		// in questo modo avremo un pixel centrale
-		int lato = 5;
+		int lato = 11;
 
 		return lato;
 	}
@@ -1829,8 +1829,10 @@ public class Utility {
 	public static boolean stampa() {
 
 		String[] config = Utility.leggiConfig("DosimetryConfig.txt");
-		if (config == null)
-			return false;
+		if (config == null) {
+			return true;
+		}
+
 		String strIn = config[0];
 		if (strIn.equalsIgnoreCase("SI")) {
 			return true;
@@ -1928,7 +1930,7 @@ public class Utility {
 
 		for (j = 1; j <= n0; j++) {
 			progVal = ((double) j) / n0;
-			IJ.showStatus("eee" + j + "/" + n0);
+			IJ.showStatus("readStack " + j + "/" + n0);
 			IJ.showProgress(progVal);
 			opener = new Opener();
 			flName = results[j - 1].getPath();
@@ -2297,7 +2299,7 @@ public class Utility {
 			maskSlice1 = stackMask.getProcessor(z1 + 1);
 			for (int x1 = 0; x1 < width1; x1++) {
 				for (int y1 = 0; y1 < height1; y1++) {
-					IJ.showStatus("ddd" + z1 + " / " + (depth1));
+					IJ.showStatus("StackStatisticsA " + z1 + " / " + (depth1));
 					pixel = inSlice1.getPixelValue(x1, y1);
 					mask = maskSlice1.getPixelValue(x1, y1);
 					if (pixel > 0 && mask > 0) {
@@ -2357,7 +2359,7 @@ public class Utility {
 			inSlice1 = stackIn.getProcessor(z1 + 1);
 			for (int x1 = 0; x1 < width1; x1++) {
 				for (int y1 = 0; y1 < height1; y1++) {
-					IJ.showStatus("ccc" + z1 + " / " + (depth1));
+					IJ.showStatus("stackStatisticsB " + z1 + " / " + (depth1));
 //					if (z1 == 0 && x1 == 0 && y1 == 0)
 //						MyLog.waitHere();
 					pixel = inSlice1.getPixelValue(x1, y1);
@@ -2620,6 +2622,8 @@ public class Utility {
 		String myString = url3.toString();
 		int start = myString.indexOf("plugins");
 		int end = myString.lastIndexOf("!");
+		if (start < 0 || end < 0)
+			return null;
 		String myPart1 = myString.substring(start, end);
 		int end2 = myPart1.lastIndexOf("/");
 		String myPart2 = myPart1.substring(0, end2);

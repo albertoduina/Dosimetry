@@ -37,7 +37,12 @@ public class MyLog {
 				+ Thread.currentThread().getStackTrace()[2].getLineNumber() + "\n \n" + str).show();
 	}
 
+//	public static void log(String str) {
+//		if (Utility.stampa())
+//			IJ.log(str);
+//	}
 	public static void log(String str) {
+
 		if (Utility.stampa())
 			IJ.log(str);
 	}

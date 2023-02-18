@@ -444,7 +444,7 @@ public class Utility_Test {
 		MyLog.logMatrix(tabellaPuntatori, "tabellapuntatori");
 		MyLog.waitHere();
 		MyLog.logVector(tabellasval, "tabellasval");
-		MyLog.waitHere("GHET FRESA? POLSA!!!");
+		MyLog.waitHere("SPETTA");
 
 	}
 

@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import ij.IJ;
 import ij.ImageJ;
 
 /**
@@ -29,17 +30,20 @@ public class S_VoxelDosimetry_Test {
 	}
 
 	@Test
-	public final void test_stoCazzoDiTest() {
+	public final void test_mAtildeSingleVoxel() {
 
-		double voxSignal = 142.0;
+		double voxSignal = 364.0;
 		double acqDuration = 1200;
-		double fatCal = 1.73;
-		double par_a = 0.00628;
-		double deltaT = 23.26;
+		double fatCal = 1.8037930743094028;
+		double deltaT = 23.3480425;
+		double par_a = 0.0063102568457841105;
+		double aTildeVoxelExpected = 111166.625880776;
 
-		double aTildeVoxel = S_VoxelDosimetry.stoCazzoDiTest(voxSignal, acqDuration, fatCal, par_a, deltaT);
+		double aTildeVoxel = S_VoxelDosimetry.mAtildeSingleVoxel(voxSignal, acqDuration, fatCal, deltaT, par_a);
 
-		MyLog.waitHere("SPETTA");
+		MyLog.log("aTildeVoxel_______ = " + aTildeVoxel + "\naTildeVoxelExpected= " + aTildeVoxelExpected);
+		MyLog.waitHere();
+
 	}
 
 }

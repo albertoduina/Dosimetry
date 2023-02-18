@@ -10,6 +10,7 @@ import ij.ImageStack;
 import ij.gui.NonBlockingGenericDialog;
 import ij.plugin.PlugIn;
 import ij.process.ImageConverter;
+import ij.process.ImageProcessor;
 import ij.util.FontUtil;
 
 /**
@@ -90,15 +91,11 @@ public class S_VoxelDosimetry implements PlugIn {
 		boolean ok = false;
 		for (int i1 = 0; i1 < vetH.length; i1++) {
 			lesione1 = str2 + out1 + vetH[i1] + "h.tif";
-			lesione3 = str2 + out1 + "_PATATA" + vetH[i1] + "h.nii";
-			lesione4 = str2 + out1 + "_MATILDE" + vetH[i1] + "h.nii";
 			lesione2 = str2 + out1 + ".txt";
 			startingDir1 = str1 + vetH[i1] + "h" + File.separator + "SPECT";
 			start1 = System.currentTimeMillis();
 
-//			start1 = System.nanoTime();
-
-			ok = caricaMemoriazza(startingDir1, lesione1, vetH[i1], lesione2, lesione3, lesione4);
+			ok = caricaMemoriazza(startingDir1, lesione1, vetH[i1], lesione2);
 			if (!ok)
 				break;
 
@@ -123,8 +120,7 @@ public class S_VoxelDosimetry implements PlugIn {
 	 * @param ore
 	 * @param pathLesione
 	 */
-	boolean caricaMemoriazza(String pathStackIn, String pathStackMask, int ore, String pathLesione, String pathOut,
-			String pathOut2) {
+	boolean caricaMemoriazza(String pathStackIn, String pathStackMask, int ore, String pathLesione) {
 
 		ImagePlus impStackIn = null;
 		ImagePlus impStackMask = null;
@@ -185,10 +181,6 @@ public class S_VoxelDosimetry implements PlugIn {
 			z3 = z2 - mezzo;
 
 			Utility.loggoVoxels2(impStackIn, x2, y2, z2);
-			Utility.loggoCuxels3(impStackIn, x2, y2, z2, lato, mezzo);
-			Utility.loggoVoxels2(impStackMask, x2, y2, z2);
-			Utility.loggoCuxels3(impStackMask, x2, y2, z2, lato, mezzo);
-
 		}
 		//
 		// Imposto il mio cubetto in modo che "viaggi" per tutto lo stack cubico, il
@@ -200,7 +192,6 @@ public class S_VoxelDosimetry implements PlugIn {
 		ImageStack stackIn = impStackIn.getImageStack();
 
 		double[] tapata1 = Utility.MyStackStatistics(impStackIn, impStackMask);
-
 		impStackIn.setDisplayRange(tapata1[3], tapata1[7]);
 		impStackIn.setSlice((int) tapata1[6]);
 
@@ -224,92 +215,150 @@ public class S_VoxelDosimetry implements PlugIn {
 		valIn[2] = deltaT;
 		valIn[3] = par_a;
 
+		MyLog.log("------------------------");
+		MyLog.log("acqDuration= " + acqDuration);
+		MyLog.log("fatCal= " + fatCal);
+		MyLog.log("deltaT= " + deltaT);
+		MyLog.log("par_a= " + par_a);
+		MyLog.log("------------------------");
+
 		// ####################################################################################
-		// ELABORAZIONE IMMAGINE COMPLETA, SENZA MASCHERA
+		// ELABORAZIONE IMMAGINE COMPLETA, SENZA MASCHERA E SENZA CUBI DI ALCUN GENERE
 		// ####################################################################################
 		// creazione dello stack nero di output
 		int bitdepth1 = 32;
 		ImageStack stackMatilde = ImageStack.create(width1, height1, depth1, bitdepth1);
 
-		// creazione del cubo con Svalues
-		ImagePlus impRubik = Utility.inCubo();
-		impRubik.show();
-		ImageStack stackRubik = impRubik.getImageStack();
-		boolean log2;
+		// ####################################################
+		// MATILDE SENZA CUBI E SENZA PAURA
+		// ####################################################
 
-		for (int z1 = 1 + mezzo; z1 < (depth1 - mezzo) - 2; z1++) {
-			for (int y1 = mezzo; y1 < (height1 - mezzo); y1++) {
-				IJ.showStatus("bbb" + z1 + " / " + depth1);
-				for (int x1 = mezzo; x1 < (width1 - mezzo); x1++) {
-					if (x1 == coordX && y1 == coordY && z1 == coordZ)
-						log2 = true;
-					else
-						log2 = false;
+		double voxSignal = 0;
+		double aTildeVoxel = 0;
+		ImageProcessor inSlice1 = null;
+		ImageProcessor outSlice1 = null;
 
-					float[] vetVoxels = stackIn.getVoxels(x1 - mezzo, y1 - mezzo, z1 - mezzo, lato, lato, lato, null);
-					float[] vetSvalues = stackRubik.getVoxels(0, 0, 0, lato, lato, lato, null);
-					double valPatataCompleta = Utility.myProcessVoxels11x11(vetVoxels, vetSvalues, x1, y1, z1, mezzo,
-							valIn, log2);
-					stackMatilde.setVoxel(x1, y1, z1, valPatataCompleta);
+		for (int z1 = 1; z1 <= depth1; z1++) {
+			inSlice1 = stackIn.getProcessor(z1);
+			outSlice1 = stackMatilde.getProcessor(z1);
+			for (int x1 = 0; x1 < width1; x1++) {
+				for (int y1 = 0; y1 < height1; y1++) {
+					IJ.showStatus("aTilde " + z1 + " / " + (depth1));
+					voxSignal = inSlice1.getPixelValue(x1, y1);
+					aTildeVoxel = mAtildeSingleVoxel(voxSignal, acqDuration, fatCal, deltaT, par_a);
+					outSlice1.putPixelValue(x1, y1, aTildeVoxel);
+					if (z1 == coordZ && x1 == coordX && y1 == coordY)
+						MyLog.log("voxSignal= " + voxSignal + "\nacqDuration= " + acqDuration + "\nfatCal= " + fatCal
+								+ "\ndeltaT= " + deltaT + "\npar_a= " + par_a + "\naTildeVoxel= " + aTildeVoxel);
 				}
 			}
+			Utility.stackSliceUpdater(stackMatilde, outSlice1, z1);
 		}
 
 		ImagePlus impMatilde = new ImagePlus("mAtilde " + ore + "h", stackMatilde);
 		impMatilde.show();
 
 		if (loggoVoxels) {
+
+			Utility.loggoVoxels2(impStackIn, x2, y2, z2);
+			Utility.loggoCuxels3(impStackIn, x2, y2, z2, lato, mezzo);
+
 			Utility.loggoVoxels2(impMatilde, x2, y2, z2);
-			Utility.loggoCuxels4(impRubik, mezzo, mezzo, mezzo, lato, mezzo);
 			Utility.loggoCuxels3(impMatilde, x2, y2, z2, lato, mezzo);
 		}
-
 		double[] tapata2 = Utility.MyStackStatistics(impMatilde, impStackMask);
-		impMatilde.setDisplayRange(tapata2[3], tapata2[7]);
-		impMatilde.setSlice((int) tapata2[6]);
-		impMatilde.show();
 
-//		IJ.run(impMatilde, "NIfTI-1", "save=" + pathOut2);
+		// -------------------------------------
+		// ELABORAZIONI DEI CUBI
+		// -------------------------------------
 
-		// ####################################################################################
-		// APPLICAZIONE MASCHERA AD IMMAGINE COMPLETA GIA'OTTENUTA
-		// ####################################################################################
+		// -------------------------------------
+		// CUBO CON SVALUES
+		// -------------------------------------
+		ImagePlus impRubik = Utility.inCubo();
+		impRubik.show();
+		ImageStack stackRubik = impRubik.getImageStack();
+		// -------------------------------------
+
+		boolean log2;
+		// ####################################################
+		// PATATA COMPLETA CON SVALUES
+		// ####################################################
+		ImageStack stackPatataCompleta = ImageStack.create(width1, height1, depth1, bitdepth1);
+		for (int z1 = 1 + mezzo; z1 < (depth1 - mezzo) - 2; z1++) {
+			for (int y1 = mezzo; y1 < (height1 - mezzo); y1++) {
+				IJ.showStatus("patataCompleta " + z1 + " / " + depth1);
+				for (int x1 = mezzo; x1 < (width1 - mezzo); x1++) {
+					if (x1 == coordX && y1 == coordY && z1 == coordZ)
+						log2 = true;
+					else
+						log2 = false;
+					// -------------------------------------
+					float[] vetVoxels = stackMatilde.getVoxels(x1 - mezzo, y1 - mezzo, z1 - mezzo, lato, lato, lato,
+							null);
+					float[] vetSvalues = stackRubik.getVoxels(0, 0, 0, lato, lato, lato, null);
+					// -------------------------------------
+					double valPatataCompleta = 0;
+					for (int i1 = 0; i1 < vetVoxels.length; i1++) {
+						valPatataCompleta = valPatataCompleta + vetVoxels[i1] * vetSvalues[i1];
+					}
+					stackPatataCompleta.setVoxel(x1, y1, z1, valPatataCompleta);
+				}
+			}
+		}
+
+		ImagePlus impPatataCompleta = new ImagePlus("PatataCompleta " + ore + "h", stackPatataCompleta);
+		impPatataCompleta.show();
+
+		if (loggoVoxels) {
+			Utility.loggoVoxels2(impPatataCompleta, x2, y2, z2);
+			Utility.loggoCuxels4(impRubik, mezzo, mezzo, mezzo, lato, mezzo);
+			Utility.loggoCuxels3(impPatataCompleta, x2, y2, z2, lato, mezzo);
+		}
+
+		double[] tapata3 = Utility.MyStackStatistics(impPatataCompleta, impStackMask);
+		impPatataCompleta.setDisplayRange(tapata3[3], tapata3[7]);
+		impPatataCompleta.setSlice((int) tapata3[6]);
+		impPatataCompleta.show();
+
+		// ####################################################
+		// PATATA MASCHERATA
+		// ####################################################
 
 		width2 = lato;
 		height2 = lato;
 		depth2 = lato;
 		double voxMask = 0;
-		double voxDose = 0;
+		double voxPatataCompleta = 0;
 
-		ImageStack stackPatata = ImageStack.create(width1, height1, depth1, bitdepth1);
+		ImageStack stackPatataMascherata = ImageStack.create(width1, height1, depth1, bitdepth1);
 
 		for (int z1 = 0; z1 < depth1 - depth2; z1++) {
 			for (int x1 = 0; x1 < width1 - width2; x1++) {
 				for (int y1 = 0; y1 < height1 - height2; y1++) {
-					IJ.showStatus("aaa" + z1 + " / " + (depth1 - depth2));
+					IJ.showStatus("patataMascherata " + z1 + " / " + (depth1 - depth2));
 					voxMask = stackMask.getVoxel(x1, y1, z1);
-					voxDose = stackMatilde.getVoxel(x1, y1, z1);
+					voxPatataCompleta = stackPatataCompleta.getVoxel(x1, y1, z1);
 					if (voxMask > 0) {
-						stackPatata.setVoxel(x1, y1, z1, voxDose);
+						stackPatataMascherata.setVoxel(x1, y1, z1, voxPatataCompleta);
 					}
 				}
 			}
 		}
 
-		ImagePlus impPatata = new ImagePlus("PATATA  " + ore + "h", stackPatata);
+		ImagePlus impPatataMascherata = new ImagePlus("PATATA_MASCHERATA  " + ore + "h", stackPatataMascherata);
 		if (loggoVoxels) {
-			Utility.loggoVoxels2(impPatata, x2, y2, z2);
-			Utility.loggoCuxels3(impPatata, x2, y2, z2, lato, mezzo);
+			Utility.loggoVoxels2(impStackMask, x2, y2, z2);
+			Utility.loggoCuxels3(impStackMask, x2, y2, z2, lato, mezzo);
+
+			Utility.loggoVoxels2(impPatataMascherata, x2, y2, z2);
+			Utility.loggoCuxels3(impPatataMascherata, x2, y2, z2, lato, mezzo);
 		}
-
-		// IMMAGINE INPUT MASCHERATA
-		double[] tapata3 = Utility.MyStackStatistics(impPatata);
-
-		impPatata.setDisplayRange(tapata3[3], tapata3[7]);
-		impPatata.setSlice((int) tapata3[6]);
-		impPatata.show();
-		IJ.saveAsTiff(impPatata, pathOut);
-//		IJ.run(impPatata, "NIfTI-1", "save=" + pathOut);
+		impPatataMascherata.show();
+		tapata3 = Utility.MyStackStatistics(impPatataMascherata, impStackMask);
+		impPatataMascherata.setDisplayRange(tapata3[3], tapata3[7]);
+		impPatataMascherata.setSlice((int) tapata3[6]);
+		impPatataMascherata.show();
 
 		end1 = System.currentTimeMillis();
 
@@ -358,7 +407,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		resultsDialog.setFont(defaultFont);
 
 		resultsDialog.addMessage("======== IMMAGINE INPUT  MASCHERATA ======");
-		resultsDialog.addMessage("minStackVal= " + String.format("%.4f", minStackVal3) + "    x= " + minStackX3
+		resultsDialog.addMessage("minStackVal= " + String.format("%.4f", minStackVal3) + "     x= " + minStackX3
 				+ "    y= " + minStackY3 + "    z= " + minStackZ3);
 		resultsDialog.addMessage("maxStackVal= " + String.format("%.4f", maxStackVal3) + "    x= " + maxStackX3
 				+ "    y= " + maxStackY3 + "    z= " + maxStackZ3);
@@ -366,8 +415,8 @@ public class S_VoxelDosimetry implements PlugIn {
 		resultsDialog
 				.addMessage("meanStackVal= " + String.format("%.4f", meanStackVal3) + "        pixCount= " + pixCount3);
 		resultsDialog.addMessage("integral= " + String.format("%.4f", integral3));
-		resultsDialog.addMessage("============ MATILDE MASCHERATA ===============");
-		resultsDialog.addMessage("minStackVal= " + String.format("%.4f", minStackVal1) + "    x= " + minStackX1
+		resultsDialog.addMessage("======== MATILDE MASCHERATA =============");
+		resultsDialog.addMessage("minStackVal= " + String.format("%.4f", minStackVal1) + "       x= " + minStackX1
 				+ "    y= " + minStackY1 + "    z= " + minStackZ1);
 		resultsDialog.addMessage("maxStackVal= " + String.format("%.4f", maxStackVal1) + "    x= " + maxStackX1
 				+ "    y= " + maxStackY1 + "    z= " + maxStackZ1);
@@ -376,8 +425,8 @@ public class S_VoxelDosimetry implements PlugIn {
 				.addMessage("meanStackVal= " + String.format("%.4f", meanStackVal1) + "        pixCount= " + pixCount1);
 		resultsDialog.addMessage("integral= " + String.format("%.4f", integral1));
 
-		resultsDialog.addMessage("================== PATATA OUTPUT =====================");
-		resultsDialog.addMessage("minStackVal= " + String.format("%.4f", minStackVal2) + "    x= " + minStackX2
+		resultsDialog.addMessage("======== PATATA MASCHERATA ==============");
+		resultsDialog.addMessage("minStackVal= " + String.format("%.4f", minStackVal2) + "     x= " + minStackX2
 				+ "    y= " + minStackY2 + "    z= " + minStackZ2);
 		resultsDialog.addMessage("maxStackVal= " + String.format("%.4f", maxStackVal2) + "    x= " + maxStackX2
 				+ "    y= " + maxStackY2 + "    z= " + maxStackZ2);
@@ -391,10 +440,9 @@ public class S_VoxelDosimetry implements PlugIn {
 		if (resultsDialog.wasCanceled())
 			return false;
 
-		Utility.calculateDVH(impPatata, ore);
+		Utility.calculateDVH(impPatataMascherata, ore);
 		return true;
 	}
-
 
 	void loggoTabellaBella(float[] vetTabella) {
 
@@ -431,22 +479,20 @@ public class S_VoxelDosimetry implements PlugIn {
 		impStack.show();
 	}
 
-	static double stoCazzoDiTest(double voxSignal, double acqDuration, double fatCal, double par_a, double deltaT) {
-
-		double ahhVoxel = 0;
-		double aVoxel = 0;
-		double aTildeVoxel = 0;
-
-		// vedi S_VoxelDosimetry circa linea 230
-
-		ahhVoxel = voxSignal / (acqDuration * fatCal);
-		aVoxel = ahhVoxel / Math.exp(-(par_a * deltaT));
-		aTildeVoxel = (aVoxel / par_a) * 3600;
-
-		IJ.log("voxSignal= " + voxSignal + " acqDuration= " + acqDuration + " fatCal= " + fatCal + " ahhVoxel= "
-				+ ahhVoxel);
-		IJ.log("ahhVoxel= " + ahhVoxel + " par_a= " + par_a + " deltaT= " + deltaT + " aVoxel= " + aVoxel);
-		IJ.log("aVoxel= " + aVoxel + " par_a= " + par_a + " aTildeVoxel= " + aTildeVoxel);
+	/**
+	 * Calcolo eseguito per ogni singolo voxel
+	 * 
+	 * @param voxSignal
+	 * @param acqDuration
+	 * @param fatCal
+	 * @param deltaT
+	 * @param par_a
+	 * @return
+	 */
+	static double mAtildeSingleVoxel(double voxSignal, double acqDuration, double fatCal, double deltaT, double par_a) {
+		double ahhVoxel = voxSignal / (acqDuration * fatCal);
+		double aVoxel = ahhVoxel / Math.exp(-(par_a * deltaT));
+		double aTildeVoxel = (aVoxel / par_a) * 3600;
 		return aTildeVoxel;
 	}
 
