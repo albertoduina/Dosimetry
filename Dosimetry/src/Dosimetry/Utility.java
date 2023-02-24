@@ -39,6 +39,7 @@ import ij.gui.ImageWindow;
 import ij.gui.NewImage;
 import ij.gui.NonBlockingGenericDialog;
 import ij.gui.Plot;
+import ij.gui.PlotWindow;
 import ij.gui.Roi;
 import ij.io.FileInfo;
 import ij.io.OpenDialog;
@@ -84,10 +85,30 @@ public class Utility {
 	public static int latoCubo() {
 		// ATTENZIONE il lato DEVE essere dispari
 		// in questo modo avremo un pixel centrale
-		int lato = 11;
+		int lato = 5;
 
 		return lato;
 	}
+
+//	/**
+//	 * Introdotto il file DosimetryConfig.txt
+//	 * 
+//	 * @return
+//	 */
+//	public static boolean stampa() {
+//
+//		String[] config = Utility.leggiConfig("DosimetryConfig.txt");
+//		if (config == null) {
+//			return true;
+//		}
+//
+//		String strIn = config[0];
+//		if (strIn.equalsIgnoreCase("SI")) {
+//			return true;
+//		} else {
+//			return false;
+//		}
+//	}
 
 	/**
 	 * Legge tutte le linee di un file testo e le restituisce come vettore di
@@ -1821,26 +1842,6 @@ public class Utility {
 
 	}
 
-	/**
-	 * Introdotto il file DosimetryConfig.txt
-	 * 
-	 * @return
-	 */
-	public static boolean stampa() {
-
-		String[] config = Utility.leggiConfig("DosimetryConfig.txt");
-		if (config == null) {
-			return true;
-		}
-
-		String strIn = config[0];
-		if (strIn.equalsIgnoreCase("SI")) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
 	public static String getJarTitle() {
 
 		String jarName = "unknown";
@@ -2491,9 +2492,17 @@ public class Utility {
 		return aux1;
 	}
 
-	static void calculateDVH(ImagePlus patata, int ore) {
+	/**
+	 * Calcolo del DVH
+	 * 
+	 * @param patataMascherata in patata mascherata abbiamo segnale solo nei voxels
+	 *                         selezionati nella mask, quindi usando solo i voxels >
+	 *                         0 sono a posto
+	 * @param ore
+	 */
+	static ArrayList<ArrayList<Double>> calculateDVH(ImagePlus patataMascherata, int ore) {
 
-		ImageStack stack = patata.getImageStack();
+		ImageStack stack = patataMascherata.getImageStack();
 
 		int width = stack.getWidth();
 		int height = stack.getHeight();
@@ -2513,36 +2522,25 @@ public class Utility {
 			}
 		}
 		vetVoxel = Utility.arrayListToArrayDouble(arrList);
-
-//		double[] vetVoxel = { 10, 12, 13, 17, 20, 12, 20, 41, 30, 17, 14, 24, 37, 27, 15, 13, 15, 12, 11, 10 };
-
-		calcDVH_1(vetVoxel);
-
+		ArrayList<ArrayList<Double>> pippo = calcDVH_1(vetVoxel);
+		return pippo;
 	}
 
-	static double[][] calcDVH_1(double[] vetVoxel) {
-
-//		IJ.log("------ VOXELS SIGNAL UNSORTED --------");
-//		for (int i1 = 0; i1 < vetVoxel.length; i1++) {
-//			IJ.log("" + vetVoxel[i1]);
-//		}
-
+	/**
+	 * Parte 1 calcolo DVH
+	 * 
+	 * @param vetVoxel
+	 * @return
+	 */
+	static ArrayList<ArrayList<Double>> calcDVH_1(double[] vetVoxel) {
+		// ---------------------------------
+		// sort array voxels
 		Arrays.sort(vetVoxel);
-
-//		IJ.log("------ VOXELS SIGNAL SORTED --------");
-//		for (int i1 = 0; i1 < vetVoxel.length; i1++) {
-//			IJ.log("" + vetVoxel[i1]);
-//		}
-
-//		MyLog.log("------ SORTED ARRAY --------");
+		// --------------------------------
+		// rimozione dei doppioni e creazione array
 		int n1 = vetVoxel.length;
 		double[] temp = new double[n1];
-//		for (int i1 = 0; i1 < vetVoxel.length; i1++) {
-//			MyLog.log("sorted " + vetVoxel[i1]);
-//		}
-
 		int j1 = 0;
-
 		for (int i1 = 0; i1 < n1 - 1; i1++) {
 			if (Double.compare(vetVoxel[i1], vetVoxel[i1 + 1]) != 0) {
 				temp[j1++] = vetVoxel[i1];
@@ -2554,66 +2552,416 @@ public class Utility {
 		for (int i1 = 0; i1 < j1; i1++) {
 			vetRemoved[i1] = temp[i1];
 		}
-
-//		IJ.log("------ REMOVE DUPED VALUES --------");
-//		for (int i1 = 0; i1 < vetRemoved.length; i1++) {
-//			IJ.log("" + vetRemoved[i1]);
-//		}
-
-		double[][] pippo = new double[vetRemoved.length][3];
+		// --------------------------------
+		// conteggio numerosita'
+		double[][] pippo = new double[vetRemoved.length + 1][3];
 		for (int i1 = 0; i1 < vetRemoved.length; i1++) {
-			pippo[i1][0] = vetRemoved[i1];
+			pippo[i1 + 1][0] = vetRemoved[i1];
 		}
-
 		double aux1 = 0;
 		for (int i1 = 0; i1 < vetVoxel.length; i1++) {
 			aux1 = vetVoxel[i1];
-			for (int i2 = 0; i2 < pippo.length; i2++) {
+			for (int i2 = 1; i2 < pippo.length; i2++) {
 				int comp = Double.compare(aux1, pippo[i2][0]);
 				if (comp == 0) {
 					pippo[i2][1] = pippo[i2][1] + 1.0;
 				}
 			}
-		}
 
-		for (int i2 = pippo.length - 1; i2 >= 0; i2--) {
+		}
+		// --------------------------------
+		// calcolo della % volume
+		for (int i2 = pippo.length - 1; i2 >= 1; i2--) {
 			if (i2 == pippo.length - 1) {
 				pippo[i2][2] = pippo[i2][1] / vetVoxel.length * 100;
-//				MyLog.waitHere("eseguo pippo " + pippo[i2][2]);
 			} else {
-
 				pippo[i2][2] = pippo[i2][1] / vetVoxel.length * 100 + pippo[i2 + 1][2];
-//				MyLog.waitHere("" + pippo[i2][2] + "=" + pippo[i2][1] + " / " + vetVoxel.length + " * " + 100 + " + "
-//						+ pippo[i2 + 1][1]);
 			}
 		}
+		pippo[0][0] = 0;
+		pippo[0][1] = 1;
+		pippo[0][2] = 100;
 
-//		IJ.log("------ PERCENTUVALI --------");
-//		for (int i1 = 0; i1 < pippo.length; i1++) {
-//			IJ.log("" + pippo[i1][0] + " " + pippo[i1][1] + " " + pippo[i1][2]);
-//		}
-//
-//		MyLog.waitHere("BERCENTUBALLI");
+		MyLog.logMatrixVertical(pippo, "pippo");
 
-		double[] xdata = new double[pippo.length];
-		double[] ydata = new double[pippo.length];
-//		IJ.log("-------- NUMEROSITA' ------------");
-		for (int i1 = 0; i1 < pippo.length; i1++) {
-//			IJ.log("" + pippo[i1][0] + "  " + pippo[i1][1]);
-			xdata[i1] = pippo[i1][0];
-			ydata[i1] = pippo[i1][2];
+		// ------------------------------------------------------
+		// A questo punto vorrei provare a restituire un Arraylist<ArrayList>, questo
+		// potrebbe permettermi di aggiungere i dati ad un ArrayList<ArrayList>>
+		// esterno, ma non ne sono troppo sicurobisogna testarlo molto ma molto bene
+		// ------------------------------------------------------
+		ArrayList<ArrayList<Double>> aList = new ArrayList<ArrayList<Double>>();
+
+		for (int i2 = 0; i2 < pippo[0].length; i2++) {
+			ArrayList<Double> eList = new ArrayList<Double>();
+			for (int i1 = 0; i1 < pippo.length; i1++) {
+				eList.add(pippo[i1][i2]);
+			}
+			aList.add(eList);
 		}
+
+		return aList;
+
+	}
+
+	static void calcDVH_2_OLD(ArrayList<ArrayList<Double>> ratatuie) {
+
+		double[] vetX24 = null;
+		double[] vetY24 = null;
+		double[] vetX48 = null;
+		double[] vetY48 = null;
+		double[] vetX120 = null;
+		double[] vetY120 = null;
+
+		int len1 = ratatuie.size();
+		// separo i vari array in modo da facilitare il successivo lavoro
+
+		ArrayList<Double> eList = null;
+
+		eList = ratatuie.get(0);
+		vetX24 = Utility.arrayListToArrayDouble(eList);
+//		MyLog.logVector(vetX24, "vetX24");
+		eList = ratatuie.get(2);
+		vetY24 = Utility.arrayListToArrayDouble(eList);
+//		MyLog.logVector(vetY24, "vetY24");
+		eList = ratatuie.get(3);
+		vetX48 = Utility.arrayListToArrayDouble(eList);
+//		MyLog.logVector(vetX48, "vetX48");
+		eList = ratatuie.get(5);
+		vetY48 = Utility.arrayListToArrayDouble(eList);
+//		MyLog.logVector(vetY48, "vetY48");
+		eList = ratatuie.get(6);
+		vetX120 = Utility.arrayListToArrayDouble(eList);
+//		MyLog.logVector(vetX120, "vetX120");
+		eList = ratatuie.get(8);
+		vetY120 = Utility.arrayListToArrayDouble(eList);
+//		MyLog.logVector(vetY120, "vetY120");
+
+//		Plot plot1 = Utility.myMultiplePlot(vetX24, vetY24, vetX48, vetY48, vetX120, vetY120, "plotone", "assexx",
+//				"asseyy");
+//		plot1.show();
 //		MyLog.waitHere();
 
-		Plot plot2 = new Plot("Dose Volume Histogram", "Dose", "Volume");
-		plot2.setLineWidth(2);
-		plot2.setColor(Color.GREEN);
+		ArrayList<Double> arrX48 = new ArrayList<Double>();
+		ArrayList<Double> arrY48 = new ArrayList<Double>();
+//		double x24 = 0;
+		double x48 = 0;
+		double y24 = 0;
+		double y48 = 0;
+		double x48prec = 0;
+//		double x48seg = 0;
+		double y48prec = 0;
+		double y48seg = 0;
+		int comp1 = 0;
+		boolean ok = false;
 
-		plot2.add("line", xdata, ydata);
-		plot2.show();
-//		IJ.log("HISTOGRAM");
+		for (int i2 = 0; i2 < vetX24.length; i2++) {
+			y24 = vetY24[i2];
+			ok = false;
+			for (int i1 = 0; i1 < vetX48.length; i1++) {
+				y48 = vetY48[i1];
+				x48 = vetX48[i1];
+				comp1 = Double.compare(y24, y48);
+				if (comp1 == 0) {
+					arrY48.add(y48);
+					arrX48.add(x48);
+					ok = true;
+					break;
+				}
+			}
+			if (!ok) {
+				for (int i1 = 0; i1 < vetX48.length; i1++) {
+					y48 = vetY48[i1];
+					x48 = vetX48[i1];
+					comp1 = Double.compare(y24, y48);
+					if (comp1 > 0) {
+						break;
+					}
+					y48prec = y48;
+					x48prec = x48;
+				}
+				for (int i1 = vetX48.length - 1; i1 > 0; i1--) {
+					y48 = vetY48[i1];
+					x48 = vetX48[i1];
+					comp1 = Double.compare(y24, y48);
+					if (comp1 < 0) {
+						break;
+					}
+					y48seg = y48;
+				}
+			}
+			y48 = y24;
+			x48 = x48prec + ((y48 - y48prec) / (y48seg - y48prec) * (y48seg - y48prec));
+			arrY48.add(y48);
+			arrX48.add(x48);
+		}
 
-		return pippo;
+		double[] vetx48new = Utility.arrayListToArrayDouble(arrX48);
+		double[] vety48new = Utility.arrayListToArrayDouble(arrY48);
+		vetx48new[0] = vetX48[0];
+		vetx48new[1] = vetX48[1];
+		vetx48new[2] = vetX48[2];
+		vetx48new[vetx48new.length - 1] = vetX24[vetX24.length - 1];
+		vety48new[vety48new.length - 1] = vetY24[vetY24.length - 1];
+
+		MyLog.logVector(vetx48new, "vetx48new");
+		MyLog.logVector(vety48new, "vety48new");
+
+		Plot plot3 = myPlotMultiple(vetX48, vetY48, vetx48new, vety48new, vetX48, vetY48, "prima", "dopo", "");
+		plot3.show();
+//	
+
+	}
+
+	static double[][] calcDVH_2(ArrayList<ArrayList<Double>> ratatuie) {
+
+		double[] vetx24 = null;
+		double[] vety24 = null;
+		double[] vetx48 = null;
+		double[] vety48 = null;
+		double[] vetx120 = null;
+		double[] vety120 = null;
+
+		int len1 = ratatuie.size();
+		// separo i vari array in modo da facilitare il successivo lavoro
+		// NOTA BENE i diversi array 24, 48 e 120 avranno lunghezze diverse a seconda
+		// delle numerosita'
+
+		ArrayList<Double> eList = null;
+
+		eList = ratatuie.get(0);
+		vetx24 = Utility.arrayListToArrayDouble(eList);
+		eList = ratatuie.get(2);
+		vety24 = Utility.arrayListToArrayDouble(eList);
+		eList = ratatuie.get(3);
+		vetx48 = Utility.arrayListToArrayDouble(eList);
+		eList = ratatuie.get(5);
+		vety48 = Utility.arrayListToArrayDouble(eList);
+		eList = ratatuie.get(6);
+		vetx120 = Utility.arrayListToArrayDouble(eList);
+		eList = ratatuie.get(8);
+		vety120 = Utility.arrayListToArrayDouble(eList);
+
+//		Plot plot1 = Utility.myMultiplePlot(vetX24, vetY24, vetX48, vetY48, vetX120, vetY120, "plotone", "assexx",
+//				"asseyy");
+//		plot1.show();
+//		MyLog.waitHere();
+
+		MyLog.logVector(vetx24, "vetX24");
+		MyLog.logVector(vety24, "vetY24");
+		MyLog.logVector(vetx48, "vetX48");
+		MyLog.logVector(vety48, "vetY48");
+		MyLog.logVector(vetx120, "vetX120");
+		MyLog.logVector(vety120, "vetY120");
+
+		double[][] matout48 = Utility.interpolator(vetx24, vety24, vetx48, vety48);
+
+		double[] vetx48new = new double[matout48.length];
+		double[] vety48new = new double[matout48.length];
+		for (int i1 = 0; i1 < matout48.length; i1++) {
+			vetx48new[i1] = matout48[i1][0];
+			vety48new[i1] = matout48[i1][1];
+		}
+		MyLog.logVector(vetx48new, "vetx48new");
+		MyLog.logVector(vety48new, "vety48new");
+
+		double[][] matout120 = Utility.interpolator(vetx24, vety24, vetx120, vety120);
+
+		double[] vetx120new = new double[matout120.length];
+		double[] vety120new = new double[matout120.length];
+		for (int i1 = 0; i1 < matout48.length; i1++) {
+			vetx120new[i1] = matout120[i1][0];
+			vety120new[i1] = matout120[i1][1];
+		}
+		MyLog.logVector(vetx120new, "vetx120new");
+		MyLog.logVector(vety120new, "vety120new");
+
+		Plot plot3 = myPlotMultiple(vetx24, vety24, vetx48new, vety48new, vetx120new, vety120new, "graf24", "graf48new",
+				"graf120new");
+		plot3.show();
+//	
+
+		int a1 = vetx24.length;
+		int a2 = vetx48new.length;
+		int a3 = vetx120new.length;
+		int a4;
+
+		if (a1 > a2)
+			a4 = a1;
+		else
+			a4 = a2;
+		if (a4 < a3)
+			a4 = a3;
+
+		IJ.log("========================================");
+
+		int f1 = 0;
+		int f2 = 0;
+		int f3 = 0;
+
+		for (int i1 = 0; i1 < a4; i1++) {
+			if (f1 < a1 - 1)
+				f1++;
+			if (f2 < a2 - 1)
+				f2++;
+			if (f3 < a3 - 1)
+				f3++;
+
+			String aux1 = String.format("||  %10f |  %10f ||  %10f |  %10f ||  %10f |  %10f ||", vetx24[f1], vety24[f1],
+					vetx48new[f2], vety48new[f2], vetx120new[f3], vety120new[f3]);
+			IJ.log(aux1);
+
+		}
+		double[][] matout1 = Utility.rasegotto(vetx24, vetx48new, vetx120new, vety24);
+
+		return matout1;
+
+	}
+
+	static double[][] rasegotto(double[] vetx24, double[] vetx48, double[] vetx120, double[] vety24) {
+
+		double matout[][] = new double[vetx24.length][3];
+		for (int i1 = 0; i1 < vetx24.length; i1++) {
+			matout[i1][0] = minore(vetx24[i1], vetx48[i1], vetx120[i1]);
+			matout[i1][1] = maggiore(vetx24[i1], vetx48[i1], vetx120[i1]);
+			matout[i1][2] = vety24[i1];
+		}
+		return matout;
+	}
+
+	static double minore(double aa, double bb, double cc) {
+
+		return Math.min(Math.min(aa, bb), cc);
+	}
+
+	static double maggiore(double aa, double bb, double cc) {
+
+		return Math.max(Math.max(aa, bb), cc);
+	}
+
+	static double[][] interpolator(double[] vetxAA, double[] vetyAA, double[] vetxBB, double[] vetyBB) {
+
+		ArrayList<Double> arrxCC = new ArrayList<Double>();
+		ArrayList<Double> arryCC = new ArrayList<Double>();
+		double xAA = 0;
+		double xBB = 0;
+		double xCC = 0;
+		double yAA = 0;
+		double yBB = 0;
+		double yCC = 0;
+		double xPrec = 0;
+		double yPrec = 0;
+		double xSeg = 0;
+		double ySeg = 0;
+		int comp1 = 0;
+		boolean ok = false;
+
+		for (int i2 = 0; i2 < vetxAA.length; i2++) {
+			yAA = vetyAA[i2];
+			xAA = vetxAA[i2];
+			ok = false;
+			for (int i1 = 0; i1 < vetxBB.length; i1++) {
+				yBB = vetyBB[i1];
+				xBB = vetxBB[i1];
+				comp1 = Double.compare(yAA, yBB); // comparo le due coordinate Y, se uguali copio X ed Y su output
+				if (comp1 == 0 && i1 > 0) {
+					arryCC.add(yBB);
+					arrxCC.add(xBB);
+					ok = true;
+					break;
+				}
+			}
+			if (!ok) {
+				// le due coordinate Y NON sono uguali, utilizzero'la Y24, cerco Xprec ed Xseg
+				for (int i1 = 0; i1 < vetxBB.length; i1++) {
+					xBB = vetxBB[i1];
+					yBB = vetyBB[i1];
+					comp1 = Double.compare(yAA, yBB);
+					if (comp1 > 0) {
+						// se diventa maggiore interrompo
+						break;
+					}
+					// qui ho la coordinata precedente
+					xPrec = xBB;
+					yPrec = yBB;
+				}
+				for (int i1 = vetxBB.length - 1; i1 > 0; i1--) {
+					xBB = vetxBB[i1];
+					yBB = vetyBB[i1];
+					comp1 = Double.compare(yAA, yBB);
+					if (comp1 < 0) {
+						// se diventa minore interrompo
+						break;
+					}
+					// qui ho la coordinata seguente
+					xSeg = xBB;
+					ySeg = yBB;
+				}
+			}
+			yCC = yAA;
+			xCC = Utility.linearInterpolationX(xPrec, yPrec, xSeg, ySeg, yCC);
+			arrxCC.add(xCC);
+			arryCC.add(yCC);
+		}
+
+		MyLog.log("gli array 24 sono di " + vetxAA.length + " elementi, l'array interpolato e' di " + arrxCC.size()
+				+ " elemanti");
+
+		double[] vetxCC = Utility.arrayListToArrayDouble(arrxCC);
+		double[] vetyCC = Utility.arrayListToArrayDouble(arryCC);
+		double[][] matout = new double[vetxCC.length][2];
+		vetxCC[1] = vetxAA[1];
+		for (int i1 = 0; i1 < vetxCC.length; i1++) {
+			matout[i1][0] = vetxCC[i1];
+			matout[i1][1] = vetyCC[i1];
+		}
+		return matout;
+
+	}
+
+	public static Plot myPlotSingle(double[] profilex, double[] profiley, String title, String xlabel, String ylabel,
+			Color color) {
+		double[] a = Tools.getMinMax(profilex);
+		double[] b = Tools.getMinMax(profiley);
+
+//		Plot plot = new Plot(title, "pixel", "valore", profilex, profiley);
+		Plot plot = new Plot(title, xlabel, ylabel);
+		plot.setColor(color);
+		plot.add("line", profilex, profiley);
+
+		plot.setLimits(a[0], a[1], b[0], b[1] * 1.1);
+		return plot;
+	}
+
+	public static Plot myPlotMultiple(double[] profilex1, double[] profiley1, double[] profilex2, double[] profiley2,
+			double[] profilex3, double[] profiley3, String title, String xlabel, String ylabel) {
+
+		Plot plot = new Plot(title, xlabel, ylabel);
+		plot.setColor(Color.red);
+		plot.add("line", profilex1, profiley1);
+		plot.setColor(Color.green);
+		plot.add("line", profilex2, profiley2);
+		plot.setColor(Color.blue);
+		plot.add("line", profilex3, profiley3);
+
+		double[] a = Tools.getMinMax(profilex1);
+		double[] b = Tools.getMinMax(profiley1);
+		plot.setLimits(0, a[1] * 1.1, 0, b[1] * 1.1);
+		return plot;
+	}
+
+	public static Plot myPlotMultiple(double[] profilex1, double[] profiley1, double[] profilex2, double[] profiley2,
+			String title, String xlabel, String ylabel) {
+
+		Plot plot = new Plot(title, xlabel, ylabel);
+		plot.setColor(Color.red);
+		plot.add("line", profilex1, profiley1);
+		plot.setColor(Color.green);
+		plot.add("line", profilex2, profiley2);
+
+		double[] a = Tools.getMinMax(profilex1);
+		double[] b = Tools.getMinMax(profiley1);
+		plot.setLimits(0, a[1] * 1.1, 0, b[1] * 1.1);
+		return plot;
 	}
 
 	static String[] leggiConfig(String target) {
@@ -2644,12 +2992,14 @@ public class Utility {
 	}
 
 	static int[] leggiCoordinateVoxels(String[] puffi) {
+
 		String strIn = puffi[2];
 		String[] vet = strIn.split(",");
 		int[] vetOut = new int[vet.length];
 		for (int i1 = 0; i1 < vet.length; i1++) {
 			vetOut[i1] = Utility.parseInt(vet[i1]);
 		}
+
 		return vetOut;
 	}
 
@@ -2714,7 +3064,7 @@ public class Utility {
 		a1 = x1 - mezzo;
 		b1 = y1 - mezzo;
 		c1 = z1 - mezzo;
-		IJ.log("a1= " + a1 + " b1= " + b1 + " c1= " + c1);
+		MyLog.log("a1= " + a1 + " b1= " + b1 + " c1= " + c1);
 
 		ImageStack imagestack = impStack.getImageStack();
 		float[] calSignal = imagestack.getVoxels(a1, b1, c1, lato, lato, lato, null);
@@ -2757,7 +3107,7 @@ public class Utility {
 		a1 = x1 - mezzo;
 		b1 = y1 - mezzo;
 		c1 = z1 - mezzo;
-		IJ.log("a1= " + a1 + " b1= " + b1 + " c1= " + c1);
+		MyLog.log("a1= " + a1 + " b1= " + b1 + " c1= " + c1);
 
 		ImageStack imagestack = impStack.getImageStack();
 		float[] calSignal = imagestack.getVoxels(a1, b1, c1, lato, lato, lato, null);
@@ -2942,7 +3292,7 @@ public class Utility {
 					svalue = vetSvalues[offset];
 					aux1 = matilde * svalue;
 					if (log1)
-						IJ.log("matilde= " + matilde + "\nsvalue= " + svalue + "\npatata= " + aux1);
+						MyLog.log("matilde= " + matilde + "\nsvalue= " + svalue + "\npatata= " + aux1);
 					patatadolce = patatadolce + aux1;
 					// ##################################################################################
 				}
@@ -2994,7 +3344,7 @@ public class Utility {
 		double aVoxel = ahhVoxel / Math.exp(-(par_a * deltaT));
 		double aTildeVoxel = (aVoxel / par_a) * 3600;
 		if (log1)
-			IJ.log("matildeSingleVoxel inputs: \nvoxSignal= " + voxSignal + "\nacqDuration= " + acqDuration
+			MyLog.log("matildeSingleVoxel inputs: \nvoxSignal= " + voxSignal + "\nacqDuration= " + acqDuration
 					+ "\nfatCal= " + fatCal + "\ndeltaT= " + deltaT + "\npar_a= " + par_a
 					+ "\nmatildeSingleVoxel calculations: \nahhVoxel= " + ahhVoxel + "\naVoxel= " + aVoxel
 					+ "\naTildeVoxel= " + aTildeVoxel);
@@ -3015,7 +3365,7 @@ public class Utility {
 				if (tabellaBella[i1][1] == j8) {
 					if (tabellaBella[i1][0] == i8) {
 						sValue = valuesBella[i1];
-//						IJ.log("search "+i9+" "+j9+" "+k9+ " trovato a = "+i8+" "+j8+" "+k8 +" value= "+sValue);
+//						MyLog.log("search "+i9+" "+j9+" "+k9+ " trovato a = "+i8+" "+j8+" "+k8 +" value= "+sValue);
 						break;
 					}
 				}
@@ -3034,31 +3384,65 @@ public class Utility {
 	public static void logVector(String vect[], String nome) {
 		String stri = "";
 		if (vect == null) {
-			IJ.log("Warning vector " + nome + " = null");
+			MyLog.log("Warning vector " + nome + " = null");
 		} else {
-			IJ.log("----------- " + nome + "  [ " + vect.length + " ] -----------");
+			MyLog.log("----------- " + nome + "  [ " + vect.length + " ] -----------");
 
 			for (int i1 = 0; i1 < vect.length; i1++) {
 				stri = stri + vect[i1] + ",  ";
 			}
-			IJ.log(stri);
+			MyLog.log(stri);
 		}
-		IJ.log("---------------------------------------------");
+		MyLog.log("---------------------------------------------");
 	}
 
 	public static void logVector(double vect[], String nome) {
 		String stri = "";
 		if (vect == null) {
-			IJ.log("Warning vector " + nome + " = null");
+			MyLog.log("Warning vector " + nome + " = null");
 		} else {
-			IJ.log("----------- " + nome + "  [ " + vect.length + " ] -----------");
+			MyLog.log("----------- " + nome + "  [ " + vect.length + " ] -----------");
 
 			for (int i1 = 0; i1 < vect.length; i1++) {
 				stri = stri + vect[i1] + ",  ";
 			}
-			IJ.log(stri);
+			MyLog.log(stri);
 		}
-		IJ.log("---------------------------------------------");
+		MyLog.log("---------------------------------------------");
+	}
+
+	/**
+	 * Interpolazione lineare di un punto su di un segmento
+	 * 
+	 * @param x0 coordinata X inizio
+	 * @param y0 coordinata Y inizio
+	 * @param x1 coordinata X fine
+	 * @param y1 coordinata X fine
+	 * @param x2 valore X di cui calcolare la Y
+	 * @return valore Y calcolato
+	 */
+	public static double linearInterpolationY(double x0, double y0, double x1, double y1, double x2) {
+
+		double y2 = y0 + ((x2 - x0) * y1 - (x2 - x0) * y0) / (x1 - x0);
+
+		return y2;
+	}
+
+	/**
+	 * Interpolazione lineare di un punto su di un segmento
+	 * 
+	 * @param x0 coordinata X inizio
+	 * @param y0 coordinata Y inizio
+	 * @param x1 coordinata X fine
+	 * @param y1 coordinata X fine
+	 * @param y2 valore Y di cui calcolare la X
+	 * @return valore X calcolato
+	 */
+	public static double linearInterpolationX(double x0, double y0, double x1, double y1, double y2) {
+
+		double x2 = x0 + ((y2 - y0) * x1 - (y2 - y0) * x0) / (y1 - y0);
+
+		return x2;
 	}
 
 }

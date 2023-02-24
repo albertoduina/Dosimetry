@@ -1,13 +1,16 @@
 package Dosimetry;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Locale;
 
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.NonBlockingGenericDialog;
+import ij.gui.Plot;
 import ij.plugin.PlugIn;
 import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
@@ -52,25 +55,29 @@ public class S_VoxelDosimetry implements PlugIn {
 				+ File.separator;
 		String str3 = System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "DosimetryFolder";
 		config = Utility.leggiConfig("DosimetryConfig.txt");
+
 		if (config == null) {
-			MyLog.log("MANCA CONFIG");
 			loggoVoxels = false;
 		} else {
 			loggoVoxels = Utility.leggiLogVoxelsConfig(config);
+
 			MyLog.log("LOGGO VOXELS= " + loggoVoxels);
 
 			coordinateVoxels = Utility.leggiCoordinateVoxels(config);
+
 			MyLog.waitHere("loggoVoxels= " + loggoVoxels + "\ncoordinateVoxels[0] X= " + coordinateVoxels[0]
 					+ "\ncoordinateVoxels[1] Y= " + coordinateVoxels[1] + "\ncoordinateVoxels[2] Z= "
 					+ coordinateVoxels[2]);
 			coordX = coordinateVoxels[0];
 			coordY = coordinateVoxels[1];
 			coordZ = coordinateVoxels[2];
+
 			MyLog.log("coordX= " + coordinateVoxels[0]);
 			MyLog.log("coordY= " + coordinateVoxels[1]);
 			MyLog.log("coordZ= " + coordinateVoxels[2]);
 			MyLog.log("lato= " + lato);
 			MyLog.log("mezzo= " + mezzo);
+
 		}
 
 		String lesione1 = "";
@@ -87,25 +94,42 @@ public class S_VoxelDosimetry implements PlugIn {
 			out1 = arg;
 		}
 
+		ArrayList<ArrayList<Double>> xList = new ArrayList<ArrayList<Double>>();
+
 		int[] vetH = { 24, 48, 120 };
-		boolean ok = false;
 		for (int i1 = 0; i1 < vetH.length; i1++) {
+			ArrayList<ArrayList<Double>> yList = new ArrayList<ArrayList<Double>>();
 			lesione1 = str2 + out1 + vetH[i1] + "h.tif";
 			lesione2 = str2 + out1 + ".txt";
 			startingDir1 = str1 + vetH[i1] + "h" + File.separator + "SPECT";
 			start1 = System.currentTimeMillis();
 
-			ok = caricaMemoriazza(startingDir1, lesione1, vetH[i1], lesione2);
-			if (!ok)
+			yList = caricaMemoriazza(startingDir1, lesione1, vetH[i1], lesione2);
+			if (yList == null)
 				break;
+			for (int i2 = 0; i2 < yList.size(); i2++) {
+				xList.add(yList.get(i2));
+			}
+		}
+		double[][] paperino = Utility.calcDVH_2(xList);
 
+		double[] vetx1 = new double[paperino.length];
+		double[] vetx2 = new double[paperino.length];
+		double[] vety = new double[paperino.length];
+		for (int i1 = 0; i1 < paperino.length; i1++) {
+			vetx1[i1] = paperino[i1][0];
+			vetx2[i1] = paperino[i1][1];
+			vety[i1] = paperino[i1][2];
 		}
 
-		File fil = new File(lesione1);
-		// Utility.deleteFile(fil); // ESCLUSO PER PROVE CAXXXO MI TIRAVA SCEMO
-		// Utility.chiudiTutto();
+		Plot plotx = Utility.myPlotMultiple(vetx1, vety, vetx2, vety, "", "", "");
+		plotx.show();
 
-		// C:\Users\Alberto\Desktop\DosimetryFolder\ImagesFolder\48h\SPECT
+		Plot plotx1 = Utility.myPlotSingle(vetx1, vety, "", "", "", Color.red);
+		plotx1.show();
+		Plot plotx2 = Utility.myPlotSingle(vetx2, vety, "", "", "", Color.green);
+		plotx2.show();
+
 		MyLog.waitHere("FINE LAVORO");
 	}
 
@@ -120,7 +144,8 @@ public class S_VoxelDosimetry implements PlugIn {
 	 * @param ore
 	 * @param pathLesione
 	 */
-	boolean caricaMemoriazza(String pathStackIn, String pathStackMask, int ore, String pathLesione) {
+	ArrayList<ArrayList<Double>> caricaMemoriazza(String pathStackIn, String pathStackMask, int ore,
+			String pathLesione) {
 
 		ImagePlus impStackIn = null;
 		ImagePlus impStackMask = null;
@@ -237,21 +262,34 @@ public class S_VoxelDosimetry implements PlugIn {
 		double aTildeVoxel = 0;
 		ImageProcessor inSlice1 = null;
 		ImageProcessor outSlice1 = null;
+		int conta1 = 0;
 
 		for (int z1 = 1; z1 <= depth1; z1++) {
 			inSlice1 = stackIn.getProcessor(z1);
 			outSlice1 = stackMatilde.getProcessor(z1);
 			for (int x1 = 0; x1 < width1; x1++) {
 				for (int y1 = 0; y1 < height1; y1++) {
+					conta1++;
 					IJ.showStatus("aTilde " + z1 + " / " + (depth1));
 					voxSignal = inSlice1.getPixelValue(x1, y1);
 					aTildeVoxel = mAtildeSingleVoxel(voxSignal, acqDuration, fatCal, deltaT, par_a);
 					outSlice1.putPixelValue(x1, y1, aTildeVoxel);
-					if (z1 == coordZ && x1 == coordX && y1 == coordY)
-						MyLog.log("voxSignal= " + voxSignal + "\nacqDuration= " + acqDuration + "\nfatCal= " + fatCal
-								+ "\ndeltaT= " + deltaT + "\npar_a= " + par_a + "\naTildeVoxel= " + aTildeVoxel);
+//					if (z1 == coordZ + 1 && x1 == coordX && y1 == coordY)
+//						MyLog.log("voxSignal= " + voxSignal + "\nacqDuration= " + acqDuration + "\nfatCal= " + fatCal
+//								+ "\ndeltaT= " + deltaT + "\npar_a= " + par_a + "\naTildeVoxel= " + aTildeVoxel);
+//					if (z1 == coordZ + 1 && x1 == coordX && y1 == coordY)
+//						MyLog.waitHere("aTildeVoxel= " + aTildeVoxel + "\nvoxSignal= " + voxSignal + "\nacqDuration= "
+//								+ acqDuration + "\nfatCal= " + fatCal + "\ndeltaT= " + deltaT + "\npar_a= " + par_a);
 				}
 			}
+
+// usato per dei test e poter identificare correttamente ogni slice in base al contenuto dei pixel
+//			outSlice1.putPixelValue(0, 0, z1 * 10 + 1);
+//			outSlice1.putPixelValue(1, 1, z1 * 10 + 2);
+//			outSlice1.putPixelValue(2, 2, z1 * 10 + 3);
+//			outSlice1.putPixelValue(3, 3, z1 * 10 + 4);
+//			outSlice1.putPixelValue(4, 4, z1 * 10 + 5);
+
 			Utility.stackSliceUpdater(stackMatilde, outSlice1, z1);
 		}
 
@@ -284,6 +322,8 @@ public class S_VoxelDosimetry implements PlugIn {
 		// ####################################################
 		// PATATA COMPLETA CON SVALUES
 		// ####################################################
+		int conta2 = 0;
+
 		ImageStack stackPatataCompleta = ImageStack.create(width1, height1, depth1, bitdepth1);
 		for (int z1 = 1 + mezzo; z1 < (depth1 - mezzo) - 2; z1++) {
 			for (int y1 = mezzo; y1 < (height1 - mezzo); y1++) {
@@ -299,8 +339,12 @@ public class S_VoxelDosimetry implements PlugIn {
 					float[] vetSvalues = stackRubik.getVoxels(0, 0, 0, lato, lato, lato, null);
 					// -------------------------------------
 					double valPatataCompleta = 0;
+					double pixPatata = 0;
+
 					for (int i1 = 0; i1 < vetVoxels.length; i1++) {
-						valPatataCompleta = valPatataCompleta + (vetVoxels[i1] * vetSvalues[i1]) / 1000.;
+						conta2++;
+						pixPatata = (vetVoxels[i1] * vetSvalues[i1]) / 1000.;
+						valPatataCompleta = valPatataCompleta + pixPatata;
 					}
 					stackPatataCompleta.setVoxel(x1, y1, z1, valPatataCompleta);
 				}
@@ -438,10 +482,10 @@ public class S_VoxelDosimetry implements PlugIn {
 		resultsDialog.showDialog();
 
 		if (resultsDialog.wasCanceled())
-			return false;
+			return null;
 
-		Utility.calculateDVH(impPatataMascherata, ore);
-		return true;
+		ArrayList<ArrayList<Double>> out1 = Utility.calculateDVH(impPatataMascherata, ore);
+		return out1;
 	}
 
 	void loggoTabellaBella(float[] vetTabella) {
