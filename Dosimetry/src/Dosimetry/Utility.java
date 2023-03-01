@@ -2181,6 +2181,12 @@ public class Utility {
 		return outIntArr;
 	}
 
+	public static double[] concatArrays(double[] array1, double[] array2) {
+		double[] result = Arrays.copyOf(array1, array1.length + array2.length);
+		System.arraycopy(array2, 0, result, array1.length, array2.length);
+		return result;
+	}
+
 	public static ImagePlus removeCalibration(ImagePlus imp1) {
 
 		ImagePlus imp2 = NewImage.createShortImage("uncalibrated", imp1.getWidth(), imp1.getHeight(), 1,
@@ -2646,8 +2652,8 @@ public class Utility {
 		arrList1 = arrIn1.get(8);
 		vety120 = Utility.arrayListToArrayDouble(arrList1);
 
-		Plot plot1 = Utility.myPlotMultiple(vetx24, vety24, vetx48, vety48, vetx120, vety120, "INPUT", "assexx",
-				"asseyy");
+		Plot plot1 = Utility.myPlotMultiple2(vetx24, vety24, vetx48, vety48, vetx120, vety120,
+				"INPUT 24red,48green,120blue", "assexx", "asseyy");
 		plot1.show();
 
 		MyLog.log("=============== dati in input ===============");
@@ -2682,11 +2688,13 @@ public class Utility {
 		MyLog.logVector(vetx120new, "vetx120new");
 		MyLog.logVector(vety120new, "vety120new");
 
-		Plot plot3 = myPlotSingle(vetx24, vety24, "INPUT24", "grafX24", "grafY24", Color.red);
+		Plot plot3 = myPlotSingle2(vetx24, vety24, "INPUT24", "grafX24", "grafY24", Color.red);
 		plot3.show();
-		Plot plot4 = myPlotMultiple2(vetx48, vety48, vetx48new, vety48new, "INTERP48", "grafX48new", "Y48new");
+		Plot plot4 = myPlotMultiple2(vetx48, vety48, vetx48new, vety48new, "INTERP48 green=interp", "grafX48new",
+				"Y48new");
 		plot4.show();
-		Plot plot5 = myPlotMultiple2(vetx120, vety120, vetx120new, vety120new, "INTERP120", "grafX120", "grafY120");
+		Plot plot5 = myPlotMultiple2(vetx120, vety120, vetx120new, vety120new, "INTERP120 green=interp", "grafX120",
+				"grafY120");
 		plot5.show();
 //		MyLog.waitHere();
 //	
@@ -2743,6 +2751,23 @@ public class Utility {
 
 //		MyLog.waitHere();
 
+		double[][] matout2 = Utility.mediolotto(vetx24, vetx48new, vetx120new, vety24);
+
+		double[] vetMedia = new double[matout2.length];
+		double[] vetY2 = new double[matout2.length];
+		for (int i1 = 0; i1 < matout2.length; i1++) {
+			vetMedia[i1] = matout2[i1][0];
+			vetY2[i1] = matout1[i1][1];
+		}
+		MyLog.logVector(vetMedia, "vetmedia");
+		MyLog.logVector(vetY2, "vetY2");
+
+//		Plot plot7 = myPlotSingle2(vetMedia, vetY, "MEDIA", "grafX", "grafY", Color.RED);
+//		plot7.show();
+
+		Plot plot8 = myPlotMultipleSpecial1(vetMin, vetY, vetMax, vetY, vetMedia, vetY, "MEDIA", "grafX", "grafY");
+		plot8.show();
+
 		return matout1;
 
 	}
@@ -2758,6 +2783,16 @@ public class Utility {
 		return matout;
 	}
 
+	static double[][] mediolotto(double[] vetx24, double[] vetx48, double[] vetx120, double[] vety24) {
+
+		double matout[][] = new double[vetx24.length][3];
+		for (int i1 = 0; i1 < vetx24.length; i1++) {
+			matout[i1][0] = media(vetx24[i1], vetx48[i1], vetx120[i1]);
+			matout[i1][2] = vety24[i1];
+		}
+		return matout;
+	}
+
 	static double minore(double aa, double bb, double cc) {
 
 		return Math.min(Math.min(aa, bb), cc);
@@ -2766,6 +2801,13 @@ public class Utility {
 	static double maggiore(double aa, double bb, double cc) {
 
 		return Math.max(Math.max(aa, bb), cc);
+	}
+
+	static double media(double aa, double bb, double cc) {
+
+		double media2 = (aa + bb + cc) / 3.0;
+
+		return media2;
 	}
 
 	/**
@@ -2797,18 +2839,18 @@ public class Utility {
 
 		arrxCC.add(vetxBB[0]);
 		arryCC.add(vetyAA[0]);
-		arrxCC.add(vetxBB[1]);
-		arryCC.add(vetyAA[1]);
 
-		for (int i2 = 2; i2 < vetxAA.length; i2++) {
+		for (int i2 = 1; i2 < vetxAA.length; i2++) {
 			yAA = vetyAA[i2];
 			xAA = vetxAA[i2];
 			ok = false;
-			for (int i1 = 2; i1 < vetxBB.length; i1++) {
+			for (int i1 = 1; i1 < vetxBB.length; i1++) {
 				yBB = vetyBB[i1];
 				xBB = vetxBB[i1];
 				comp1 = Double.compare(yAA, yBB);
-				// comparo su uguale, escludendo il primo punto sempre 100
+				// comparo su uguale, escludendo il primo punto (0) sempre 100, che ho copiato
+				// ed
+				// inserito prima del loop
 				if (comp1 == 0 && i1 > 0) {
 					arryCC.add(yAA);
 					arrxCC.add(xBB);
@@ -2820,7 +2862,7 @@ public class Utility {
 				// le due coordinate Y NON sono uguali, quindi devo usare la Y24, allora cerco
 				// Xprec ed Xseg per poi trovare tramite interpolazione la Xnn corrispondente a
 				// Y24
-				for (int i1 = 2; i1 < vetxBB.length; i1++) {
+				for (int i1 = 1; i1 < vetxBB.length; i1++) {
 					xBB = vetxBB[i1];
 					yBB = vetyBB[i1];
 					comp1 = Double.compare(yAA, yBB);
@@ -2851,7 +2893,6 @@ public class Utility {
 		double[] vetxCC = Utility.arrayListToArrayDouble(arrxCC);
 		double[] vetyCC = Utility.arrayListToArrayDouble(arryCC);
 		double[][] matout = new double[vetxCC.length][2];
-		vetxCC[1] = vetxAA[1];
 		for (int i1 = 0; i1 < vetxCC.length; i1++) {
 			matout[i1][0] = vetxCC[i1];
 			matout[i1][1] = vetyCC[i1];
@@ -2870,7 +2911,22 @@ public class Utility {
 		plot.setColor(color);
 		plot.add("line", profilex, profiley);
 
-		plot.setLimits(a[0], a[1], b[0], b[1] * 1.1);
+		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
+		return plot;
+	}
+
+	public static Plot myPlotSingle2(double[] profilex, double[] profiley, String title, String xlabel, String ylabel,
+			Color color) {
+		double[] a = Tools.getMinMax(profilex);
+		double[] b = Tools.getMinMax(profiley);
+
+//		Plot plot = new Plot(title, "pixel", "valore", profilex, profiley);
+		Plot plot = new Plot(title, xlabel, ylabel);
+		plot.setColor(color);
+		plot.add("line", profilex, profiley);
+		plot.add("circle", profilex, profiley);
+
+		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
 		return plot;
 	}
 
@@ -2885,9 +2941,64 @@ public class Utility {
 		plot.setColor(Color.blue);
 		plot.add("line", profilex3, profiley3);
 
-		double[] a = Tools.getMinMax(profilex1);
-		double[] b = Tools.getMinMax(profiley1);
-		plot.setLimits(0, a[1] * 1.1, 0, b[1] * 1.1);
+		double[] appx2 = Utility.concatArrays(profilex1, profilex2);
+		double[] appx3 = Utility.concatArrays(appx2, profilex3);
+		double[] a = Tools.getMinMax(appx3);
+		double[] appy2 = Utility.concatArrays(profiley1, profiley2);
+		double[] appy3 = Utility.concatArrays(appy2, profiley3);
+		double[] b = Tools.getMinMax(appy3);
+		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
+		return plot;
+	}
+
+	public static Plot myPlotMultipleSpecial1(double[] profilex1, double[] profiley1, double[] profilex2,
+			double[] profiley2, double[] profilex3, double[] profiley3, String title, String xlabel, String ylabel) {
+
+		Plot plot = new Plot(title, xlabel, ylabel);
+		plot.setColor(Color.yellow);
+		plot.add("filled", profilex2, profiley2);
+		plot.setColor(Color.green);
+		plot.add("line", profilex2, profiley2);
+		plot.setColor(Color.blue);
+		plot.setLineWidth(4);
+		plot.add("line", profilex3, profiley3);
+		plot.setLineWidth(1);
+		plot.setColor(Color.white);
+		plot.add("filled", profilex1, profiley1);
+		plot.setColor(Color.red);
+		plot.add("line", profilex1, profiley1);
+
+		double[] appx2 = Utility.concatArrays(profilex1, profilex2);
+		double[] appx3 = Utility.concatArrays(appx2, profilex3);
+		double[] a = Tools.getMinMax(appx3);
+		double[] appy2 = Utility.concatArrays(profiley1, profiley2);
+		double[] appy3 = Utility.concatArrays(appy2, profiley3);
+		double[] b = Tools.getMinMax(appy3);
+		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
+		return plot;
+	}
+
+	public static Plot myPlotMultiple2(double[] profilex1, double[] profiley1, double[] profilex2, double[] profiley2,
+			double[] profilex3, double[] profiley3, String title, String xlabel, String ylabel) {
+
+		Plot plot = new Plot(title, xlabel, ylabel);
+		plot.setColor(Color.red);
+		plot.add("line", profilex1, profiley1);
+		plot.add("circle", profilex1, profiley1);
+		plot.setColor(Color.green);
+		plot.add("line", profilex2, profiley2);
+		plot.add("circle", profilex2, profiley2);
+		plot.setColor(Color.blue);
+		plot.add("line", profilex3, profiley3);
+		plot.add("circle", profilex3, profiley3);
+
+		double[] appx2 = Utility.concatArrays(profilex1, profilex2);
+		double[] appx3 = Utility.concatArrays(appx2, profilex3);
+		double[] a = Tools.getMinMax(appx3);
+		double[] appy2 = Utility.concatArrays(profiley1, profiley2);
+		double[] appy3 = Utility.concatArrays(appy2, profiley3);
+		double[] b = Tools.getMinMax(appy3);
+		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
 		return plot;
 	}
 
@@ -2900,9 +3011,11 @@ public class Utility {
 		plot.setColor(Color.green);
 		plot.add("line", profilex2, profiley2);
 
-		double[] a = Tools.getMinMax(profilex1);
-		double[] b = Tools.getMinMax(profiley1);
-		plot.setLimits(0, a[1] * 1.1, 0, b[1] * 1.1);
+		double[] appx2 = Utility.concatArrays(profilex1, profilex2);
+		double[] a = Tools.getMinMax(appx2);
+		double[] appy2 = Utility.concatArrays(profiley1, profiley2);
+		double[] b = Tools.getMinMax(appy2);
+		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
 		return plot;
 	}
 
@@ -2917,11 +3030,13 @@ public class Utility {
 		plot.add("circle", profilex1, profiley1);
 		plot.setColor(Color.green);
 		plot.add("line", profilex2, profiley2);
-		plot.add("box", profilex2, profiley2);
+		plot.add("circle", profilex2, profiley2);
 
-		double[] a = Tools.getMinMax(profilex1);
-		double[] b = Tools.getMinMax(profiley1);
-		plot.setLimits(0, a[1] * 1.1, 0, b[1] * 1.1);
+		double[] appx2 = Utility.concatArrays(profilex1, profilex2);
+		double[] a = Tools.getMinMax(appx2);
+		double[] appy2 = Utility.concatArrays(profiley1, profiley2);
+		double[] b = Tools.getMinMax(appy2);
+		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
 		return plot;
 	}
 

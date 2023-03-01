@@ -122,13 +122,13 @@ public class S_VoxelDosimetry implements PlugIn {
 			vety[i1] = matDVH2[i1][2];
 		}
 
-		Plot plotx = Utility.myPlotMultiple(vetx1, vety, vetx2, vety, "", "", "");
-		plotx.show();
-
-		Plot plotx1 = Utility.myPlotSingle(vetx1, vety, "", "", "", Color.red);
-		plotx1.show();
-		Plot plotx2 = Utility.myPlotSingle(vetx2, vety, "", "", "", Color.green);
-		plotx2.show();
+//		Plot plotx = Utility.myPlotMultiple(vetx1, vety, vetx2, vety, "", "", "");
+//		plotx.show();
+//
+//		Plot plotx1 = Utility.myPlotSingle(vetx1, vety, "", "", "", Color.red);
+//		plotx1.show();
+//		Plot plotx2 = Utility.myPlotSingle(vetx2, vety, "", "", "", Color.green);
+//		plotx2.show();
 
 		MyLog.waitHere("FINE LAVORO");
 	}

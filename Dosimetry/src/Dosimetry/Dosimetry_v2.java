@@ -525,8 +525,8 @@ public class Dosimetry_v2 implements PlugIn {
 									ImageProcessor mask = null;
 									if (tipo2 == 0) {
 										// il tipo2=0 e' il Rectangle, in teoria ha mask=null, quindi creo una mask
-										// grande come i rettangolo e la riempio, in modo che tutto prosegua
-										// perfettamente (FORSE!)
+										// grande come i rettangolo e la riempio CON 255, in modo che tutto prosegua
+										// perfettamente (FORSE!) come prima.
 										Rectangle r2 = thresholdRoi.getBounds();
 										mask = new ByteProcessor(r2.width, r2.height);
 										mask.setValue(255);
@@ -535,7 +535,8 @@ public class Dosimetry_v2 implements PlugIn {
 										mask = thresholdRoi.getMask();
 									}
 									if (mask == null)
-										MyLog.waitHere("sulla fetta " + fetta + " mask==null NON DOVREBBE PIU'SUCCEDERE!");
+										MyLog.waitHere(
+												"sulla fetta " + fetta + " mask==null NON DOVREBBE PIU'SUCCEDERE!");
 									Rectangle r = thresholdRoi.getBounds();
 
 									// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
