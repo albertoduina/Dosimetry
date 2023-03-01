@@ -529,6 +529,7 @@ public class Dosimetry_v2 implements PlugIn {
 										// perfettamente (FORSE!)
 										Rectangle r2 = thresholdRoi.getBounds();
 										mask = new ByteProcessor(r2.width, r2.height);
+										mask.setValue(255);
 										mask.fill();
 									} else {
 										mask = thresholdRoi.getMask();
