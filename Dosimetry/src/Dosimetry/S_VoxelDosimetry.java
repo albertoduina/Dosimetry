@@ -111,15 +111,15 @@ public class S_VoxelDosimetry implements PlugIn {
 				xList.add(yList.get(i2));
 			}
 		}
-		double[][] paperino = Utility.calcDVH_2(xList);
+		double[][] matDVH2 = Utility.calcDVH2(xList);
 
-		double[] vetx1 = new double[paperino.length];
-		double[] vetx2 = new double[paperino.length];
-		double[] vety = new double[paperino.length];
-		for (int i1 = 0; i1 < paperino.length; i1++) {
-			vetx1[i1] = paperino[i1][0];
-			vetx2[i1] = paperino[i1][1];
-			vety[i1] = paperino[i1][2];
+		double[] vetx1 = new double[matDVH2.length];
+		double[] vetx2 = new double[matDVH2.length];
+		double[] vety = new double[matDVH2.length];
+		for (int i1 = 0; i1 < matDVH2.length; i1++) {
+			vetx1[i1] = matDVH2[i1][0];
+			vetx2[i1] = matDVH2[i1][1];
+			vety[i1] = matDVH2[i1][2];
 		}
 
 		Plot plotx = Utility.myPlotMultiple(vetx1, vety, vetx2, vety, "", "", "");

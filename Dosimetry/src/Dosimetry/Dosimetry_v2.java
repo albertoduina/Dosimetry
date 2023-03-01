@@ -35,6 +35,7 @@ import ij.gui.Roi;
 import ij.gui.WaitForUserDialog;
 import ij.plugin.PlugIn;
 import ij.plugin.frame.RoiManager;
+import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
 import ij.util.DicomTools;
 import ij.util.FontUtil;
@@ -124,8 +125,8 @@ public class Dosimetry_v2 implements PlugIn {
 		// ==========================================================================
 		ok24 = Boolean.parseBoolean(Utility.readFromLog(pathPermanente, "#901#", "=", true));
 		ok48 = Boolean.parseBoolean(Utility.readFromLog(pathPermanente, "#902#", "=", true));
-		ok120 = Boolean.parseBoolean(Utility.readFromLog(pathPermanente, "#903#", "=",true));
-		okk = Boolean.parseBoolean(Utility.readFromLog(pathPermanente, "#904#", "=",true));
+		ok120 = Boolean.parseBoolean(Utility.readFromLog(pathPermanente, "#903#", "=", true));
+		okk = Boolean.parseBoolean(Utility.readFromLog(pathPermanente, "#904#", "=", true));
 
 		// ======================================================
 		// PARTE NUOVA CICLO ESTERNO PER LA SELEZIONE IMMAGINE
@@ -187,9 +188,9 @@ public class Dosimetry_v2 implements PlugIn {
 
 				// ##################
 				// iw2ayv 310123
-				ImageStack stackMyPatata= ImageStack.create(stack.getWidth(), stack.getHeight(), stackSize, 8);
-				for (int i1=1; i1 < stackSize; i1++) {
-					stackMyPatata.setSliceLabel("BLANK_"+i1, i1);
+				ImageStack stackMyPatata = ImageStack.create(stack.getWidth(), stack.getHeight(), stackSize, 8);
+				for (int i1 = 1; i1 < stackSize; i1++) {
+					stackMyPatata.setSliceLabel("BLANK_" + i1, i1);
 				}
 				// ##################
 
@@ -507,10 +508,33 @@ public class Dosimetry_v2 implements PlugIn {
 								if (!isSelectionEmpty()) {
 									roiManager.runCommand(dicomImage, "Add");
 									Roi[] roisArray = roiManager.getRoisAsArray();
+									if (roisArray == null)
+										MyLog.waitHere("roisArray==null");
+									for (int i1 = 0; i1 < roisArray.length; i1++) {
+										IJ.log("i1= " + i1 + " " + roisArray[i1].toString());
+									}
+
 									Roi thresholdRoi = roisArray[roisArray.length - 1];
+									if (thresholdRoi == null)
+										MyLog.waitHere("thresholdRoi==null");
 									thresholdRoi.setPosition(fetta);
 									overlay.add(thresholdRoi, numeroLesione + "_" + posizioneLesione);
-									ImageProcessor mask = thresholdRoi.getMask();
+
+									// String tipo1 = thresholdRoi.getTypeAsString();
+									int tipo2 = thresholdRoi.getType();
+									ImageProcessor mask = null;
+									if (tipo2 == 0) {
+										// il tipo2=0 e' il Rectangle, in teoria ha mask=null, quindi creo una mask
+										// grande come i rettangolo e la riempio, in modo che tutto prosegua
+										// perfettamente (FORSE!)
+										Rectangle r2 = thresholdRoi.getBounds();
+										mask = new ByteProcessor(r2.width, r2.height);
+										mask.fill();
+									} else {
+										mask = thresholdRoi.getMask();
+									}
+									if (mask == null)
+										MyLog.waitHere("sulla fetta " + fetta + " mask==null NON DOVREBBE PIU'SUCCEDERE!");
 									Rectangle r = thresholdRoi.getBounds();
 
 									// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -549,7 +573,7 @@ public class Dosimetry_v2 implements PlugIn {
 					// // queste sono le fette nere seguenti la patata
 					// stackMyPatata.addSlice(ipMyPatata);
 					// }
-					 ImagePlus impMyPatata = new ImagePlus("PATATA", stackMyPatata);
+					ImagePlus impMyPatata = new ImagePlus("PATATA", stackMyPatata);
 					// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 					boolean continua = false;
