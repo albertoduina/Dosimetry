@@ -508,11 +508,6 @@ public class Dosimetry_v2 implements PlugIn {
 								if (!isSelectionEmpty()) {
 									roiManager.runCommand(dicomImage, "Add");
 									Roi[] roisArray = roiManager.getRoisAsArray();
-									if (roisArray == null)
-										MyLog.waitHere("roisArray==null");
-									for (int i1 = 0; i1 < roisArray.length; i1++) {
-										IJ.log("i1= " + i1 + " " + roisArray[i1].toString());
-									}
 
 									Roi thresholdRoi = roisArray[roisArray.length - 1];
 									if (thresholdRoi == null)

@@ -320,7 +320,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		for (File file2a : result2) {
 			list2[j2++] = file2a.getPath();
 		}
-		imp2 = Utility.readStackFiles(startingDir2);
+		imp2 = Utility.readStackFiles2(startingDir2);
 		imp2.show();
 		// 0020,000E Series Instance UID:
 		// 1.2.840.113619.2.184.31108.1067210107.1661517437.7028981
@@ -330,18 +330,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// possiamo passare a petCtViewer una stringa con gli UID delle immagini PET e
 		// CT da aprire
 		String seriesUID1 = petUID1 + ", " + ctUID2;
-
-//		String aux11 = "";
-//		int count55 = 520;
-//		aux11 = "#" + String.format("%03d", count55++) + "#\t----------- DEBUG DEBUG DEBUG DEBUG ---------";
-//		Utility.logAppend(pathVolatile, aux11);
-//
-//		aux11 = "#" + String.format("%03d", count55++) + "#\t24h TitlePrimaImmagine= " + imp1.getTitle();
-//		Utility.logAppend(pathVolatile, aux11);
-//		aux11 = "#" + String.format("%03d", count55++) + "#\t24h TitleSecondaImmagine= " + imp2.getTitle();
-//		Utility.logAppend(pathVolatile, aux11);
-//		aux11 = "#" + String.format("%03d", count55++) + "#\t24h SeriesUID PET_CT_VIEWER= " + seriesUID1;
-//		Utility.logAppend(pathVolatile, aux11);
 
 		IJ.runPlugIn("Pet_Ct_Viewer", seriesUID1);
 		IJ.wait(500);
@@ -387,7 +375,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			list4[j4++] = file4a.getPath();
 		}
 
-		imp4 = Utility.readStackFiles(startingDir4);
+		imp4 = Utility.readStackFiles2(startingDir4);
 		imp4.show();
 
 		String ctUID4 = DicomTools.getTag(imp4, "0020,000E");
@@ -442,7 +430,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			list6[j6++] = file6.getPath();
 		}
 
-		imp6 = Utility.readStackFiles(startingDir6);
+		imp6 = Utility.readStackFiles2(startingDir6);
 		if (imp6 == null)
 			return;
 		imp6.show();

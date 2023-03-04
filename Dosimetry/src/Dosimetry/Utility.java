@@ -9,6 +9,7 @@ import java.awt.image.ColorModel;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -1883,134 +1884,6 @@ public class Utility {
 		return imp;
 	}
 
-	/**
-	 * Legge le immagini da una cartella e le inserisce in uno stack. Copiato da
-	 * https://github.com/ilan/fijiPlugins (Ilan Tal) Class: Read_CD. Ho disattivato
-	 * alcune parti di codice riguardanti tipi di immagini di cui non disponiamo
-	 * 
-	 * @param myDirPath
-	 * @return ImagePlus (stack)
-	 */
-
-	static ImagePlus readStackFiles(String myDirPath) {
-		int j, k, n0, width = -1, height = 0, depth = 0, samplePerPixel = 0;
-		int bad = 0, fails = 0;
-		Opener opener;
-		ImagePlus imp, imp2 = null;
-		ImageStack stack;
-		Calibration cal = null;
-		double min, max, progVal;
-		FileInfo fi = null;
-		String flName, flPath, info, label1, tmp;
-		String mytitle = "";
-
-		info = null;
-		min = Double.MAX_VALUE;
-		max = -Double.MAX_VALUE;
-		stack = null;
-		File vetDirPath = new File(myDirPath);
-		File checkEmpty;
-		File[] results = vetDirPath.listFiles();
-		if ((results == null) || (results.length == 0)) {
-			MyLog.waitHere("pare non esistano files in " + myDirPath);
-			return null;
-		}
-
-		boolean ok = false;
-		for (int i1 = 0; i1 < results.length; i1++) {
-			flName = results[i1].getName();
-			flPath = results[i1].getPath();
-			if (!isDicomImage(flPath))
-				ok = Utility
-						.dialogErrorMessageWithCancel_LP09("Il file " + flName + " non e'una immagine Dicom valida");
-			if (ok)
-				return null;
-		}
-
-		n0 = results.length;
-
-		for (j = 1; j <= n0; j++) {
-			progVal = ((double) j) / n0;
-			IJ.showStatus("readStack " + j + "/" + n0);
-			IJ.showProgress(progVal);
-			opener = new Opener();
-			flName = results[j - 1].getPath();
-			checkEmpty = new File(flName); // remember for possible dicomdir
-			if (checkEmpty.length() == 0)
-				continue;
-			tmp = results[j - 1].getName();
-			if (tmp.equalsIgnoreCase("dirfile"))
-				continue;
-			k = opener.getFileType(flName);
-			opener.setSilentMode(true);
-			imp = opener.openImage(flName);
-			if (imp == null) {
-				fails++;
-				if (fails > 2) {
-					IJ.showProgress(1.0);
-					return null;
-				}
-				continue;
-			}
-			info = (String) imp.getProperty("Info");
-			mytitle = imp.getTitle();
-
-			k = Utility.parseInt(DicomTools.getTag(imp, "0028,0002"));
-			if (stack == null) {
-				samplePerPixel = k;
-				width = imp.getWidth();
-				height = imp.getHeight();
-				depth = imp.getStackSize();
-				cal = imp.getCalibration();
-				fi = imp.getOriginalFileInfo();
-				ColorModel cm = imp.getProcessor().getColorModel();
-				stack = new ImageStack(width, height, cm);
-			}
-			if ((depth > 1 && n0 > 1) || width != imp.getWidth() || height != imp.getHeight() || k != samplePerPixel) {
-				if (k <= 0)
-					continue;
-				stack = null;
-				depth = 0;
-				continue;
-			}
-			label1 = null;
-			if (depth == 1) {
-				label1 = imp.getTitle();
-				if (info != null)
-					label1 += "\n" + info;
-			}
-			ImageStack inputStack = imp.getStack();
-			for (int slice = 1; slice <= inputStack.getSize(); slice++) {
-				ImageProcessor ip = inputStack.getProcessor(slice);
-				if (ip.getMin() < min)
-					min = ip.getMin();
-				if (ip.getMax() > max)
-					max = ip.getMax();
-				stack.addSlice(label1, ip);
-			}
-		}
-
-		if (stack != null && stack.getSize() > 0) {
-			if (fi != null) {
-				fi.fileFormat = FileInfo.UNKNOWN;
-				fi.fileName = "";
-				fi.directory = "";
-			}
-			imp2 = new ImagePlus(mytitle, stack);
-			imp2.getProcessor().setMinAndMax(min, max);
-			if (n0 == 1 + bad || depth > 1)
-				imp2.setProperty("Info", info);
-			if (fi != null)
-				imp2.setFileInfo(fi);
-			double voxelDepth = DicomTools.getVoxelDepth(stack);
-			if (voxelDepth > 0.0 && cal != null)
-				cal.pixelDepth = voxelDepth;
-			imp2.setCalibration(cal);
-		}
-		IJ.showProgress(1.0);
-		return imp2;
-	}
-
 	/***
 	 * Testa se fileName1 e' un file dicom ed e' un immagine visualizzabile da
 	 * ImageJ, eventualmente scrive a log nome file e tipo di errore
@@ -2674,7 +2547,7 @@ public class Utility {
 		}
 		MyLog.log("=============== dati interpolati 48 ===============");
 		MyLog.logVector(vetx48new, "vetx48new");
-		MyLog.logVector(vety48new, "vety48new");
+//		MyLog.logVector(vety48new, "vety48new");
 
 		double[][] matout120 = Utility.interpolator(vetx24, vety24, vetx120, vety120);
 
@@ -2686,7 +2559,7 @@ public class Utility {
 		}
 		MyLog.log("=============== dati interpolati 120 ===============");
 		MyLog.logVector(vetx120new, "vetx120new");
-		MyLog.logVector(vety120new, "vety120new");
+//		MyLog.logVector(vety120new, "vety120new");
 
 		Plot plot3 = myPlotSingle2(vetx24, vety24, "INPUT24", "grafX24", "grafY24", Color.red);
 		plot3.show();
@@ -2730,6 +2603,7 @@ public class Utility {
 //			IJ.log(aux1);
 
 		}
+		MyLog.logVector(vety24, "vetY24 prima di rasegotto");
 		double[][] matout1 = Utility.rasegotto(vetx24, vetx48new, vetx120new, vety24);
 
 		double[] vetMin = new double[matout1.length];
@@ -2745,9 +2619,9 @@ public class Utility {
 		plot6.show();
 		MyLog.log("=============== dati rasegati ===============");
 		MyLog.logVector(vetMin, "vetMin");
-		MyLog.logVector(vetY, "vetY");
+//		MyLog.logVector(vetY, "vetY");
 		MyLog.logVector(vetMax, "vetMax");
-		MyLog.logVector(vetY, "vetY");
+//		MyLog.logVector(vetY, "vetY");
 
 //		MyLog.waitHere();
 
@@ -2757,22 +2631,77 @@ public class Utility {
 		double[] vetY2 = new double[matout2.length];
 		for (int i1 = 0; i1 < matout2.length; i1++) {
 			vetMedia[i1] = matout2[i1][0];
-			vetY2[i1] = matout1[i1][1];
+			vetY2[i1] = matout2[i1][1];
 		}
 		MyLog.logVector(vetMedia, "vetmedia");
-		MyLog.logVector(vetY2, "vetY2");
+//		MyLog.logVector(vetY2, "vetY2 boh");
 
 //		Plot plot7 = myPlotSingle2(vetMedia, vetY, "MEDIA", "grafX", "grafY", Color.RED);
 //		plot7.show();
 
-		Plot plot8 = myPlotMultipleSpecial1(vetMin, vetY, vetMax, vetY, vetMedia, vetY, "MEDIA", "grafX", "grafY");
-		plot8.show();
+		// verifico che le lunghezze degli array bidimensionali ottenuti in output
+		// rimangano uguali
+		int len2 = vety24.length;
+		int len3 = matout1.length;
+		int len4 = matout2.length;
+		if (len2 != len3 || len3 != len4)
+			MyLog.waitHere("ATTENZIONE lunghezze matrici di output differenti");
 
-		return matout1;
+		double[][] matout3 = new double[vety24.length][4];
+		for (int i1 = 0; i1 < vety24.length; i1++) {
+			matout3[i1][0] = matout1[i1][0];
+			matout3[i1][1] = matout1[i1][1];
+			matout3[i1][2] = matout2[i1][0];
+			matout3[i1][3] = matout2[i1][1];
+		}
 
+		return matout3;
+	}
+
+	static double[] calcoliDVH(double[] vetMin, double[] vetMax, double[] vetMedia, double[] vetY, int percent) {
+
+		double[] vetErrDose = new double[vetY.length];
+		double errDose = 0;
+		for (int i1 = 0; i1 < vetY.length; i1++) {
+			errDose = (vetMax[i1] - vetMin[i1]) / 2.;
+			vetErrDose[i1] = errDose;
+		}
+
+		double valPercent = 0;
+		double errPercent = 0;
+		double aux1 = 0;
+		// calcolo la differenza tra Y e la percentuale cercata
+		double[] vetDelta1 = new double[vetY.length];
+		for (int i1 = 0; i1 < vetY.length; i1++) {
+			vetDelta1[i1] = Math.abs(vetY[i1] - (double) percent);
+			// IJ.log("" + i1 + " vetDelta1= " + vetDelta1[i1]);
+		}
+		// cerco la posizione del minimo sul vettore differenza
+		double min = Double.MAX_VALUE;
+		double value;
+		int minpos = 0;
+		for (int i1 = 0; i1 < vetY.length; i1++) {
+			value = vetDelta1[i1];
+			if (value < min) {
+				min = value;
+				minpos = i1;
+			}
+		}
+
+		MyLog.log("minpos= " + minpos + " / " + vetY.length + " per percentuale= " + percent);
+
+		// ora minpos contiene la posizione del minimo
+		valPercent = vetMedia[minpos];
+		errPercent = vetErrDose[minpos];
+		double[] vetOut = new double[2];
+		vetOut[0] = valPercent;
+		vetOut[1] = errPercent;
+		return vetOut;
 	}
 
 	static double[][] rasegotto(double[] vetx24, double[] vetx48, double[] vetx120, double[] vety24) {
+
+		MyLog.logVector(vety24, "vetY24 dentro rasegotto");
 
 		double matout[][] = new double[vetx24.length][3];
 		for (int i1 = 0; i1 < vetx24.length; i1++) {
@@ -2785,10 +2714,10 @@ public class Utility {
 
 	static double[][] mediolotto(double[] vetx24, double[] vetx48, double[] vetx120, double[] vety24) {
 
-		double matout[][] = new double[vetx24.length][3];
+		double matout[][] = new double[vetx24.length][2];
 		for (int i1 = 0; i1 < vetx24.length; i1++) {
 			matout[i1][0] = media(vetx24[i1], vetx48[i1], vetx120[i1]);
-			matout[i1][2] = vety24[i1];
+			matout[i1][1] = vety24[i1];
 		}
 		return matout;
 	}
@@ -2866,7 +2795,7 @@ public class Utility {
 					xBB = vetxBB[i1];
 					yBB = vetyBB[i1];
 					comp1 = Double.compare(yAA, yBB);
-					if (comp1 > 0) {
+					if (comp1 > 0 || i1 == vetxBB.length - 1) {
 						// se diventa maggiore interrompo
 						xSeg = xBB;
 						ySeg = yBB;
@@ -2875,9 +2804,10 @@ public class Utility {
 					// qui ho la coordinata precedente
 					xPrec = xBB;
 					yPrec = yBB;
-				}
 
+				}
 				// MyLog.log("target= " + yAA + " prec= " + yPrec + " seg= " + ySeg);
+
 				yCC = yAA;
 				xCC = Utility.linearInterpolationX(xPrec, yPrec, xSeg, ySeg, yCC);
 				arrxCC.add(xCC);
@@ -2955,9 +2885,9 @@ public class Utility {
 			double[] profiley2, double[] profilex3, double[] profiley3, String title, String xlabel, String ylabel) {
 
 		Plot plot = new Plot(title, xlabel, ylabel);
-		plot.setColor(Color.yellow);
+		plot.setColor(Color.gray);
 		plot.add("filled", profilex2, profiley2);
-		plot.setColor(Color.green);
+		plot.setColor(Color.red);
 		plot.add("line", profilex2, profiley2);
 		plot.setColor(Color.blue);
 		plot.setLineWidth(4);
@@ -3500,8 +3430,11 @@ public class Utility {
 	public static double linearInterpolationY(double x0, double y0, double x1, double y1, double x2) {
 
 		double y2 = y0 + (((x2 - x0) * y1 - (x2 - x0) * y0) / (x1 - x0));
-		if (y2 == Double.NaN)
-			MyLog.log("linearInterpolationX x0= " + x0 + " y0= " + y0 + " x1= " + x1 + " y1= " + y1 + " x2= " + x2);
+		if (y2 == Double.NaN) {
+			MyLog.log(
+					"NaN_1 linearInterpolationX x0= " + x0 + " y0= " + y0 + " x1= " + x1 + " y1= " + y1 + " x2= " + x2);
+			MyLog.waitHere("NaN_1");
+		}
 
 		return y2;
 	}
@@ -3520,13 +3453,303 @@ public class Utility {
 
 		double x2 = x0 + (((y2 - y0) * x1 - (y2 - y0) * x0) / (y1 - y0));
 
-		if (Double.isNaN(x2))
-			MyLog.log("NaN linearInterpolationX x0= " + x0 + " y0= " + y0 + " x1= " + x1 + " y1= " + y1 + " y2= " + y2);
-		if (Double.compare(y1, x0) == 0)
+		if (Double.isNaN(x2)) {
 			MyLog.log(
-					"ZERO linearInterpolationX x0= " + x0 + " y0= " + y0 + " x1= " + x1 + " y1= " + y1 + " y2= " + y2);
+					"NaN_2 linearInterpolationX x0= " + x0 + " y0= " + y0 + " x1= " + x1 + " y1= " + y1 + " y2= " + y2);
+			MyLog.waitHere("NaN_2");
+		}
+		if (Double.compare(y1, x0) == 0) {
+			MyLog.log("ZERO_2 linearInterpolationX x0= " + x0 + " y0= " + y0 + " x1= " + x1 + " y1= " + y1 + " y2= "
+					+ y2);
+			MyLog.waitHere("ZERO_2");
+		}
 
 		return x2;
+	}
+
+	/**
+	 * Legge le immagini da una cartella e le inserisce in uno stack. Copiato da
+	 * https://github.com/ilan/fijiPlugins (Ilan Tal) Class: Read_CD. Ho disattivato
+	 * alcune parti di codice riguardanti tipi di immagini di cui non disponiamo
+	 * 
+	 * @param myDirPath
+	 * @return ImagePlus (stack)
+	 */
+
+	static ImagePlus readStackFiles(String myDirPath) {
+		int j, k, n0, width = -1, height = 0, depth = 0, samplePerPixel = 0;
+		int bad = 0, fails = 0;
+		Opener opener;
+		ImagePlus imp, imp2 = null;
+		ImageStack stack;
+		Calibration cal = null;
+		double min, max, progVal;
+		FileInfo fi = null;
+		String flName, flPath, info, label1, tmp;
+		String mytitle = "";
+
+		MyLog.log("readStackFiles");
+
+		info = null;
+		min = Double.MAX_VALUE;
+		max = -Double.MAX_VALUE;
+		stack = null;
+		File vetDirPath = new File(myDirPath);
+		File checkEmpty;
+		File[] results = vetDirPath.listFiles();
+		if ((results == null) || (results.length == 0)) {
+			MyLog.waitHere("pare non esistano files in " + myDirPath);
+			return null;
+		}
+
+		boolean ok = false;
+		for (int i1 = 0; i1 < results.length; i1++) {
+			flName = results[i1].getName();
+			flPath = results[i1].getPath();
+			if (!isDicomImage(flPath))
+				ok = Utility
+						.dialogErrorMessageWithCancel_LP09("Il file " + flName + " non e'una immagine Dicom valida");
+			if (ok)
+				return null;
+		}
+
+		n0 = results.length;
+
+		for (j = 1; j <= n0; j++) {
+			progVal = ((double) j) / n0;
+			IJ.showStatus("readStack " + j + "/" + n0);
+			IJ.showProgress(progVal);
+			opener = new Opener();
+			flName = results[j - 1].getPath();
+			checkEmpty = new File(flName); // remember for possible dicomdir
+			if (checkEmpty.length() == 0)
+				continue;
+			tmp = results[j - 1].getName();
+			if (tmp.equalsIgnoreCase("dirfile"))
+				continue;
+			k = opener.getFileType(flName);
+			opener.setSilentMode(true);
+			imp = opener.openImage(flName);
+			if (imp == null) {
+				fails++;
+				if (fails > 2) {
+					IJ.showProgress(1.0);
+					return null;
+				}
+				continue;
+			}
+			info = (String) imp.getProperty("Info");
+			mytitle = imp.getTitle();
+
+			k = Utility.parseInt(DicomTools.getTag(imp, "0028,0002"));
+			if (stack == null) {
+				samplePerPixel = k;
+				width = imp.getWidth();
+				height = imp.getHeight();
+				depth = imp.getStackSize();
+				cal = imp.getCalibration();
+				fi = imp.getOriginalFileInfo();
+				ColorModel cm = imp.getProcessor().getColorModel();
+				stack = new ImageStack(width, height, cm);
+			}
+			if ((depth > 1 && n0 > 1) || width != imp.getWidth() || height != imp.getHeight() || k != samplePerPixel) {
+				if (k <= 0)
+					continue;
+				stack = null;
+				depth = 0;
+				continue;
+			}
+			label1 = null;
+			if (depth == 1) {
+				label1 = imp.getTitle();
+				if (info != null)
+					label1 += "\n" + info;
+			}
+			ImageStack inputStack = imp.getStack();
+			for (int slice = 1; slice <= inputStack.getSize(); slice++) {
+				ImageProcessor ip = inputStack.getProcessor(slice);
+				if (ip.getMin() < min)
+					min = ip.getMin();
+				if (ip.getMax() > max)
+					max = ip.getMax();
+				stack.addSlice(label1, ip);
+			}
+		}
+
+		if (stack != null && stack.getSize() > 0) {
+			if (fi != null) {
+				fi.fileFormat = FileInfo.UNKNOWN;
+				fi.fileName = "";
+				fi.directory = "";
+			}
+			imp2 = new ImagePlus(mytitle, stack);
+			imp2.getProcessor().setMinAndMax(min, max);
+			if (n0 == 1 + bad || depth > 1)
+				imp2.setProperty("Info", info);
+			if (fi != null)
+				imp2.setFileInfo(fi);
+			double voxelDepth = DicomTools.getVoxelDepth(stack);
+			if (voxelDepth > 0.0 && cal != null)
+				cal.pixelDepth = voxelDepth;
+			imp2.setCalibration(cal);
+		}
+		IJ.showProgress(1.0);
+		return imp2;
+	}
+
+	/**
+	 * Legge le immagini da una cartella e le inserisce in uno stack. Copiato da
+	 * https://github.com/ilan/fijiPlugins (Ilan Tal) Class: Read_CD. Ho disattivato
+	 * alcune parti di codice riguardanti tipi di immagini di cui non disponiamo
+	 * 
+	 * @param myDirPath
+	 * @return ImagePlus (stack)
+	 */
+
+	static ImagePlus readStackFiles2(String myDirPath) {
+		int j1, k, n0, width = -1, height = 0, depth = 0, samplePerPixel = 0;
+		int bad = 0, fails = 0;
+		int good = 0;
+		int count1 = 0;
+		Opener opener;
+		ImagePlus imp, imp2 = null;
+		ImageStack stack;
+		Calibration cal = null;
+		double min, max, progVal;
+		FileInfo fi = null;
+		String flName, flPath, info, label1, tmp;
+		String mytitle = "";
+		boolean isStack = false;
+
+		MyLog.log("readStackFiles2");
+		info = null;
+		min = Double.MAX_VALUE;
+		max = -Double.MAX_VALUE;
+		stack = null;
+		File vetDirPath = new File(myDirPath);
+		File checkEmpty;
+		FileFilter filter = file -> {
+			if (file.isFile()) {
+				String fileName = file.getName().toLowerCase();
+				if (fileName.endsWith(".gr2") || fileName.endsWith(".txt") || fileName.endsWith(".xls")
+						|| fileName.endsWith(".cvs")) {
+					return false;
+				}
+			}
+			return true;
+		};
+
+		File[] results = vetDirPath.listFiles(filter);
+
+		if ((results == null) || (results.length == 0)) {
+			MyLog.waitHere("pare non esistano files in " + myDirPath);
+			return null;
+		}
+
+//		boolean ok = false;
+//		for (int i1 = 0; i1 < results.length; i1++) {
+//			flName = results[i1].getName();
+//			flPath = results[i1].getPath();
+//			if (!isDicomImage(flPath))
+//				ok = Utility
+//						.dialogErrorMessageWithCancel_LP09("Il file " + flName + " non e'una immagine Dicom valida");
+//			if (ok)
+//				return null;
+//		}
+
+		n0 = results.length;
+
+		for (j1 = 1; j1 <= n0; j1++) {
+
+			progVal = ((double) j1) / n0;
+			IJ.showStatus("readStack " + j1 + "/" + n0);
+			IJ.showProgress(progVal);
+			opener = new Opener();
+
+			flName = results[j1 - 1].getPath();
+			checkEmpty = new File(flName); // remember for possible dicomdir
+			if (checkEmpty.length() == 0)
+				continue;
+			// 020323
+			// iw2ayv
+			if (!isDicomImage(flName)) {
+				MyLog.log("la immagine " + flName + " non sembra dicom");
+				continue;
+			}
+
+			tmp = results[j1 - 1].getName();
+			if (tmp.equalsIgnoreCase("dirfile"))
+				continue;
+			k = opener.getFileType(flName);
+			opener.setSilentMode(true);
+			imp = opener.openImage(flName);
+			if (imp == null) {
+				fails++;
+				if (fails > 2) {
+					IJ.showProgress(1.0);
+					return null;
+				}
+				continue;
+			}
+			info = (String) imp.getProperty("Info");
+			mytitle = imp.getTitle();
+			good++;
+
+			k = Utility.parseInt(DicomTools.getTag(imp, "0028,0002"));
+			if (stack == null) {
+				samplePerPixel = k;
+				width = imp.getWidth();
+				height = imp.getHeight();
+				depth = imp.getStackSize();
+				cal = imp.getCalibration();
+				fi = imp.getOriginalFileInfo();
+				ColorModel cm = imp.getProcessor().getColorModel();
+				stack = new ImageStack(width, height, cm);
+			}
+			if ((depth > 1 && n0 > 1) || width != imp.getWidth() || height != imp.getHeight() || k != samplePerPixel) {
+				if (k <= 0)
+					continue;
+				stack = null;
+				depth = 0;
+				continue;
+			}
+			label1 = null;
+			if (depth == 1) {
+				label1 = imp.getTitle();
+				if (info != null)
+					label1 += "\n" + info;
+			}
+			ImageStack inputStack = imp.getStack();
+			for (int slice = 1; slice <= inputStack.getSize(); slice++) {
+				count1++;
+				ImageProcessor ip = inputStack.getProcessor(slice);
+				if (ip.getMin() < min)
+					min = ip.getMin();
+				if (ip.getMax() > max)
+					max = ip.getMax();
+				stack.addSlice(label1, ip);
+			}
+		}
+
+		if (stack != null && stack.getSize() > 0) {
+			if (fi != null) {
+				fi.fileFormat = FileInfo.UNKNOWN;
+				fi.fileName = "";
+				fi.directory = "";
+			}
+			imp2 = new ImagePlus(mytitle, stack);
+			imp2.getProcessor().setMinAndMax(min, max);
+			if (n0 == 1 + bad || depth > 1)
+				imp2.setProperty("Info", info);
+			if (fi != null)
+				imp2.setFileInfo(fi);
+			double voxelDepth = DicomTools.getVoxelDepth(stack);
+			if (voxelDepth > 0.0 && cal != null)
+				cal.pixelDepth = voxelDepth;
+			imp2.setCalibration(cal);
+		}
+		IJ.showProgress(1.0);
+		return imp2;
 	}
 
 }

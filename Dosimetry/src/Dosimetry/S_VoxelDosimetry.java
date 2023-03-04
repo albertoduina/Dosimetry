@@ -113,24 +113,80 @@ public class S_VoxelDosimetry implements PlugIn {
 		}
 		double[][] matDVH2 = Utility.calcDVH2(xList);
 
-		double[] vetx1 = new double[matDVH2.length];
-		double[] vetx2 = new double[matDVH2.length];
-		double[] vety = new double[matDVH2.length];
+		double[] vetMin = new double[matDVH2.length];
+		double[] vetMax = new double[matDVH2.length];
+		double[] vetMed = new double[matDVH2.length];
+		double[] vetY = new double[matDVH2.length];
 		for (int i1 = 0; i1 < matDVH2.length; i1++) {
-			vetx1[i1] = matDVH2[i1][0];
-			vetx2[i1] = matDVH2[i1][1];
-			vety[i1] = matDVH2[i1][2];
+			vetMin[i1] = matDVH2[i1][0];
+			vetMax[i1] = matDVH2[i1][1];
+			vetMed[i1] = matDVH2[i1][2];
+			vetY[i1] = matDVH2[i1][3];
 		}
+		MyLog.log("========================================");
+		MyLog.log("========================================");
+		MyLog.logVector(vetMin, "vetMin");
+		MyLog.logVector(vetMax, "vetMax");
+		MyLog.logVector(vetMed, "vetMed");
+		MyLog.logVector(vetY, "vetY");
+		MyLog.log("========================================");
+		MyLog.log("========================================");
 
-//		Plot plotx = Utility.myPlotMultiple(vetx1, vety, vetx2, vety, "", "", "");
-//		plotx.show();
-//
-//		Plot plotx1 = Utility.myPlotSingle(vetx1, vety, "", "", "", Color.red);
-//		plotx1.show();
-//		Plot plotx2 = Utility.myPlotSingle(vetx2, vety, "", "", "", Color.green);
-//		plotx2.show();
+		// ==========================================
+		// DA QUI IN POI POSSO ANCHE ESTRARRE LE ISTRUZIONI ALL'ESTERNO DI CALCDVH2
+		// ==========================================
+		Plot plot8 = Utility.myPlotMultipleSpecial1(vetMin, vetY, vetMax, vetY, vetMed, vetY, "MEDIA", "DOSE [Gy]",
+				"VOL%");
+		plot8.show();
+		// =========================================
+
+		int percent = 98;
+		double[] vetOut98 = Utility.calcoliDVH(vetMin, vetMax, vetMed, vetY, percent);
+
+		double valD98 = vetOut98[0];
+		double errD98 = vetOut98[1];
+		percent = 2;
+		double[] vetOut2 = Utility.calcoliDVH(vetMin, vetMax, vetMed, vetY, percent);
+
+		double valD2 = vetOut2[0];
+		double errD2 = vetOut2[1];
+
+		double Dmedia = Utility.vetMean(vetMed);
+
+		double ErrMedia = vetErr(vetY);
+		
+		
+		
+		
+		MyLog.log("valD98= "+valD98);
+		MyLog.log("err98= "+errD98);
+		MyLog.log("valD2= "+valD2);
+		MyLog.log("errD2= "+errD2);
+		MyLog.log("Dmedia= "+Dmedia);
+		MyLog.log("ErrMedia= "+ErrMedia);
+
+		NonBlockingGenericDialog resultsDialog = new NonBlockingGenericDialog("SV07 - Results");
+		resultsDialog.addMessage("Riassunto dati DVH ", titleFont);
+		resultsDialog.setFont(defaultFont);
+
+		resultsDialog.addMessage("=============");
+		resultsDialog.addMessage("D98= " + String.format("%.4f", valD98) +  " \u00B1 " + String.format("%.4f", errD98)+ " Gy");
+		resultsDialog.addMessage("D2= " + String.format("%.4f", valD2) +  " \u00B1 " + String.format("%.4f", errD2)+ " Gy");
+		resultsDialog.addMessage("Dmedia= " + String.format("%.4f", Dmedia) +  " \u00B1 " + String.format("%.4f", ErrMedia)+ " Gy");
+		resultsDialog.showDialog();
 
 		MyLog.waitHere("FINE LAVORO");
+	}
+
+	double vetErr(double[] vetIn) {
+
+		double sum = 0;
+		for (int i1 = 0; i1 < vetIn.length; i1++) {
+			sum = sum + vetIn[i1];
+		}
+		double out1 = sum / Math.sqrt(vetIn.length);
+
+		return out1;
 	}
 
 	/**
@@ -183,7 +239,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		}
 		double par_a = Double.parseDouble(Utility.readFromLog(pathLesione, "#302#", "=", true));
 
-		impStackIn = Utility.readStackFiles(pathStackIn);
+		impStackIn = Utility.readStackFiles2(pathStackIn);
 		// convertendo a 32 bit viene eliminata la calibrazione e la noia di avere il
 		// valore 0 rappresentato con 32768
 		new ImageConverter(impStackIn).convertToGray32();
@@ -274,21 +330,8 @@ public class S_VoxelDosimetry implements PlugIn {
 					voxSignal = inSlice1.getPixelValue(x1, y1);
 					aTildeVoxel = mAtildeSingleVoxel(voxSignal, acqDuration, fatCal, deltaT, par_a);
 					outSlice1.putPixelValue(x1, y1, aTildeVoxel);
-//					if (z1 == coordZ + 1 && x1 == coordX && y1 == coordY)
-//						MyLog.log("voxSignal= " + voxSignal + "\nacqDuration= " + acqDuration + "\nfatCal= " + fatCal
-//								+ "\ndeltaT= " + deltaT + "\npar_a= " + par_a + "\naTildeVoxel= " + aTildeVoxel);
-//					if (z1 == coordZ + 1 && x1 == coordX && y1 == coordY)
-//						MyLog.waitHere("aTildeVoxel= " + aTildeVoxel + "\nvoxSignal= " + voxSignal + "\nacqDuration= "
-//								+ acqDuration + "\nfatCal= " + fatCal + "\ndeltaT= " + deltaT + "\npar_a= " + par_a);
 				}
 			}
-
-// usato per dei test e poter identificare correttamente ogni slice in base al contenuto dei pixel
-//			outSlice1.putPixelValue(0, 0, z1 * 10 + 1);
-//			outSlice1.putPixelValue(1, 1, z1 * 10 + 2);
-//			outSlice1.putPixelValue(2, 2, z1 * 10 + 3);
-//			outSlice1.putPixelValue(3, 3, z1 * 10 + 4);
-//			outSlice1.putPixelValue(4, 4, z1 * 10 + 5);
 
 			Utility.stackSliceUpdater(stackMatilde, outSlice1, z1);
 		}
@@ -405,8 +448,6 @@ public class S_VoxelDosimetry implements PlugIn {
 		impPatataMascherata.show();
 
 		end1 = System.currentTimeMillis();
-
-//		end1 = System.nanoTime();
 
 		String time1 = MyLog.logElapsed(start1, end1);
 
