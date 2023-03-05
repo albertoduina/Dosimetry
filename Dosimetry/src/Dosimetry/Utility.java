@@ -2658,7 +2658,88 @@ public class Utility {
 		return matout3;
 	}
 
-	static double[] calcoliDVH(double[] vetMin, double[] vetMax, double[] vetMedia, double[] vetY, int percent) {
+	static double[] calcoliDVHerrDose2(double[] vetMin, double[] vetMax) {
+		double[] vetErrDose = new double[vetMax.length];
+		double errDose = 0;
+		for (int i1 = 0; i1 < vetMax.length; i1++) {
+			errDose = (vetMax[i1] - vetMin[i1]) / 2.;
+			vetErrDose[i1] = errDose;
+		}
+		return vetErrDose;
+	}
+	
+	static double[] calcoliDVHerrSup(double[] vetMed, double[] vetMax) {
+		double[] vetErrSup = new double[vetMed.length];
+		double errDose = 0;
+		for (int i1 = 0; i1 < vetMed.length; i1++) {
+			errDose = vetMax[i1] - vetMed[i1];
+			vetErrSup[i1] = errDose;
+		}
+		return vetErrSup;
+	}
+	
+	static double[] calcoliDVHerrInf(double[] vetMed, double[] vetMin) {
+		double[] vetErrInf = new double[vetMed.length];
+		double errDose = 0;
+		for (int i1 = 0; i1 < vetMed.length; i1++) {
+			errDose = vetMed[i1] - vetMin[i1];
+			vetErrInf[i1] = errDose;
+		}
+		return vetErrInf;
+	}
+
+	static double calcoliDVHerrFinale(double[] vetMedia, double[] errMedia) {
+		double[] vetErrDose = new double[vetMedia.length];
+		double errDose = 0;
+		for (int i1 = 0; i1 < vetMedia.length; i1++) {
+			errDose = (vetMedia[i1] / vetMedia.length) * errMedia[i1];
+			vetErrDose[i1] = errDose;
+		}
+		double sumErrDose = 0;
+		for (int i1 = 0; i1 < vetErrDose.length; i1++) {
+			sumErrDose = sumErrDose + vetErrDose[i1] * vetErrDose[i1];
+		}
+
+		double errOut = Math.sqrt(sumErrDose);
+
+		return errOut;
+	}
+
+	static double[] calcoliDVH(double[] vetErrDose, double[] vetMedia, double[] vetY, int percent) {
+
+		double valPercent = 0;
+		double errPercent = 0;
+		double aux1 = 0;
+		// calcolo la differenza tra Y e la percentuale cercata
+		double[] vetDelta1 = new double[vetY.length];
+		for (int i1 = 0; i1 < vetY.length; i1++) {
+			vetDelta1[i1] = Math.abs(vetY[i1] - (double) percent);
+			// IJ.log("" + i1 + " vetDelta1= " + vetDelta1[i1]);
+		}
+		// cerco la posizione del minimo sul vettore differenza
+		double min = Double.MAX_VALUE;
+		double value;
+		int minpos = 0;
+		for (int i1 = 0; i1 < vetY.length; i1++) {
+			value = vetDelta1[i1];
+			if (value < min) {
+				min = value;
+				minpos = i1;
+			}
+		}
+
+		MyLog.log("minpos= " + minpos + " / " + vetY.length + " per percentuale= " + percent);
+
+		// ora minpos contiene la posizione del minimo
+		valPercent = vetMedia[minpos];
+		errPercent = vetErrDose[minpos];
+		double[] vetOut = new double[2];
+		vetOut[0] = valPercent;
+		vetOut[1] = errPercent;
+		return vetOut;
+	}
+
+	static double[] calcoliDVHOLD(double[] vetMin, double[] vetMax, double[] vetMedia, double[] vetY, int percent) {
 
 		double[] vetErrDose = new double[vetY.length];
 		double errDose = 0;

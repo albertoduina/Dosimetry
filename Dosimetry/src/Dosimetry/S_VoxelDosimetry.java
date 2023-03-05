@@ -42,10 +42,22 @@ public class S_VoxelDosimetry implements PlugIn {
 	long end4;
 	int lato;
 	int mezzo;
+	static String desktopPath;
+	static String desktopDosimetryFolderPath;
+	static String desktopImagesSubfolderPath;
+	static String pathPermanente;
+	static String pathVolatile;
+	static String logFileLesione;
 
 	public void run(String arg) {
 
 		Locale.setDefault(Locale.US);
+		desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
+		pathPermanente = desktopPath + File.separator + "DosimetryFolder" + File.separator + "permanente.txt";
+		pathVolatile = desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
+		desktopDosimetryFolderPath = desktopPath + File.separator + "DosimetryFolder";
+		desktopImagesSubfolderPath = desktopDosimetryFolderPath + File.separator + "ImagesFolder";
+
 		lato = Utility.latoCubo();
 		mezzo = (lato - 1) / 2;
 
@@ -81,9 +93,9 @@ public class S_VoxelDosimetry implements PlugIn {
 		}
 
 		String lesione1 = "";
-		String lesione2 = "";
 		String lesione3 = "";
 		String lesione4 = "";
+		logFileLesione = "";
 		String out1 = "";
 		String startingDir1 = "";
 
@@ -100,11 +112,11 @@ public class S_VoxelDosimetry implements PlugIn {
 		for (int i1 = 0; i1 < vetH.length; i1++) {
 			ArrayList<ArrayList<Double>> yList = new ArrayList<ArrayList<Double>>();
 			lesione1 = str2 + out1 + vetH[i1] + "h.tif";
-			lesione2 = str2 + out1 + ".txt";
+			logFileLesione = str2 + out1 + ".txt";
 			startingDir1 = str1 + vetH[i1] + "h" + File.separator + "SPECT";
 			start1 = System.currentTimeMillis();
 
-			yList = caricaMemoriazza(startingDir1, lesione1, vetH[i1], lesione2);
+			yList = caricaMemoriazza(startingDir1, lesione1, vetH[i1], logFileLesione);
 			if (yList == null)
 				break;
 			for (int i2 = 0; i2 < yList.size(); i2++) {
@@ -139,40 +151,63 @@ public class S_VoxelDosimetry implements PlugIn {
 				"VOL%");
 		plot8.show();
 		// =========================================
+		
+		double[] vetErrSup= Utility.calcoliDVHerrSup(vetMin, vetMax);
+		double[] vetErrInf= Utility.calcoliDVHerrInf(vetMin, vetMax);
+		
+		double[] vetErrDose = Utility.calcoliDVHerrDose2(vetMin, vetMax);
+		
+		
+		double errFin = Utility.calcoliDVHerrFinale(vetMed, vetErrDose);
 
 		int percent = 98;
-		double[] vetOut98 = Utility.calcoliDVH(vetMin, vetMax, vetMed, vetY, percent);
+		double[] vetOut98 = Utility.calcoliDVH(vetErrDose, vetMed, vetY, percent);
 
 		double valD98 = vetOut98[0];
 		double errD98 = vetOut98[1];
 		percent = 2;
-		double[] vetOut2 = Utility.calcoliDVH(vetMin, vetMax, vetMed, vetY, percent);
+		double[] vetOut2 = Utility.calcoliDVH(vetErrDose, vetMed, vetY, percent);
 
 		double valD2 = vetOut2[0];
 		double errD2 = vetOut2[1];
 
 		double Dmedia = Utility.vetMean(vetMed);
+		
+//		double ErrMedia = vetErr(vetErrDose);
 
-		double ErrMedia = vetErr(vetY);
+		
+		double[] export1=new double[25];
 		
 		
-		
-		
-		MyLog.log("valD98= "+valD98);
-		MyLog.log("err98= "+errD98);
-		MyLog.log("valD2= "+valD2);
-		MyLog.log("errD2= "+errD2);
-		MyLog.log("Dmedia= "+Dmedia);
-		MyLog.log("ErrMedia= "+ErrMedia);
+		String str11 = "";
+		// esperimento esportazione
+		for (int i1 = 0; i1 < vetErrDose.length; i1++) {
+			str11 = str11 + vetErrDose[i1] + "; ";
+		}
+
+		String aux1 = "#666#\tESPORTAZIONE = " + str11;
+		Utility.logAppend(logFileLesione, aux1);
+
+		MyLog.waitHere();
+
+		MyLog.log("valD98= " + valD98);
+		MyLog.log("err98= " + errD98);
+		MyLog.log("valD2= " + valD2);
+		MyLog.log("errD2= " + errD2);
+		MyLog.log("Dmedia= " + Dmedia);
+		MyLog.log("ErrMedia= " + errFin);
 
 		NonBlockingGenericDialog resultsDialog = new NonBlockingGenericDialog("SV07 - Results");
 		resultsDialog.addMessage("Riassunto dati DVH ", titleFont);
 		resultsDialog.setFont(defaultFont);
 
 		resultsDialog.addMessage("=============");
-		resultsDialog.addMessage("D98= " + String.format("%.4f", valD98) +  " \u00B1 " + String.format("%.4f", errD98)+ " Gy");
-		resultsDialog.addMessage("D2= " + String.format("%.4f", valD2) +  " \u00B1 " + String.format("%.4f", errD2)+ " Gy");
-		resultsDialog.addMessage("Dmedia= " + String.format("%.4f", Dmedia) +  " \u00B1 " + String.format("%.4f", ErrMedia)+ " Gy");
+		resultsDialog.addMessage(
+				"D98= " + String.format("%.4f", valD98) + " \u00B1 " + String.format("%.4f", errD98) + " Gy");
+		resultsDialog
+				.addMessage("D2= " + String.format("%.4f", valD2) + " \u00B1 " + String.format("%.4f", errD2) + " Gy");
+		resultsDialog.addMessage(
+				"Dmedia= " + String.format("%.4f", Dmedia) + " \u00B1 " + String.format("%.4f", errFin) + " Gy");
 		resultsDialog.showDialog();
 
 		MyLog.waitHere("FINE LAVORO");
