@@ -1664,6 +1664,26 @@ public class Utility {
 	 * @return
 	 */
 
+	public static double vetMeanSecond(double[] data) {
+		final int n = data.length;
+		if (n < 1) {
+			return Double.NaN;
+		}
+		double sum = 0;
+		for (int i1 = 1; i1 < data.length; i1++) {
+			sum += data[i1];
+		}
+		double mean = sum / (data.length - 1);
+		return mean;
+	}
+
+	/**
+	 * Calcola la media di un vettore
+	 * 
+	 * @param data
+	 * @return
+	 */
+
 	public static float vetMean(float[] data) {
 		final int n = data.length;
 		if (n < 1) {
@@ -2386,13 +2406,22 @@ public class Utility {
 	static ArrayList<ArrayList<Double>> calculateDVH(ImagePlus patataMascherata, int ore) {
 
 		MyLog.log("eseguo calculateDVH " + ore + " ore");
+		MyLog.here();
+
+		patataMascherata.show();
+
+		if (patataMascherata == null)
+			MyLog.waitHere("patataMascherata == null");
 		ImageStack stack = patataMascherata.getImageStack();
+		if (stack == null)
+			MyLog.waitHere("stack == null");
 
 		int width = stack.getWidth();
 		int height = stack.getHeight();
 		int depth = stack.getSize();
 		double voxel = 0;
 		double[] vetVoxel = null;
+		MyLog.here();
 
 		ArrayList<Double> arrList = new ArrayList<Double>();
 		for (int z1 = 1; z1 < depth; z1++) {
@@ -2405,8 +2434,14 @@ public class Utility {
 				}
 			}
 		}
+
+		MyLog.logArrayList(arrList, "arrList");
+		MyLog.here();
+
 		vetVoxel = Utility.arrayListToArrayDouble(arrList);
 		ArrayList<ArrayList<Double>> pippo = calcDVH1(vetVoxel, ore);
+		MyLog.here();
+
 		return pippo;
 	}
 
@@ -2421,7 +2456,14 @@ public class Utility {
 
 		MyLog.log("eseguo calcDVH1 " + ore + " ore");
 		// sort array voxels
+		MyLog.here();
+		MyLog.logVector(vetVoxel, "vetVoxel input");
+
+		MyLog.here();
 		Arrays.sort(vetVoxel);
+		MyLog.logVector(vetVoxel, "vetVoxel sortato");
+		MyLog.here();
+
 		// --------------------------------
 		// rimozione dei doppioni e creazione array
 		int n1 = vetVoxel.length;
@@ -2493,6 +2535,46 @@ public class Utility {
 
 		return arrList1;
 
+	}
+
+	static double[][] pureDVH2(ArrayList<ArrayList<Double>> arrIn1) {
+
+		double[] vetx24 = null;
+		double[] vety24 = null;
+		double[] vetx48 = null;
+		double[] vety48 = null;
+		double[] vetx120 = null;
+		double[] vety120 = null;
+
+		MyLog.log("eseguoCalcDVH2");
+		int len1 = arrIn1.size();
+		// separo i vari array in modo da facilitare il successivo lavoro
+		// NOTA BENE i diversi array 24, 48 e 120 avranno lunghezze diverse a seconda
+		// delle numerosita'
+
+		ArrayList<Double> arrList1 = null;
+
+		arrList1 = arrIn1.get(0);
+		vetx24 = Utility.arrayListToArrayDouble(arrList1);
+		arrList1 = arrIn1.get(2);
+		vety24 = Utility.arrayListToArrayDouble(arrList1);
+		arrList1 = arrIn1.get(3);
+		vetx48 = Utility.arrayListToArrayDouble(arrList1);
+		arrList1 = arrIn1.get(5);
+		vety48 = Utility.arrayListToArrayDouble(arrList1);
+		arrList1 = arrIn1.get(6);
+		vetx120 = Utility.arrayListToArrayDouble(arrList1);
+		arrList1 = arrIn1.get(8);
+		vety120 = Utility.arrayListToArrayDouble(arrList1);
+
+		Plot plot1 = Utility.myPlotMultiple2(vetx24, vety24, vetx48, vety48, vetx120, vety120,
+				"24h=red 48h=green 120h=blue", "VALUE", "VOL%");
+		plot1.show();
+		
+		
+		MyLog.waitHere();
+
+		return null;
 	}
 
 	static double[][] calcDVH2(ArrayList<ArrayList<Double>> arrIn1) {
@@ -2569,7 +2651,7 @@ public class Utility {
 		Plot plot5 = myPlotMultiple2(vetx120, vety120, vetx120new, vety120new, "INTERP120 green=interp", "grafX120",
 				"grafY120");
 		plot5.show();
-//		MyLog.waitHere();
+		MyLog.waitHere();
 //	
 
 		int a1 = vetx24.length;
@@ -2667,7 +2749,7 @@ public class Utility {
 		}
 		return vetErrDose;
 	}
-	
+
 	static double[] calcoliDVHerrSup(double[] vetMed, double[] vetMax) {
 		double[] vetErrSup = new double[vetMed.length];
 		double errDose = 0;
@@ -2677,7 +2759,7 @@ public class Utility {
 		}
 		return vetErrSup;
 	}
-	
+
 	static double[] calcoliDVHerrInf(double[] vetMed, double[] vetMin) {
 		double[] vetErrInf = new double[vetMed.length];
 		double errDose = 0;
@@ -2736,6 +2818,50 @@ public class Utility {
 		double[] vetOut = new double[2];
 		vetOut[0] = valPercent;
 		vetOut[1] = errPercent;
+		return vetOut;
+	}
+
+	static int searchPercentPosition(double[] vetIn, double[] vetY, int percent) {
+
+		// calcolo la differenza tra Y e la percentuale cercata
+		double[] vetDelta1 = new double[vetY.length];
+		for (int i1 = 0; i1 < vetY.length; i1++) {
+			vetDelta1[i1] = Math.abs(vetY[i1] - (double) percent);
+			// IJ.log("" + i1 + " vetDelta1= " + vetDelta1[i1]);
+		}
+		// cerco la posizione del minimo sul vettore differenza
+		double min = Double.MAX_VALUE;
+		double value;
+		int minpos = 0;
+		for (int i1 = 0; i1 < vetY.length; i1++) {
+			value = vetDelta1[i1];
+			if (value < min) {
+				min = value;
+				minpos = i1;
+			}
+		}
+
+		MyLog.log("minpos= " + minpos + " / " + vetY.length + " per percentuale= " + percent);
+		return minpos;
+	}
+
+	static double[] exporterDVH(double[] vetIn, double[] vetY, int percent) {
+
+		double[] vetOut = new double[25];
+
+		int pos1 = searchPercentPosition(vetIn, vetY, 2);
+		int count = 0;
+		vetOut[count] = vetIn[pos1];
+
+		for (int i1 = 1; i1 < 20; i1++) {
+			count = count + 1;
+			pos1 = searchPercentPosition(vetIn, vetY, i1 * 5);
+			vetOut[count] = vetIn[pos1];
+		}
+		pos1 = searchPercentPosition(vetIn, vetY, 98);
+		count = count + 1;
+		vetOut[count] = vetIn[pos1];
+
 		return vetOut;
 	}
 
@@ -2990,6 +3116,33 @@ public class Utility {
 	}
 
 	public static Plot myPlotMultiple2(double[] profilex1, double[] profiley1, double[] profilex2, double[] profiley2,
+			double[] profilex3, double[] profiley3, String title, String xlabel, String ylabel) {
+
+		
+		
+		Plot plot = new Plot(title, xlabel, ylabel);
+		plot.setColor(Color.red);
+		plot.add("line", profilex1, profiley1);
+		plot.setColor(Color.green);
+		plot.add("line", profilex2, profiley2);
+		plot.setColor(Color.blue);
+		plot.add("line", profilex3, profiley3);
+
+		double[] appx2 = Utility.concatArrays(profilex1, profilex2);
+		double[] appx3 = Utility.concatArrays(appx2, profilex3);
+		double[] a = Tools.getMinMax(appx3);
+		double[] appy2 = Utility.concatArrays(profiley1, profiley2);
+		double[] appy3 = Utility.concatArrays(appy2, profiley3);
+		double[] b = Tools.getMinMax(appy3);
+		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
+		plot.setColor(Color.BLACK);
+		plot.setFont(FontUtil.getFont("Arial", Font.TRUETYPE_FONT, 16));
+		plot.addLabel(0.1, 0.9, title);
+		plot.setWindowSize(700, 420);
+		return plot;
+	}
+	
+	public static Plot myPlotMultiple3(double[] profilex1, double[] profiley1, double[] profilex2, double[] profiley2,
 			double[] profilex3, double[] profiley3, String title, String xlabel, String ylabel) {
 
 		Plot plot = new Plot(title, xlabel, ylabel);
@@ -3703,6 +3856,8 @@ public class Utility {
 		boolean isStack = false;
 
 		MyLog.log("readStackFiles2");
+		MyLog.here();
+
 		info = null;
 		min = Double.MAX_VALUE;
 		max = -Double.MAX_VALUE;
@@ -3830,7 +3985,42 @@ public class Utility {
 			imp2.setCalibration(cal);
 		}
 		IJ.showProgress(1.0);
+		MyLog.here();
+
 		return imp2;
+	}
+
+	static boolean stackIsEmpty(ImagePlus imp) {
+
+		ImageStack stack = imp.getStack();
+		int width = stack.getHeight();
+		int height = stack.getHeight();
+		int depth = stack.getSize();
+		float[] vetValues = stack.getVoxels(0, 0, 0, width, height, depth, null);
+		float sum = 0;
+		for (float value : vetValues) {
+			sum += value;
+		}
+		if (sum == 0.0)
+			return true;
+		else
+			return false;
+	}
+
+	static boolean stackIsEmpty(ImageStack stack) {
+
+		int width = stack.getHeight();
+		int height = stack.getHeight();
+		int depth = stack.getSize();
+		float[] vetValues = stack.getVoxels(0, 0, 0, width, height, depth, null);
+		float sum = 0;
+		for (float value : vetValues) {
+			sum += value;
+		}
+		if (sum == 0.0)
+			return true;
+		else
+			return false;
 	}
 
 }

@@ -60,6 +60,10 @@ public class S_VoxelDosimetry implements PlugIn {
 
 		lato = Utility.latoCubo();
 		mezzo = (lato - 1) / 2;
+		if (lato == 0)
+			MyLog.waitHere("lato=0    CHE VOR DI'???");
+		if (mezzo == 0)
+			MyLog.waitHere("mezzo=0    CHE VOR DI'???");
 
 		String str1 = System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "DosimetryFolder"
 				+ File.separator + "ImagesFolder" + File.separator;
@@ -107,7 +111,6 @@ public class S_VoxelDosimetry implements PlugIn {
 		}
 
 		ArrayList<ArrayList<Double>> xList = new ArrayList<ArrayList<Double>>();
-
 		int[] vetH = { 24, 48, 120 };
 		for (int i1 = 0; i1 < vetH.length; i1++) {
 			ArrayList<ArrayList<Double>> yList = new ArrayList<ArrayList<Double>>();
@@ -123,6 +126,7 @@ public class S_VoxelDosimetry implements PlugIn {
 				xList.add(yList.get(i2));
 			}
 		}
+
 		double[][] matDVH2 = Utility.calcDVH2(xList);
 
 		double[] vetMin = new double[matDVH2.length];
@@ -151,13 +155,15 @@ public class S_VoxelDosimetry implements PlugIn {
 				"VOL%");
 		plot8.show();
 		// =========================================
-		
-		double[] vetErrSup= Utility.calcoliDVHerrSup(vetMin, vetMax);
-		double[] vetErrInf= Utility.calcoliDVHerrInf(vetMin, vetMax);
-		
+
+		double[] vetErrSup = Utility.calcoliDVHerrSup(vetMed, vetMax);
+		double[] vetErrInf = Utility.calcoliDVHerrInf(vetMed, vetMin);
+
 		double[] vetErrDose = Utility.calcoliDVHerrDose2(vetMin, vetMax);
-		
-		
+		MyLog.logVector(vetErrDose, "vetErrDose");
+		MyLog.logVector(vetErrSup, "vetErrSup");
+		MyLog.logVector(vetErrInf, "vetErrInf");
+
 		double errFin = Utility.calcoliDVHerrFinale(vetMed, vetErrDose);
 
 		int percent = 98;
@@ -171,14 +177,12 @@ public class S_VoxelDosimetry implements PlugIn {
 		double valD2 = vetOut2[0];
 		double errD2 = vetOut2[1];
 
-		double Dmedia = Utility.vetMean(vetMed);
-		
-//		double ErrMedia = vetErr(vetErrDose);
+		double Dmedia = Utility.vetMeanSecond(vetMed);
 
-		
-		double[] export1=new double[25];
-		
-		
+		double ErrMedia = Utility.vetMeanSecond(vetErrDose);
+
+		double[] export1 = new double[25];
+
 		String str11 = "";
 		// esperimento esportazione
 		for (int i1 = 0; i1 < vetErrDose.length; i1++) {
@@ -195,7 +199,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		MyLog.log("valD2= " + valD2);
 		MyLog.log("errD2= " + errD2);
 		MyLog.log("Dmedia= " + Dmedia);
-		MyLog.log("ErrMedia= " + errFin);
+		MyLog.log("ErrMedia= " + ErrMedia);
 
 		NonBlockingGenericDialog resultsDialog = new NonBlockingGenericDialog("SV07 - Results");
 		resultsDialog.addMessage("Riassunto dati DVH ", titleFont);
@@ -207,10 +211,71 @@ public class S_VoxelDosimetry implements PlugIn {
 		resultsDialog
 				.addMessage("D2= " + String.format("%.4f", valD2) + " \u00B1 " + String.format("%.4f", errD2) + " Gy");
 		resultsDialog.addMessage(
-				"Dmedia= " + String.format("%.4f", Dmedia) + " \u00B1 " + String.format("%.4f", errFin) + " Gy");
+				"Dmedia= " + String.format("%.4f", Dmedia) + " \u00B1 " + String.format("%.4f", ErrMedia) + " Gy");
 		resultsDialog.showDialog();
 
 		MyLog.waitHere("FINE LAVORO");
+	}
+
+	/**
+	 * Isolo il calcolo del DVH, in modo da poterlo mettere anche all'interno di un
+	 * altro plugin, senza avere dipendenze
+	 * 
+	 * @param pathVolatile
+	 * @param pathImage
+	 */
+
+	void pureDVH1(String dosimetryFolder) {
+		
+		
+		lato = Utility.latoCubo();
+		mezzo = (lato - 1) / 2;
+
+
+		String lesione1 = "";
+		String lesione3 = "";
+		String lesione4 = "";
+		String logVolatile = dosimetryFolder + File.separator + "volatile.txt";
+		String out1 = "volatile";
+		String startingDir1 = "";
+
+		ArrayList<ArrayList<Double>> xList = new ArrayList<ArrayList<Double>>();
+		int[] vetH = { 24, 48, 120 };
+		for (int i1 = 0; i1 < vetH.length; i1++) {
+			ArrayList<ArrayList<Double>> yList = new ArrayList<ArrayList<Double>>();
+			lesione1 = dosimetryFolder + out1 + vetH[i1] + "h.tif";
+			IJ.log("lesione1= " + lesione1);
+			startingDir1 = dosimetryFolder + File.separator + "ImagesFolder" + File.separator + vetH[i1] + "h"
+					+ File.separator + "SPECT";
+			IJ.log("startingDir1= " + startingDir1);
+			yList = caricaMemoriazza(startingDir1, lesione1, vetH[i1], logVolatile);
+			if (yList == null)
+				break;
+			for (int i2 = 0; i2 < yList.size(); i2++) {
+				xList.add(yList.get(i2));
+			}
+		}
+		MyLog.here();
+
+		double[][] matDVH2 = Utility.pureDVH2(xList);
+		MyLog.here();
+
+		double[] vetMin = new double[matDVH2.length];
+		double[] vetMax = new double[matDVH2.length];
+		double[] vetMed = new double[matDVH2.length];
+		double[] vetY = new double[matDVH2.length];
+		for (int i1 = 0; i1 < matDVH2.length; i1++) {
+			vetMin[i1] = matDVH2[i1][0];
+			vetMax[i1] = matDVH2[i1][1];
+			vetMed[i1] = matDVH2[i1][2];
+			vetY[i1] = matDVH2[i1][3];
+		}
+
+		Plot plot8 = Utility.myPlotMultipleSpecial1(vetMin, vetY, vetMax, vetY, vetMed, vetY, "MEDIA", "DOSE [Gy]",
+				"VOL%");
+		plot8.show();
+
+		MyLog.waitHere("ASPETTA UN ATTIMO, CI SIAMO RIUSCITI ??");
 	}
 
 	double vetErr(double[] vetIn) {
@@ -273,6 +338,7 @@ public class S_VoxelDosimetry implements PlugIn {
 			break;
 		}
 		double par_a = Double.parseDouble(Utility.readFromLog(pathLesione, "#302#", "=", true));
+		MyLog.here("par_a= " + par_a);
 
 		impStackIn = Utility.readStackFiles2(pathStackIn);
 		// convertendo a 32 bit viene eliminata la calibrazione e la noia di avere il
@@ -286,6 +352,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		impStackMask.setSlice(sl);
 		impStackMask.setTitle("MASK " + ore + "h");
 		impStackMask.show();
+		MyLog.here();
 
 		if (loggoVoxels) {
 			// serve solo per DEBUG durante le prove
@@ -316,6 +383,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		int width1 = stackIn.getWidth();
 		int height1 = stackIn.getHeight();
 		int depth1 = stackIn.getSize();
+		MyLog.here();
 
 		// elaborazione pixel per pixel dell'intera immagine di input, senza quindi
 		// utilizzare la mask, dopo che abbiamo applicato le formule formulate in
@@ -337,6 +405,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		MyLog.log("deltaT= " + deltaT);
 		MyLog.log("par_a= " + par_a);
 		MyLog.log("------------------------");
+		MyLog.here();
 
 		// ####################################################################################
 		// ELABORAZIONE IMMAGINE COMPLETA, SENZA MASCHERA E SENZA CUBI DI ALCUN GENERE
@@ -373,6 +442,8 @@ public class S_VoxelDosimetry implements PlugIn {
 
 		ImagePlus impMatilde = new ImagePlus("mAtilde " + ore + "h", stackMatilde);
 		impMatilde.show();
+		if (Utility.stackIsEmpty(impMatilde))
+			MyLog.waitHere("impMatilde vuota");
 
 		if (loggoVoxels) {
 
@@ -387,11 +458,13 @@ public class S_VoxelDosimetry implements PlugIn {
 		// -------------------------------------
 		// ELABORAZIONI DEI CUBI
 		// -------------------------------------
-
 		// -------------------------------------
 		// CUBO CON SVALUES
 		// -------------------------------------
 		ImagePlus impRubik = Utility.inCubo();
+		if (Utility.stackIsEmpty(impRubik))
+			MyLog.waitHere("impRubik vuota");
+
 		impRubik.show();
 		ImageStack stackRubik = impRubik.getImageStack();
 		// -------------------------------------
@@ -401,6 +474,11 @@ public class S_VoxelDosimetry implements PlugIn {
 		// PATATA COMPLETA CON SVALUES
 		// ####################################################
 		int conta2 = 0;
+
+		if (Utility.stackIsEmpty(stackMatilde))
+			MyLog.waitHere("stackMatilde vuoto");
+		if (Utility.stackIsEmpty(stackRubik))
+			MyLog.waitHere("stackRubik vuoto");
 
 		ImageStack stackPatataCompleta = ImageStack.create(width1, height1, depth1, bitdepth1);
 		for (int z1 = 1 + mezzo; z1 < (depth1 - mezzo) - 2; z1++) {
@@ -443,6 +521,11 @@ public class S_VoxelDosimetry implements PlugIn {
 		impPatataCompleta.setSlice((int) tapata3[6]);
 		impPatataCompleta.show();
 
+		if (Utility.stackIsEmpty(impPatataCompleta))
+			MyLog.waitHere("impPatataCompleta vuota");
+
+		MyLog.here();
+
 		// ####################################################
 		// PATATA MASCHERATA
 		// ####################################################
@@ -468,6 +551,8 @@ public class S_VoxelDosimetry implements PlugIn {
 			}
 		}
 
+		MyLog.here();
+
 		ImagePlus impPatataMascherata = new ImagePlus("PATATA_MASCHERATA  " + ore + "h", stackPatataMascherata);
 		if (loggoVoxels) {
 			Utility.loggoVoxels2(impStackMask, x2, y2, z2);
@@ -477,88 +562,92 @@ public class S_VoxelDosimetry implements PlugIn {
 			Utility.loggoCuxels3(impPatataMascherata, x2, y2, z2, lato, mezzo);
 		}
 		impPatataMascherata.show();
+		if (Utility.stackIsEmpty(impPatataMascherata))
+			MyLog.waitHere("impPatataMascherata vuota");
+
 		tapata3 = Utility.MyStackStatistics(impPatataMascherata, impStackMask);
 		impPatataMascherata.setDisplayRange(tapata3[3], tapata3[7]);
 		impPatataMascherata.setSlice((int) tapata3[6]);
 		impPatataMascherata.show();
+		MyLog.here();
 
 		end1 = System.currentTimeMillis();
 
-		String time1 = MyLog.logElapsed(start1, end1);
+//		String time1 = MyLog.logElapsed(start1, end1);
+//
+//		int minStackX3 = (int) tapata1[0];
+//		int minStackY3 = (int) tapata1[1];
+//		int minStackZ3 = (int) tapata1[2];
+//		double minStackVal3 = tapata1[3];
+//		int maxStackX3 = (int) tapata1[4];
+//		int maxStackY3 = (int) tapata1[5];
+//		int maxStackZ3 = (int) tapata1[6];
+//		double maxStackVal3 = tapata1[7];
+//		long pixCount3 = (long) tapata1[8];
+//		double meanStackVal3 = tapata1[9];
+//		double integral3 = tapata1[10];
+//
+//		int minStackX1 = (int) tapata2[0];
+//		int minStackY1 = (int) tapata2[1];
+//		int minStackZ1 = (int) tapata2[2];
+//		double minStackVal1 = tapata2[3];
+//		int maxStackX1 = (int) tapata2[4];
+//		int maxStackY1 = (int) tapata2[5];
+//		int maxStackZ1 = (int) tapata2[6];
+//		double maxStackVal1 = tapata2[7];
+//		long pixCount1 = (long) tapata2[8];
+//		double meanStackVal1 = tapata2[9];
+//		double integral1 = tapata2[10];
+//
+//		int minStackX2 = (int) tapata3[0];
+//		int minStackY2 = (int) tapata3[1];
+//		int minStackZ2 = (int) tapata3[2];
+//		double minStackVal2 = tapata3[3];
+//		int maxStackX2 = (int) tapata3[4];
+//		int maxStackY2 = (int) tapata3[5];
+//		int maxStackZ2 = (int) tapata3[6];
+//		double maxStackVal2 = tapata3[7];
+//		long pixCount2 = (long) tapata3[8];
+//		double meanStackVal2 = tapata3[9];
+//		double integral2 = tapata3[10];
 
-		int minStackX3 = (int) tapata1[0];
-		int minStackY3 = (int) tapata1[1];
-		int minStackZ3 = (int) tapata1[2];
-		double minStackVal3 = tapata1[3];
-		int maxStackX3 = (int) tapata1[4];
-		int maxStackY3 = (int) tapata1[5];
-		int maxStackZ3 = (int) tapata1[6];
-		double maxStackVal3 = tapata1[7];
-		long pixCount3 = (long) tapata1[8];
-		double meanStackVal3 = tapata1[9];
-		double integral3 = tapata1[10];
-
-		int minStackX1 = (int) tapata2[0];
-		int minStackY1 = (int) tapata2[1];
-		int minStackZ1 = (int) tapata2[2];
-		double minStackVal1 = tapata2[3];
-		int maxStackX1 = (int) tapata2[4];
-		int maxStackY1 = (int) tapata2[5];
-		int maxStackZ1 = (int) tapata2[6];
-		double maxStackVal1 = tapata2[7];
-		long pixCount1 = (long) tapata2[8];
-		double meanStackVal1 = tapata2[9];
-		double integral1 = tapata2[10];
-
-		int minStackX2 = (int) tapata3[0];
-		int minStackY2 = (int) tapata3[1];
-		int minStackZ2 = (int) tapata3[2];
-		double minStackVal2 = tapata3[3];
-		int maxStackX2 = (int) tapata3[4];
-		int maxStackY2 = (int) tapata3[5];
-		int maxStackZ2 = (int) tapata3[6];
-		double maxStackVal2 = tapata3[7];
-		long pixCount2 = (long) tapata3[8];
-		double meanStackVal2 = tapata3[9];
-		double integral2 = tapata3[10];
-
-		NonBlockingGenericDialog resultsDialog = new NonBlockingGenericDialog("SV05 - Results");
-		resultsDialog.addMessage("Results " + ore + "h", titleFont);
-		resultsDialog.setFont(defaultFont);
-
-		resultsDialog.addMessage("======== IMMAGINE INPUT  MASCHERATA ======");
-		resultsDialog.addMessage("minStackVal= " + String.format("%.4f", minStackVal3) + "     x= " + minStackX3
-				+ "    y= " + minStackY3 + "    z= " + minStackZ3);
-		resultsDialog.addMessage("maxStackVal= " + String.format("%.4f", maxStackVal3) + "    x= " + maxStackX3
-				+ "    y= " + maxStackY3 + "    z= " + maxStackZ3);
-
-		resultsDialog
-				.addMessage("meanStackVal= " + String.format("%.4f", meanStackVal3) + "        pixCount= " + pixCount3);
-		resultsDialog.addMessage("integral= " + String.format("%.4f", integral3));
-		resultsDialog.addMessage("======== MATILDE MASCHERATA =============");
-		resultsDialog.addMessage("minStackVal= " + String.format("%.4f", minStackVal1) + "       x= " + minStackX1
-				+ "    y= " + minStackY1 + "    z= " + minStackZ1);
-		resultsDialog.addMessage("maxStackVal= " + String.format("%.4f", maxStackVal1) + "    x= " + maxStackX1
-				+ "    y= " + maxStackY1 + "    z= " + maxStackZ1);
-
-		resultsDialog
-				.addMessage("meanStackVal= " + String.format("%.4f", meanStackVal1) + "        pixCount= " + pixCount1);
-		resultsDialog.addMessage("integral= " + String.format("%.4f", integral1));
-
-		resultsDialog.addMessage("======== PATATA MASCHERATA ==============");
-		resultsDialog.addMessage("minStackVal= " + String.format("%.4f", minStackVal2) + "     x= " + minStackX2
-				+ "    y= " + minStackY2 + "    z= " + minStackZ2);
-		resultsDialog.addMessage("maxStackVal= " + String.format("%.4f", maxStackVal2) + "    x= " + maxStackX2
-				+ "    y= " + maxStackY2 + "    z= " + maxStackZ2);
-
-		resultsDialog
-				.addMessage("meanStackVal= " + String.format("%.4f", meanStackVal2) + "        pixCount= " + pixCount2);
-		resultsDialog.addMessage("integral= " + String.format("%.4f", integral2));
-		resultsDialog.addMessage("\n\n\nTempo impiegato= " + time1);
-		resultsDialog.showDialog();
-
-		if (resultsDialog.wasCanceled())
-			return null;
+//		NonBlockingGenericDialog resultsDialog = new NonBlockingGenericDialog("SV05 - Results");
+//		resultsDialog.addMessage("Results " + ore + "h", titleFont);
+//		resultsDialog.setFont(defaultFont);
+//
+//		resultsDialog.addMessage("======== IMMAGINE INPUT  MASCHERATA ======");
+//		resultsDialog.addMessage("minStackVal= " + String.format("%.4f", minStackVal3) + "     x= " + minStackX3
+//				+ "    y= " + minStackY3 + "    z= " + minStackZ3);
+//		resultsDialog.addMessage("maxStackVal= " + String.format("%.4f", maxStackVal3) + "    x= " + maxStackX3
+//				+ "    y= " + maxStackY3 + "    z= " + maxStackZ3);
+//
+//		resultsDialog
+//				.addMessage("meanStackVal= " + String.format("%.4f", meanStackVal3) + "        pixCount= " + pixCount3);
+//		resultsDialog.addMessage("integral= " + String.format("%.4f", integral3));
+//		resultsDialog.addMessage("======== MATILDE MASCHERATA =============");
+//		resultsDialog.addMessage("minStackVal= " + String.format("%.4f", minStackVal1) + "       x= " + minStackX1
+//				+ "    y= " + minStackY1 + "    z= " + minStackZ1);
+//		resultsDialog.addMessage("maxStackVal= " + String.format("%.4f", maxStackVal1) + "    x= " + maxStackX1
+//				+ "    y= " + maxStackY1 + "    z= " + maxStackZ1);
+//
+//		resultsDialog
+//				.addMessage("meanStackVal= " + String.format("%.4f", meanStackVal1) + "        pixCount= " + pixCount1);
+//		resultsDialog.addMessage("integral= " + String.format("%.4f", integral1));
+//
+//		resultsDialog.addMessage("======== PATATA MASCHERATA ==============");
+//		resultsDialog.addMessage("minStackVal= " + String.format("%.4f", minStackVal2) + "     x= " + minStackX2
+//				+ "    y= " + minStackY2 + "    z= " + minStackZ2);
+//		resultsDialog.addMessage("maxStackVal= " + String.format("%.4f", maxStackVal2) + "    x= " + maxStackX2
+//				+ "    y= " + maxStackY2 + "    z= " + maxStackZ2);
+//
+//		resultsDialog
+//				.addMessage("meanStackVal= " + String.format("%.4f", meanStackVal2) + "        pixCount= " + pixCount2);
+//		resultsDialog.addMessage("integral= " + String.format("%.4f", integral2));
+//		resultsDialog.addMessage("\n\n\nTempo impiegato= " + time1);
+//		resultsDialog.showDialog();
+//
+//		if (resultsDialog.wasCanceled())
+//			return null;
 
 		ArrayList<ArrayList<Double>> out1 = Utility.calculateDVH(impPatataMascherata, ore);
 		return out1;
