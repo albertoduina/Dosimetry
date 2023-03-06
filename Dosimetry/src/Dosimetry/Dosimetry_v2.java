@@ -649,21 +649,21 @@ public class Dosimetry_v2 implements PlugIn {
 							MyLog.log("ESEGUO MemorizeResults con point1= " + point1);
 
 							aux1 = "#" + count++ + "#\t--- PATIENT INFO " + aux2 + " ---";
-							MyLog.log(aux1);
+						//	MyLog.log(aux1);
 							Utility.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tPatient MachineName= "
 									+ DicomTools.getTag(dicomImage, "0010,0010");
-							MyLog.log(aux1);
+						//	MyLog.log(aux1);
 							Utility.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tPatient ID= " + DicomTools.getTag(dicomImage, "0010,0020");
-							MyLog.log(aux1);
+						//	MyLog.log(aux1);
 							Utility.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tPatient birth date= "
 									+ DicomTools.getTag(dicomImage, "0010,0030");
-							MyLog.log(aux1);
+						//	MyLog.log(aux1);
 							Utility.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tPatient sex= " + DicomTools.getTag(dicomImage, "0010,0040");
-							MyLog.log(aux1);
+					//		MyLog.log(aux1);
 							Utility.logAppend(pathVolatile, aux1);
 							count = countbase + 13; /// proprio tredici, corbezzoli !!!, se metto dieci si pianta
 							// count = count + 10;

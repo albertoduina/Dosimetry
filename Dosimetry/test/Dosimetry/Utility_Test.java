@@ -209,7 +209,7 @@ public class Utility_Test {
 		boolean[] selected = { true, false, true };
 
 		CurveFitter cf = Utility.MIRD_curveFitterSpecialImageJ(vetX, vetY);
-		Utility.MIRD_curvePlotterSpecialImageJ(cf, vetX, vetY, selected);
+		MyPlot.PL04_MIRD_curvePlotterSpecialImageJ(cf, vetX, vetY, selected);
 
 		MyLog.waitHere("SPETTA");
 	}
@@ -224,7 +224,7 @@ public class Utility_Test {
 
 		CurveFitter cf = Utility.MIRD_curveFitterSpecialImageJ(vetX, vetY);
 		Regression reg = Utility.MIRD_curveFitterSpecialFlanagan(vetX, vetY);
-		Utility.MIRD_curvePlotterSpecialCombined(cf, reg, vetX, vetY);
+		MyPlot.PL03_MIRD_curvePlotterSpecialCombined(cf, reg, vetX, vetY);
 
 		MyLog.waitHere("SPETTA");
 	}
@@ -236,7 +236,7 @@ public class Utility_Test {
 		double[] vetY = { 35.921969407999995, 18.392739144, 9.153194127999999 };
 
 		Regression reg = Utility.MIRD_curveFitterSpecialFlanagan(vetX, vetY);
-		Utility.MIRD_curvePlotterSpecialFlanagan(reg, vetX, vetY);
+		MyPlot.PL05_MIRD_curvePlotterSpecialFlanagan(reg, vetX, vetY, "TITLE");
 
 		MyLog.waitHere("SPETTA");
 	}
@@ -248,7 +248,7 @@ public class Utility_Test {
 		double[] vetY = { 35.921969407999995, 18.392739144, 9.153194127999999 };
 		boolean[] selected = { true, false, true };
 
-		Utility.MIRD_pointsPlotter(vetX, vetY, selected, "Titolo");
+		MyPlot.PL01_MIRD_pointsPlotter(vetX, vetY, selected, "Titolo");
 
 		MyLog.waitHere("SPETTA");
 	}
@@ -262,9 +262,9 @@ public class Utility_Test {
 		boolean[] selected = { true, false, true };
 
 		String tit1 = "Punti1";
-		Utility.MIRD_pointsPlotter(vetX, vetY, selected, tit1);
+		MyPlot.PL01_MIRD_pointsPlotter(vetX, vetY, selected, tit1);
 		String tit2 = "Punti2";
-		Utility.MIRD_pointsPlotter(vetX, vetY2, selected, tit2);
+		MyPlot.PL01_MIRD_pointsPlotter(vetX, vetY2, selected, tit2);
 		MyLog.waitHere("SPETTA");
 		Utility.closePlot(tit1);
 
@@ -628,7 +628,7 @@ public class Utility_Test {
 			vetyCC[i1] = matout1[i1][1];
 		}
 
-		Plot plot1 = Utility.myPlotMultiple2( vetxBB, vetyBB, vetxCC, vetyCC, null, null, null);
+		Plot plot1 = MyPlot.PL10_myPlotMultiple2( vetxBB, vetyBB, vetxCC, vetyCC, null, null, null);
 		plot1.show();
 
 		MyLog.waitHere("GHET FRESA? POLSA!!!");

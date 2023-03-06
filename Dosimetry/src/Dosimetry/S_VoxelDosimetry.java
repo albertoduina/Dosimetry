@@ -151,7 +151,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		// ==========================================
 		// DA QUI IN POI POSSO ANCHE ESTRARRE LE ISTRUZIONI ALL'ESTERNO DI CALCDVH2
 		// ==========================================
-		Plot plot8 = Utility.myPlotMultipleSpecial1(vetMin, vetY, vetMax, vetY, vetMed, vetY, "MEDIA", "DOSE [Gy]",
+		Plot plot8 = MyPlot.PL08_myPlotMultipleSpecial1(vetMin, vetY, vetMax, vetY, vetMed, vetY, "MEDIA", "DOSE [Gy]",
 				"VOL%");
 		plot8.show();
 		// =========================================
@@ -217,20 +217,16 @@ public class S_VoxelDosimetry implements PlugIn {
 		MyLog.waitHere("FINE LAVORO");
 	}
 
+	
 	/**
-	 * Isolo il calcolo del DVH, in modo da poterlo mettere anche all'interno di un
-	 * altro plugin, senza avere dipendenze
+	 * Calcolo DVH come subroutine
 	 * 
-	 * @param pathVolatile
-	 * @param pathImage
+	 * @param dosimetryFolder
 	 */
-
 	void pureDVH1(String dosimetryFolder) {
-		
 		
 		lato = Utility.latoCubo();
 		mezzo = (lato - 1) / 2;
-
 
 		String lesione1 = "";
 		String lesione3 = "";
@@ -238,7 +234,14 @@ public class S_VoxelDosimetry implements PlugIn {
 		String logVolatile = dosimetryFolder + File.separator + "volatile.txt";
 		String out1 = "volatile";
 		String startingDir1 = "";
-
+		
+		double[] vetx24 = null;
+		double[] vety24 = null;
+		double[] vetx48 = null;
+		double[] vety48 = null;
+		double[] vetx120 = null;
+		double[] vety120 = null;
+	
 		ArrayList<ArrayList<Double>> xList = new ArrayList<ArrayList<Double>>();
 		int[] vetH = { 24, 48, 120 };
 		for (int i1 = 0; i1 < vetH.length; i1++) {
@@ -255,29 +258,35 @@ public class S_VoxelDosimetry implements PlugIn {
 				xList.add(yList.get(i2));
 			}
 		}
-		MyLog.here();
+		
+		ArrayList<Double> arrList1 = null;
+		arrList1 = xList.get(0);
+		vetx24 = Utility.arrayListToArrayDouble(arrList1);
+		arrList1 = xList.get(2);
+		vety24 = Utility.arrayListToArrayDouble(arrList1);
+		arrList1 = xList.get(3);
+		vetx48 = Utility.arrayListToArrayDouble(arrList1);
+		arrList1 = xList.get(5);
+		vety48 = Utility.arrayListToArrayDouble(arrList1);
+		arrList1 = xList.get(6);
+		vetx120 = Utility.arrayListToArrayDouble(arrList1);
+		arrList1 = xList.get(8);
+		vety120 = Utility.arrayListToArrayDouble(arrList1);
 
-		double[][] matDVH2 = Utility.pureDVH2(xList);
-		MyLog.here();
-
-		double[] vetMin = new double[matDVH2.length];
-		double[] vetMax = new double[matDVH2.length];
-		double[] vetMed = new double[matDVH2.length];
-		double[] vetY = new double[matDVH2.length];
-		for (int i1 = 0; i1 < matDVH2.length; i1++) {
-			vetMin[i1] = matDVH2[i1][0];
-			vetMax[i1] = matDVH2[i1][1];
-			vetMed[i1] = matDVH2[i1][2];
-			vetY[i1] = matDVH2[i1][3];
-		}
-
-		Plot plot8 = Utility.myPlotMultipleSpecial1(vetMin, vetY, vetMax, vetY, vetMed, vetY, "MEDIA", "DOSE [Gy]",
-				"VOL%");
-		plot8.show();
-
-		MyLog.waitHere("ASPETTA UN ATTIMO, CI SIAMO RIUSCITI ??");
+		Plot plot1 = MyPlot.PL11_myPlotMultiple2(vetx24, vety24, vetx48, vety48, vetx120, vety120,
+				"24h=red 48h=green 120h=blue", "VALUE", "VOL%");
+		plot1.show();
+		
 	}
+	
 
+
+	/**
+	 * Calcolo del vvettore errore
+	 * 
+	 * @param vetIn
+	 * @return
+	 */
 	double vetErr(double[] vetIn) {
 
 		double sum = 0;
@@ -351,8 +360,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		impStackMask.setDisplayRange(50, 255);
 		impStackMask.setSlice(sl);
 		impStackMask.setTitle("MASK " + ore + "h");
-		impStackMask.show();
-		MyLog.here();
+//		impStackMask.show();
 
 		if (loggoVoxels) {
 			// serve solo per DEBUG durante le prove
@@ -378,12 +386,11 @@ public class S_VoxelDosimetry implements PlugIn {
 		impStackIn.setDisplayRange(tapata1[3], tapata1[7]);
 		impStackIn.setSlice((int) tapata1[6]);
 
-		impStackIn.show();
+//		impStackIn.show();
 
 		int width1 = stackIn.getWidth();
 		int height1 = stackIn.getHeight();
 		int depth1 = stackIn.getSize();
-		MyLog.here();
 
 		// elaborazione pixel per pixel dell'intera immagine di input, senza quindi
 		// utilizzare la mask, dopo che abbiamo applicato le formule formulate in
@@ -441,7 +448,8 @@ public class S_VoxelDosimetry implements PlugIn {
 		}
 
 		ImagePlus impMatilde = new ImagePlus("mAtilde " + ore + "h", stackMatilde);
-		impMatilde.show();
+//		impMatilde.show();
+
 		if (Utility.stackIsEmpty(impMatilde))
 			MyLog.waitHere("impMatilde vuota");
 
@@ -465,7 +473,8 @@ public class S_VoxelDosimetry implements PlugIn {
 		if (Utility.stackIsEmpty(impRubik))
 			MyLog.waitHere("impRubik vuota");
 
-		impRubik.show();
+//		impRubik.show();
+
 		ImageStack stackRubik = impRubik.getImageStack();
 		// -------------------------------------
 
@@ -508,7 +517,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		}
 
 		ImagePlus impPatataCompleta = new ImagePlus("PatataCompleta " + ore + "h", stackPatataCompleta);
-		impPatataCompleta.show();
+	//	impPatataCompleta.show();
 
 		if (loggoVoxels) {
 			Utility.loggoVoxels2(impPatataCompleta, x2, y2, z2);
@@ -519,12 +528,11 @@ public class S_VoxelDosimetry implements PlugIn {
 		double[] tapata3 = Utility.MyStackStatistics(impPatataCompleta, impStackMask);
 		impPatataCompleta.setDisplayRange(tapata3[3], tapata3[7]);
 		impPatataCompleta.setSlice((int) tapata3[6]);
-		impPatataCompleta.show();
+		// impPatataCompleta.show();
 
 		if (Utility.stackIsEmpty(impPatataCompleta))
 			MyLog.waitHere("impPatataCompleta vuota");
 
-		MyLog.here();
 
 		// ####################################################
 		// PATATA MASCHERATA
@@ -551,7 +559,6 @@ public class S_VoxelDosimetry implements PlugIn {
 			}
 		}
 
-		MyLog.here();
 
 		ImagePlus impPatataMascherata = new ImagePlus("PATATA_MASCHERATA  " + ore + "h", stackPatataMascherata);
 		if (loggoVoxels) {
@@ -561,15 +568,15 @@ public class S_VoxelDosimetry implements PlugIn {
 			Utility.loggoVoxels2(impPatataMascherata, x2, y2, z2);
 			Utility.loggoCuxels3(impPatataMascherata, x2, y2, z2, lato, mezzo);
 		}
-		impPatataMascherata.show();
+//		impPatataMascherata.show();
+	
 		if (Utility.stackIsEmpty(impPatataMascherata))
 			MyLog.waitHere("impPatataMascherata vuota");
 
 		tapata3 = Utility.MyStackStatistics(impPatataMascherata, impStackMask);
 		impPatataMascherata.setDisplayRange(tapata3[3], tapata3[7]);
 		impPatataMascherata.setSlice((int) tapata3[6]);
-		impPatataMascherata.show();
-		MyLog.here();
+//		impPatataMascherata.show();
 
 		end1 = System.currentTimeMillis();
 
@@ -648,6 +655,7 @@ public class S_VoxelDosimetry implements PlugIn {
 //
 //		if (resultsDialog.wasCanceled())
 //			return null;
+
 
 		ArrayList<ArrayList<Double>> out1 = Utility.calculateDVH(impPatataMascherata, ore);
 		return out1;

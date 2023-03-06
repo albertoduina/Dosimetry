@@ -322,7 +322,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		}
 		imp2 = Utility.readStackFiles2(startingDir2);
 		imp2.show();
-		MyLog.here();
 
 		// 0020,000E Series Instance UID:
 		// 1.2.840.113619.2.184.31108.1067210107.1661517437.7028981
@@ -379,7 +378,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		imp4 = Utility.readStackFiles2(startingDir4);
 		imp4.show();
-		MyLog.here();
 
 		String ctUID4 = DicomTools.getTag(imp4, "0020,000E");
 		ctUID4 = ctUID4.trim();
@@ -437,7 +435,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		if (imp6 == null)
 			return;
 		imp6.show();
-		MyLog.here();
 
 		// ==================================================
 
@@ -472,7 +469,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// PAZIENZA
 		// DELL'OPERATORE
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		MyLog.here();
 
 		do {
 
@@ -581,7 +577,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 			out120 = Utility.MIRD_point(in1);
 
 			MIRD_vol120 = out120[0];
-			MyLog.here();
 
 			// scrivo TEMPORANEAMENTE dati in volatile.txt, in serguito verranno riscritti
 			// dopo approvazione "ministeriale" definitiva
@@ -613,7 +608,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 			Utility.logAppend(pathVolatile, aux5);
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120= " + out120[2];
 			Utility.logAppend(pathVolatile, aux5);
-			MyLog.here();
 
 			double[] xp1 = new double[3];
 			double[] yp1 = new double[3];
@@ -656,13 +650,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
-				MyLog.here();
-
 				double[] vetOut4 = preProcessa(xp1, yp1, MIRD_vol24, MIRD_vol48, MIRD_vol120);
-				
-//				double[] vetOut4 = processa(xp1, yp1, MIRD_vol24, MIRD_vol48, MIRD_vol120);
-
-				MyLog.here();
 
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
@@ -694,7 +682,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 				aux5 = "#302#\tMIRD FLANAGAN FIT param 1= " + aa;
 				Utility.logAppend(pathVolatile, aux5);
 
-				MyLog.here();
 				// MyLog.waitHere("s1= " + s1 + " s2= " + s2 + " m1= " + m1 + " m2= " + m2);
 
 				vetInput = new double[14];
@@ -717,12 +704,16 @@ public class Dosimetria_Lu177 implements PlugIn {
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
-				MyLog.here("====================");
 
+				MyLog.here("  STO PER STAMPARE PL11");
 				S_VoxelDosimetry S_VoxelDosimetry2 = new S_VoxelDosimetry();
 				S_VoxelDosimetry2.pureDVH1(pathImage);
-				MyLog.here();
 
+				double[] vetOut6 = processa(xp1, yp1, MIRD_vol24, MIRD_vol48, MIRD_vol120);
+
+				////// //////////////////////////////////////////////////////////////////////
+				////// IW2AYV////////////////////////////////////////////////////////////////
+				////// //////////////////////////////////////////////////////////////////////
 				// ==========================================================================
 				// PARTE REVIEW CHE DEVE RITORNARE INDIETRO PER RIFARE UNO O PIU'DEI CALCOLI
 				// FINALMENTE SAREMO FELICI E GORGOGLIONI DELLE NOSTRE ELABORAZIONI
@@ -2283,7 +2274,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// FIT DA ESEGUIRE IN OGNI CASO CON FLANAGAN
 		// =============================================================
 		rf = Utility.MIRD_curveFitterSpecialFlanagan(xp1, yp1);
-		Utility.MIRD_curvePlotterSpecialFlanagan(rf, xp1, yp1);
+		MyLog.here(" STO PER STAMPARE PL05");
+		MyPlot.PL05_MIRD_curvePlotterSpecialFlanagan(rf, xp1, yp1, "254h=red 48h=green 120h=blue");
 		// -------- recupero i dati da stampare ---------------
 		rSquaredFLA = rf.getCoefficientOfDetermination();
 		paramsFLA = rf.getBestEstimates();
@@ -2410,7 +2402,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
 		String titolo1 = "Punti_PP01";
-		Utility.MIRD_pointsPlotter(xp1, yp1, null, titolo1);
+//		MyPlot.MIRD_pointsPlotter(xp1, yp1, null, titolo1);
 		////////////////////////////////////////////////////////
 		int count = 0;
 		boolean[] puntiSelezionatiFit = pointsSelection_LP33(); /// selezione dei 2 o 3 punti su cui fare il fit
@@ -2420,8 +2412,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 		}
 		Utility.closePlot(titolo1);
 
-		String titolo2 = "Punti_PP02";
-		Utility.MIRD_pointsPlotter(xp1, yp1, puntiSelezionatiFit, titolo2);
+		// String titolo2 = "Punti_PP02";
+		// MyPlot.PL01_MIRD_pointsPlotter(xp1, yp1, puntiSelezionatiFit, titolo2);
 
 		aux5 = "#194#\t----- POINT SELECTION ------------------";
 		Utility.logModify(pathVolatile, "#194#", aux5);
@@ -2441,14 +2433,14 @@ public class Dosimetria_Lu177 implements PlugIn {
 				count2++;
 			}
 		}
-		Utility.closePlot(titolo2);
+		// Utility.closePlot(titolo2);
 
 		if (count2 == 2) {
 			// =============================================================
 			// SELEZIONATI DUE SOLI PUNTI - FIT DA ESEGUIRE CON IMAGEJ
 			// =============================================================
 			cf = Utility.MIRD_curveFitterSpecialImageJ(xp2, yp2);
-			Utility.MIRD_curvePlotterSpecialImageJ(cf, xp1, yp1, puntiSelezionatiFit);
+			MyPlot.PL04_MIRD_curvePlotterSpecialImageJ(cf, xp1, yp1, puntiSelezionatiFit);
 			// -------- recupero i dati da stampare ---------------
 			paramsIJ = cf.getParams();
 			numParams = cf.getNumParams();
@@ -2490,7 +2482,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// SELEZIONATI TRE PUNTI - FIT DA ESEGUIRE CON FLANAGAN
 			// =============================================================
 			rf = Utility.MIRD_curveFitterSpecialFlanagan(xp2, yp2);
-			Utility.MIRD_curvePlotterSpecialFlanagan(rf, xp2, yp2);
+			MyLog.logVector(xp2, "xp2 verifica grafico");
+			MyLog.logVector(yp2, "yp2 verifica grafico");
+			MyPlot.PL05_MIRD_curvePlotterSpecialFlanagan(rf, xp2, yp2, "24h=red 48h=green 120h=blue");
 			// -------- recupero i dati da stampare ---------------
 			rSquaredFLA = rf.getCoefficientOfDetermination();
 			paramsFLA = rf.getBestEstimates();

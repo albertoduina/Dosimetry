@@ -52,7 +52,6 @@ import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
 import ij.util.DicomTools;
 import ij.util.FontUtil;
-import ij.util.Tools;
 
 //
 // DATI SOMMINISTRAZIONE 			#001#-#009# 
@@ -1026,240 +1025,6 @@ public class Utility {
 	}
 
 	/**
-	 * Effettua il plot dei punti trovati, SENZA mostrare alcun fit
-	 * 
-	 * @param vetX
-	 * @param vetY
-	 */
-	static void MIRD_pointsPlotter(double[] vetX, double[] vetY, boolean[] selected, String title) {
-
-		double[] minMaxX = Tools.getMinMax(vetX);
-		double[] minMaxY = Tools.getMinMax(vetY);
-		boolean[] neglected = { true, true, true };
-		double xmin = 0;
-		double xmax = minMaxX[1] * 1.1;
-		double ymin = -1.0;
-		double ymax = minMaxY[1] * 1.1;
-		int PLOT_WIDTH = 600;
-		int PLOT_HEIGHT = 350;
-		double[] xx = new double[1];
-		double[] yy = new double[1];
-
-		if (selected == null)
-			selected = neglected;
-
-		Plot plot1 = new Plot(title, "ore dalla somministrazione", "attivita' MBq");
-		plot1.setLineWidth(2);
-		for (int i1 = 0; i1 < selected.length; i1++) {
-			if (selected[i1]) {
-				plot1.setColor(Color.red);
-				xx[0] = vetX[i1];
-				yy[0] = vetY[i1];
-				plot1.add("circle", xx, yy);
-			} else {
-				plot1.setColor(Color.black);
-				xx[0] = vetX[i1];
-				yy[0] = vetY[i1];
-				plot1.add("circle", xx, yy);
-			}
-
-		}
-		plot1.setFrameSize(PLOT_WIDTH, PLOT_HEIGHT);
-		plot1.setLimits(xmin, xmax, ymin, ymax);
-		plot1.show();
-		return;
-
-	}
-
-	/**
-	 * Effettua il plot dei punti (selezionati e non selezionati) e mostra il fit
-	 * fatto sui punti selezionati
-	 * 
-	 * @param vetX
-	 * @param vetY
-	 */
-	static Plot MIRD_curvePlotterSpecialImageJ(CurveFitter cf, double[] vetx, double[] vety, boolean[] selected) {
-
-		int PLOT_WIDTH = 600;
-		int PLOT_HEIGHT = 350;
-
-		int npoints = 1000;
-		if (npoints < vetx.length)
-			npoints = vetx.length; // or 2*x.length-1; for 2 values per data point
-		if (npoints > 1000)
-			npoints = 1000;
-		double[] a = Tools.getMinMax(vetx);
-		double xmin = a[0];
-		double xmax = a[1] * 1.5;
-		xmin = 0;
-		npoints = 1000;
-		double[] b = Tools.getMinMax(vety);
-		double ymin = b[0];
-		double ymax = b[1] * 1.1; // y range of data points
-		ymin = 0;
-		double[] px = new double[npoints];
-		double[] py = new double[npoints];
-		double inc = (xmax - xmin) / (npoints - 1);
-		double tmp = xmin;
-		for (int i = 0; i < npoints; i++) {
-			px[i] = tmp;
-			tmp += inc;
-		}
-		double[] params = cf.getParams();
-		for (int i = 0; i < npoints; i++)
-			py[i] = cf.f(params, px[i]);
-		a = Tools.getMinMax(py);
-		double dataRange = ymax - ymin;
-		ymin = Math.max(ymin - dataRange, Math.min(ymin, a[0])); // expand y range for curve, but not too much
-		ymax = Math.min(ymax + dataRange, Math.max(ymax, a[1]));
-
-		Plot plot2 = new Plot("PLOT IMAGEJ", "ore dalla somministrazione", "attivita' MBq");
-		plot2.setLineWidth(2);
-		plot2.setColor(Color.BLUE);
-		plot2.add("line", px, py);
-		plot2.setLimits(xmin, xmax, ymin, ymax);
-		plot2.setColor(Color.RED);
-		double[] xx = new double[1];
-		double[] yy = new double[1];
-
-		for (int i1 = 0; i1 < selected.length; i1++) {
-			if (selected[i1]) {
-				plot2.setColor(Color.red);
-				xx[0] = vetx[i1];
-				yy[0] = vety[i1];
-				plot2.add("circle", xx, yy);
-			} else {
-				plot2.setColor(Color.black);
-				xx[0] = vetx[i1];
-				yy[0] = vety[i1];
-				plot2.add("circle", xx, yy);
-			}
-
-		}
-		StringBuffer legend = new StringBuffer(100);
-		legend.append(cf.getName());
-		legend.append('\n');
-		legend.append(cf.getFormula());
-		legend.append('\n');
-		double[] p = cf.getParams();
-		int n = cf.getNumParams();
-		char pChar = 'a';
-		for (int i = 0; i < n; i++) {
-			legend.append(pChar + " = " + IJ.d2s(p[i], 5, 9) + '\n');
-			pChar++;
-		}
-		legend.append("R^2 = " + IJ.d2s(cf.getRSquared(), 4));
-		legend.append('\n');
-		plot2.addLabel(0.8, 0.1, legend.toString());
-		plot2.setFrameSize(PLOT_WIDTH, PLOT_HEIGHT);
-		plot2.setColor(Color.BLUE);
-		plot2.show();
-		return plot2;
-	}
-
-	/**
-	 * Effettua il plot dei punti trovati, SENZA mostrare alcun fit
-	 * 
-	 * @param vetX
-	 * @param vetY
-	 */
-	static void MIRD_curvePlotterSpecialFlanagan(Regression reg, double[] x, double[] y) {
-
-		int PLOT_WIDTH = 600;
-		int PLOT_HEIGHT = 350;
-
-		int npoints = 1000;
-		if (npoints < x.length)
-			npoints = x.length; // or 2*x.length-1; for 2 values per data point
-		if (npoints > 1000)
-			npoints = 1000;
-		double[] a = Tools.getMinMax(x);
-		double xmin = a[0], xmax = a[1] * 1.5;
-		xmin = 0;
-		npoints = 1000;
-		double[] b = Tools.getMinMax(y);
-		double ymin = b[0], ymax = b[1] * 1.1; // y range of data points
-		ymin = 0;
-		double[] px = new double[npoints];
-		double[] py = new double[npoints];
-		double inc = (xmax - xmin) / (npoints - 1);
-		double tmp = xmin;
-		for (int i = 0; i < npoints; i++) {
-			px[i] = tmp;
-			tmp += inc;
-		}
-		double[] params = reg.getBestEstimates();
-
-		double aux0 = 0;
-		double aux1 = 0;
-
-		aux0 = params[1];
-		aux1 = params[0];
-
-		MyLog.log("aux0= " + aux0 + " aux1= " + aux1);
-		for (int i = 0; i < npoints; i++) {
-			py[i] = aux0 * Math.exp(aux1 * px[i]);
-			// MyLog.log("px[" + i + "]= " + px[i] + " py[" + i + "]= " + py[i]);
-		}
-		a = Tools.getMinMax(py);
-		double dataRange = ymax - ymin;
-		ymin = Math.max(ymin - dataRange, Math.min(ymin, a[0])); // expand y range for curve, but not too much
-		ymax = Math.min(ymax + dataRange, Math.max(ymax, a[1]));
-
-		Plot plot = new Plot("PLOT FLANAGAN", "ore dalla somministrazione", "attivita' MBq");
-		plot.setLineWidth(2);
-		plot.setColor(Color.GREEN);
-		plot.add("line", px, py);
-		plot.setLimits(xmin, xmax, ymin, ymax);
-		plot.setColor(Color.RED);
-		plot.add("circle", x, y);
-		plot.setColor(Color.GREEN);
-//		plot.addLabel(0.02, 0.1, legend.toString());
-		plot.setFrameSize(PLOT_WIDTH, PLOT_HEIGHT);
-		plot.show();
-
-	}
-
-	/**
-	 * Effettua il plot dei punti trovati, mostrando anche il FIT
-	 * 
-	 * @param vetX
-	 * @param vetY
-	 * @param params
-	 * @param npoints
-	 */
-	static void MIRD_curvePlotter(double[] vetX, double[] vetY, double[] params, int npoints) {
-
-		double[] minMaxX = Tools.getMinMax(vetX);
-		double[] minMaxY = Tools.getMinMax(vetY);
-		double xmin = 0;
-		double xmax = minMaxX[1] * 1.1;
-		double ymin = -1.0;
-		double ymax = minMaxY[1] * 1.1;
-		int PLOT_WIDTH = 600;
-		int PLOT_HEIGHT = 350;
-		double[] px = new double[npoints];
-//		double[] py = new double[npoints];
-
-		double inc = (xmax - xmin) / (npoints - 1);
-		double tmp = minMaxX[0];
-		for (int i = 0; i < npoints; i++) {
-			px[i] = (float) tmp;
-			tmp += inc;
-		}
-
-		Plot plot1 = new Plot("Punti", "ore dalla somministrazione", "attivita' MBq");
-		plot1.setLineWidth(2);
-		plot1.setColor(Color.red, Color.red);
-		plot1.setColor(Color.blue);
-		plot1.add("circle", vetX, vetY);
-		plot1.setFrameSize(PLOT_WIDTH, PLOT_HEIGHT);
-		plot1.setLimits(xmin, xmax, ymin, ymax);
-		plot1.show();
-
-	}
-
-	/**
 	 * Calcolo della durata dell'acquisizione in secondi
 	 * 
 	 * @param imp1 immagine da analizzare
@@ -1375,88 +1140,6 @@ public class Utility {
 		for (final Window w : WindowManager.getAllNonImageWindows()) {
 			w.dispose();
 		}
-	}
-
-	/**
-	 * Effettua il plot dei punti trovati, MOSTRANDO i due fit ImageJ e Flanagan
-	 * sovrapposti
-	 * 
-	 * @param vetX
-	 * @param vetY
-	 */
-	static void MIRD_curvePlotterSpecialCombined(CurveFitter cf, Regression reg, double[] x, double[] y) {
-
-		int PLOT_WIDTH = 600;
-		int PLOT_HEIGHT = 350;
-
-		int npoints = 400;
-		if (npoints < x.length)
-			npoints = x.length; // or 2*x.length-1; for 2 values per data point
-		if (npoints > 1000)
-			npoints = 1000;
-		double[] a = Tools.getMinMax(x);
-		double xmin = a[0], xmax = a[1] * 1.5;
-		xmin = 0;
-		npoints = 400;
-		double[] b = Tools.getMinMax(y);
-		double ymin = b[0], ymax = b[1] * 1.1; // y range of data points
-		ymin = 0;
-
-		// curva di FIT ottenuta da ImageJ
-
-		double[] pxj = new double[npoints];
-		double[] pyj = new double[npoints];
-		double incj = (xmax - xmin) / (npoints - 1);
-		double tmpj = xmin;
-		for (int i = 0; i < npoints; i++) {
-			if (i % 2 != 0)
-				pxj[i] = tmpj;
-			tmpj += incj;
-		}
-		double[] paramsj = cf.getParams();
-		for (int i = 0; i < npoints; i++)
-			if (i % 2 != 0)
-				pyj[i] = cf.f(paramsj, pxj[i]);
-
-		// curva di FIT ottenuta da Flanagan
-		double[] pxf = new double[npoints];
-		double[] pyf = new double[npoints];
-		double incf = (xmax - xmin) / (npoints - 1);
-		double tmpf = xmin;
-		for (int i = 0; i < npoints; i++) {
-			if (i % 2 == 0)
-				pxf[i] = tmpf;
-			tmpf += incf;
-		}
-		double[] paramsf = reg.getBestEstimates();
-
-		double aux0f = paramsf[1];
-		double aux1f = paramsf[0];
-
-		for (int i = 0; i < npoints; i++) {
-			if (i % 2 == 0)
-				pyf[i] = (aux0f * Math.exp(aux1f * pxf[i]));
-		}
-
-		a = Tools.getMinMax(pyj);
-		double dataRange = ymax - ymin;
-		ymin = Math.max(ymin - dataRange, Math.min(ymin, a[0])); // expand y range for curve, but not too much
-		ymax = Math.min(ymax + dataRange, Math.max(ymax, a[1]));
-		Plot plot = new Plot("Comparazione ImageJ BLU e Flanagan VERDE", "X", "Y");
-		plot.setLineWidth(2);
-		plot.setColor(Color.BLUE);
-		plot.add("dot", pxj, pyj);
-		plot.setColor(Color.GREEN);
-		plot.add("dot", pxf, pyf);
-		plot.setLimits(xmin, xmax, ymin, ymax);
-		plot.setLineWidth(2);
-		plot.setColor(Color.RED);
-		plot.add("circle", x, y);
-		plot.setColor(Color.BLUE);
-		plot.setFrameSize(PLOT_WIDTH, PLOT_HEIGHT);
-
-		plot.setColor(Color.BLUE);
-		plot.show();
 	}
 
 	/**
@@ -2408,7 +2091,7 @@ public class Utility {
 		MyLog.log("eseguo calculateDVH " + ore + " ore");
 		MyLog.here();
 
-		patataMascherata.show();
+	//	patataMascherata.show();
 
 		if (patataMascherata == null)
 			MyLog.waitHere("patataMascherata == null");
@@ -2537,45 +2220,6 @@ public class Utility {
 
 	}
 
-	static double[][] pureDVH2(ArrayList<ArrayList<Double>> arrIn1) {
-
-		double[] vetx24 = null;
-		double[] vety24 = null;
-		double[] vetx48 = null;
-		double[] vety48 = null;
-		double[] vetx120 = null;
-		double[] vety120 = null;
-
-		MyLog.log("eseguoCalcDVH2");
-		int len1 = arrIn1.size();
-		// separo i vari array in modo da facilitare il successivo lavoro
-		// NOTA BENE i diversi array 24, 48 e 120 avranno lunghezze diverse a seconda
-		// delle numerosita'
-
-		ArrayList<Double> arrList1 = null;
-
-		arrList1 = arrIn1.get(0);
-		vetx24 = Utility.arrayListToArrayDouble(arrList1);
-		arrList1 = arrIn1.get(2);
-		vety24 = Utility.arrayListToArrayDouble(arrList1);
-		arrList1 = arrIn1.get(3);
-		vetx48 = Utility.arrayListToArrayDouble(arrList1);
-		arrList1 = arrIn1.get(5);
-		vety48 = Utility.arrayListToArrayDouble(arrList1);
-		arrList1 = arrIn1.get(6);
-		vetx120 = Utility.arrayListToArrayDouble(arrList1);
-		arrList1 = arrIn1.get(8);
-		vety120 = Utility.arrayListToArrayDouble(arrList1);
-
-		Plot plot1 = Utility.myPlotMultiple2(vetx24, vety24, vetx48, vety48, vetx120, vety120,
-				"24h=red 48h=green 120h=blue", "VALUE", "VOL%");
-		plot1.show();
-		
-		
-		MyLog.waitHere();
-
-		return null;
-	}
 
 	static double[][] calcDVH2(ArrayList<ArrayList<Double>> arrIn1) {
 
@@ -2607,7 +2251,7 @@ public class Utility {
 		arrList1 = arrIn1.get(8);
 		vety120 = Utility.arrayListToArrayDouble(arrList1);
 
-		Plot plot1 = Utility.myPlotMultiple2(vetx24, vety24, vetx48, vety48, vetx120, vety120,
+		Plot plot1 = MyPlot.PL11_myPlotMultiple2(vetx24, vety24, vetx48, vety48, vetx120, vety120,
 				"INPUT 24red,48green,120blue", "assexx", "asseyy");
 		plot1.show();
 
@@ -2643,15 +2287,15 @@ public class Utility {
 		MyLog.logVector(vetx120new, "vetx120new");
 //		MyLog.logVector(vety120new, "vety120new");
 
-		Plot plot3 = myPlotSingle2(vetx24, vety24, "INPUT24", "grafX24", "grafY24", Color.red);
-		plot3.show();
-		Plot plot4 = myPlotMultiple2(vetx48, vety48, vetx48new, vety48new, "INTERP48 green=interp", "grafX48new",
-				"Y48new");
-		plot4.show();
-		Plot plot5 = myPlotMultiple2(vetx120, vety120, vetx120new, vety120new, "INTERP120 green=interp", "grafX120",
-				"grafY120");
-		plot5.show();
-		MyLog.waitHere();
+//		Plot plot3 = MyPlot.PL06_myPlotSingle2(vetx24, vety24, "INPUT24", "grafX24", "grafY24", Color.red);
+//		plot3.show();
+//		Plot plot4 = MyPlot.PL10_myPlotMultiple2(vetx48, vety48, vetx48new, vety48new, "INTERP48 green=interp", "grafX48new",
+//				"Y48new");
+//		plot4.show();
+//		Plot plot5 = MyPlot.PL10_myPlotMultiple2(vetx120, vety120, vetx120new, vety120new, "INTERP120 green=interp", "grafX120",
+//				"grafY120");
+//		plot5.show();
+//		MyLog.waitHere();
 //	
 
 		int a1 = vetx24.length;
@@ -2697,8 +2341,8 @@ public class Utility {
 			vetY[i1] = matout1[i1][2];
 		}
 
-		Plot plot6 = myPlotMultiple(vetMin, vetY, vetMax, vetY, "RASEGATO", "grafX", "grafY");
-		plot6.show();
+//		Plot plot6 = MyPlot.PL12_myPlotMultiple(vetMin, vetY, vetMax, vetY, "RASEGATO", "grafX", "grafY");
+//		plot6.show();
 		MyLog.log("=============== dati rasegati ===============");
 		MyLog.logVector(vetMin, "vetMin");
 //		MyLog.logVector(vetY, "vetY");
@@ -3036,172 +2680,6 @@ public class Utility {
 		}
 		return matout;
 
-	}
-
-	public static Plot myPlotSingle(double[] profilex, double[] profiley, String title, String xlabel, String ylabel,
-			Color color) {
-		double[] a = Tools.getMinMax(profilex);
-		double[] b = Tools.getMinMax(profiley);
-
-//		Plot plot = new Plot(title, "pixel", "valore", profilex, profiley);
-		Plot plot = new Plot(title, xlabel, ylabel);
-		plot.setColor(color);
-		plot.add("line", profilex, profiley);
-
-		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
-		return plot;
-	}
-
-	public static Plot myPlotSingle2(double[] profilex, double[] profiley, String title, String xlabel, String ylabel,
-			Color color) {
-		double[] a = Tools.getMinMax(profilex);
-		double[] b = Tools.getMinMax(profiley);
-
-//		Plot plot = new Plot(title, "pixel", "valore", profilex, profiley);
-		Plot plot = new Plot(title, xlabel, ylabel);
-		plot.setColor(color);
-		plot.add("line", profilex, profiley);
-		plot.add("circle", profilex, profiley);
-
-		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
-		return plot;
-	}
-
-	public static Plot myPlotMultiple(double[] profilex1, double[] profiley1, double[] profilex2, double[] profiley2,
-			double[] profilex3, double[] profiley3, String title, String xlabel, String ylabel) {
-
-		Plot plot = new Plot(title, xlabel, ylabel);
-		plot.setColor(Color.red);
-		plot.add("line", profilex1, profiley1);
-		plot.setColor(Color.green);
-		plot.add("line", profilex2, profiley2);
-		plot.setColor(Color.blue);
-		plot.add("line", profilex3, profiley3);
-
-		double[] appx2 = Utility.concatArrays(profilex1, profilex2);
-		double[] appx3 = Utility.concatArrays(appx2, profilex3);
-		double[] a = Tools.getMinMax(appx3);
-		double[] appy2 = Utility.concatArrays(profiley1, profiley2);
-		double[] appy3 = Utility.concatArrays(appy2, profiley3);
-		double[] b = Tools.getMinMax(appy3);
-		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
-		return plot;
-	}
-
-	public static Plot myPlotMultipleSpecial1(double[] profilex1, double[] profiley1, double[] profilex2,
-			double[] profiley2, double[] profilex3, double[] profiley3, String title, String xlabel, String ylabel) {
-
-		Plot plot = new Plot(title, xlabel, ylabel);
-		plot.setColor(Color.gray);
-		plot.add("filled", profilex2, profiley2);
-		plot.setColor(Color.red);
-		plot.add("line", profilex2, profiley2);
-		plot.setColor(Color.blue);
-		plot.setLineWidth(4);
-		plot.add("line", profilex3, profiley3);
-		plot.setLineWidth(1);
-		plot.setColor(Color.white);
-		plot.add("filled", profilex1, profiley1);
-		plot.setColor(Color.red);
-		plot.add("line", profilex1, profiley1);
-
-		double[] appx2 = Utility.concatArrays(profilex1, profilex2);
-		double[] appx3 = Utility.concatArrays(appx2, profilex3);
-		double[] a = Tools.getMinMax(appx3);
-		double[] appy2 = Utility.concatArrays(profiley1, profiley2);
-		double[] appy3 = Utility.concatArrays(appy2, profiley3);
-		double[] b = Tools.getMinMax(appy3);
-		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
-		return plot;
-	}
-
-	public static Plot myPlotMultiple2(double[] profilex1, double[] profiley1, double[] profilex2, double[] profiley2,
-			double[] profilex3, double[] profiley3, String title, String xlabel, String ylabel) {
-
-		
-		
-		Plot plot = new Plot(title, xlabel, ylabel);
-		plot.setColor(Color.red);
-		plot.add("line", profilex1, profiley1);
-		plot.setColor(Color.green);
-		plot.add("line", profilex2, profiley2);
-		plot.setColor(Color.blue);
-		plot.add("line", profilex3, profiley3);
-
-		double[] appx2 = Utility.concatArrays(profilex1, profilex2);
-		double[] appx3 = Utility.concatArrays(appx2, profilex3);
-		double[] a = Tools.getMinMax(appx3);
-		double[] appy2 = Utility.concatArrays(profiley1, profiley2);
-		double[] appy3 = Utility.concatArrays(appy2, profiley3);
-		double[] b = Tools.getMinMax(appy3);
-		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
-		plot.setColor(Color.BLACK);
-		plot.setFont(FontUtil.getFont("Arial", Font.TRUETYPE_FONT, 16));
-		plot.addLabel(0.1, 0.9, title);
-		plot.setWindowSize(700, 420);
-		return plot;
-	}
-	
-	public static Plot myPlotMultiple3(double[] profilex1, double[] profiley1, double[] profilex2, double[] profiley2,
-			double[] profilex3, double[] profiley3, String title, String xlabel, String ylabel) {
-
-		Plot plot = new Plot(title, xlabel, ylabel);
-		plot.setColor(Color.red);
-		plot.add("line", profilex1, profiley1);
-		plot.add("circle", profilex1, profiley1);
-		plot.setColor(Color.green);
-		plot.add("line", profilex2, profiley2);
-		plot.add("circle", profilex2, profiley2);
-		plot.setColor(Color.blue);
-		plot.add("line", profilex3, profiley3);
-		plot.add("circle", profilex3, profiley3);
-
-		double[] appx2 = Utility.concatArrays(profilex1, profilex2);
-		double[] appx3 = Utility.concatArrays(appx2, profilex3);
-		double[] a = Tools.getMinMax(appx3);
-		double[] appy2 = Utility.concatArrays(profiley1, profiley2);
-		double[] appy3 = Utility.concatArrays(appy2, profiley3);
-		double[] b = Tools.getMinMax(appy3);
-		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
-		return plot;
-	}
-
-	public static Plot myPlotMultiple(double[] profilex1, double[] profiley1, double[] profilex2, double[] profiley2,
-			String title, String xlabel, String ylabel) {
-
-		Plot plot = new Plot(title, xlabel, ylabel);
-		plot.setColor(Color.red);
-		plot.add("line", profilex1, profiley1);
-		plot.setColor(Color.green);
-		plot.add("line", profilex2, profiley2);
-
-		double[] appx2 = Utility.concatArrays(profilex1, profilex2);
-		double[] a = Tools.getMinMax(appx2);
-		double[] appy2 = Utility.concatArrays(profiley1, profiley2);
-		double[] b = Tools.getMinMax(appy2);
-		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
-		return plot;
-	}
-
-	public static Plot myPlotMultiple2(double[] profilex1, double[] profiley1, double[] profilex2, double[] profiley2,
-			String title, String xlabel, String ylabel) {
-
-		Plot plot = new Plot(title, xlabel, ylabel);
-
-		plot.setColor(Color.red);
-		plot.setLineWidth(1);
-		plot.add("line", profilex1, profiley1);
-		plot.add("circle", profilex1, profiley1);
-		plot.setColor(Color.green);
-		plot.add("line", profilex2, profiley2);
-		plot.add("circle", profilex2, profiley2);
-
-		double[] appx2 = Utility.concatArrays(profilex1, profilex2);
-		double[] a = Tools.getMinMax(appx2);
-		double[] appy2 = Utility.concatArrays(profiley1, profiley2);
-		double[] b = Tools.getMinMax(appy2);
-		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
-		return plot;
 	}
 
 	static String[] leggiConfig(String target) {
@@ -3856,8 +3334,7 @@ public class Utility {
 		boolean isStack = false;
 
 		MyLog.log("readStackFiles2");
-		MyLog.here();
-
+	
 		info = null;
 		min = Double.MAX_VALUE;
 		max = -Double.MAX_VALUE;
@@ -3985,8 +3462,7 @@ public class Utility {
 			imp2.setCalibration(cal);
 		}
 		IJ.showProgress(1.0);
-		MyLog.here();
-
+		
 		return imp2;
 	}
 
