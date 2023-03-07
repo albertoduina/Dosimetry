@@ -408,7 +408,7 @@ public class MyPlot {
 	 * @param vetX
 	 * @param vetY
 	 */
-	static void PL04_MIRD_curvePlotterSpecialImageJ(CurveFitter cf, double[] vetx, double[] vety, boolean[] selected) {
+	static void PL04_MIRD_curvePlotterSpecialImageJ(CurveFitter cf, double[] vetx, double[] vety, boolean[] selected, String title) {
 
 		int PLOT_WIDTH = 600;
 		int PLOT_HEIGHT = 350;
@@ -448,7 +448,6 @@ public class MyPlot {
 		plot.setColor(Color.ORANGE);
 		plot.add("line", px, py);
 		plot.setLimits(xmin, xmax, ymin, ymax);
-//		plot.setColor(Color.RED);
 		double[] xx = new double[1];
 		double[] yy = new double[1];
 		Color col = null;
@@ -489,15 +488,15 @@ public class MyPlot {
 		legend.append("R^2 = " + IJ.d2s(cf.getRSquared(), 4));
 		legend.append('\n');
 		plot.addLabel(0.8, 0.1, legend.toString());
+		
+		
+		plot.addLabel(0.05, 0.95, title);
 		plot.setWindowSize(PLOT_WIDTH, PLOT_HEIGHT);
-//		plot.setColor(Color.orange);
 
 		plot.show();
+		
 		Frame lw = WindowManager.getFrame(plot.getTitle());
-
 		Dimension screen = IJ.getScreenSize();
-//		MyLog.waitHere("SCREEN= " + screen.toString());
-
 		if (lw != null) {
 			lw.setLocation((screen.width - lw.getWidth()) - 10, screen.height / 2 - lw.getHeight());
 		}

@@ -515,7 +515,7 @@ public class Utility {
 	 */
 	static double[] MIRD_curveFitterImageJ(double[] vetX, double[] vetY) {
 
-		MyLog.log("=== CURVE FITTER IMAGEJ ====");
+		MyLog.log("=== CURVE FITTER STANDARD IMAGEJ ====");
 		CurveFitter cf1 = new CurveFitter(vetX, vetY);
 		cf1.doFit(CurveFitter.EXPONENTIAL);
 		String status = cf1.getStatusString();
@@ -559,7 +559,9 @@ public class Utility {
 	 */
 	static CurveFitter MIRD_curveFitterSpecialImageJ(double[] vetX, double[] vetY) {
 
-		MyLog.log("=== CURVE FITTER SPECIAL IMAGEJ ====");
+		MyLog.log("=== CURVE FITTER SPECIAL IMAGEJ 001 ====");
+
+		
 		CurveFitter cf1 = new CurveFitter(vetX, vetY);
 		cf1.doFit(CurveFitter.EXPONENTIAL);
 		return cf1;
@@ -826,8 +828,7 @@ public class Utility {
 
 			Stmezzo = (Math.log(2) * Sa) / Math.pow(aa, 2);
 			Stau = SmAtilde / somministrata;
-			MyLog.log("flanagan errors");
-		}
+			}
 
 		double[] vetDose = MIRD_calcoloDose(massa, mAtilde, SmAtilde, Smassa, pathVolatile);
 

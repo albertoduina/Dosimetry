@@ -22,28 +22,28 @@ import ij.util.FontUtil;
  * @version v3
  * @author Date 30 jan 2023
  */
-public class S_VoxelDosimetry implements PlugIn {
+public class VoxelDosimetry {
 
 	static String fontStyle = "Arial";
 	static Font defaultFont = FontUtil.getFont(fontStyle, Font.PLAIN, 13);
 	static Font textFont = FontUtil.getFont(fontStyle, Font.ITALIC, 16);
 	static Font titleFont = FontUtil.getFont(fontStyle, Font.BOLD, 16);
-	String[] config = null;
-	boolean loggoVoxels = false;
-	int[] coordinateVoxels = null;
+	static String[] config = null;
+	static boolean loggoVoxels = false;
+	static int[] coordinateVoxels = null;
 	static int coordX;
 	static int coordY;
 	static int coordZ;
-	long start1;
-	long start2;
-	long start3;
-	long start4;
-	long end1;
-	long end2;
-	long end3;
-	long end4;
-	int lato;
-	int mezzo;
+	static long start1;
+	static long start2;
+	static long start3;
+	static long start4;
+	static long end1;
+	static long end2;
+	static long end3;
+	static long end4;
+//	int lato;
+//	int mezzo;
 	static String desktopPath;
 	static String desktopDosimetryFolderPath;
 	static String desktopImagesSubfolderPath;
@@ -51,8 +51,7 @@ public class S_VoxelDosimetry implements PlugIn {
 	static String pathVolatile;
 	static String logFileLesione;
 
-	public void run(String arg) {
-		
+	public void voxelDosim(String arg) {
 
 		Locale.setDefault(Locale.US);
 		desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
@@ -61,8 +60,8 @@ public class S_VoxelDosimetry implements PlugIn {
 		desktopDosimetryFolderPath = desktopPath + File.separator + "DosimetryFolder";
 		desktopImagesSubfolderPath = desktopDosimetryFolderPath + File.separator + "ImagesFolder";
 
-		lato = Utility.latoCubo();
-		mezzo = (lato - 1) / 2;
+		int lato = Utility.latoCubo();
+		int mezzo = (lato - 1) / 2;
 		if (lato == 0)
 			MyLog.waitHere("lato=0    CHE VOR DI'???");
 		if (mezzo == 0)
@@ -184,9 +183,7 @@ public class S_VoxelDosimetry implements PlugIn {
 
 		double ErrMedia = Utility.vetMeanSecond(vetErrDose);
 
-		
-		
-		double[][] export1= Utility.samplerDVH(vetErrDose, vetY);
+		double[][] export1 = Utility.samplerDVH(vetErrDose, vetY);
 
 		String str11 = "";
 		// esperimento esportazione
@@ -202,8 +199,6 @@ public class S_VoxelDosimetry implements PlugIn {
 		}
 		aux1 = "#601#\tESPORTAZIONE percentuali = " + str11;
 		MyLog.logAppend(logFileLesione, aux1);
-		
-
 
 		MyLog.log("valD98= " + valD98);
 		MyLog.log("err98= " + errD98);
@@ -229,15 +224,24 @@ public class S_VoxelDosimetry implements PlugIn {
 	}
 
 	
+	
+	void pureDVH3() {
+		
+		
+		
+		
+	}
+
 	/**
 	 * Calcolo DVH come subroutine
 	 * 
 	 * @param dosimetryFolder
 	 */
-	void pureDVH1(String dosimetryFolder) {
+	static void pureDVH1(String dosimetryFolder) {
+
 		
-		lato = Utility.latoCubo();
-		mezzo = (lato - 1) / 2;
+			int lato = Utility.latoCubo();
+		int mezzo = (lato - 1) / 2;
 
 		String lesione1 = "";
 		String lesione3 = "";
@@ -245,14 +249,14 @@ public class S_VoxelDosimetry implements PlugIn {
 		String logVolatile = dosimetryFolder + File.separator + "volatile.txt";
 		String out1 = "volatile";
 		String startingDir1 = "";
-		
+
 		double[] vetx24 = null;
 		double[] vety24 = null;
 		double[] vetx48 = null;
 		double[] vety48 = null;
 		double[] vetx120 = null;
 		double[] vety120 = null;
-	
+
 		ArrayList<ArrayList<Double>> xList = new ArrayList<ArrayList<Double>>();
 		int[] vetH = { 24, 48, 120 };
 		for (int i1 = 0; i1 < vetH.length; i1++) {
@@ -269,7 +273,7 @@ public class S_VoxelDosimetry implements PlugIn {
 				xList.add(yList.get(i2));
 			}
 		}
-		
+
 		ArrayList<Double> arrList1 = null;
 		arrList1 = xList.get(0);
 		vetx24 = Utility.arrayListToArrayDouble(arrList1);
@@ -284,11 +288,11 @@ public class S_VoxelDosimetry implements PlugIn {
 		arrList1 = xList.get(8);
 		vety120 = Utility.arrayListToArrayDouble(arrList1);
 
-		 MyPlot.PL11_myPlotMultiple2(vetx24, vety24, vetx48, vety48, vetx120, vety120,
-				"24h=red 48h=green 120h=blue", "VALUE", "VOL%");
-	}
+		MyPlot.PL11_myPlotMultiple2(vetx24, vety24, vetx48, vety48, vetx120, vety120, "24h=red 48h=green 120h=blue",
+				"VALUE", "VOL%");
 	
-
+		
+	}
 
 	/**
 	 * Calcolo del vettore errore
@@ -318,7 +322,7 @@ public class S_VoxelDosimetry implements PlugIn {
 	 * @param ore
 	 * @param pathLesione
 	 */
-	ArrayList<ArrayList<Double>> caricaMemoriazza(String pathStackIn, String pathStackMask, int ore,
+	static ArrayList<ArrayList<Double>> caricaMemoriazza(String pathStackIn, String pathStackMask, int ore,
 			String pathLesione) {
 
 		ImagePlus impStackIn = null;
@@ -335,6 +339,9 @@ public class S_VoxelDosimetry implements PlugIn {
 		int x3 = 0;
 		int y3 = 0;
 		int z3 = 0;
+		
+		int lato = Utility.latoCubo();
+		int mezzo = (lato - 1) / 2;
 
 		switch (ore) {
 		case 24:
@@ -526,7 +533,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		}
 
 		ImagePlus impPatataCompleta = new ImagePlus("PatataCompleta " + ore + "h", stackPatataCompleta);
-	//	impPatataCompleta.show();
+		// impPatataCompleta.show();
 
 		if (loggoVoxels) {
 			Utility.loggoVoxels2(impPatataCompleta, x2, y2, z2);
@@ -541,7 +548,6 @@ public class S_VoxelDosimetry implements PlugIn {
 
 		if (MyStack.stackIsEmpty(impPatataCompleta))
 			MyLog.waitHere("impPatataCompleta vuota");
-
 
 		// ####################################################
 		// PATATA MASCHERATA
@@ -568,7 +574,6 @@ public class S_VoxelDosimetry implements PlugIn {
 			}
 		}
 
-
 		ImagePlus impPatataMascherata = new ImagePlus("PATATA_MASCHERATA  " + ore + "h", stackPatataMascherata);
 		if (loggoVoxels) {
 			Utility.loggoVoxels2(impStackMask, x2, y2, z2);
@@ -578,7 +583,7 @@ public class S_VoxelDosimetry implements PlugIn {
 			Utility.loggoCuxels3(impPatataMascherata, x2, y2, z2, lato, mezzo);
 		}
 //		impPatataMascherata.show();
-	
+
 		if (MyStack.stackIsEmpty(impPatataMascherata))
 			MyLog.waitHere("impPatataMascherata vuota");
 
@@ -665,12 +670,12 @@ public class S_VoxelDosimetry implements PlugIn {
 		if (resultsDialog.wasCanceled())
 			return null;
 
-
 		ArrayList<ArrayList<Double>> out1 = Utility.calculateDVH(impPatataMascherata, ore);
+
 		return out1;
 	}
 
-	void loggoTabellaBella(float[] vetTabella) {
+	void loggoTabellaBella(float[] vetTabella, int lato) {
 
 		MyLog.log("############## vetTabella VALORI CONVERSIONE ##############");
 		String aux1 = "";
@@ -689,7 +694,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		}
 	}
 
-	void creoStackTabellaBella(float[] vetTabella) {
+	void creoStackTabellaBella(float[] vetTabella, int lato) {
 
 		int width = lato;
 		int height = lato;

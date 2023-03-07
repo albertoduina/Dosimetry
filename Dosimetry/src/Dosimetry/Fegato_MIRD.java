@@ -324,7 +324,7 @@ public class Fegato_MIRD implements PlugIn {
 
 		do {
 
-			double[] vetOut4 = Dosimetria_Lu177.processa(xp1, yp1, MIRD_vol24, MIRD_vol48, MIRD_vol120);
+			double[] vetOut4 = Dosimetria_Lu177.processaConImagej(xp1, yp1, null,  MIRD_vol24, MIRD_vol48, MIRD_vol120);
 
 			AA = vetOut4[0];
 			aa = vetOut4[1];

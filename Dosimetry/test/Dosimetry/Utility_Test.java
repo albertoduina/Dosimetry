@@ -207,9 +207,10 @@ public class Utility_Test {
 		double[] vetX = { 24, 48, 120 };
 		double[] vetY = { 35.921969407999995, 18.392739144, 9.153194127999999 };
 		boolean[] selected = { true, false, true };
+		boolean[] vetBool=null;
 
 		CurveFitter cf = Utility.MIRD_curveFitterSpecialImageJ(vetX, vetY);
-		MyPlot.PL04_MIRD_curvePlotterSpecialImageJ(cf, vetX, vetY, selected);
+		MyPlot.PL04_MIRD_curvePlotterSpecialImageJ(cf, vetX, vetY, selected, "STRING");
 
 		MyLog.waitHere("SPETTA");
 	}
@@ -628,7 +629,7 @@ public class Utility_Test {
 			vetyCC[i1] = matout1[i1][1];
 		}
 
-		Plot plot1 = MyPlot.PL10_myPlotMultiple2( vetxBB, vetyBB, vetxCC, vetyCC, null, null, null);
+		Plot plot1 = MyPlot.PL10_myPlotMultiple2(vetxBB, vetyBB, vetxCC, vetyCC, null, null, null);
 		plot1.show();
 
 		MyLog.waitHere("GHET FRESA? POLSA!!!");

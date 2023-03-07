@@ -39,7 +39,7 @@ public class S_VoxelDosimetry_Test {
 		double par_a = 0.0063102568457841105;
 		double aTildeVoxelExpected = 111166.625880776;
 
-		double aTildeVoxel = S_VoxelDosimetry.mAtildeSingleVoxel(voxSignal, acqDuration, fatCal, deltaT, par_a);
+		double aTildeVoxel = VoxelDosimetry.mAtildeSingleVoxel(voxSignal, acqDuration, fatCal, deltaT, par_a);
 
 		MyLog.log("aTildeVoxel_______ = " + aTildeVoxel + "\naTildeVoxelExpected= " + aTildeVoxelExpected);
 		MyLog.waitHere();
