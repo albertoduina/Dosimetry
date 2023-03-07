@@ -2,6 +2,7 @@ package Dosimetry;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Frame;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -9,6 +10,7 @@ import java.util.Locale;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.WindowManager;
 import ij.gui.NonBlockingGenericDialog;
 import ij.gui.Plot;
 import ij.plugin.PlugIn;
@@ -282,11 +284,8 @@ public class S_VoxelDosimetry implements PlugIn {
 		arrList1 = xList.get(8);
 		vety120 = Utility.arrayListToArrayDouble(arrList1);
 
-		Plot plot1 = MyPlot.PL11_myPlotMultiple2(vetx24, vety24, vetx48, vety48, vetx120, vety120,
+		 MyPlot.PL11_myPlotMultiple2(vetx24, vety24, vetx48, vety48, vetx120, vety120,
 				"24h=red 48h=green 120h=blue", "VALUE", "VOL%");
-		
-		plot1.show();
-		
 	}
 	
 

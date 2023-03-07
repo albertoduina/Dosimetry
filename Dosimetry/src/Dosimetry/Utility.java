@@ -1621,9 +1621,8 @@ public class Utility {
 		arrList1 = arrIn1.get(8);
 		vety120 = Utility.arrayListToArrayDouble(arrList1);
 
-		Plot plot1 = MyPlot.PL11_myPlotMultiple2(vetx24, vety24, vetx48, vety48, vetx120, vety120,
-				"INPUT 24red,48green,120blue", "assexx", "asseyy");
-		plot1.show();
+//		MyPlot.PL11_myPlotMultiple2(vetx24, vety24, vetx48, vety48, vetx120, vety120,
+//				"INPUT 24red,48green,120blue", "assexx", "asseyy");
 
 		MyLog.log("=============== dati in input ===============");
 		MyLog.logVector(vetx24, "vetX24");

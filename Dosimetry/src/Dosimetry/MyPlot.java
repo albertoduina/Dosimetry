@@ -1,10 +1,14 @@
 package Dosimetry;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 
 import flanagan.analysis.Regression;
 import ij.IJ;
+import ij.WindowManager;
+import ij.gui.ImageWindow;
 import ij.gui.Plot;
 import ij.measure.CurveFitter;
 import ij.util.FontUtil;
@@ -25,12 +29,12 @@ public class MyPlot {
 	 * @param ylabel
 	 * @return
 	 */
-	public static Plot PL13_myPlotMultiple(double[] profilex1, double[] profiley1, double[] profilex2, double[] profiley2,
-			double[] profilex3, double[] profiley3, String title, String xlabel, String ylabel) {
+	public static Plot PL13_myPlotMultiple(double[] profilex1, double[] profiley1, double[] profilex2,
+			double[] profiley2, double[] profilex3, double[] profiley3, String title, String xlabel, String ylabel) {
 
 		int PLOT_WIDTH = 600;
 		int PLOT_HEIGHT = 350;
-		
+
 		Plot plot = new Plot("PL13 " + title, xlabel, ylabel);
 		plot.setColor(Color.red);
 		plot.add("line", profilex1, profiley1);
@@ -61,9 +65,9 @@ public class MyPlot {
 	 * @param ylabel
 	 * @return
 	 */
-	public static Plot PL12_myPlotMultiple(double[] profilex1, double[] profiley1, double[] profilex2, double[] profiley2,
-			String title, String xlabel, String ylabel) {
-		
+	public static Plot PL12_myPlotMultiple(double[] profilex1, double[] profiley1, double[] profilex2,
+			double[] profiley2, String title, String xlabel, String ylabel) {
+
 		int PLOT_WIDTH = 600;
 		int PLOT_HEIGHT = 350;
 
@@ -95,8 +99,8 @@ public class MyPlot {
 	 * @param ylabel
 	 * @return
 	 */
-	public static Plot PL11_myPlotMultiple2(double[] profilex1, double[] profiley1, double[] profilex2, double[] profiley2,
-			double[] profilex3, double[] profiley3, String title, String xlabel, String ylabel) {
+	public static void PL11_myPlotMultiple2(double[] profilex1, double[] profiley1, double[] profilex2,
+			double[] profiley2, double[] profilex3, double[] profiley3, String title, String xlabel, String ylabel) {
 
 		int PLOT_WIDTH = 600;
 		int PLOT_HEIGHT = 350;
@@ -122,7 +126,18 @@ public class MyPlot {
 //		plot.setFont(FontUtil.getFont("Times New Roman", Font.TRUETYPE_FONT, 16));
 		plot.addLabel(0.05, 0.95, title);
 		plot.setWindowSize(PLOT_WIDTH, PLOT_HEIGHT);
-		return plot;
+
+		plot.show();
+		Frame lw = WindowManager.getFrame(plot.getTitle());
+
+		Dimension screen = IJ.getScreenSize();
+//		MyLog.waitHere("SCREEN= " + screen.toString());
+
+		if (lw != null) {
+			lw.setLocation(10, screen.height / 2);
+		}
+
+		return;
 	}
 
 	/**
@@ -136,8 +151,8 @@ public class MyPlot {
 	 * @param ylabel
 	 * @return
 	 */
-	public static Plot PL10_myPlotMultiple2(double[] profilex1, double[] profiley1, double[] profilex2, double[] profiley2,
-			String title, String xlabel, String ylabel) {
+	public static Plot PL10_myPlotMultiple2(double[] profilex1, double[] profiley1, double[] profilex2,
+			double[] profiley2, String title, String xlabel, String ylabel) {
 		int PLOT_WIDTH = 600;
 		int PLOT_HEIGHT = 350;
 
@@ -173,10 +188,10 @@ public class MyPlot {
 	 * @param ylabel
 	 * @return
 	 */
-	public static Plot PL09_myPlotMultiple3(double[] profilex1, double[] profiley1, double[] profilex2, double[] profiley2,
-			double[] profilex3, double[] profiley3, String title, String xlabel, String ylabel) {
+	public static Plot PL09_myPlotMultiple3(double[] profilex1, double[] profiley1, double[] profilex2,
+			double[] profiley2, double[] profilex3, double[] profiley3, String title, String xlabel, String ylabel) {
 		int PLOT_WIDTH = 600;
-		
+
 		int PLOT_HEIGHT = 350;
 
 		Plot plot = new Plot("PL09 " + title, xlabel, ylabel);
@@ -218,7 +233,7 @@ public class MyPlot {
 			double[] profiley2, double[] profilex3, double[] profiley3, String title, String xlabel, String ylabel) {
 		int PLOT_WIDTH = 600;
 		int PLOT_HEIGHT = 350;
-		
+
 		Plot plot = new Plot("PL08 " + title, xlabel, ylabel);
 		plot.setColor(Color.gray);
 		plot.add("filled", profilex2, profiley2);
@@ -254,14 +269,13 @@ public class MyPlot {
 	 * @param color
 	 * @return
 	 */
-	public static Plot PL07_myPlotSingle(double[] profilex, double[] profiley, String title, String xlabel, String ylabel,
-			Color color) {
+	public static Plot PL07_myPlotSingle(double[] profilex, double[] profiley, String title, String xlabel,
+			String ylabel, Color color) {
 		double[] a = Tools.getMinMax(profilex);
 		double[] b = Tools.getMinMax(profiley);
-		
+
 		int PLOT_WIDTH = 600;
 		int PLOT_HEIGHT = 350;
-
 
 		// Plot plot = new Plot(title, "pixel", "valore", profilex, profiley);
 		Plot plot = new Plot("PL07 " + title, xlabel, ylabel);
@@ -283,8 +297,8 @@ public class MyPlot {
 	 * @param color
 	 * @return
 	 */
-	public static Plot PL06_myPlotSingle2(double[] profilex, double[] profiley, String title, String xlabel, String ylabel,
-			Color color) {
+	public static Plot PL06_myPlotSingle2(double[] profilex, double[] profiley, String title, String xlabel,
+			String ylabel, Color color) {
 		double[] a = Tools.getMinMax(profilex);
 		double[] b = Tools.getMinMax(profiley);
 		int PLOT_WIDTH = 600;
@@ -350,9 +364,9 @@ public class MyPlot {
 		ymin = Math.max(ymin - dataRange, Math.min(ymin, a[0])); // expand y range for curve, but not too much
 		ymax = Math.min(ymax + dataRange, Math.max(ymax, a[1]));
 
-		double[] xx= new double[1];
-		double[] yy= new double[1];
-		
+		double[] xx = new double[1];
+		double[] yy = new double[1];
+
 		Plot plot = new Plot("PL05 PLOT FLANAGAN", "ore dalla somministrazione", "attivita' MBq");
 		plot.setLineWidth(2);
 		plot.setColor(Color.ORANGE);
@@ -360,26 +374,30 @@ public class MyPlot {
 		plot.setLimits(xmin, xmax, ymin, ymax);
 		plot.setLineWidth(2);
 		plot.setColor(Color.RED);
-		xx[0]=x[0];
-		yy[0]=y[0];
+		xx[0] = x[0];
+		yy[0] = y[0];
 		plot.add("circle", xx, yy);
 		plot.setColor(Color.GREEN);
-		xx[0]=x[1];
-		yy[0]=y[1];
+		xx[0] = x[1];
+		yy[0] = y[1];
 		plot.add("circle", xx, yy);
 		plot.setColor(Color.BLUE);
-		xx[0]=x[2];
-		yy[0]=y[2];
+		xx[0] = x[2];
+		yy[0] = y[2];
 		plot.add("circle", xx, yy);
-		
+
 		plot.addLabel(0.05, 0.95, title);
 		plot.setWindowSize(PLOT_WIDTH, PLOT_HEIGHT);
 
-		
-		// plot.setColor(Color.GREEN);
-		// plot.addLabel(0.02, 0.1, legend.toString());
-		// plot.setFrameSize(PLOT_WIDTH, PLOT_HEIGHT);
 		plot.show();
+		Frame lw = WindowManager.getFrame(plot.getTitle());
+
+		Dimension screen = IJ.getScreenSize();
+//		MyLog.waitHere("SCREEN= " + screen.toString());
+
+		if (lw != null) {
+			lw.setLocation((screen.width - lw.getWidth()) - 10, screen.height / 2);
+		}
 
 	}
 
