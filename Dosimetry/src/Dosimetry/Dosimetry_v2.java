@@ -107,9 +107,9 @@ public class Dosimetry_v2 implements PlugIn {
 //		String[] vetLogList = Utility.readLog(pathPermanente);
 		String[] vetPetCtViewerTitle = new String[3];
 		for (int i1 = 0; i1 < 3; i1++) {
-			vetPetCtViewerTitle[0] = Utility.readFromLog(pathPermanente, "24h=", "=");
-			vetPetCtViewerTitle[1] = Utility.readFromLog(pathPermanente, "48h=", "=");
-			vetPetCtViewerTitle[2] = Utility.readFromLog(pathPermanente, "120h=", "=");
+			vetPetCtViewerTitle[0] = MyLog.readFromLog(pathPermanente, "24h=", "=");
+			vetPetCtViewerTitle[1] = MyLog.readFromLog(pathPermanente, "48h=", "=");
+			vetPetCtViewerTitle[2] = MyLog.readFromLog(pathPermanente, "120h=", "=");
 		}
 
 		String[] niw1 = WindowManager.getNonImageTitles();
@@ -123,10 +123,10 @@ public class Dosimetry_v2 implements PlugIn {
 		// Dosimetry_v2. In particolare sono utilizzati per comunicare di quale immagine
 		// vogliamo effettuare nuovamente l'analisi, dopo avere preso visione del plot
 		// ==========================================================================
-		ok24 = Boolean.parseBoolean(Utility.readFromLog(pathPermanente, "#901#", "=", true));
-		ok48 = Boolean.parseBoolean(Utility.readFromLog(pathPermanente, "#902#", "=", true));
-		ok120 = Boolean.parseBoolean(Utility.readFromLog(pathPermanente, "#903#", "=", true));
-		okk = Boolean.parseBoolean(Utility.readFromLog(pathPermanente, "#904#", "=", true));
+		ok24 = Boolean.parseBoolean(MyLog.readFromLog(pathPermanente, "#901#", "=", true));
+		ok48 = Boolean.parseBoolean(MyLog.readFromLog(pathPermanente, "#902#", "=", true));
+		ok120 = Boolean.parseBoolean(MyLog.readFromLog(pathPermanente, "#903#", "=", true));
+		okk = Boolean.parseBoolean(MyLog.readFromLog(pathPermanente, "#904#", "=", true));
 
 		// ======================================================
 		// PARTE NUOVA CICLO ESTERNO PER LA SELEZIONE IMMAGINE
@@ -537,7 +537,7 @@ public class Dosimetry_v2 implements PlugIn {
 									// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 									ImageProcessor fettazza = Utility.patatizeMask(mask, r, dicomImage.getWidth(),
 											dicomImage.getHeight());
-									Utility.stackSliceUpdater(stackMyPatata, fettazza, fetta);
+									MyStack.stackSliceUpdater(stackMyPatata, fettazza, fetta);
 
 									// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -650,49 +650,49 @@ public class Dosimetry_v2 implements PlugIn {
 
 							aux1 = "#" + count++ + "#\t--- PATIENT INFO " + aux2 + " ---";
 						//	MyLog.log(aux1);
-							Utility.logAppend(pathVolatile, aux1);
+							MyLog.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tPatient MachineName= "
 									+ DicomTools.getTag(dicomImage, "0010,0010");
 						//	MyLog.log(aux1);
-							Utility.logAppend(pathVolatile, aux1);
+							MyLog.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tPatient ID= " + DicomTools.getTag(dicomImage, "0010,0020");
 						//	MyLog.log(aux1);
-							Utility.logAppend(pathVolatile, aux1);
+							MyLog.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tPatient birth date= "
 									+ DicomTools.getTag(dicomImage, "0010,0030");
 						//	MyLog.log(aux1);
-							Utility.logAppend(pathVolatile, aux1);
+							MyLog.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tPatient sex= " + DicomTools.getTag(dicomImage, "0010,0040");
 					//		MyLog.log(aux1);
-							Utility.logAppend(pathVolatile, aux1);
+							MyLog.logAppend(pathVolatile, aux1);
 							count = countbase + 13; /// proprio tredici, corbezzoli !!!, se metto dieci si pianta
 							// count = count + 10;
 
 							// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 							aux1 = "#" + count++ + "#\t--- DOSIMETRY INFO " + aux2 + " ---";
-							Utility.logAppend(pathVolatile, aux1);
+							MyLog.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tMaximum lesion count= " + (int) roiMax;
-							Utility.logAppend(pathVolatile, aux1);
+							MyLog.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tContouring threshold level= " + threshold;
-							Utility.logAppend(pathVolatile, aux1);
+							MyLog.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tContouring count threshold level= " + (int) (roiMax * threshold);
-							Utility.logAppend(pathVolatile, aux1);
+							MyLog.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tProcessed Slices Position= " + posizioneMax + " ("
 									+ fettaCranioCaudaleFinal + "-" + fettaCaudoCranialeFinal + ")";
-							Utility.logAppend(pathVolatile, aux1);
+							MyLog.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tFROM IJ Section= " + fettaCranioCaudaleFinal;
-							Utility.logAppend(pathVolatile, aux1);
+							MyLog.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tTO IJ Section= " + fettaCaudoCranialeFinal;
-							Utility.logAppend(pathVolatile, aux1);
+							MyLog.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tPet-Ct Viewer slice= " + convertFromPETCTReference(posizioneMax)
 									+ " (" + convertFromPETCTReference(fettaCranioCaudaleFinal) + "-"
 									+ convertFromPETCTReference(fettaCaudoCranialeFinal) + ")";
-							Utility.logAppend(pathVolatile, aux1);
+							MyLog.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tPixel number over threshold= " + conteggio;
-							Utility.logAppend(pathVolatile, aux1);
+							MyLog.logAppend(pathVolatile, aux1);
 							aux1 = "#" + count++ + "#\tOver threshold count integral= " + integrale;
-							Utility.logAppend(pathVolatile, aux1);
+							MyLog.logAppend(pathVolatile, aux1);
 							// Utility.appendLog(pathVolatile, "++++");
 
 							MyLog.log("eseguito reset005");
@@ -848,24 +848,24 @@ public class Dosimetry_v2 implements PlugIn {
 			if (point1 == 0) {
 				ok24 = true;
 				aux1 = "#901#\tok24= true";
-				Utility.logModify(pathPermanente, "#901#", aux1);
+				MyLog.logModify(pathPermanente, "#901#", aux1);
 			}
 			if (point1 == 1) {
 				ok48 = true;
 				aux1 = "#902#\tok48= true";
-				Utility.logModify(pathPermanente, "#902#", aux1);
+				MyLog.logModify(pathPermanente, "#902#", aux1);
 			}
 			if (point1 == 2) {
 				ok120 = true;
 				aux1 = "#903#\tok120= true";
-				Utility.logModify(pathPermanente, "#903#", aux1);
+				MyLog.logModify(pathPermanente, "#903#", aux1);
 			}
 
 			// mi rimane da stabilire se abbiamo completato 24/48/120
 			if (ok24 && ok48 && ok120) {
 				okk = true;
 				aux1 = "#904#\tokk= true";
-				Utility.logModify(pathPermanente, "#904#", aux1);
+				MyLog.logModify(pathPermanente, "#904#", aux1);
 			}
 
 			MyLog.log("FINE LOOP LIVELLO ZERO");

@@ -50,6 +50,7 @@ public class S_VoxelDosimetry implements PlugIn {
 	static String logFileLesione;
 
 	public void run(String arg) {
+		
 
 		Locale.setDefault(Locale.US);
 		desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
@@ -181,18 +182,26 @@ public class S_VoxelDosimetry implements PlugIn {
 
 		double ErrMedia = Utility.vetMeanSecond(vetErrDose);
 
-		double[] export1 = new double[25];
+		
+		
+		double[][] export1= Utility.samplerDVH(vetErrDose, vetY);
 
 		String str11 = "";
 		// esperimento esportazione
-		for (int i1 = 0; i1 < vetErrDose.length; i1++) {
-			str11 = str11 + vetErrDose[i1] + "; ";
+		for (int i1 = 0; i1 < export1.length; i1++) {
+			str11 = str11 + export1[i1][0] + "; ";
 		}
 
-		String aux1 = "#666#\tESPORTAZIONE = " + str11;
-		Utility.logAppend(logFileLesione, aux1);
+		String aux1 = "#600#\tESPORTAZIONE vetErrDose = " + str11;
+		MyLog.logAppend(logFileLesione, aux1);
+		str11 = "";
+		for (int i1 = 0; i1 < export1.length; i1++) {
+			str11 = str11 + export1[i1][1] + "; ";
+		}
+		aux1 = "#601#\tESPORTAZIONE percentuali = " + str11;
+		MyLog.logAppend(logFileLesione, aux1);
+		
 
-		MyLog.waitHere();
 
 		MyLog.log("valD98= " + valD98);
 		MyLog.log("err98= " + errD98);
@@ -275,6 +284,7 @@ public class S_VoxelDosimetry implements PlugIn {
 
 		Plot plot1 = MyPlot.PL11_myPlotMultiple2(vetx24, vety24, vetx48, vety48, vetx120, vety120,
 				"24h=red 48h=green 120h=blue", "VALUE", "VOL%");
+		
 		plot1.show();
 		
 	}
@@ -282,7 +292,7 @@ public class S_VoxelDosimetry implements PlugIn {
 
 
 	/**
-	 * Calcolo del vvettore errore
+	 * Calcolo del vettore errore
 	 * 
 	 * @param vetIn
 	 * @return
@@ -329,34 +339,34 @@ public class S_VoxelDosimetry implements PlugIn {
 
 		switch (ore) {
 		case 24:
-			acqDuration = Double.parseDouble(Utility.readFromLog(pathLesione, "#018#", "=", true)); // acqduration 24h
+			acqDuration = Double.parseDouble(MyLog.readFromLog(pathLesione, "#018#", "=", true)); // acqduration 24h
 																									// // // 24h
-			deltaT = Double.parseDouble(Utility.readFromLog(pathLesione, "#019#", "=", true)); // deltaT 24h
-			fatCal = Double.parseDouble(Utility.readFromLog(pathLesione, "#202#", "=", true)); // fatCal24h
+			deltaT = Double.parseDouble(MyLog.readFromLog(pathLesione, "#019#", "=", true)); // deltaT 24h
+			fatCal = Double.parseDouble(MyLog.readFromLog(pathLesione, "#202#", "=", true)); // fatCal24h
 			break;
 		case 48:
-			acqDuration = Double.parseDouble(Utility.readFromLog(pathLesione, "#038#", "=", true)); // acqduration 48 //
+			acqDuration = Double.parseDouble(MyLog.readFromLog(pathLesione, "#038#", "=", true)); // acqduration 48 //
 																									// // 48h
-			deltaT = Double.parseDouble(Utility.readFromLog(pathLesione, "#039#", "=", true)); // deltaT 24h
-			fatCal = Double.parseDouble(Utility.readFromLog(pathLesione, "#222#", "=", true)); // fatCal48h
+			deltaT = Double.parseDouble(MyLog.readFromLog(pathLesione, "#039#", "=", true)); // deltaT 24h
+			fatCal = Double.parseDouble(MyLog.readFromLog(pathLesione, "#222#", "=", true)); // fatCal48h
 			break;
 		case 120:
-			acqDuration = Double.parseDouble(Utility.readFromLog(pathLesione, "#058#", "=", true)); // acqduration 120h
-			deltaT = Double.parseDouble(Utility.readFromLog(pathLesione, "#059#", "=", true)); // deltaT 24h
-			fatCal = Double.parseDouble(Utility.readFromLog(pathLesione, "#242#", "=", true)); // fatCal120h
+			acqDuration = Double.parseDouble(MyLog.readFromLog(pathLesione, "#058#", "=", true)); // acqduration 120h
+			deltaT = Double.parseDouble(MyLog.readFromLog(pathLesione, "#059#", "=", true)); // deltaT 24h
+			fatCal = Double.parseDouble(MyLog.readFromLog(pathLesione, "#242#", "=", true)); // fatCal120h
 			break;
 		}
-		double par_a = Double.parseDouble(Utility.readFromLog(pathLesione, "#302#", "=", true));
+		double par_a = Double.parseDouble(MyLog.readFromLog(pathLesione, "#302#", "=", true));
 		MyLog.here("par_a= " + par_a);
 
-		impStackIn = Utility.readStackFiles2(pathStackIn);
+		impStackIn = MyStack.readStackFiles2(pathStackIn);
 		// convertendo a 32 bit viene eliminata la calibrazione e la noia di avere il
 		// valore 0 rappresentato con 32768
 		new ImageConverter(impStackIn).convertToGray32();
 
 		impStackIn.setTitle("INPUT " + ore + "h");
 		impStackMask = Utility.openImage(pathStackMask);
-		int sl = Utility.MyStackCountPixels(impStackMask);
+		int sl = MyStack.MyStackCountPixels(impStackMask);
 		impStackMask.setDisplayRange(50, 255);
 		impStackMask.setSlice(sl);
 		impStackMask.setTitle("MASK " + ore + "h");
@@ -382,7 +392,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		ImageStack stackMask = impStackMask.getImageStack();
 		ImageStack stackIn = impStackIn.getImageStack();
 
-		double[] tapata1 = Utility.MyStackStatistics(impStackIn, impStackMask);
+		double[] tapata1 = MyStack.MyStackStatistics(impStackIn, impStackMask);
 		impStackIn.setDisplayRange(tapata1[3], tapata1[7]);
 		impStackIn.setSlice((int) tapata1[6]);
 
@@ -444,13 +454,13 @@ public class S_VoxelDosimetry implements PlugIn {
 				}
 			}
 
-			Utility.stackSliceUpdater(stackMatilde, outSlice1, z1);
+			MyStack.stackSliceUpdater(stackMatilde, outSlice1, z1);
 		}
 
 		ImagePlus impMatilde = new ImagePlus("mAtilde " + ore + "h", stackMatilde);
 //		impMatilde.show();
 
-		if (Utility.stackIsEmpty(impMatilde))
+		if (MyStack.stackIsEmpty(impMatilde))
 			MyLog.waitHere("impMatilde vuota");
 
 		if (loggoVoxels) {
@@ -461,7 +471,7 @@ public class S_VoxelDosimetry implements PlugIn {
 			Utility.loggoVoxels2(impMatilde, x2, y2, z2);
 			Utility.loggoCuxels3(impMatilde, x2, y2, z2, lato, mezzo);
 		}
-		double[] tapata2 = Utility.MyStackStatistics(impMatilde, impStackMask);
+		double[] tapata2 = MyStack.MyStackStatistics(impMatilde, impStackMask);
 
 		// -------------------------------------
 		// ELABORAZIONI DEI CUBI
@@ -470,7 +480,7 @@ public class S_VoxelDosimetry implements PlugIn {
 		// CUBO CON SVALUES
 		// -------------------------------------
 		ImagePlus impRubik = Utility.inCubo();
-		if (Utility.stackIsEmpty(impRubik))
+		if (MyStack.stackIsEmpty(impRubik))
 			MyLog.waitHere("impRubik vuota");
 
 //		impRubik.show();
@@ -484,9 +494,9 @@ public class S_VoxelDosimetry implements PlugIn {
 		// ####################################################
 		int conta2 = 0;
 
-		if (Utility.stackIsEmpty(stackMatilde))
+		if (MyStack.stackIsEmpty(stackMatilde))
 			MyLog.waitHere("stackMatilde vuoto");
-		if (Utility.stackIsEmpty(stackRubik))
+		if (MyStack.stackIsEmpty(stackRubik))
 			MyLog.waitHere("stackRubik vuoto");
 
 		ImageStack stackPatataCompleta = ImageStack.create(width1, height1, depth1, bitdepth1);
@@ -525,12 +535,12 @@ public class S_VoxelDosimetry implements PlugIn {
 			Utility.loggoCuxels3(impPatataCompleta, x2, y2, z2, lato, mezzo);
 		}
 
-		double[] tapata3 = Utility.MyStackStatistics(impPatataCompleta, impStackMask);
+		double[] tapata3 = MyStack.MyStackStatistics(impPatataCompleta, impStackMask);
 		impPatataCompleta.setDisplayRange(tapata3[3], tapata3[7]);
 		impPatataCompleta.setSlice((int) tapata3[6]);
 		// impPatataCompleta.show();
 
-		if (Utility.stackIsEmpty(impPatataCompleta))
+		if (MyStack.stackIsEmpty(impPatataCompleta))
 			MyLog.waitHere("impPatataCompleta vuota");
 
 
@@ -570,10 +580,10 @@ public class S_VoxelDosimetry implements PlugIn {
 		}
 //		impPatataMascherata.show();
 	
-		if (Utility.stackIsEmpty(impPatataMascherata))
+		if (MyStack.stackIsEmpty(impPatataMascherata))
 			MyLog.waitHere("impPatataMascherata vuota");
 
-		tapata3 = Utility.MyStackStatistics(impPatataMascherata, impStackMask);
+		tapata3 = MyStack.MyStackStatistics(impPatataMascherata, impStackMask);
 		impPatataMascherata.setDisplayRange(tapata3[3], tapata3[7]);
 		impPatataMascherata.setSlice((int) tapata3[6]);
 //		impPatataMascherata.show();

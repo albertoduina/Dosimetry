@@ -5,20 +5,9 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.Window;
-import java.awt.image.ColorModel;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -42,7 +31,6 @@ import ij.gui.NonBlockingGenericDialog;
 import ij.gui.Plot;
 import ij.gui.PlotWindow;
 import ij.gui.Roi;
-import ij.io.FileInfo;
 import ij.io.OpenDialog;
 import ij.io.Opener;
 import ij.measure.Calibration;
@@ -109,419 +97,6 @@ public class Utility {
 //			return false;
 //		}
 //	}
-
-	/**
-	 * Legge tutte le linee di un file testo e le restituisce come vettore di
-	 * stringhe
-	 * 
-	 * @param path1 path del file, completo di nome
-	 * @return vettore stringhe
-	 */
-	public static String[] readSimpleText2(String path1) {
-
-		List<String> out1 = null;
-		try {
-			out1 = Files.readAllLines(Path.of(path1));
-			// MyLog.log("lette= " + out1.size() + " linee");
-		} catch (IOException e) {
-			MyLog.log("errore lettura " + path1);
-			e.printStackTrace();
-		}
-		String[] out2 = out1.toArray(new String[0]);
-		return out2;
-	}
-
-	/**
-	 * Legge tutte le linee di un file testo e le restituisce come vettore di
-	 * stringhe
-	 * 
-	 * @param path1 path del file, completo di nome
-	 * @return vettore stringhe
-	 */
-	public static String[] readSimpleText(String path1) {
-
-		List<String> lines = new ArrayList<String>();
-		BufferedReader br = null;
-		try {
-			br = new BufferedReader(new FileReader(path1));
-		} catch (FileNotFoundException e) {
-			MyLog.waitHere("fileNotFound error= " + path1);
-			e.printStackTrace();
-		}
-		String line = null;
-		try {
-			line = br.readLine();
-			while (line != null) {
-				lines.add(line);
-				line = br.readLine();
-			}
-			br.close();
-
-		} catch (IOException e) {
-			MyLog.waitHere("reading error= " + path1);
-			e.printStackTrace();
-		}
-
-		String[] out2 = lines.toArray(new String[0]);
-		return out2;
-	}
-
-	/**
-	 * Inizializza il file di log cancellando se esiste e scrivendoci INIZIO
-	 * 
-	 * @param path indirizzo log da utilizzare
-	 */
-	public static void logInit(String path) {
-		File f1 = new File(path);
-		if (f1.exists()) {
-			f1.delete();
-		}
-		logAppend(path, "---- INIZIO ---------");
-	}
-
-	/**
-	 * Scrive FINE nel log
-	 * 
-	 * @param path PATH DEL LOG
-	 */
-	public static void logEnd(String path) {
-		logAppend(path, "---- FINE ---------");
-	}
-
-	/**
-	 * Cancellazione del file, attenzione devono essere prima chiusi BufferedReader
-	 * e BufferedWriter
-	 * 
-	 * @param path indirizzo log da utilizzare
-	 */
-	public static void logDeleteSingle(String path) {
-		File f1 = new File(path);
-		if (f1.exists()) {
-			f1.delete();
-		}
-		if (f1.exists()) {
-			Utility.dialogErrorMessage_LP06(path);
-		}
-	}
-
-	/**
-	 * Elimina i tag duplicati nel file
-	 * 
-	 * @param path1
-	 */
-	static void logDedupe(String path1) {
-		ArrayList<String> inArrayList = new ArrayList<String>();
-		ArrayList<String> outArrayList = new ArrayList<String>();
-		String line1 = "";
-		String line2 = "";
-		String line4 = "";
-		String tag1 = "";
-		String tag2 = "";
-
-		MyLog.log("eseguo dedupeLog");
-		try {
-			BufferedReader file1 = new BufferedReader(new FileReader(path1));
-			while ((line1 = file1.readLine()) != null) {
-				inArrayList.add(line1);
-			}
-			file1.close();
-			new File(path1).delete();
-			//
-			// questo si chiama ALGORITMO DEL TROGLODITA, IN QUESTO CASO UN INGENNIERE BRAO
-			// FESS avrebbe usato una HashList, ma modestamente nel far cazzate non mi batte
-			// nessuno, infatti questa routine sbaglia spudoratamente !!
-			//
-			boolean dupe = false;
-			for (int i1 = inArrayList.size() - 1; i1 >= 0; i1--) {
-				// partendo dal fondo leggo riga per riga
-				line2 = inArrayList.get(i1);
-				tag1 = line2.substring(0, 5);
-				dupe = false;
-				for (String line3 : outArrayList) {
-					// leggo i tag di tutte le linee gia'presenti nell'array di output
-					tag2 = line3.substring(0, 5);
-					if (tag1.equals(tag2)) {
-						// se i tag sono uguali evviva, abbiamo un duplicato!
-						dupe = true;
-					}
-				}
-				if (!dupe) {
-					// se non ho per le mani duplicato lo scrivo nell'array di output, che in questo
-					// modo viene scritto all'incontrario!
-					outArrayList.add(line2);
-				}
-			}
-
-			BufferedWriter out = new BufferedWriter(new FileWriter(path1, true));
-			for (int i1 = outArrayList.size() - 1; i1 >= 0; i1--) {
-				// in questo modo ribalto l'array di output
-				line4 = outArrayList.get(i1);
-				out.write(line4);
-				out.newLine();
-			}
-			out.close();
-		} catch (Exception e) {
-			MyLog.log("dedupe DISASTER");
-			System.out.println("DEDUPE errore lettura/scrittura file " + path1);
-		}
-	}
-
-	/**
-	 * Se nel file esiste gia'una linea col tag, essa viene sostituita, se la linea
-	 * non esiste, essa viene aggiunta alla fine
-	 * 
-	 * @param path1   path del log
-	 * @param tag     tag da sostituire
-	 * @param newline linea da inserire (completa di tag)
-	 */
-	public static void logModify(String path1, String tag, String newline) {
-
-		boolean ok = true;
-		try {
-			BufferedReader file = new BufferedReader(new FileReader(path1));
-			StringBuffer inputBuffer = new StringBuffer();
-			String line;
-			// lettura
-			while ((line = file.readLine()) != null) {
-				if (line.contains(tag)) {
-					line = newline;
-					ok = false;
-				}
-				inputBuffer.append(line);
-				inputBuffer.append('\n');
-			}
-			if (ok) {
-				inputBuffer.append(newline);
-				inputBuffer.append('\n');
-			}
-			file.close();
-
-			// riscrittura
-			FileOutputStream fileOut = new FileOutputStream(path1);
-			fileOut.write(inputBuffer.toString().getBytes());
-			fileOut.close();
-
-		} catch (Exception e) {
-			System.out.println("errore lettura/scrittura file " + path1);
-		}
-	}
-
-	/**
-	 * Se nel file esiste gia'una linea col tag, essa viene cancellata
-	 * 
-	 * @param path1
-	 * @param tag
-	 */
-	public static void logRemoveLine(String path1, String tag) {
-
-		try {
-			BufferedReader file = new BufferedReader(new FileReader(path1));
-			StringBuffer inputBuffer = new StringBuffer();
-			String line;
-			// lettura
-			while ((line = file.readLine()) != null) {
-				if (line.contains(tag)) {
-				} else {
-					inputBuffer.append(line);
-					inputBuffer.append('\n');
-				}
-			}
-			file.close();
-
-			// riscrittura
-			FileOutputStream fileOut = new FileOutputStream(path1);
-			fileOut.write(inputBuffer.toString().getBytes());
-			fileOut.close();
-
-		} catch (Exception e) {
-			System.out.println("errore lettura/scrittura file " + path1);
-		}
-	}
-
-	/**
-	 * Copia tutti i dati dal log volatile.txt al log permanente.txt
-	 * 
-	 * @param permFile indirizzo log permanente da utilizzare
-	 * @param tmpFile  indirizzo log temporaneo da utilizzare
-	 */
-	public static void logMove(String permFile, String tmpFile) {
-		BufferedWriter out;
-		BufferedReader in;
-		String str = "";
-		try {
-			out = new BufferedWriter(new FileWriter(permFile, true));
-			in = new BufferedReader(new FileReader(tmpFile));
-			// out.newLine();
-			while ((str = in.readLine()) != null) {
-				out.write(str);
-				out.newLine();
-			}
-			out.close();
-			in.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		logDeleteSingle(tmpFile);
-	}
-
-	/**
-	 * Scrive una riga nel log
-	 * 
-	 * @param path  path indirizzo log da utilizzare
-	 * @param linea stringa da inserire
-	 */
-	public static void logAppend(String path, String linea) {
-
-		BufferedWriter out;
-		try {
-			out = new BufferedWriter(new FileWriter(path, true));
-			out.write(linea);
-			out.newLine();
-			out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	/**
-	 * Lettura di un tag dal log
-	 * 
-	 * @param path1
-	 * @param code1
-	 * @param separator
-	 * @return
-	 */
-	static double readDoubleFromLog(String path1, String code1, String separator) {
-
-		// leggo una stringa dal log
-		String[] vetText = Utility.readSimpleText(path1);
-		String[] vetAux1;
-		String out1 = null;
-		if (vetText.length > 0) {
-			for (int i1 = 0; i1 < vetText.length; i1++) {
-				if (vetText[i1].contains(code1)) {
-					vetAux1 = vetText[i1].split(separator);
-					out1 = vetAux1[1].trim();
-				}
-			}
-		}
-
-		return Double.parseDouble(out1);
-	}
-
-	/**
-	 * Lettura di un tag dal log
-	 * 
-	 * @param path1
-	 * @param code1
-	 * @param separator
-	 * @return
-	 */
-	static String readFromLog(String path1, String code1, String separator) {
-
-		if (path1 == null)
-			MyLog.waitHere("path1==null");
-		String[] vetText = Utility.readSimpleText(path1);
-		if (vetText == null)
-			MyLog.waitHere("vetText==null");
-
-		String[] vetAux1;
-		String out1 = null;
-		boolean trovato = false;
-		if (vetText.length > 0) {
-			for (int i1 = 0; i1 < vetText.length; i1++) {
-				if (vetText[i1].contains(code1)) {
-					vetAux1 = vetText[i1].split(separator);
-					out1 = vetAux1[1].trim();
-					trovato = true;
-				}
-			}
-		}
-		if (!trovato) {
-			MyLog.waitHere("non trovo " + code1);
-			return null;
-		}
-		return out1;
-	}
-
-	/**
-	 * Lettura di un tag dal log
-	 * 
-	 * @param path1
-	 * @param code1
-	 * @param separator
-	 * @return
-	 */
-	static String readFromLog(String path1, String code1, String separator, boolean error) {
-
-		if (path1 == null)
-			MyLog.waitHere("path1==null");
-		String[] vetText = Utility.readSimpleText(path1);
-		if (vetText == null)
-			MyLog.waitHere("vetText==null");
-
-		String[] vetAux1;
-		String out1 = null;
-		boolean trovato = false;
-		if (vetText.length > 0) {
-			for (int i1 = 0; i1 < vetText.length; i1++) {
-				if (vetText[i1].contains(code1)) {
-					vetAux1 = vetText[i1].split(separator);
-					out1 = vetAux1[1].trim();
-					trovato = true;
-				}
-			}
-		}
-		if (!trovato) {
-			if (!error)
-				MyLog.waitHere("non trovo " + code1);
-			return null;
-		}
-		return out1;
-	}
-
-	/**
-	 * Restituisce l'intera linea del log per il tag
-	 * 
-	 * @param path1
-	 * @param code1
-	 * @return
-	 */
-	static String readFromLog(String path1, String code1) {
-
-		// leggo una stringa dal log
-		String[] vetText = Utility.readSimpleText(path1);
-		if (vetText.length > 0) {
-			for (int i1 = 0; i1 < vetText.length; i1++) {
-				if (vetText[i1].contains(code1))
-					return vetText[i1];
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Copia da log sorgente a destinazione un range di tag
-	 * 
-	 * @param pathSorgente
-	 * @param pathDestinazione
-	 * @param start
-	 * @param end
-	 */
-	static void logCopyRange(String pathSorgente, String pathDestinazione, int start, int end) {
-
-		String aux1 = "";
-		String aux2 = "";
-		for (int i1 = start; i1 <= end; i1++) {
-			aux1 = "#" + String.format("%03d", i1) + "#";
-			aux2 = readFromLog(pathSorgente, aux1);
-			if (aux2 != null) {
-				Utility.logAppend(pathDestinazione, aux2);
-			}
-		}
-
-	}
 
 	/**
 	 * Porta petctviewr toFront
@@ -712,6 +287,26 @@ public class Utility {
 	public static void deleteFile(File file1) {
 
 		file1.delete();
+	}
+
+	/**
+	 * From stackOverflow.com
+	 * 
+	 * @param pathToDir
+	 * @param extension
+	 * @return
+	 */
+	public static boolean deleteAllFilesWithSpecificExtension(String pathToDir, String extension) {
+		boolean success = false;
+		File folder = new File(pathToDir);
+		File[] fList = folder.listFiles();
+		for (File file : fList) {
+			String pes = file.getName();
+			if (pes.endsWith("." + extension)) {
+				success = (new File(String.valueOf(file)).delete());
+			}
+		}
+		return success;
 	}
 
 	/**
@@ -1079,9 +674,9 @@ public class Utility {
 		String pathBase = pathVolatile.substring(0, pos);
 		String pathLesione = pathBase + File.separator + lesionName + ".txt";
 
-		Utility.logEnd(pathVolatile);
-		Utility.logMove(pathLesione, pathVolatile);
-		Utility.logInit(pathVolatile);
+		MyLog.logEnd(pathVolatile);
+		MyLog.logMove(pathLesione, pathVolatile);
+		MyLog.logInit(pathVolatile);
 		return lesionName;
 	}
 
@@ -1106,23 +701,6 @@ public class Utility {
 			MyLog.log("DD08 premuto ALTRA LESIONE");
 		if (finished1.wasOKed())
 			MyLog.log("DD08 premuto FINITO");
-	}
-
-	/**
-	 * Cancella tutti i file con estensione ".txt" presenti nella cartella
-	 * 
-	 * @param pathDir
-	 */
-	public static void logDeleteAll(String pathDir) {
-
-		File folder = new File(pathDir);
-		File fList[] = folder.listFiles();
-		for (File f1 : fList) {
-			if (f1.getName().endsWith(".txt")) {
-				f1.delete();
-			}
-		}
-
 	}
 
 	/**
@@ -1156,12 +734,12 @@ public class Utility {
 
 		String aux1 = "";
 		double aux2 = 0;
-		aux1 = readFromLog(path, "#002#", "=");
+		aux1 = MyLog.readFromLog(path, "#002#", "=");
 		if (aux1 == null)
 			return false;
 		if (!Utility.isValidDateTime(aux1, "dd-MM-yyyy HH:mm:ss"))
 			return false;
-		aux1 = readFromLog(path, "#003#", "="); // activity
+		aux1 = MyLog.readFromLog(path, "#003#", "="); // activity
 		if (aux1 == null)
 			return false;
 		aux2 = Double.parseDouble(aux1);
@@ -1222,7 +800,7 @@ public class Utility {
 		double aa = Math.abs(params[1]);
 		double mAtilde = AA / aa;
 		double disintegrazioni = mAtilde / 100;
-		double somministrata = Utility.readDoubleFromLog(pathVolatile, "#003#", "=");
+		double somministrata = MyLog.readDoubleFromLog(pathVolatile, "#003#", "=");
 		double uptake = AA / somministrata;
 		double massa = vetMean(vetVol);
 		double tmezzo = Math.log(2) / aa;
@@ -1668,34 +1246,6 @@ public class Utility {
 	}
 
 	/**
-	 * Idea copiata da Laurent Thomas, & Pierre Trehin. (2021, July 22) github :
-	 * LauLauThom/MaskFromRois-Fiji un plugin in pitonato (in pyton)
-	 * 
-	 * 
-	 * @param impStack
-	 * @return
-	 */
-	public static ImagePlus stackMask(ImagePlus impStack) {
-
-		ImageStack myImageStack = impStack.getImageStack();
-		int width = myImageStack.getWidth();
-		int height = myImageStack.getHeight();
-		int size = myImageStack.getSize();
-//		ByteProcessor mask1 = new ByteProcessor(width, height); // ora ho una maschera in cui 0 significa che il pixel
-//																// non fa parte di alcuna patata o buccia
-
-		ImageStack myMaskStack = new ImageStack(width, height, size);
-
-		for (int i1 = 0; i1 < size; i1++) {
-			ImageProcessor ipSlice = myImageStack.getProcessor(i1);
-			ImageProcessor maskSlice = ipSlice.getMask();
-			myMaskStack.addSlice(maskSlice);
-		}
-		ImagePlus myMaskImage = new ImagePlus("CARNIVAL", myMaskStack);
-		return myMaskImage;
-	}
-
-	/**
 	 * Inserisce la mask ottenuta all'interno di una immagine, utilizzando il
 	 * boundingRectangle
 	 * 
@@ -1839,185 +1389,6 @@ public class Utility {
 		}
 	}
 
-	/**
-	 * Aggiorna il contenuto di una immagine dello stack
-	 * 
-	 * @param stack
-	 * @param ipSlice
-	 * @param num
-	 */
-	static void stackSliceUpdater(ImageStack stack, ImageProcessor ipSlice, int num) {
-
-		stack.deleteSlice(num);
-		stack.addSlice("", ipSlice, num - 1);
-		stack.setSliceLabel("MASK_" + num, num);
-
-	}
-
-	/**
-	 * A scopo di test cerco massimo, minimo e relative posizioni all'interno dello
-	 * stack. Le usero' anche per impostare l'adjust delle immagini (ma MALE!)
-	 * 
-	 * @param impStackIn
-	 * @param impMask
-	 * @return
-	 */
-	static double[] MyStackStatistics(ImagePlus impStackIn, ImagePlus impMask) {
-
-		ImageStack stackIn = impStackIn.getImageStack();
-		ImageStack stackMask = impMask.getImageStack();
-		int width1 = stackIn.getWidth();
-		int height1 = stackIn.getHeight();
-		int depth1 = stackIn.getSize();
-		ImageProcessor inSlice1 = null;
-		ImageProcessor maskSlice1 = null;
-		double pixel = 0;
-		double mask = 0;
-		double minStackVal = Double.MAX_VALUE;
-		double maxStackVal = Double.MIN_VALUE;
-		double meanStackVal = Double.NaN;
-		double sumPix = 0;
-		int[] minStackCoord = new int[3];
-		int[] maxStackCoord = new int[3];
-		long pixCount = 0;
-
-		for (int z1 = 0; z1 < depth1; z1++) {
-			inSlice1 = stackIn.getProcessor(z1 + 1);
-			maskSlice1 = stackMask.getProcessor(z1 + 1);
-			for (int x1 = 0; x1 < width1; x1++) {
-				for (int y1 = 0; y1 < height1; y1++) {
-					IJ.showStatus("StackStatisticsA " + z1 + " / " + (depth1));
-					pixel = inSlice1.getPixelValue(x1, y1);
-					mask = maskSlice1.getPixelValue(x1, y1);
-					if (pixel > 0 && mask > 0) {
-						sumPix = sumPix + pixel;
-						pixCount++;
-						if (pixel < minStackVal) {
-							minStackVal = pixel;
-							minStackCoord[0] = x1;
-							minStackCoord[1] = y1;
-							minStackCoord[2] = z1;
-						}
-						if (pixel > maxStackVal) {
-							maxStackVal = pixel;
-							maxStackCoord[0] = x1;
-							maxStackCoord[1] = y1;
-							maxStackCoord[2] = z1;
-						}
-					}
-				}
-			}
-
-		}
-		meanStackVal = sumPix / pixCount;
-		double[] out1 = new double[11];
-		out1[0] = (double) minStackCoord[0];
-		out1[1] = (double) minStackCoord[1];
-		out1[2] = (double) minStackCoord[2];
-		out1[3] = minStackVal;
-		out1[4] = (double) maxStackCoord[0];
-		out1[5] = (double) maxStackCoord[1];
-		out1[6] = (double) maxStackCoord[2];
-		out1[7] = maxStackVal;
-		out1[8] = pixCount;
-		out1[9] = meanStackVal;
-		out1[10] = sumPix;
-
-		return out1;
-	}
-
-	static double[] MyStackStatistics(ImagePlus impStackIn) {
-
-		ImageStack stackIn = impStackIn.getImageStack();
-		int width1 = stackIn.getWidth();
-		int height1 = stackIn.getHeight();
-		int depth1 = stackIn.getSize();
-		ImageProcessor inSlice1 = null;
-		double pixel = 0;
-		double minStackVal = Double.MAX_VALUE;
-		double maxStackVal = Double.MIN_VALUE;
-		double meanStackVal = Double.NaN;
-		double sumPix = 0;
-		int[] minStackCoord = new int[3];
-		int[] maxStackCoord = new int[3];
-		long pixCount = 0;
-
-		for (int z1 = 0; z1 < depth1; z1++) {
-			inSlice1 = stackIn.getProcessor(z1 + 1);
-			for (int x1 = 0; x1 < width1; x1++) {
-				for (int y1 = 0; y1 < height1; y1++) {
-					IJ.showStatus("stackStatisticsB " + z1 + " / " + (depth1));
-//					if (z1 == 0 && x1 == 0 && y1 == 0)
-//						MyLog.waitHere();
-					pixel = inSlice1.getPixelValue(x1, y1);
-					if (pixel > 0) {
-						sumPix = sumPix + pixel;
-						pixCount++;
-						if (pixel < minStackVal) {
-							minStackVal = pixel;
-							minStackCoord[0] = x1;
-							minStackCoord[1] = y1;
-							minStackCoord[2] = z1;
-						}
-						if (pixel > maxStackVal) {
-							maxStackVal = pixel;
-							maxStackCoord[0] = x1;
-							maxStackCoord[1] = y1;
-							maxStackCoord[2] = z1;
-						}
-					}
-				}
-			}
-
-		}
-		meanStackVal = sumPix / pixCount;
-		double[] out1 = new double[11];
-		out1[0] = (double) minStackCoord[0];
-		out1[1] = (double) minStackCoord[1];
-		out1[2] = (double) minStackCoord[2];
-		out1[3] = minStackVal;
-		out1[4] = (double) maxStackCoord[0];
-		out1[5] = (double) maxStackCoord[1];
-		out1[6] = (double) maxStackCoord[2];
-		out1[7] = maxStackVal;
-		out1[8] = pixCount;
-		out1[9] = meanStackVal;
-		out1[10] = sumPix;
-
-		return out1;
-	}
-
-	static int MyStackCountPixels(ImagePlus impMaskStack) {
-
-		int count = 0;
-		int maxcount = 0;
-		int slice = 0;
-		double voxMask = 0;
-		int width = impMaskStack.getWidth();
-		int heigth = impMaskStack.getHeight();
-		int depth = impMaskStack.getNSlices();
-
-		ImageStack stackMask = impMaskStack.getImageStack();
-
-		for (int z1 = 1; z1 < depth; z1++) {
-			count = 0;
-			for (int x1 = 0; x1 < width; x1++) {
-				for (int y1 = 0; y1 < heigth; y1++) {
-					voxMask = stackMask.getVoxel(x1, y1, z1);
-					if (voxMask > 0)
-						count++;
-				}
-			}
-
-			if (count >= maxcount) {
-				maxcount = count;
-				slice = z1;
-			}
-		}
-
-		return slice;
-	}
-
 	static void myScalaColori() {
 
 		int countx = 0;
@@ -2091,7 +1462,7 @@ public class Utility {
 		MyLog.log("eseguo calculateDVH " + ore + " ore");
 		MyLog.here();
 
-	//	patataMascherata.show();
+		// patataMascherata.show();
 
 		if (patataMascherata == null)
 			MyLog.waitHere("patataMascherata == null");
@@ -2219,7 +1590,6 @@ public class Utility {
 		return arrList1;
 
 	}
-
 
 	static double[][] calcDVH2(ArrayList<ArrayList<Double>> arrIn1) {
 
@@ -2489,22 +1859,25 @@ public class Utility {
 		return minpos;
 	}
 
-	static double[] exporterDVH(double[] vetIn, double[] vetY, int percent) {
+	static double[][] samplerDVH(double[] vetIn, double[] vetY) {
 
-		double[] vetOut = new double[25];
+		double[][] vetOut = new double[21][2];
 
 		int pos1 = searchPercentPosition(vetIn, vetY, 2);
 		int count = 0;
-		vetOut[count] = vetIn[pos1];
+		vetOut[count][0] = vetIn[pos1];
+		vetOut[count][1] = 2;
 
 		for (int i1 = 1; i1 < 20; i1++) {
 			count = count + 1;
 			pos1 = searchPercentPosition(vetIn, vetY, i1 * 5);
-			vetOut[count] = vetIn[pos1];
+			vetOut[count][0] = vetIn[pos1];
+			vetOut[count][1] = i1 * 5;
 		}
 		pos1 = searchPercentPosition(vetIn, vetY, 98);
 		count = count + 1;
-		vetOut[count] = vetIn[pos1];
+		vetOut[count][0] = vetIn[pos1];
+		vetOut[count][1] = 98;
 
 		return vetOut;
 	}
@@ -2698,9 +2071,9 @@ public class Utility {
 		if (!f1.isFile())
 			return null;
 		String[] vetOut = new String[3];
-		vetOut[0] = Utility.readFromLog(myPath, "#001#", "=");
-		vetOut[1] = Utility.readFromLog(myPath, "#002#", "=");
-		vetOut[2] = Utility.readFromLog(myPath, "#003#", "=");
+		vetOut[0] = MyLog.readFromLog(myPath, "#001#", "=");
+		vetOut[1] = MyLog.readFromLog(myPath, "#002#", "=");
+		vetOut[2] = MyLog.readFromLog(myPath, "#003#", "=");
 
 		coordX = parseInt(vetOut[0]);
 		coordY = parseInt(vetOut[1]);
@@ -3099,36 +2472,6 @@ public class Utility {
 
 	}
 
-	public static void logVector(String vect[], String nome) {
-		String stri = "";
-		if (vect == null) {
-			MyLog.log("Warning vector " + nome + " = null");
-		} else {
-			MyLog.log("----------- " + nome + "  [ " + vect.length + " ] -----------");
-
-			for (int i1 = 0; i1 < vect.length; i1++) {
-				stri = stri + vect[i1] + ",  ";
-			}
-			MyLog.log(stri);
-		}
-		MyLog.log("---------------------------------------------");
-	}
-
-	public static void logVector(double vect[], String nome) {
-		String stri = "";
-		if (vect == null) {
-			MyLog.log("Warning vector " + nome + " = null");
-		} else {
-			MyLog.log("----------- " + nome + "  [ " + vect.length + " ] -----------");
-
-			for (int i1 = 0; i1 < vect.length; i1++) {
-				stri = stri + vect[i1] + ",  ";
-			}
-			MyLog.log(stri);
-		}
-		MyLog.log("---------------------------------------------");
-	}
-
 	/**
 	 * Interpolazione lineare di un punto su di un segmento
 	 * 
@@ -3177,326 +2520,6 @@ public class Utility {
 		}
 
 		return x2;
-	}
-
-	/**
-	 * Legge le immagini da una cartella e le inserisce in uno stack. Copiato da
-	 * https://github.com/ilan/fijiPlugins (Ilan Tal) Class: Read_CD. Ho disattivato
-	 * alcune parti di codice riguardanti tipi di immagini di cui non disponiamo
-	 * 
-	 * @param myDirPath
-	 * @return ImagePlus (stack)
-	 */
-
-	static ImagePlus readStackFiles(String myDirPath) {
-		int j, k, n0, width = -1, height = 0, depth = 0, samplePerPixel = 0;
-		int bad = 0, fails = 0;
-		Opener opener;
-		ImagePlus imp, imp2 = null;
-		ImageStack stack;
-		Calibration cal = null;
-		double min, max, progVal;
-		FileInfo fi = null;
-		String flName, flPath, info, label1, tmp;
-		String mytitle = "";
-
-		MyLog.log("readStackFiles");
-
-		info = null;
-		min = Double.MAX_VALUE;
-		max = -Double.MAX_VALUE;
-		stack = null;
-		File vetDirPath = new File(myDirPath);
-		File checkEmpty;
-		File[] results = vetDirPath.listFiles();
-		if ((results == null) || (results.length == 0)) {
-			MyLog.waitHere("pare non esistano files in " + myDirPath);
-			return null;
-		}
-
-		boolean ok = false;
-		for (int i1 = 0; i1 < results.length; i1++) {
-			flName = results[i1].getName();
-			flPath = results[i1].getPath();
-			if (!isDicomImage(flPath))
-				ok = Utility
-						.dialogErrorMessageWithCancel_LP09("Il file " + flName + " non e'una immagine Dicom valida");
-			if (ok)
-				return null;
-		}
-
-		n0 = results.length;
-
-		for (j = 1; j <= n0; j++) {
-			progVal = ((double) j) / n0;
-			IJ.showStatus("readStack " + j + "/" + n0);
-			IJ.showProgress(progVal);
-			opener = new Opener();
-			flName = results[j - 1].getPath();
-			checkEmpty = new File(flName); // remember for possible dicomdir
-			if (checkEmpty.length() == 0)
-				continue;
-			tmp = results[j - 1].getName();
-			if (tmp.equalsIgnoreCase("dirfile"))
-				continue;
-			k = opener.getFileType(flName);
-			opener.setSilentMode(true);
-			imp = opener.openImage(flName);
-			if (imp == null) {
-				fails++;
-				if (fails > 2) {
-					IJ.showProgress(1.0);
-					return null;
-				}
-				continue;
-			}
-			info = (String) imp.getProperty("Info");
-			mytitle = imp.getTitle();
-
-			k = Utility.parseInt(DicomTools.getTag(imp, "0028,0002"));
-			if (stack == null) {
-				samplePerPixel = k;
-				width = imp.getWidth();
-				height = imp.getHeight();
-				depth = imp.getStackSize();
-				cal = imp.getCalibration();
-				fi = imp.getOriginalFileInfo();
-				ColorModel cm = imp.getProcessor().getColorModel();
-				stack = new ImageStack(width, height, cm);
-			}
-			if ((depth > 1 && n0 > 1) || width != imp.getWidth() || height != imp.getHeight() || k != samplePerPixel) {
-				if (k <= 0)
-					continue;
-				stack = null;
-				depth = 0;
-				continue;
-			}
-			label1 = null;
-			if (depth == 1) {
-				label1 = imp.getTitle();
-				if (info != null)
-					label1 += "\n" + info;
-			}
-			ImageStack inputStack = imp.getStack();
-			for (int slice = 1; slice <= inputStack.getSize(); slice++) {
-				ImageProcessor ip = inputStack.getProcessor(slice);
-				if (ip.getMin() < min)
-					min = ip.getMin();
-				if (ip.getMax() > max)
-					max = ip.getMax();
-				stack.addSlice(label1, ip);
-			}
-		}
-
-		if (stack != null && stack.getSize() > 0) {
-			if (fi != null) {
-				fi.fileFormat = FileInfo.UNKNOWN;
-				fi.fileName = "";
-				fi.directory = "";
-			}
-			imp2 = new ImagePlus(mytitle, stack);
-			imp2.getProcessor().setMinAndMax(min, max);
-			if (n0 == 1 + bad || depth > 1)
-				imp2.setProperty("Info", info);
-			if (fi != null)
-				imp2.setFileInfo(fi);
-			double voxelDepth = DicomTools.getVoxelDepth(stack);
-			if (voxelDepth > 0.0 && cal != null)
-				cal.pixelDepth = voxelDepth;
-			imp2.setCalibration(cal);
-		}
-		IJ.showProgress(1.0);
-		return imp2;
-	}
-
-	/**
-	 * Legge le immagini da una cartella e le inserisce in uno stack. Copiato da
-	 * https://github.com/ilan/fijiPlugins (Ilan Tal) Class: Read_CD. Ho disattivato
-	 * alcune parti di codice riguardanti tipi di immagini di cui non disponiamo
-	 * 
-	 * @param myDirPath
-	 * @return ImagePlus (stack)
-	 */
-
-	static ImagePlus readStackFiles2(String myDirPath) {
-		int j1, k, n0, width = -1, height = 0, depth = 0, samplePerPixel = 0;
-		int bad = 0, fails = 0;
-		int good = 0;
-		int count1 = 0;
-		Opener opener;
-		ImagePlus imp, imp2 = null;
-		ImageStack stack;
-		Calibration cal = null;
-		double min, max, progVal;
-		FileInfo fi = null;
-		String flName, flPath, info, label1, tmp;
-		String mytitle = "";
-		boolean isStack = false;
-
-		MyLog.log("readStackFiles2");
-	
-		info = null;
-		min = Double.MAX_VALUE;
-		max = -Double.MAX_VALUE;
-		stack = null;
-		File vetDirPath = new File(myDirPath);
-		File checkEmpty;
-		FileFilter filter = file -> {
-			if (file.isFile()) {
-				String fileName = file.getName().toLowerCase();
-				if (fileName.endsWith(".gr2") || fileName.endsWith(".txt") || fileName.endsWith(".xls")
-						|| fileName.endsWith(".cvs")) {
-					return false;
-				}
-			}
-			return true;
-		};
-
-		File[] results = vetDirPath.listFiles(filter);
-
-		if ((results == null) || (results.length == 0)) {
-			MyLog.waitHere("pare non esistano files in " + myDirPath);
-			return null;
-		}
-
-//		boolean ok = false;
-//		for (int i1 = 0; i1 < results.length; i1++) {
-//			flName = results[i1].getName();
-//			flPath = results[i1].getPath();
-//			if (!isDicomImage(flPath))
-//				ok = Utility
-//						.dialogErrorMessageWithCancel_LP09("Il file " + flName + " non e'una immagine Dicom valida");
-//			if (ok)
-//				return null;
-//		}
-
-		n0 = results.length;
-
-		for (j1 = 1; j1 <= n0; j1++) {
-
-			progVal = ((double) j1) / n0;
-			IJ.showStatus("readStack " + j1 + "/" + n0);
-			IJ.showProgress(progVal);
-			opener = new Opener();
-
-			flName = results[j1 - 1].getPath();
-			checkEmpty = new File(flName); // remember for possible dicomdir
-			if (checkEmpty.length() == 0)
-				continue;
-			// 020323
-			// iw2ayv
-			if (!isDicomImage(flName)) {
-				MyLog.log("la immagine " + flName + " non sembra dicom");
-				continue;
-			}
-
-			tmp = results[j1 - 1].getName();
-			if (tmp.equalsIgnoreCase("dirfile"))
-				continue;
-			k = opener.getFileType(flName);
-			opener.setSilentMode(true);
-			imp = opener.openImage(flName);
-			if (imp == null) {
-				fails++;
-				if (fails > 2) {
-					IJ.showProgress(1.0);
-					return null;
-				}
-				continue;
-			}
-			info = (String) imp.getProperty("Info");
-			mytitle = imp.getTitle();
-			good++;
-
-			k = Utility.parseInt(DicomTools.getTag(imp, "0028,0002"));
-			if (stack == null) {
-				samplePerPixel = k;
-				width = imp.getWidth();
-				height = imp.getHeight();
-				depth = imp.getStackSize();
-				cal = imp.getCalibration();
-				fi = imp.getOriginalFileInfo();
-				ColorModel cm = imp.getProcessor().getColorModel();
-				stack = new ImageStack(width, height, cm);
-			}
-			if ((depth > 1 && n0 > 1) || width != imp.getWidth() || height != imp.getHeight() || k != samplePerPixel) {
-				if (k <= 0)
-					continue;
-				stack = null;
-				depth = 0;
-				continue;
-			}
-			label1 = null;
-			if (depth == 1) {
-				label1 = imp.getTitle();
-				if (info != null)
-					label1 += "\n" + info;
-			}
-			ImageStack inputStack = imp.getStack();
-			for (int slice = 1; slice <= inputStack.getSize(); slice++) {
-				count1++;
-				ImageProcessor ip = inputStack.getProcessor(slice);
-				if (ip.getMin() < min)
-					min = ip.getMin();
-				if (ip.getMax() > max)
-					max = ip.getMax();
-				stack.addSlice(label1, ip);
-			}
-		}
-
-		if (stack != null && stack.getSize() > 0) {
-			if (fi != null) {
-				fi.fileFormat = FileInfo.UNKNOWN;
-				fi.fileName = "";
-				fi.directory = "";
-			}
-			imp2 = new ImagePlus(mytitle, stack);
-			imp2.getProcessor().setMinAndMax(min, max);
-			if (n0 == 1 + bad || depth > 1)
-				imp2.setProperty("Info", info);
-			if (fi != null)
-				imp2.setFileInfo(fi);
-			double voxelDepth = DicomTools.getVoxelDepth(stack);
-			if (voxelDepth > 0.0 && cal != null)
-				cal.pixelDepth = voxelDepth;
-			imp2.setCalibration(cal);
-		}
-		IJ.showProgress(1.0);
-		
-		return imp2;
-	}
-
-	static boolean stackIsEmpty(ImagePlus imp) {
-
-		ImageStack stack = imp.getStack();
-		int width = stack.getHeight();
-		int height = stack.getHeight();
-		int depth = stack.getSize();
-		float[] vetValues = stack.getVoxels(0, 0, 0, width, height, depth, null);
-		float sum = 0;
-		for (float value : vetValues) {
-			sum += value;
-		}
-		if (sum == 0.0)
-			return true;
-		else
-			return false;
-	}
-
-	static boolean stackIsEmpty(ImageStack stack) {
-
-		int width = stack.getHeight();
-		int height = stack.getHeight();
-		int depth = stack.getSize();
-		float[] vetValues = stack.getVoxels(0, 0, 0, width, height, depth, null);
-		float sum = 0;
-		for (float value : vetValues) {
-			sum += value;
-		}
-		if (sum == 0.0)
-			return true;
-		else
-			return false;
 	}
 
 }

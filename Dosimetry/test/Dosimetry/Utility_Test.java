@@ -95,7 +95,7 @@ public class Utility_Test {
 		int start = 10;
 		int end = 15;
 
-		Utility.logCopyRange(pathSorgente, pathDestinazione, start, end);
+		MyLog.logCopyRange(pathSorgente, pathDestinazione, start, end);
 
 		MyLog.waitHere("SPETTA");
 
@@ -139,7 +139,7 @@ public class Utility_Test {
 			e.printStackTrace();
 		}
 		String pathPermanente = "testdata/permanente.txt";
-		Utility.logModify(pathPermanente, "#030#", "#030# MODIFICATO");
+		MyLog.logModify(pathPermanente, "#030#", "#030# MODIFICATO");
 		MyLog.waitHere("SPETTA");
 
 	}
@@ -160,7 +160,7 @@ public class Utility_Test {
 			e.printStackTrace();
 		}
 		String pathPermanente = "testdata/permanente.txt";
-		Utility.logModify(pathPermanente, "#730#", "#730# MODIFICATO (AGGIUNTO)");
+		MyLog.logModify(pathPermanente, "#730#", "#730# MODIFICATO (AGGIUNTO)");
 		MyLog.waitHere("SPETTA");
 
 	}
@@ -169,7 +169,7 @@ public class Utility_Test {
 	public final void test_readSimpleText() {
 
 		String pathSorgente = "testdata/sorgente.txt";
-		String[] out1 = Utility.readSimpleText(pathSorgente);
+		String[] out1 = MyLog.readSimpleText(pathSorgente);
 		for (String aux : out1) {
 			MyLog.log(aux);
 		}
@@ -183,7 +183,7 @@ public class Utility_Test {
 		String pathSorgente = "testdata/sorgente.txt";
 
 		String code1 = "#003#";
-		String out1 = Utility.readFromLog(pathSorgente, code1);
+		String out1 = MyLog.readFromLog(pathSorgente, code1);
 		MyLog.log("TROVATO out1= " + out1);
 
 		MyLog.waitHere("SPETTA");
@@ -289,7 +289,7 @@ public class Utility_Test {
 		}
 		MyLog.waitHere("SPETTA");
 
-		Utility.logDedupe(path2);
+		MyLog.logDedupe(path2);
 
 		MyLog.waitHere("SPETTA");
 	}
@@ -304,12 +304,12 @@ public class Utility_Test {
 //		File file2 = new File(path2);
 //		File file3 = new File(path3);
 
-		Utility.logDeleteSingle(path3);
-		Utility.logInit(path3);
+		MyLog.logDeleteSingle(path3);
+		MyLog.logInit(path3);
 
 		MyLog.waitHere("SPETTA");
 
-		Utility.logCopyRange(path1, path3, 31, 150);
+		MyLog.logCopyRange(path1, path3, 31, 150);
 
 		MyLog.waitHere("SPETTA");
 	}
@@ -378,7 +378,7 @@ public class Utility_Test {
 		MyLog.waitHere();
 
 		int num = 10;
-		Utility.stackSliceUpdater(stack2, ip1, num);
+		MyStack.stackSliceUpdater(stack2, ip1, num);
 		imp2.updateAndDraw();
 		MyLog.waitHere("VERIFICA");
 
