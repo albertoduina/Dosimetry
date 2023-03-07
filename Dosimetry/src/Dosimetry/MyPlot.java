@@ -408,7 +408,7 @@ public class MyPlot {
 	 * @param vetX
 	 * @param vetY
 	 */
-	static Plot PL04_MIRD_curvePlotterSpecialImageJ(CurveFitter cf, double[] vetx, double[] vety, boolean[] selected) {
+	static void PL04_MIRD_curvePlotterSpecialImageJ(CurveFitter cf, double[] vetx, double[] vety, boolean[] selected) {
 
 		int PLOT_WIDTH = 600;
 		int PLOT_HEIGHT = 350;
@@ -445,16 +445,24 @@ public class MyPlot {
 
 		Plot plot = new Plot("PL04 PLOT IMAGEJ", "ore dalla somministrazione", "attivita' MBq");
 		plot.setLineWidth(2);
-		plot.setColor(Color.BLUE);
+		plot.setColor(Color.ORANGE);
 		plot.add("line", px, py);
 		plot.setLimits(xmin, xmax, ymin, ymax);
-		plot.setColor(Color.RED);
+//		plot.setColor(Color.RED);
 		double[] xx = new double[1];
 		double[] yy = new double[1];
+		Color col = null;
 
 		for (int i1 = 0; i1 < selected.length; i1++) {
 			if (selected[i1]) {
-				plot.setColor(Color.red);
+				if (i1 == 0)
+					col = Color.red;
+				if (i1 == 1)
+					col = Color.green;
+				if (i1 == 2)
+					col = Color.blue;
+
+				plot.setColor(col);
 				xx[0] = vetx[i1];
 				yy[0] = vety[i1];
 				plot.add("circle", xx, yy);
@@ -482,9 +490,21 @@ public class MyPlot {
 		legend.append('\n');
 		plot.addLabel(0.8, 0.1, legend.toString());
 		plot.setWindowSize(PLOT_WIDTH, PLOT_HEIGHT);
-		plot.setColor(Color.BLUE);
+//		plot.setColor(Color.orange);
+
 		plot.show();
-		return plot;
+		Frame lw = WindowManager.getFrame(plot.getTitle());
+
+		Dimension screen = IJ.getScreenSize();
+//		MyLog.waitHere("SCREEN= " + screen.toString());
+
+		if (lw != null) {
+			lw.setLocation((screen.width - lw.getWidth()) - 10, screen.height / 2 - lw.getHeight());
+		}
+
+		plot.show();
+
+		return;
 	}
 
 	/**

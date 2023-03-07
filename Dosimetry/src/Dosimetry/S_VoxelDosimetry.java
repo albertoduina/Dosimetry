@@ -585,85 +585,85 @@ public class S_VoxelDosimetry implements PlugIn {
 		tapata3 = MyStack.MyStackStatistics(impPatataMascherata, impStackMask);
 		impPatataMascherata.setDisplayRange(tapata3[3], tapata3[7]);
 		impPatataMascherata.setSlice((int) tapata3[6]);
-//		impPatataMascherata.show();
+		impPatataMascherata.show();
 
 		end1 = System.currentTimeMillis();
 
-//		String time1 = MyLog.logElapsed(start1, end1);
-//
-//		int minStackX3 = (int) tapata1[0];
-//		int minStackY3 = (int) tapata1[1];
-//		int minStackZ3 = (int) tapata1[2];
-//		double minStackVal3 = tapata1[3];
-//		int maxStackX3 = (int) tapata1[4];
-//		int maxStackY3 = (int) tapata1[5];
-//		int maxStackZ3 = (int) tapata1[6];
-//		double maxStackVal3 = tapata1[7];
-//		long pixCount3 = (long) tapata1[8];
-//		double meanStackVal3 = tapata1[9];
-//		double integral3 = tapata1[10];
-//
-//		int minStackX1 = (int) tapata2[0];
-//		int minStackY1 = (int) tapata2[1];
-//		int minStackZ1 = (int) tapata2[2];
-//		double minStackVal1 = tapata2[3];
-//		int maxStackX1 = (int) tapata2[4];
-//		int maxStackY1 = (int) tapata2[5];
-//		int maxStackZ1 = (int) tapata2[6];
-//		double maxStackVal1 = tapata2[7];
-//		long pixCount1 = (long) tapata2[8];
-//		double meanStackVal1 = tapata2[9];
-//		double integral1 = tapata2[10];
-//
-//		int minStackX2 = (int) tapata3[0];
-//		int minStackY2 = (int) tapata3[1];
-//		int minStackZ2 = (int) tapata3[2];
-//		double minStackVal2 = tapata3[3];
-//		int maxStackX2 = (int) tapata3[4];
-//		int maxStackY2 = (int) tapata3[5];
-//		int maxStackZ2 = (int) tapata3[6];
-//		double maxStackVal2 = tapata3[7];
-//		long pixCount2 = (long) tapata3[8];
-//		double meanStackVal2 = tapata3[9];
-//		double integral2 = tapata3[10];
+		String time1 = MyLog.logElapsed(start1, end1);
 
-//		NonBlockingGenericDialog resultsDialog = new NonBlockingGenericDialog("SV05 - Results");
-//		resultsDialog.addMessage("Results " + ore + "h", titleFont);
-//		resultsDialog.setFont(defaultFont);
+		int minStackX3 = (int) tapata1[0];
+		int minStackY3 = (int) tapata1[1];
+		int minStackZ3 = (int) tapata1[2];
+		double minStackVal3 = tapata1[3];
+		int maxStackX3 = (int) tapata1[4];
+		int maxStackY3 = (int) tapata1[5];
+		int maxStackZ3 = (int) tapata1[6];
+		double maxStackVal3 = tapata1[7];
+		long pixCount3 = (long) tapata1[8];
+		double meanStackVal3 = tapata1[9];
+		double integral3 = tapata1[10];
 //
-//		resultsDialog.addMessage("======== IMMAGINE INPUT  MASCHERATA ======");
-//		resultsDialog.addMessage("minStackVal= " + String.format("%.4f", minStackVal3) + "     x= " + minStackX3
-//				+ "    y= " + minStackY3 + "    z= " + minStackZ3);
-//		resultsDialog.addMessage("maxStackVal= " + String.format("%.4f", maxStackVal3) + "    x= " + maxStackX3
-//				+ "    y= " + maxStackY3 + "    z= " + maxStackZ3);
+		int minStackX1 = (int) tapata2[0];
+		int minStackY1 = (int) tapata2[1];
+		int minStackZ1 = (int) tapata2[2];
+		double minStackVal1 = tapata2[3];
+		int maxStackX1 = (int) tapata2[4];
+		int maxStackY1 = (int) tapata2[5];
+		int maxStackZ1 = (int) tapata2[6];
+		double maxStackVal1 = tapata2[7];
+		long pixCount1 = (long) tapata2[8];
+		double meanStackVal1 = tapata2[9];
+		double integral1 = tapata2[10];
 //
-//		resultsDialog
-//				.addMessage("meanStackVal= " + String.format("%.4f", meanStackVal3) + "        pixCount= " + pixCount3);
-//		resultsDialog.addMessage("integral= " + String.format("%.4f", integral3));
-//		resultsDialog.addMessage("======== MATILDE MASCHERATA =============");
-//		resultsDialog.addMessage("minStackVal= " + String.format("%.4f", minStackVal1) + "       x= " + minStackX1
-//				+ "    y= " + minStackY1 + "    z= " + minStackZ1);
-//		resultsDialog.addMessage("maxStackVal= " + String.format("%.4f", maxStackVal1) + "    x= " + maxStackX1
-//				+ "    y= " + maxStackY1 + "    z= " + maxStackZ1);
-//
-//		resultsDialog
-//				.addMessage("meanStackVal= " + String.format("%.4f", meanStackVal1) + "        pixCount= " + pixCount1);
-//		resultsDialog.addMessage("integral= " + String.format("%.4f", integral1));
-//
-//		resultsDialog.addMessage("======== PATATA MASCHERATA ==============");
-//		resultsDialog.addMessage("minStackVal= " + String.format("%.4f", minStackVal2) + "     x= " + minStackX2
-//				+ "    y= " + minStackY2 + "    z= " + minStackZ2);
-//		resultsDialog.addMessage("maxStackVal= " + String.format("%.4f", maxStackVal2) + "    x= " + maxStackX2
-//				+ "    y= " + maxStackY2 + "    z= " + maxStackZ2);
-//
-//		resultsDialog
-//				.addMessage("meanStackVal= " + String.format("%.4f", meanStackVal2) + "        pixCount= " + pixCount2);
-//		resultsDialog.addMessage("integral= " + String.format("%.4f", integral2));
-//		resultsDialog.addMessage("\n\n\nTempo impiegato= " + time1);
-//		resultsDialog.showDialog();
-//
-//		if (resultsDialog.wasCanceled())
-//			return null;
+		int minStackX2 = (int) tapata3[0];
+		int minStackY2 = (int) tapata3[1];
+		int minStackZ2 = (int) tapata3[2];
+		double minStackVal2 = tapata3[3];
+		int maxStackX2 = (int) tapata3[4];
+		int maxStackY2 = (int) tapata3[5];
+		int maxStackZ2 = (int) tapata3[6];
+		double maxStackVal2 = tapata3[7];
+		long pixCount2 = (long) tapata3[8];
+		double meanStackVal2 = tapata3[9];
+		double integral2 = tapata3[10];
+
+		NonBlockingGenericDialog resultsDialog = new NonBlockingGenericDialog("SV05 - Results");
+		resultsDialog.addMessage("Results " + ore + "h", titleFont);
+		resultsDialog.setFont(defaultFont);
+
+		resultsDialog.addMessage("======== IMMAGINE INPUT  MASCHERATA ======");
+		resultsDialog.addMessage("minStackVal= " + String.format("%.4f", minStackVal3) + "     x= " + minStackX3
+				+ "    y= " + minStackY3 + "    z= " + minStackZ3);
+		resultsDialog.addMessage("maxStackVal= " + String.format("%.4f", maxStackVal3) + "    x= " + maxStackX3
+				+ "    y= " + maxStackY3 + "    z= " + maxStackZ3);
+
+		resultsDialog
+				.addMessage("meanStackVal= " + String.format("%.4f", meanStackVal3) + "        pixCount= " + pixCount3);
+		resultsDialog.addMessage("integral= " + String.format("%.4f", integral3));
+		resultsDialog.addMessage("======== MATILDE MASCHERATA =============");
+		resultsDialog.addMessage("minStackVal= " + String.format("%.4f", minStackVal1) + "       x= " + minStackX1
+				+ "    y= " + minStackY1 + "    z= " + minStackZ1);
+		resultsDialog.addMessage("maxStackVal= " + String.format("%.4f", maxStackVal1) + "    x= " + maxStackX1
+				+ "    y= " + maxStackY1 + "    z= " + maxStackZ1);
+
+		resultsDialog
+				.addMessage("meanStackVal= " + String.format("%.4f", meanStackVal1) + "        pixCount= " + pixCount1);
+		resultsDialog.addMessage("integral= " + String.format("%.4f", integral1));
+
+		resultsDialog.addMessage("======== PATATA MASCHERATA ==============");
+		resultsDialog.addMessage("minStackVal= " + String.format("%.4f", minStackVal2) + "     x= " + minStackX2
+				+ "    y= " + minStackY2 + "    z= " + minStackZ2);
+		resultsDialog.addMessage("maxStackVal= " + String.format("%.4f", maxStackVal2) + "    x= " + maxStackX2
+				+ "    y= " + maxStackY2 + "    z= " + maxStackZ2);
+
+		resultsDialog
+				.addMessage("meanStackVal= " + String.format("%.4f", meanStackVal2) + "        pixCount= " + pixCount2);
+		resultsDialog.addMessage("integral= " + String.format("%.4f", integral2));
+		resultsDialog.addMessage("\n\n\nTempo impiegato= " + time1);
+		resultsDialog.showDialog();
+
+		if (resultsDialog.wasCanceled())
+			return null;
 
 
 		ArrayList<ArrayList<Double>> out1 = Utility.calculateDVH(impPatataMascherata, ore);
