@@ -1,8 +1,6 @@
 package Dosimetry;
 
-import java.awt.Color;
 import java.awt.Font;
-import java.awt.Frame;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -10,10 +8,8 @@ import java.util.Locale;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
-import ij.WindowManager;
 import ij.gui.NonBlockingGenericDialog;
 import ij.gui.Plot;
-import ij.plugin.PlugIn;
 import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 import ij.util.FontUtil;
@@ -51,7 +47,7 @@ public class VoxelDosimetry {
 	static String pathVolatile;
 	static String logFileLesione;
 
-	public void voxelDosim(String arg) {
+	public static void voxelDosim222(ArrayList<ArrayList<Double>> xList) {
 
 		Locale.setDefault(Locale.US);
 		desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
@@ -59,7 +55,6 @@ public class VoxelDosimetry {
 		pathVolatile = desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
 		desktopDosimetryFolderPath = desktopPath + File.separator + "DosimetryFolder";
 		desktopImagesSubfolderPath = desktopDosimetryFolderPath + File.separator + "ImagesFolder";
-
 		int lato = Utility.latoCubo();
 		int mezzo = (lato - 1) / 2;
 		if (lato == 0)
@@ -83,7 +78,7 @@ public class VoxelDosimetry {
 
 			coordinateVoxels = Utility.leggiCoordinateVoxels(config);
 
-			MyLog.waitHere("loggoVoxels= " + loggoVoxels + "\ncoordinateVoxels[0] X= " + coordinateVoxels[0]
+			MyLog.log("loggoVoxels= " + loggoVoxels + "\ncoordinateVoxels[0] X= " + coordinateVoxels[0]
 					+ "\ncoordinateVoxels[1] Y= " + coordinateVoxels[1] + "\ncoordinateVoxels[2] Z= "
 					+ coordinateVoxels[2]);
 			coordX = coordinateVoxels[0];
@@ -97,39 +92,36 @@ public class VoxelDosimetry {
 			MyLog.log("mezzo= " + mezzo);
 
 		}
+		start1 = System.currentTimeMillis();
 
-		String lesione1 = "";
-		String lesione3 = "";
-		String lesione4 = "";
+
+//		String lesione1 = "";
+//		String lesione3 = "";
+//		String lesione4 = "";
 		logFileLesione = "";
-		String out1 = "";
-		String startingDir1 = "";
+//		String out1 = "volatile";
+//		String startingDir1 = "";
 
-		if (arg == "") {
-			out1 = Utility.dialogSceltaLesione_SV02(str3);
+//		ArrayList<ArrayList<Double>> xList = new ArrayList<ArrayList<Double>>();
+//		int[] vetH = { 24, 48, 120 };
+//		for (int i1 = 0; i1 < vetH.length; i1++) {
+//			ArrayList<ArrayList<Double>> yList = new ArrayList<ArrayList<Double>>();
+//			lesione1 = str2 + out1 + vetH[i1] + "h.tif";
+//			logFileLesione = str2 + out1 + ".txt";
+//			startingDir1 = str1 + vetH[i1] + "h" + File.separator + "SPECT";
+//			start1 = System.currentTimeMillis();
+//			MyLog.waitHere();
+//			yList = caricaMemoriazza(startingDir1, lesione1, vetH[i1], 0.0, logFileLesione);
+//			if (yList == null)
+//				break;
+//			for (int i2 = 0; i2 < yList.size(); i2++) {
+//				xList.add(yList.get(i2));
+//			}
+//		}
 
-		} else {
-			out1 = arg;
-		}
-
-		ArrayList<ArrayList<Double>> xList = new ArrayList<ArrayList<Double>>();
-		int[] vetH = { 24, 48, 120 };
-		for (int i1 = 0; i1 < vetH.length; i1++) {
-			ArrayList<ArrayList<Double>> yList = new ArrayList<ArrayList<Double>>();
-			lesione1 = str2 + out1 + vetH[i1] + "h.tif";
-			logFileLesione = str2 + out1 + ".txt";
-			startingDir1 = str1 + vetH[i1] + "h" + File.separator + "SPECT";
-			start1 = System.currentTimeMillis();
-
-			yList = caricaMemoriazza(startingDir1, lesione1, vetH[i1], logFileLesione);
-			if (yList == null)
-				break;
-			for (int i2 = 0; i2 < yList.size(); i2++) {
-				xList.add(yList.get(i2));
-			}
-		}
 
 		double[][] matDVH2 = Utility.calcDVH2(xList);
+
 
 		double[] vetMin = new double[matDVH2.length];
 		double[] vetMax = new double[matDVH2.length];
@@ -220,32 +212,22 @@ public class VoxelDosimetry {
 				"Dmedia= " + String.format("%.4f", Dmedia) + " \u00B1 " + String.format("%.4f", ErrMedia) + " Gy");
 		resultsDialog.showDialog();
 
-		MyLog.waitHere("FINE LAVORO");
 	}
 
-	
-	
-	void pureDVH3() {
-		
-		
-		
-		
-	}
 
 	/**
 	 * Calcolo DVH come subroutine
 	 * 
 	 * @param dosimetryFolder
 	 */
-	static void pureDVH1(String dosimetryFolder) {
+	static ArrayList<ArrayList<Double>> pureDVH1(String dosimetryFolder, boolean[] puntiSelezionati, double par_a) {
 
-		
-			int lato = Utility.latoCubo();
-		int mezzo = (lato - 1) / 2;
+//		int lato = Utility.latoCubo();
+//		int mezzo = (lato - 1) / 2;
 
 		String lesione1 = "";
-		String lesione3 = "";
-		String lesione4 = "";
+//		String lesione3 = "";
+//		String lesione4 = "";
 		String logVolatile = dosimetryFolder + File.separator + "volatile.txt";
 		String out1 = "volatile";
 		String startingDir1 = "";
@@ -259,39 +241,54 @@ public class VoxelDosimetry {
 
 		ArrayList<ArrayList<Double>> xList = new ArrayList<ArrayList<Double>>();
 		int[] vetH = { 24, 48, 120 };
-		for (int i1 = 0; i1 < vetH.length; i1++) {
-			ArrayList<ArrayList<Double>> yList = new ArrayList<ArrayList<Double>>();
-			lesione1 = dosimetryFolder + out1 + vetH[i1] + "h.tif";
-			IJ.log("lesione1= " + lesione1);
-			startingDir1 = dosimetryFolder + File.separator + "ImagesFolder" + File.separator + vetH[i1] + "h"
-					+ File.separator + "SPECT";
-			IJ.log("startingDir1= " + startingDir1);
-			yList = caricaMemoriazza(startingDir1, lesione1, vetH[i1], logVolatile);
-			if (yList == null)
-				break;
-			for (int i2 = 0; i2 < yList.size(); i2++) {
-				xList.add(yList.get(i2));
+		for (int i1 = 0; i1 < puntiSelezionati.length; i1++) {
+			if (puntiSelezionati[i1]) {
+				ArrayList<ArrayList<Double>> yList = new ArrayList<ArrayList<Double>>();
+				lesione1 = dosimetryFolder + out1 + vetH[i1] + "h.tif";
+				IJ.log("lesione1= " + lesione1);
+				startingDir1 = dosimetryFolder + File.separator + "ImagesFolder" + File.separator + vetH[i1] + "h"
+						+ File.separator + "SPECT";
+				IJ.log("startingDir1= " + startingDir1);
+				yList = caricaMemoriazza(startingDir1, lesione1, vetH[i1], par_a, logVolatile);
+				if (yList == null) {
+					xList.add(null);
+					xList.add(null);
+					xList.add(null);
+				}
+				for (int i2 = 0; i2 < yList.size(); i2++) {
+					xList.add(yList.get(i2));
+				}
+			} else {
+				xList.add(null);
+				xList.add(null);
+				xList.add(null);
 			}
 		}
 
 		ArrayList<Double> arrList1 = null;
 		arrList1 = xList.get(0);
-		vetx24 = Utility.arrayListToArrayDouble(arrList1);
+		if (arrList1 != null)
+			vetx24 = Utility.arrayListToArrayDouble(arrList1);
 		arrList1 = xList.get(2);
-		vety24 = Utility.arrayListToArrayDouble(arrList1);
+		if (arrList1 != null)
+			vety24 = Utility.arrayListToArrayDouble(arrList1);
 		arrList1 = xList.get(3);
-		vetx48 = Utility.arrayListToArrayDouble(arrList1);
+		if (arrList1 != null)
+			vetx48 = Utility.arrayListToArrayDouble(arrList1);
 		arrList1 = xList.get(5);
-		vety48 = Utility.arrayListToArrayDouble(arrList1);
+		if (arrList1 != null)
+			vety48 = Utility.arrayListToArrayDouble(arrList1);
 		arrList1 = xList.get(6);
-		vetx120 = Utility.arrayListToArrayDouble(arrList1);
+		if (arrList1 != null)
+			vetx120 = Utility.arrayListToArrayDouble(arrList1);
 		arrList1 = xList.get(8);
-		vety120 = Utility.arrayListToArrayDouble(arrList1);
+		if (arrList1 != null)
+			vety120 = Utility.arrayListToArrayDouble(arrList1);
 
 		MyPlot.PL11_myPlotMultiple2(vetx24, vety24, vetx48, vety48, vetx120, vety120, "24h=red 48h=green 120h=blue",
 				"VALUE", "VOL%");
-	
-		
+		return xList;
+
 	}
 
 	/**
@@ -323,7 +320,7 @@ public class VoxelDosimetry {
 	 * @param pathLesione
 	 */
 	static ArrayList<ArrayList<Double>> caricaMemoriazza(String pathStackIn, String pathStackMask, int ore,
-			String pathLesione) {
+			double par_a, String pathLesione) {
 
 		ImagePlus impStackIn = null;
 		ImagePlus impStackMask = null;
@@ -339,9 +336,12 @@ public class VoxelDosimetry {
 		int x3 = 0;
 		int y3 = 0;
 		int z3 = 0;
-		
+
+		start1 = System.currentTimeMillis();
 		int lato = Utility.latoCubo();
 		int mezzo = (lato - 1) / 2;
+		if (Double.isNaN(par_a))
+			MyLog.waitHere("par_a= NaN");
 
 		switch (ore) {
 		case 24:
@@ -362,7 +362,7 @@ public class VoxelDosimetry {
 			fatCal = Double.parseDouble(MyLog.readFromLog(pathLesione, "#242#", "=", true)); // fatCal120h
 			break;
 		}
-		double par_a = Double.parseDouble(MyLog.readFromLog(pathLesione, "#302#", "=", true));
+//		double par_a = Double.parseDouble(MyLog.readFromLog(pathLesione, "#302#", "=", true));
 		MyLog.here("par_a= " + par_a);
 
 		impStackIn = MyStack.readStackFiles2(pathStackIn);

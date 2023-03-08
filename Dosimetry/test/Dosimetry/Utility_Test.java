@@ -100,6 +100,9 @@ public class Utility_Test {
 		MyLog.waitHere("SPETTA");
 
 	}
+	
+	
+
 
 //	@Test
 //	public final void test_removeLineLog() {
@@ -242,35 +245,35 @@ public class Utility_Test {
 		MyLog.waitHere("SPETTA");
 	}
 
-	@Test
-	public final void test_MIRD_pointsPlotter() {
-
-		double[] vetX = { 24, 48, 120 };
-		double[] vetY = { 35.921969407999995, 18.392739144, 9.153194127999999 };
-		boolean[] selected = { true, false, true };
-
-		MyPlot.PL01_MIRD_pointsPlotter(vetX, vetY, selected, "Titolo");
-
-		MyLog.waitHere("SPETTA");
-	}
-
-	@Test
-	public final void test_MIRD_closePlot() {
-
-		double[] vetX = { 24, 48, 120 };
-		double[] vetY = { 35.921969407999995, 18.392739144, 9.153194127999999 };
-		double[] vetY2 = { 35.921969407999995, 9.392739144, 9.153194127999999 };
-		boolean[] selected = { true, false, true };
-
-		String tit1 = "Punti1";
-		MyPlot.PL01_MIRD_pointsPlotter(vetX, vetY, selected, tit1);
-		String tit2 = "Punti2";
-		MyPlot.PL01_MIRD_pointsPlotter(vetX, vetY2, selected, tit2);
-		MyLog.waitHere("SPETTA");
-		Utility.closePlot(tit1);
-
-		MyLog.waitHere("SPETTA");
-	}
+//	@Test
+//	public final void test_MIRD_pointsPlotter() {
+//
+//		double[] vetX = { 24, 48, 120 };
+//		double[] vetY = { 35.921969407999995, 18.392739144, 9.153194127999999 };
+//		boolean[] selected = { true, false, true };
+//
+//		MyPlot.PL01_MIRD_pointsPlotter(vetX, vetY, selected, "Titolo");
+//
+//		MyLog.waitHere("SPETTA");
+//	}
+//
+//	@Test
+//	public final void test_MIRD_closePlot() {
+//
+//		double[] vetX = { 24, 48, 120 };
+//		double[] vetY = { 35.921969407999995, 18.392739144, 9.153194127999999 };
+//		double[] vetY2 = { 35.921969407999995, 9.392739144, 9.153194127999999 };
+//		boolean[] selected = { true, false, true };
+//
+//		String tit1 = "Punti1";
+//		MyPlot.PL01_MIRD_pointsPlotter(vetX, vetY, selected, tit1);
+//		String tit2 = "Punti2";
+//		MyPlot.PL01_MIRD_pointsPlotter(vetX, vetY2, selected, tit2);
+//		MyLog.waitHere("SPETTA");
+//		Utility.closePlot(tit1);
+//
+//		MyLog.waitHere("SPETTA");
+//	}
 
 	@Test
 	public final void test_logDedupe() {

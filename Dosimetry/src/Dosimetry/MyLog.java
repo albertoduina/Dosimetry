@@ -110,6 +110,21 @@ public class MyLog {
 		}
 		MyLog.log("---------------------------------------------");
 	}
+	
+	public static void logVector(float[] vect, String nome) {
+		String stri = "";
+		if (vect == null) {
+			MyLog.log("Warning vector " + nome + " = null");
+		} else {
+			MyLog.log("----------- " + nome + "  [ " + vect.length + " ] -----------");
+
+			for (int i1 = 0; i1 < vect.length; i1++) {
+				stri = stri + vect[i1] + ",  ";
+			}
+			MyLog.log(stri);
+		}
+		MyLog.log("---------------------------------------------");
+	}
 
 	public static String logElapsed(long start, long end) {
 

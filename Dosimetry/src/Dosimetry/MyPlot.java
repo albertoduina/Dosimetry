@@ -2,16 +2,13 @@ package Dosimetry;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Frame;
 
 import flanagan.analysis.Regression;
 import ij.IJ;
 import ij.WindowManager;
-import ij.gui.ImageWindow;
 import ij.gui.Plot;
 import ij.measure.CurveFitter;
-import ij.util.FontUtil;
 import ij.util.Tools;
 
 public class MyPlot {
@@ -87,6 +84,8 @@ public class MyPlot {
 	}
 
 	/**
+	 * Permette il ploti di fino a 3 curve, se anche solo uno degli array di una
+	 * curva e'null, la curva non viene mostrata
 	 * 
 	 * @param profilex1
 	 * @param profiley1
@@ -104,23 +103,61 @@ public class MyPlot {
 
 		int PLOT_WIDTH = 600;
 		int PLOT_HEIGHT = 350;
+		int p1 = 0;
+		int p2 = 0;
+		int p3 = 0;
+
+		if (profilex1 != null)
+			p1 = profilex1.length;
+		if (profilex2 != null)
+			p2 = profilex2.length;
+		if (profilex3 != null)
+			p3 = profilex3.length;
+
+		double[] xx = new double[p1+p2+p3];
+		double[] yy = new double[p1+p2+p3];
+		int l1 = 0;
+		int l2 = 0;
+		int prec=0;
 
 		// Plot plot = new Plot("P11 " + title, xlabel, ylabel);
 		Plot plot = new Plot("PL11 GRAFICO ", xlabel, ylabel);
 		plot.setLineWidth(2);
 		plot.setColor(Color.red);
-		plot.add("line", profilex1, profiley1);
-		plot.setColor(Color.green);
-		plot.add("line", profilex2, profiley2);
-		plot.setColor(Color.blue);
-		plot.add("line", profilex3, profiley3);
+		if (profilex1 != null && profiley1 != null) {
+			l1 = profilex1.length;
+			l2 = xx.length;
+			IJ.log("AAA l1= " + l1 + " l2= " + l2);
+			System.arraycopy(profilex1, 0, xx, prec, l1);
+			System.arraycopy(profiley1, 0, yy, prec, l1);
+			prec=prec+l1;
+			plot.add("line", profilex1, profiley1);
+		}
 
-		double[] appx2 = Utility.concatArrays(profilex1, profilex2);
-		double[] appx3 = Utility.concatArrays(appx2, profilex3);
-		double[] a = Tools.getMinMax(appx3);
-		double[] appy2 = Utility.concatArrays(profiley1, profiley2);
-		double[] appy3 = Utility.concatArrays(appy2, profiley3);
-		double[] b = Tools.getMinMax(appy3);
+		plot.setColor(Color.green);
+		if (profilex2 != null && profiley2 != null) {
+			l1 = profilex2.length;
+			l2 = xx.length;
+			IJ.log("BBB l1= " + l1 + " l2= " + l2);
+			System.arraycopy(profilex2, 0, xx, prec, l1);
+			System.arraycopy(profiley2, 0, yy, prec, l1);
+			prec=prec+l1;
+		plot.add("line", profilex2, profiley2);
+		}
+		plot.setColor(Color.blue);
+		if (profilex3 != null && profiley3 != null) {
+			l1 = profilex3.length;
+			l2 = xx.length;
+			IJ.log("CCC l1= " + l1 + " l2= " + l2);
+			System.arraycopy(profilex3, 0, xx, prec, l1 - 1);
+			System.arraycopy(profiley3, 0, yy, prec, l1 - 1);
+			prec=prec+l1;
+			plot.add("line", profilex3, profiley3);
+		}
+
+		double[] a = Tools.getMinMax(xx);
+		double[] b = Tools.getMinMax(yy);
+
 		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
 		plot.setColor(Color.BLUE);
 //		plot.setFont(FontUtil.getFont("Times New Roman", Font.TRUETYPE_FONT, 16));
@@ -408,7 +445,8 @@ public class MyPlot {
 	 * @param vetX
 	 * @param vetY
 	 */
-	static void PL04_MIRD_curvePlotterSpecialImageJ(CurveFitter cf, double[] vetx, double[] vety, boolean[] selected, String title) {
+	static void PL04_MIRD_curvePlotterSpecialImageJ(CurveFitter cf, double[] vetx, double[] vety, boolean[] selected,
+			String title) {
 
 		int PLOT_WIDTH = 600;
 		int PLOT_HEIGHT = 350;
@@ -452,6 +490,13 @@ public class MyPlot {
 		double[] yy = new double[1];
 		Color col = null;
 
+		if (selected == null) {
+			selected = new boolean[3];
+			selected[0] = true;
+			selected[1] = true;
+			selected[2] = true;
+		}
+
 		for (int i1 = 0; i1 < selected.length; i1++) {
 			if (selected[i1]) {
 				if (i1 == 0)
@@ -473,6 +518,7 @@ public class MyPlot {
 			}
 
 		}
+		plot.setColor(Color.blue);
 		StringBuffer legend = new StringBuffer(100);
 		legend.append(cf.getName());
 		legend.append('\n');
@@ -488,13 +534,12 @@ public class MyPlot {
 		legend.append("R^2 = " + IJ.d2s(cf.getRSquared(), 4));
 		legend.append('\n');
 		plot.addLabel(0.8, 0.1, legend.toString());
-		
-		
+
 		plot.addLabel(0.05, 0.95, title);
 		plot.setWindowSize(PLOT_WIDTH, PLOT_HEIGHT);
 
 		plot.show();
-		
+
 		Frame lw = WindowManager.getFrame(plot.getTitle());
 		Dimension screen = IJ.getScreenSize();
 		if (lw != null) {
@@ -633,7 +678,7 @@ public class MyPlot {
 	 * @param vetX
 	 * @param vetY
 	 */
-	static void PL01_MIRD_pointsPlotter(double[] vetX, double[] vetY, boolean[] selected, String title) {
+	static void PL01_MIRD_pointsPlotter(double[] vetX, double[] vetY, boolean[] selected, String title, String label) {
 
 		double[] minMaxX = Tools.getMinMax(vetX);
 		double[] minMaxY = Tools.getMinMax(vetY);
@@ -652,10 +697,17 @@ public class MyPlot {
 
 		Plot plot = new Plot("PL01 " + title, "ore dalla somministrazione", "attivita' MBq");
 		plot.setLineWidth(2);
+		Color col = null;
 
 		for (int i1 = 0; i1 < selected.length; i1++) {
 			if (selected[i1]) {
-				plot.setColor(Color.red);
+				if (i1 == 0)
+					col = Color.red;
+				if (i1 == 1)
+					col = Color.green;
+				if (i1 == 2)
+					col = Color.blue;
+				plot.setColor(col);
 				xx[0] = vetX[i1];
 				yy[0] = vetY[i1];
 				plot.add("circle", xx, yy);
@@ -667,6 +719,10 @@ public class MyPlot {
 			}
 
 		}
+
+		plot.setColor(Color.BLUE);
+		plot.addLabel(0.05, 0.95, label);
+
 		plot.setWindowSize(PLOT_WIDTH, PLOT_HEIGHT);
 		plot.setLimits(xmin, xmax, ymin, ymax);
 		plot.show();

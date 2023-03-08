@@ -644,7 +644,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 			MIRD_display_LP66(MIRD_vol24, MIRD_vol48, MIRD_vol120);
 
-
 			// #########################################################################
 			// QUI MOSTRERO' IL DVH
 			// #########################################################################
@@ -661,8 +660,16 @@ public class Dosimetria_Lu177 implements PlugIn {
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
-				double[] vetOut4 = processaConFlanagan(xp1, yp1, MIRD_vol24, MIRD_vol48, MIRD_vol120);
+				String titolo1 = "Punti_PP01";
+				MyPlot.PL01_MIRD_pointsPlotter(xp1, yp1, null, titolo1, "24h=red 48h=green 120h=blue");
+				////////////////////////////////////////////////////////
+				boolean[] puntiSelezionati = pointsSelection_LP33(); /// selezione dei 2 o 3 punti su cui fare il fit
+				Utility.closePlot(titolo1);
 
+				double[] vetOut4 = processa(xp1, yp1, MIRD_vol24, MIRD_vol48, MIRD_vol120, pathImage, puntiSelezionati);
+
+
+//				MyLog.waitHere();
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
@@ -693,6 +700,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 				aux5 = "#302#\tMIRD FLANAGAN FIT param 1= " + aa;
 				MyLog.logAppend(pathVolatile, aux5);
 
+				ArrayList<ArrayList<Double>> xList = VoxelDosimetry.pureDVH1(pathImage, puntiSelezionati, aa);
+
 				// MyLog.waitHere("s1= " + s1 + " s2= " + s2 + " m1= " + m1 + " m2= " + m2);
 
 				vetInput = new double[14];
@@ -716,7 +725,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
-				VoxelDosimetry.pureDVH1(pathImage);
+//				VoxelDosimetry.pureDVH1(pathImage);
 
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 				desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
@@ -724,29 +733,29 @@ public class Dosimetria_Lu177 implements PlugIn {
 				pathVolatile = desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
-				String titolo1 = "Punti_PP01";
+//				String titolo1 = "Punti_PP01";
 //				MyPlot.MIRD_pointsPlotter(xp1, yp1, null, titolo1);
 //				////////////////////////////////////////////////////////
-				int count2 = 0;
-				boolean[] puntiSelezionati = pointsSelection_LP33(); /// selezione dei 2 o 3 punti su cui fare il fit
-				for (boolean aux : puntiSelezionati) {
-					if (aux)
-						count2++;
-				}
-				if (count2 == 2) {
+//				int count2 = 0;
+//				boolean[] puntiSelezionati = pointsSelection_LP33(); /// selezione dei 2 o 3 punti su cui fare il fit
+//				for (boolean aux : puntiSelezionati) {
+//					if (aux)
+//						count2++;
+//				}
+//				if (count2 == 2) {
 
 //					Utility.closePlot(titolo1);
-					//
+				//
 //				// String titolo2 = "Punti_PP02";
 //				// MyPlot.PL01_MIRD_pointsPlotter(xp1, yp1, puntiSelezionatiFit, titolo2);
 
-					aux5 = "#194#\t----- POINT SELECTION ------------------";
-					MyLog.logModify(pathVolatile, "#194#", aux5);
-
-					aux5 = "#195#\t Selezionati i punti 24h= " + puntiSelezionati[0] + " 48h= "
-							+ puntiSelezionati[1] + " 120h= " + puntiSelezionati[2];
-
-					MyLog.logModify(pathVolatile, "#195#", aux5);
+//					aux5 = "#194#\t----- POINT SELECTION ------------------";
+//					MyLog.logModify(pathVolatile, "#194#", aux5);
+//
+//					aux5 = "#195#\t Selezionati i punti 24h= " + puntiSelezionati[0] + " 48h= " + puntiSelezionati[1]
+//							+ " 120h= " + puntiSelezionati[2];
+//
+//					MyLog.logModify(pathVolatile, "#195#", aux5);
 
 //					int count3 = 0;
 //					double[] xp2 = new double[count];
@@ -762,37 +771,42 @@ public class Dosimetria_Lu177 implements PlugIn {
 //				VoxelDosimetry S_VoxelDosimetry2 = new VoxelDosimetry();
 //				S_VoxelDosimetry2.pureDVH1(pathImage);
 
-					double[] vetOut6 = processaConImagej(xp1, yp1, puntiSelezionati, MIRD_vol24, MIRD_vol48, MIRD_vol120);
-					
-					AA = vetOut6[0];
-					aa = vetOut6[1];
-					SA = vetOut6[2];
-					Sa = vetOut6[3];
-					mAtilde = vetOut6[4];
-					disintegrazioni = vetOut6[5];
-					uptake = vetOut6[6];
-					massa = vetOut6[7];
-					tmezzo = vetOut6[8];
-					tau = vetOut6[9];
-					SmAtilde = vetOut6[10];
-					Sdisintegrazioni = vetOut6[11];
-					Suptake = vetOut6[12];
-					Smassa = vetOut6[13];
-					Stmezzo = vetOut6[14];
-					Stau = vetOut6[15];
-					dose = vetOut6[16];
-					Sdose = vetOut6[17];
-					Rsquared = vetOut6[18];
-					s1 = vetOut6[19];
-					s2 = vetOut6[20];
-					m1 = vetOut6[21];
-					m2 = vetOut6[22];
-					aux5 = "#302#\tMIRD FLANAGAN FIT param 1= " + aa;
-					MyLog.logAppend(pathVolatile, aux5);
-		
-					VoxelDosimetry.pureDVH1(pathImage);
+//					double[] vetOut6 = processaConImagej(xp1, yp1, puntiSelezionati, MIRD_vol24, MIRD_vol48,
+//							MIRD_vol120);
+//
+//					AA = vetOut6[0];
+//					aa = vetOut6[1];
+//					SA = vetOut6[2];
+//					Sa = vetOut6[3];
+//					mAtilde = vetOut6[4];
+//					disintegrazioni = vetOut6[5];
+//					uptake = vetOut6[6];
+//					massa = vetOut6[7];
+//					tmezzo = vetOut6[8];
+//					tau = vetOut6[9];
+//					SmAtilde = vetOut6[10];
+//					Sdisintegrazioni = vetOut6[11];
+//					Suptake = vetOut6[12];
+//					Smassa = vetOut6[13];
+//					Stmezzo = vetOut6[14];
+//					Stau = vetOut6[15];
+//					dose = vetOut6[16];
+//					Sdose = vetOut6[17];
+//					Rsquared = vetOut6[18];
+//					s1 = vetOut6[19];
+//					s2 = vetOut6[20];
+//					m1 = vetOut6[21];
+//					m2 = vetOut6[22];
+//					aux5 = "#302#\tMIRD FLANAGAN FIT param 1= " + aa;
+//					MyLog.logAppend(pathVolatile, aux5);
+//
+//					VoxelDosimetry.pureDVH1(pathImage);
+//
+//				}
 
-				}
+				VoxelDosimetry.voxelDosim222(xList);
+
+//				Utility.calcDVH2(null);
 
 				////// //////////////////////////////////////////////////////////////////////
 				////// IW2AYV////////////////////////////////////////////////////////////////
@@ -2343,7 +2357,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		double m1 = Double.NaN;
 		double m2 = Double.NaN;
 
-
 		for (int i1 = 0; i1 < xp1.length; i1++) {
 
 			MyLog.log("in " + i1 + " xp1= " + xp1[i1] + " yp1= " + yp1[i1]);
@@ -2476,18 +2489,25 @@ public class Dosimetria_Lu177 implements PlugIn {
 		double m1 = Double.NaN;
 		double m2 = Double.NaN;
 
-		double[] xp2 = new double[2];
-		double[] yp2 = new double[2];
-		int count = 0;
-		for (int i1 = 0; i1 < puntiSelezionati.length; i1++) {
-			if (puntiSelezionati[i1]) {
-				xp2[count] = xp1[i1];
-				yp2[count] = yp1[i1];
-				count++;
+		double[] xp2 = null;
+		double[] yp2 = null;
+
+		if (puntiSelezionati == null) {
+			xp2 = xp1;
+			yp2 = yp1;
+		} else {
+			xp2 = new double[2];
+			yp2 = new double[2];
+			int count = 0;
+			for (int i1 = 0; i1 < xp1.length; i1++) {
+				if (puntiSelezionati[i1]) {
+					xp2[count] = xp1[i1];
+					yp2[count] = yp1[i1];
+					count++;
+				}
 			}
 		}
 
-		
 		// =============================================================
 		// SELEZIONATI DUE SOLI PUNTI - FIT DA ESEGUIRE CON IMAGEJ
 		// =============================================================
@@ -2503,10 +2523,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 			outCF[i1] = paramsIJ[i1];
 		}
 		rSquaredIJ = cf.getRSquared();
-		
+
 		out2 = Utility.calcoliDosimetrici(paramsIJ, null, rSquaredIJ, MIRD_vol24, MIRD_vol48, MIRD_vol120,
 				pathVolatile);
-		
+
 		AA = out2[0];
 		aa = out2[1];
 		SA = out2[2];
@@ -2575,7 +2595,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 	 * @param MIRD_vol120
 	 * @return
 	 */
-	static double[] processaOLD(double[] xp1, double[] yp1, double MIRD_vol24, double MIRD_vol48, double MIRD_vol120) {
+	static double[] processa(double[] xp1, double[] yp1, double MIRD_vol24, double MIRD_vol48, double MIRD_vol120,
+			String pathImage, boolean[] puntiSelezionati) {
 
 		Regression rf = null;
 		CurveFitter cf = null;
@@ -2624,33 +2645,29 @@ public class Dosimetria_Lu177 implements PlugIn {
 		pathVolatile = desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
-		String titolo1 = "Punti_PP01";
-//		MyPlot.MIRD_pointsPlotter(xp1, yp1, null, titolo1);
-		////////////////////////////////////////////////////////
-		int count = 0;
-		boolean[] puntiSelezionatiFit = pointsSelection_LP33(); /// selezione dei 2 o 3 punti su cui fare il fit
-		for (boolean aux : puntiSelezionatiFit) {
-			if (aux)
-				count++;
-		}
-		Utility.closePlot(titolo1);
-
 		// String titolo2 = "Punti_PP02";
 		// MyPlot.PL01_MIRD_pointsPlotter(xp1, yp1, puntiSelezionatiFit, titolo2);
 
 		aux5 = "#194#\t----- POINT SELECTION ------------------";
 		MyLog.logModify(pathVolatile, "#194#", aux5);
 
-		aux5 = "#195#\t Selezionati i punti 24h= " + puntiSelezionatiFit[0] + " 48h= " + puntiSelezionatiFit[1]
-				+ " 120h= " + puntiSelezionatiFit[2];
+		aux5 = "#195#\t Selezionati i punti 24h= " + puntiSelezionati[0] + " 48h= " + puntiSelezionati[1] + " 120h= "
+				+ puntiSelezionati[2];
 
 		MyLog.logModify(pathVolatile, "#195#", aux5);
+		
+		int count = 0;
+		for (boolean aux : puntiSelezionati) {
+			if (aux)
+				count++;
+		}
+
 
 		int count2 = 0;
 		double[] xp2 = new double[count];
 		double[] yp2 = new double[count];
 		for (int i1 = 0; i1 < xp1.length; i1++) {
-			if (puntiSelezionatiFit[i1]) {
+			if (puntiSelezionati[i1]) {
 				xp2[count2] = xp1[i1];
 				yp2[count2] = yp1[i1];
 				count2++;
@@ -2663,8 +2680,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// SELEZIONATI DUE SOLI PUNTI - FIT DA ESEGUIRE CON IMAGEJ
 			// =============================================================
 			cf = Utility.MIRD_curveFitterSpecialImageJ(xp2, yp2);
-			MyPlot.PL04_MIRD_curvePlotterSpecialImageJ(cf, xp1, yp1, puntiSelezionatiFit,
-					"24h=red 48h=green 120h=blue");
+			MyPlot.PL04_MIRD_curvePlotterSpecialImageJ(cf, xp1, yp1, puntiSelezionati, "24h=red 48h=green 120h=blue");
 			// -------- recupero i dati da stampare ---------------
 			paramsIJ = cf.getParams();
 			numParams = cf.getNumParams();
@@ -2743,6 +2759,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 			m1 = out2[21];
 			m2 = out2[22];
 		}
+
+
 		// MyLog.waitHere("s1= " + s1 + " s2= " + s2 + " m1= " + m1 + " m2= " + m2);
 
 		MyLog.log("==== PRIMA DI REVIEW =====");

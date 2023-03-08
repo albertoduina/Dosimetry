@@ -28,15 +28,18 @@ public class MyStack {
 		int width = stack.getHeight();
 		int height = stack.getHeight();
 		int depth = stack.getSize();
+		IJ.log("dimensions= " + width + "x" + height + "x" + depth);
 		float[] vetValues = stack.getVoxels(0, 0, 0, width, height, depth, null);
 		float sum = 0;
 		for (float value : vetValues) {
 			sum += value;
 		}
-		if (sum == 0.0)
+		if (sum == 0.0 || Double.isNaN(sum)) {
+			MyLog.waitHere("IMBARAZZANTE: lo stack e' vuoto TRUE");
 			return true;
-		else
+		} else {
 			return false;
+		}
 	}
 
 	/**
@@ -422,6 +425,11 @@ public class MyStack {
 		int[] maxStackCoord = new int[3];
 		long pixCount = 0;
 
+		if (stackIsEmpty(impStackIn))
+			MyLog.waitHere("ERROR= impStackIn EMPTY");
+		if (stackIsEmpty(impMask))
+			MyLog.waitHere("ERROR= impMask EMPTY");
+
 		for (int z1 = 0; z1 < depth1; z1++) {
 			inSlice1 = stackIn.getProcessor(z1 + 1);
 			maskSlice1 = stackMask.getProcessor(z1 + 1);
@@ -490,6 +498,9 @@ public class MyStack {
 		int[] maxStackCoord = new int[3];
 		long pixCount = 0;
 
+		if (stackIsEmpty(impStackIn))
+			MyLog.waitHere("ERROR= impStackIn EMPTY");
+
 		for (int z1 = 0; z1 < depth1; z1++) {
 			inSlice1 = stackIn.getProcessor(z1 + 1);
 			for (int x1 = 0; x1 < width1; x1++) {
@@ -550,6 +561,9 @@ public class MyStack {
 		int width = impMaskStack.getWidth();
 		int heigth = impMaskStack.getHeight();
 		int depth = impMaskStack.getNSlices();
+
+		if (stackIsEmpty(impMaskStack))
+			MyLog.waitHere("ERROR= impStackIn EMPTY");
 
 		ImageStack stackMask = impMaskStack.getImageStack();
 

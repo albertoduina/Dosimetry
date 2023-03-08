@@ -324,7 +324,10 @@ public class Fegato_MIRD implements PlugIn {
 
 		do {
 
+			MyLog.logVector(xp1, "xp1");
+			MyLog.logVector(yp1, "yp1");
 			double[] vetOut4 = Dosimetria_Lu177.processaConImagej(xp1, yp1, null,  MIRD_vol24, MIRD_vol48, MIRD_vol120);
+			
 
 			AA = vetOut4[0];
 			aa = vetOut4[1];
