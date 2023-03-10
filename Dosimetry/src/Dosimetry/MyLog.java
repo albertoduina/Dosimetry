@@ -46,12 +46,19 @@ public class MyLog {
 		return;
 	}
 
-	public static void here() {
-		IJ.log("file=" + Thread.currentThread().getStackTrace()[2].getFileName() + " " + "line="
+	public static String here1() {
+		String qui = "file=" + Thread.currentThread().getStackTrace()[2].getFileName() + " " + "line="
+				+ Thread.currentThread().getStackTrace()[2].getLineNumber();
+		return qui;
+	}
+
+	public static String here() {
+		String qui = "file=" + Thread.currentThread().getStackTrace()[2].getFileName() + " " + "line="
 				+ Thread.currentThread().getStackTrace()[2].getLineNumber() + " class="
 				+ Thread.currentThread().getStackTrace()[2].getClassName() + " method="
-				+ Thread.currentThread().getStackTrace()[2].getMethodName());
-
+				+ Thread.currentThread().getStackTrace()[2].getMethodName();
+		IJ.log(qui);
+		return qui;
 	}
 
 	public static void here(String str) {
@@ -69,6 +76,13 @@ public class MyLog {
 	public static void waitHere(String str) {
 		new WaitForUserDialog("file=" + Thread.currentThread().getStackTrace()[2].getFileName() + " " + " line="
 				+ Thread.currentThread().getStackTrace()[2].getLineNumber() + "\n \n" + str).show();
+	}
+
+	public static void waitThere(String str) {
+		new WaitForUserDialog("file=" + Thread.currentThread().getStackTrace()[2].getFileName() + " " + " line="
+				+ Thread.currentThread().getStackTrace()[2].getLineNumber() + "\n" + "file="
+				+ Thread.currentThread().getStackTrace()[3].getFileName() + " " + " line="
+				+ Thread.currentThread().getStackTrace()[3].getLineNumber() + "\n \n" + str).show();
 	}
 
 	public static void logArrayList(ArrayList<String> arrList) {
@@ -101,16 +115,18 @@ public class MyLog {
 		if (vect == null) {
 			MyLog.log("Warning vector " + nome + " = null");
 		} else {
-			MyLog.log("----------- " + nome + "  [ " + vect.length + " ] -----------");
+			MyLog.log("file=" + Thread.currentThread().getStackTrace()[2].getFileName() + " " + " line="
+					+ Thread.currentThread().getStackTrace()[2].getLineNumber() + "  ----------- " + nome + " [ "
+					+ vect.length + "] -----------");
 
 			for (int i1 = 0; i1 < vect.length; i1++) {
 				stri = stri + vect[i1] + ",  ";
 			}
 			MyLog.log(stri);
 		}
-		MyLog.log("---------------------------------------------");
+		MyLog.log("----------------------------------");
 	}
-	
+
 	public static void logVector(float[] vect, String nome) {
 		String stri = "";
 		if (vect == null) {
@@ -271,7 +287,7 @@ public class MyLog {
 	 * @param linea stringa da inserire
 	 */
 	public static void logAppend(String path, String linea) {
-	
+
 		BufferedWriter out;
 		try {
 			out = new BufferedWriter(new FileWriter(path, true));
@@ -281,7 +297,7 @@ public class MyLog {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	
+
 	}
 
 	/**
@@ -293,7 +309,7 @@ public class MyLog {
 	 * @param end
 	 */
 	static void logCopyRange(String pathSorgente, String pathDestinazione, int start, int end) {
-	
+
 		String aux1 = "";
 		String aux2 = "";
 		for (int i1 = start; i1 <= end; i1++) {
@@ -303,7 +319,7 @@ public class MyLog {
 				logAppend(pathDestinazione, aux2);
 			}
 		}
-	
+
 	}
 
 	/**
@@ -319,7 +335,7 @@ public class MyLog {
 		String line4 = "";
 		String tag1 = "";
 		String tag2 = "";
-	
+
 		log("eseguo dedupeLog");
 		try {
 			BufferedReader file1 = new BufferedReader(new FileReader(path1));
@@ -353,7 +369,7 @@ public class MyLog {
 					outArrayList.add(line2);
 				}
 			}
-	
+
 			BufferedWriter out = new BufferedWriter(new FileWriter(path1, true));
 			for (int i1 = outArrayList.size() - 1; i1 >= 0; i1--) {
 				// in questo modo ribalto l'array di output
@@ -374,7 +390,7 @@ public class MyLog {
 	 * @param pathDir
 	 */
 	public static void logDeleteAll(String pathDir) {
-	
+
 		File folder = new File(pathDir);
 		File fList[] = folder.listFiles();
 		for (File f1 : fList) {
@@ -382,7 +398,7 @@ public class MyLog {
 				f1.delete();
 			}
 		}
-	
+
 	}
 
 	/**
@@ -397,7 +413,7 @@ public class MyLog {
 			f1.delete();
 		}
 		if (f1.exists()) {
-			Utility.dialogErrorMessage_LP06(path);
+			MyDialog.dialogErrorMessage_LP06(path);
 		}
 	}
 
@@ -410,7 +426,7 @@ public class MyLog {
 	 * @param newline linea da inserire (completa di tag)
 	 */
 	public static void logModify(String path1, String tag, String newline) {
-	
+
 		boolean ok = true;
 		try {
 			BufferedReader file = new BufferedReader(new FileReader(path1));
@@ -430,12 +446,12 @@ public class MyLog {
 				inputBuffer.append('\n');
 			}
 			file.close();
-	
+
 			// riscrittura
 			FileOutputStream fileOut = new FileOutputStream(path1);
 			fileOut.write(inputBuffer.toString().getBytes());
 			fileOut.close();
-	
+
 		} catch (Exception e) {
 			System.out.println("errore lettura/scrittura file " + path1);
 		}
@@ -474,7 +490,7 @@ public class MyLog {
 	 * @param tag
 	 */
 	public static void logRemoveLine(String path1, String tag) {
-	
+
 		try {
 			BufferedReader file = new BufferedReader(new FileReader(path1));
 			StringBuffer inputBuffer = new StringBuffer();
@@ -488,12 +504,12 @@ public class MyLog {
 				}
 			}
 			file.close();
-	
+
 			// riscrittura
 			FileOutputStream fileOut = new FileOutputStream(path1);
 			fileOut.write(inputBuffer.toString().getBytes());
 			fileOut.close();
-	
+
 		} catch (Exception e) {
 			System.out.println("errore lettura/scrittura file " + path1);
 		}
@@ -508,7 +524,7 @@ public class MyLog {
 	 * @return
 	 */
 	static double readDoubleFromLog(String path1, String code1, String separator) {
-	
+
 		// leggo una stringa dal log
 		String[] vetText = MyLog.readSimpleText(path1);
 		String[] vetAux1;
@@ -521,7 +537,7 @@ public class MyLog {
 				}
 			}
 		}
-	
+
 		return Double.parseDouble(out1);
 	}
 
@@ -533,7 +549,7 @@ public class MyLog {
 	 * @return
 	 */
 	static String readFromLog(String path1, String code1) {
-	
+
 		// leggo una stringa dal log
 		String[] vetText = MyLog.readSimpleText(path1);
 		if (vetText.length > 0) {
@@ -554,13 +570,13 @@ public class MyLog {
 	 * @return
 	 */
 	static String readFromLog(String path1, String code1, String separator) {
-	
+
 		if (path1 == null)
 			waitHere("path1==null");
 		String[] vetText = MyLog.readSimpleText(path1);
 		if (vetText == null)
 			waitHere("vetText==null");
-	
+
 		String[] vetAux1;
 		String out1 = null;
 		boolean trovato = false;
@@ -589,13 +605,13 @@ public class MyLog {
 	 * @return
 	 */
 	static String readFromLog(String path1, String code1, String separator, boolean error) {
-	
+
 		if (path1 == null)
 			waitHere("path1==null");
 		String[] vetText = MyLog.readSimpleText(path1);
 		if (vetText == null)
 			waitHere("vetText==null");
-	
+
 		String[] vetAux1;
 		String out1 = null;
 		boolean trovato = false;
@@ -624,7 +640,7 @@ public class MyLog {
 	 * @return vettore stringhe
 	 */
 	public static String[] readSimpleText(String path1) {
-	
+
 		List<String> lines = new ArrayList<String>();
 		BufferedReader br = null;
 		try {
@@ -641,12 +657,12 @@ public class MyLog {
 				line = br.readLine();
 			}
 			br.close();
-	
+
 		} catch (IOException e) {
 			waitHere("reading error= " + path1);
 			e.printStackTrace();
 		}
-	
+
 		String[] out2 = lines.toArray(new String[0]);
 		return out2;
 	}
@@ -659,7 +675,7 @@ public class MyLog {
 	 * @return vettore stringhe
 	 */
 	public static String[] readSimpleText2(String path1) {
-	
+
 		List<String> out1 = null;
 		try {
 			out1 = Files.readAllLines(Path.of(path1));

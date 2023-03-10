@@ -28,7 +28,6 @@ public class MyStack {
 		int width = stack.getHeight();
 		int height = stack.getHeight();
 		int depth = stack.getSize();
-		IJ.log("dimensions= " + width + "x" + height + "x" + depth);
 		float[] vetValues = stack.getVoxels(0, 0, 0, width, height, depth, null);
 		float sum = 0;
 		for (float value : vetValues) {
@@ -307,7 +306,7 @@ public class MyStack {
 			flName = results[i1].getName();
 			flPath = results[i1].getPath();
 			if (!Utility.isDicomImage(flPath))
-				ok = Utility
+				ok = MyDialog
 						.dialogErrorMessageWithCancel_LP09("Il file " + flName + " non e'una immagine Dicom valida");
 			if (ok)
 				return null;

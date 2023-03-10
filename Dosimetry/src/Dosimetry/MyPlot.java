@@ -26,7 +26,7 @@ public class MyPlot {
 	 * @param ylabel
 	 * @return
 	 */
-	public static Plot PL13_myPlotMultiple(double[] profilex1, double[] profiley1, double[] profilex2,
+	public static String PL13_myPlotMultiple(double[] profilex1, double[] profiley1, double[] profilex2,
 			double[] profiley2, double[] profilex3, double[] profiley3, String title, String xlabel, String ylabel) {
 
 		int PLOT_WIDTH = 600;
@@ -48,7 +48,10 @@ public class MyPlot {
 		double[] b = Tools.getMinMax(appy3);
 		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
 		plot.setWindowSize(PLOT_WIDTH, PLOT_HEIGHT);
-		return plot;
+		plot.show();
+		String out = plot.getTitle();
+		return out;
+
 	}
 
 	/**
@@ -62,7 +65,7 @@ public class MyPlot {
 	 * @param ylabel
 	 * @return
 	 */
-	public static Plot PL12_myPlotMultiple(double[] profilex1, double[] profiley1, double[] profilex2,
+	public static String PL12_myPlotMultiple(double[] profilex1, double[] profiley1, double[] profilex2,
 			double[] profiley2, String title, String xlabel, String ylabel) {
 
 		int PLOT_WIDTH = 600;
@@ -80,7 +83,10 @@ public class MyPlot {
 		double[] b = Tools.getMinMax(appy2);
 		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
 		plot.setWindowSize(PLOT_WIDTH, PLOT_HEIGHT);
-		return plot;
+		plot.show();
+		String out = plot.getTitle();
+		return out;
+
 	}
 
 	/**
@@ -98,7 +104,7 @@ public class MyPlot {
 	 * @param ylabel
 	 * @return
 	 */
-	public static void PL11_myPlotMultiple2(double[] profilex1, double[] profiley1, double[] profilex2,
+	public static String PL11_myPlotMultiple2(double[] profilex1, double[] profiley1, double[] profilex2,
 			double[] profiley2, double[] profilex3, double[] profiley3, String title, String xlabel, String ylabel) {
 
 		int PLOT_WIDTH = 600;
@@ -107,18 +113,24 @@ public class MyPlot {
 		int p2 = 0;
 		int p3 = 0;
 
-		if (profilex1 != null)
+		if (profilex1 != null) {
+			MyLog.logVector(profilex1, "PL11 profilex1");
 			p1 = profilex1.length;
-		if (profilex2 != null)
+		}
+		if (profilex2 != null) {
+			MyLog.logVector(profilex2, "PL11 profilex2");
 			p2 = profilex2.length;
-		if (profilex3 != null)
+		}
+		if (profilex3 != null) {
+			MyLog.logVector(profilex3, "PL11 profilex3");
 			p3 = profilex3.length;
+		}
 
-		double[] xx = new double[p1+p2+p3];
-		double[] yy = new double[p1+p2+p3];
+		double[] xx = new double[p1 + p2 + p3];
+		double[] yy = new double[p1 + p2 + p3];
 		int l1 = 0;
 		int l2 = 0;
-		int prec=0;
+		int prec = 0;
 
 		// Plot plot = new Plot("P11 " + title, xlabel, ylabel);
 		Plot plot = new Plot("PL11 GRAFICO ", xlabel, ylabel);
@@ -130,7 +142,7 @@ public class MyPlot {
 			IJ.log("AAA l1= " + l1 + " l2= " + l2);
 			System.arraycopy(profilex1, 0, xx, prec, l1);
 			System.arraycopy(profiley1, 0, yy, prec, l1);
-			prec=prec+l1;
+			prec = prec + l1;
 			plot.add("line", profilex1, profiley1);
 		}
 
@@ -141,8 +153,8 @@ public class MyPlot {
 			IJ.log("BBB l1= " + l1 + " l2= " + l2);
 			System.arraycopy(profilex2, 0, xx, prec, l1);
 			System.arraycopy(profiley2, 0, yy, prec, l1);
-			prec=prec+l1;
-		plot.add("line", profilex2, profiley2);
+			prec = prec + l1;
+			plot.add("line", profilex2, profiley2);
 		}
 		plot.setColor(Color.blue);
 		if (profilex3 != null && profiley3 != null) {
@@ -151,7 +163,7 @@ public class MyPlot {
 			IJ.log("CCC l1= " + l1 + " l2= " + l2);
 			System.arraycopy(profilex3, 0, xx, prec, l1 - 1);
 			System.arraycopy(profiley3, 0, yy, prec, l1 - 1);
-			prec=prec+l1;
+			prec = prec + l1;
 			plot.add("line", profilex3, profiley3);
 		}
 
@@ -160,7 +172,6 @@ public class MyPlot {
 
 		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
 		plot.setColor(Color.BLUE);
-//		plot.setFont(FontUtil.getFont("Times New Roman", Font.TRUETYPE_FONT, 16));
 		plot.addLabel(0.05, 0.95, title);
 		plot.setWindowSize(PLOT_WIDTH, PLOT_HEIGHT);
 
@@ -174,7 +185,8 @@ public class MyPlot {
 			lw.setLocation(10, screen.height / 2);
 		}
 
-		return;
+		String out = plot.getTitle();
+		return out;
 	}
 
 	/**
@@ -188,7 +200,7 @@ public class MyPlot {
 	 * @param ylabel
 	 * @return
 	 */
-	public static Plot PL10_myPlotMultiple2(double[] profilex1, double[] profiley1, double[] profilex2,
+	public static String PL10_myPlotMultiple2(double[] profilex1, double[] profiley1, double[] profilex2,
 			double[] profiley2, String title, String xlabel, String ylabel) {
 		int PLOT_WIDTH = 600;
 		int PLOT_HEIGHT = 350;
@@ -209,7 +221,10 @@ public class MyPlot {
 		double[] b = Tools.getMinMax(appy2);
 		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
 		plot.setWindowSize(PLOT_WIDTH, PLOT_HEIGHT);
-		return plot;
+		plot.show();
+		String out = plot.getTitle();
+		return out;
+
 	}
 
 	/**
@@ -225,7 +240,7 @@ public class MyPlot {
 	 * @param ylabel
 	 * @return
 	 */
-	public static Plot PL09_myPlotMultiple3(double[] profilex1, double[] profiley1, double[] profilex2,
+	public static String PL09_myPlotMultiple3(double[] profilex1, double[] profiley1, double[] profilex2,
 			double[] profiley2, double[] profilex3, double[] profiley3, String title, String xlabel, String ylabel) {
 		int PLOT_WIDTH = 600;
 
@@ -250,7 +265,10 @@ public class MyPlot {
 		double[] b = Tools.getMinMax(appy3);
 		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
 		plot.setWindowSize(PLOT_WIDTH, PLOT_HEIGHT);
-		return plot;
+		plot.show();
+
+		String out = plot.getTitle();
+		return out;
 	}
 
 	/**
@@ -266,7 +284,7 @@ public class MyPlot {
 	 * @param ylabel
 	 * @return
 	 */
-	public static Plot PL08_myPlotMultipleSpecial1(double[] profilex1, double[] profiley1, double[] profilex2,
+	public static String PL08_myPlotMultipleSpecial1(double[] profilex1, double[] profiley1, double[] profilex2,
 			double[] profiley2, double[] profilex3, double[] profiley3, String title, String xlabel, String ylabel) {
 		int PLOT_WIDTH = 600;
 		int PLOT_HEIGHT = 350;
@@ -276,14 +294,14 @@ public class MyPlot {
 		plot.add("filled", profilex2, profiley2);
 		plot.setColor(Color.red);
 		plot.add("line", profilex2, profiley2);
-		plot.setColor(Color.blue);
-		plot.setLineWidth(4);
-		plot.add("line", profilex3, profiley3);
 		plot.setLineWidth(1);
 		plot.setColor(Color.white);
 		plot.add("filled", profilex1, profiley1);
 		plot.setColor(Color.red);
 		plot.add("line", profilex1, profiley1);
+		plot.setColor(Color.blue);
+		plot.setLineWidth(4);
+		plot.add("line", profilex3, profiley3);
 
 		double[] appx2 = Utility.concatArrays(profilex1, profilex2);
 		double[] appx3 = Utility.concatArrays(appx2, profilex3);
@@ -293,7 +311,10 @@ public class MyPlot {
 		double[] b = Tools.getMinMax(appy3);
 		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
 		plot.setWindowSize(PLOT_WIDTH, PLOT_HEIGHT);
-		return plot;
+		plot.show();
+
+		String out = plot.getTitle();
+		return out;
 	}
 
 	/**
@@ -306,7 +327,7 @@ public class MyPlot {
 	 * @param color
 	 * @return
 	 */
-	public static Plot PL07_myPlotSingle(double[] profilex, double[] profiley, String title, String xlabel,
+	public static String PL07_myPlotSingle(double[] profilex, double[] profiley, String title, String xlabel,
 			String ylabel, Color color) {
 		double[] a = Tools.getMinMax(profilex);
 		double[] b = Tools.getMinMax(profiley);
@@ -321,7 +342,9 @@ public class MyPlot {
 
 		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
 		plot.setWindowSize(PLOT_WIDTH, PLOT_HEIGHT);
-		return plot;
+		plot.show();
+		String out = plot.getTitle();
+		return out;
 	}
 
 	/**
@@ -334,7 +357,7 @@ public class MyPlot {
 	 * @param color
 	 * @return
 	 */
-	public static Plot PL06_myPlotSingle2(double[] profilex, double[] profiley, String title, String xlabel,
+	public static String PL06_myPlotSingle2(double[] profilex, double[] profiley, String title, String xlabel,
 			String ylabel, Color color) {
 		double[] a = Tools.getMinMax(profilex);
 		double[] b = Tools.getMinMax(profiley);
@@ -349,7 +372,9 @@ public class MyPlot {
 
 		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
 		plot.setWindowSize(PLOT_WIDTH, PLOT_HEIGHT);
-		return plot;
+		plot.show();
+		String out = plot.getTitle();
+		return out;
 	}
 
 	/**
@@ -358,7 +383,7 @@ public class MyPlot {
 	 * @param vetX
 	 * @param vetY
 	 */
-	static void PL05_MIRD_curvePlotterSpecialFlanagan(Regression reg, double[] x, double[] y, String title) {
+	static String PL05_MIRD_curvePlotterSpecialFlanagan(Regression reg, double[] x, double[] y, String title) {
 
 		int PLOT_WIDTH = 600;
 		int PLOT_HEIGHT = 350;
@@ -406,7 +431,7 @@ public class MyPlot {
 
 		Plot plot = new Plot("PL05 PLOT FLANAGAN", "ore dalla somministrazione", "attivita' MBq");
 		plot.setLineWidth(2);
-		plot.setColor(Color.ORANGE);
+		plot.setColor(Color.BLUE);
 		plot.add("line", px, py);
 		plot.setLimits(xmin, xmax, ymin, ymax);
 		plot.setLineWidth(2);
@@ -414,16 +439,16 @@ public class MyPlot {
 		xx[0] = x[0];
 		yy[0] = y[0];
 		plot.add("circle", xx, yy);
-		plot.setColor(Color.GREEN);
+		plot.setColor(Color.RED);
 		xx[0] = x[1];
 		yy[0] = y[1];
 		plot.add("circle", xx, yy);
-		plot.setColor(Color.BLUE);
+		plot.setColor(Color.RED);
 		xx[0] = x[2];
 		yy[0] = y[2];
 		plot.add("circle", xx, yy);
 
-		plot.addLabel(0.05, 0.95, title);
+		// plot.addLabel(0.05, 0.95, title);
 		plot.setWindowSize(PLOT_WIDTH, PLOT_HEIGHT);
 
 		plot.show();
@@ -435,7 +460,8 @@ public class MyPlot {
 		if (lw != null) {
 			lw.setLocation((screen.width - lw.getWidth()) - 10, screen.height / 2);
 		}
-
+		String out = plot.getTitle();
+		return out;
 	}
 
 	/**
@@ -445,7 +471,7 @@ public class MyPlot {
 	 * @param vetX
 	 * @param vetY
 	 */
-	static void PL04_MIRD_curvePlotterSpecialImageJ(CurveFitter cf, double[] vetx, double[] vety, boolean[] selected,
+	static String PL04_MIRD_curvePlotterSpecialImageJ(CurveFitter cf, double[] vetx, double[] vety, boolean[] selected,
 			String title) {
 
 		int PLOT_WIDTH = 600;
@@ -483,7 +509,7 @@ public class MyPlot {
 
 		Plot plot = new Plot("PL04 PLOT IMAGEJ", "ore dalla somministrazione", "attivita' MBq");
 		plot.setLineWidth(2);
-		plot.setColor(Color.ORANGE);
+		plot.setColor(Color.BLUE);
 		plot.add("line", px, py);
 		plot.setLimits(xmin, xmax, ymin, ymax);
 		double[] xx = new double[1];
@@ -502,9 +528,9 @@ public class MyPlot {
 				if (i1 == 0)
 					col = Color.red;
 				if (i1 == 1)
-					col = Color.green;
+					col = Color.red;
 				if (i1 == 2)
-					col = Color.blue;
+					col = Color.red;
 
 				plot.setColor(col);
 				xx[0] = vetx[i1];
@@ -535,7 +561,7 @@ public class MyPlot {
 		legend.append('\n');
 		plot.addLabel(0.8, 0.1, legend.toString());
 
-		plot.addLabel(0.05, 0.95, title);
+		// plot.addLabel(0.05, 0.95, title);
 		plot.setWindowSize(PLOT_WIDTH, PLOT_HEIGHT);
 
 		plot.show();
@@ -548,7 +574,8 @@ public class MyPlot {
 
 		plot.show();
 
-		return;
+		String out = plot.getTitle();
+		return out;
 	}
 
 	/**
@@ -558,7 +585,7 @@ public class MyPlot {
 	 * @param vetX
 	 * @param vetY
 	 */
-	static void PL03_MIRD_curvePlotterSpecialCombined(CurveFitter cf, Regression reg, double[] x, double[] y) {
+	static String PL03_MIRD_curvePlotterSpecialCombined(CurveFitter cf, Regression reg, double[] x, double[] y) {
 
 		int PLOT_WIDTH = 600;
 		int PLOT_HEIGHT = 350;
@@ -631,6 +658,8 @@ public class MyPlot {
 
 		plot.setColor(Color.BLUE);
 		plot.show();
+		String out = plot.getTitle();
+		return out;
 	}
 
 	/**
@@ -641,7 +670,7 @@ public class MyPlot {
 	 * @param params
 	 * @param npoints
 	 */
-	static void PL02_MIRD_curvePlotter(double[] vetX, double[] vetY, double[] params, int npoints) {
+	static String PL02_MIRD_curvePlotter(double[] vetX, double[] vetY, double[] params, int npoints) {
 
 		double[] minMaxX = Tools.getMinMax(vetX);
 		double[] minMaxY = Tools.getMinMax(vetY);
@@ -669,6 +698,8 @@ public class MyPlot {
 		plot.setWindowSize(PLOT_WIDTH, PLOT_HEIGHT);
 		plot.setLimits(xmin, xmax, ymin, ymax);
 		plot.show();
+		String out = plot.getTitle();
+		return out;
 
 	}
 
@@ -678,7 +709,8 @@ public class MyPlot {
 	 * @param vetX
 	 * @param vetY
 	 */
-	static void PL01_MIRD_pointsPlotter(double[] vetX, double[] vetY, boolean[] selected, String title, String label) {
+	static String PL01_MIRD_pointsPlotter(double[] vetX, double[] vetY, boolean[] selected, String title,
+			String label) {
 
 		double[] minMaxX = Tools.getMinMax(vetX);
 		double[] minMaxY = Tools.getMinMax(vetY);
@@ -704,9 +736,9 @@ public class MyPlot {
 				if (i1 == 0)
 					col = Color.red;
 				if (i1 == 1)
-					col = Color.green;
+					col = Color.red;
 				if (i1 == 2)
-					col = Color.blue;
+					col = Color.red;
 				plot.setColor(col);
 				xx[0] = vetX[i1];
 				yy[0] = vetY[i1];
@@ -720,13 +752,15 @@ public class MyPlot {
 
 		}
 
-		plot.setColor(Color.BLUE);
-		plot.addLabel(0.05, 0.95, label);
+//		plot.setColor(Color.BLUE);
+//		plot.addLabel(0.05, 0.95, label);
 
 		plot.setWindowSize(PLOT_WIDTH, PLOT_HEIGHT);
 		plot.setLimits(xmin, xmax, ymin, ymax);
 		plot.show();
-		return;
+
+		String out = plot.getTitle();
+		return out;
 
 	}
 

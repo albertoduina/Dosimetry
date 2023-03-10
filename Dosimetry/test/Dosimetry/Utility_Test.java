@@ -37,7 +37,7 @@ public class Utility_Test {
 	@Test
 	public final void test_FM02_DialogAltreLesioni() {
 
-		Utility.dialogAltreLesioni_FM02();
+		MyDialog.dialogAltreLesioni_FM02();
 		MyLog.waitHere("SPETTA");
 		assertTrue(true);
 	}
@@ -47,7 +47,7 @@ public class Utility_Test {
 
 		String message = "Select a fileO";
 		String defaultDirectory = "\testdata";
-		Utility.dialogFileSelection_FM01(message, defaultDirectory);
+		MyDialog.dialogFileSelection_FM01(message, defaultDirectory);
 		MyLog.waitHere("SPETTA");
 		assertTrue(true);
 	}
@@ -56,7 +56,7 @@ public class Utility_Test {
 	public final void test_LP06_DialogErrorMessage() {
 
 		String paramString = "Messaggio di errore";
-		Utility.dialogErrorMessage_LP06(paramString);
+		MyDialog.dialogErrorMessage_LP06(paramString);
 		MyLog.waitHere("SPETTA");
 		assertTrue(true);
 	}
@@ -65,7 +65,7 @@ public class Utility_Test {
 	public final void test_LP09_DialogErrorMessageWithCancel() {
 
 		String paramString = "Messaggio di errore";
-		Utility.dialogErrorMessageWithCancel_LP09(paramString);
+		MyDialog.dialogErrorMessageWithCancel_LP09(paramString);
 		MyLog.waitHere("SPETTA");
 		assertTrue(true);
 	}
@@ -74,7 +74,7 @@ public class Utility_Test {
 	public final void test_LP27_BattezzaLesioni() {
 
 		String pathVolatile = "Messaggio di errore";
-		Utility.dialogBattezzaLesioni_LP27(pathVolatile);
+		MyDialog.dialogBattezzaLesioni_LP27(pathVolatile);
 		MyLog.waitHere("SPETTA");
 		assertTrue(true);
 	}
@@ -82,7 +82,7 @@ public class Utility_Test {
 	@Test
 	public final void test_DD08_AltroDistretto() {
 
-		Utility.dialogAltroDistretto_DD08();
+		MyDialog.dialogAltroDistretto_DD08();
 		MyLog.waitHere("SPETTA");
 		assertTrue(true);
 	}
@@ -100,31 +100,7 @@ public class Utility_Test {
 		MyLog.waitHere("SPETTA");
 
 	}
-	
-	
 
-
-//	@Test
-//	public final void test_removeLineLog() {
-//
-//		File source= new File("testdata/permanente2.txt");
-//		File dest= new File("testdata/permanente.txt");
-//		try {
-//			if (dest.exists())  
-//					dest.delete();
-//			
-//			Files.copy(source.toPath(), dest.toPath());
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		
-//		
-//		String pathPermanente = "testdata/permanente.txt";
-//		Utility.removeLineLog(pathPermanente, "#030#");
-//		MyLog.waitHere("SPETTA");
-//
-//	}
 
 	@Test
 	public final void test_logModifyEsistente() {
@@ -210,7 +186,7 @@ public class Utility_Test {
 		double[] vetX = { 24, 48, 120 };
 		double[] vetY = { 35.921969407999995, 18.392739144, 9.153194127999999 };
 		boolean[] selected = { true, false, true };
-		boolean[] vetBool=null;
+		boolean[] vetBool = null;
 
 		CurveFitter cf = Utility.MIRD_curveFitterSpecialImageJ(vetX, vetY);
 		MyPlot.PL04_MIRD_curvePlotterSpecialImageJ(cf, vetX, vetY, selected, "STRING");
@@ -414,7 +390,7 @@ public class Utility_Test {
 		double[] vetVoxel = { 10., 12., 13., 17., 20., 12., 20., 41., 30., 17., 14., 24., 37., 27., 15., 13., 15., 12.,
 				11., 10. };
 
-		Utility.calcDVH1(vetVoxel, 24);
+		VoxelDosimetry.sub_DVH4(vetVoxel, 24);
 
 		MyLog.waitHere("SPETTA");
 
@@ -482,7 +458,9 @@ public class Utility_Test {
 
 	}
 
-	public final ArrayList<ArrayList<Double>> prepareDVH() {
+
+	@Test
+	public final void test_calcDVH2() {
 
 		double[] zero = { 0.000, 23.530, 23.659, 23.834, 24.438, 24.474, 25.457, 25.597, 25.602, 25.770, 25.790, 25.943,
 				26.506, 26.920, 27.428, 28.069, 28.192, 28.317, 28.880, 29.173, 29.259, 29.282, 29.379, 29.907, 29.991,
@@ -530,33 +508,7 @@ public class Utility_Test {
 				54.000, 53.000, 51.000, 48.000, 46.000, 44.000, 42.000, 40.000, 38.000, 36.000, 34.000, 30.000, 28.000,
 				26.000, 24.000, 22.000, 20.000 };
 
-		ArrayList<ArrayList<Double>> arrOut1 = new ArrayList<ArrayList<Double>>();
-		arrOut1.add(aggiungi(zero));
-		arrOut1.add(aggiungi(uno));
-		arrOut1.add(aggiungi(due));
-		arrOut1.add(aggiungi(tre));
-		arrOut1.add(aggiungi(quattro));
-		arrOut1.add(aggiungi(cinque));
-		arrOut1.add(aggiungi(sei));
-		arrOut1.add(aggiungi(sette));
-		arrOut1.add(aggiungi(otto));
-
-		return arrOut1;
-	}
-
-	ArrayList<Double> aggiungi(double[] in1) {
-		ArrayList<Double> arrlist = new ArrayList<Double>();
-		for (int i1 = 0; i1 < in1.length; i1++) {
-			arrlist.add(in1[i1]);
-		}
-		return arrlist;
-	}
-
-	@Test
-	public final void test_calcDVH2() {
-
-		ArrayList<ArrayList<Double>> arrOut1 = prepareDVH();
-		Utility.calcDVH2(arrOut1);
+		VoxelDosimetry.subDVH2(zero, due, tre, cinque, sei, otto);
 
 		MyLog.waitHere("GHET FRESA? POLSA!!!");
 
@@ -625,15 +577,6 @@ public class Utility_Test {
 		MyLog.logVector(vetyBB, "vetyBB");
 		MyLog.logMatrixVertical(matout1, "pippo");
 
-		double[] vetxCC = new double[matout1.length];
-		double[] vetyCC = new double[matout1.length];
-		for (int i1 = 0; i1 < matout1.length; i1++) {
-			vetxCC[i1] = matout1[i1][0];
-			vetyCC[i1] = matout1[i1][1];
-		}
-
-		Plot plot1 = MyPlot.PL10_myPlotMultiple2(vetxBB, vetyBB, vetxCC, vetyCC, null, null, null);
-		plot1.show();
 
 		MyLog.waitHere("GHET FRESA? POLSA!!!");
 

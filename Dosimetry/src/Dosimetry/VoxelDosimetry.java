@@ -1,18 +1,15 @@
 package Dosimetry;
 
-import java.awt.Font;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Locale;
+import java.util.Arrays;
 
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.NonBlockingGenericDialog;
-import ij.gui.Plot;
 import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
-import ij.util.FontUtil;
 
 /**
  * @version v3
@@ -20,207 +17,12 @@ import ij.util.FontUtil;
  */
 public class VoxelDosimetry {
 
-	static String fontStyle = "Arial";
-	static Font defaultFont = FontUtil.getFont(fontStyle, Font.PLAIN, 13);
-	static Font textFont = FontUtil.getFont(fontStyle, Font.ITALIC, 16);
-	static Font titleFont = FontUtil.getFont(fontStyle, Font.BOLD, 16);
-	static String[] config = null;
-	static boolean loggoVoxels = false;
-	static int[] coordinateVoxels = null;
-	static int coordX;
-	static int coordY;
-	static int coordZ;
-	static long start1;
-	static long start2;
-	static long start3;
-	static long start4;
-	static long end1;
-	static long end2;
-	static long end3;
-	static long end4;
-//	int lato;
-//	int mezzo;
-	static String desktopPath;
-	static String desktopDosimetryFolderPath;
-	static String desktopImagesSubfolderPath;
-	static String pathPermanente;
-	static String pathVolatile;
-	static String logFileLesione;
-
-	public static void voxelDosim222(ArrayList<ArrayList<Double>> xList) {
-
-		Locale.setDefault(Locale.US);
-		desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
-		pathPermanente = desktopPath + File.separator + "DosimetryFolder" + File.separator + "permanente.txt";
-		pathVolatile = desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
-		desktopDosimetryFolderPath = desktopPath + File.separator + "DosimetryFolder";
-		desktopImagesSubfolderPath = desktopDosimetryFolderPath + File.separator + "ImagesFolder";
-		int lato = Utility.latoCubo();
-		int mezzo = (lato - 1) / 2;
-		if (lato == 0)
-			MyLog.waitHere("lato=0    CHE VOR DI'???");
-		if (mezzo == 0)
-			MyLog.waitHere("mezzo=0    CHE VOR DI'???");
-
-		String str1 = System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "DosimetryFolder"
-				+ File.separator + "ImagesFolder" + File.separator;
-		String str2 = System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "DosimetryFolder"
-				+ File.separator;
-		String str3 = System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "DosimetryFolder";
-		config = Utility.leggiConfig("DosimetryConfig.txt");
-
-		if (config == null) {
-			loggoVoxels = false;
-		} else {
-			loggoVoxels = Utility.leggiLogVoxelsConfig(config);
-
-			MyLog.log("LOGGO VOXELS= " + loggoVoxels);
-
-			coordinateVoxels = Utility.leggiCoordinateVoxels(config);
-
-			MyLog.log("loggoVoxels= " + loggoVoxels + "\ncoordinateVoxels[0] X= " + coordinateVoxels[0]
-					+ "\ncoordinateVoxels[1] Y= " + coordinateVoxels[1] + "\ncoordinateVoxels[2] Z= "
-					+ coordinateVoxels[2]);
-			coordX = coordinateVoxels[0];
-			coordY = coordinateVoxels[1];
-			coordZ = coordinateVoxels[2];
-
-			MyLog.log("coordX= " + coordinateVoxels[0]);
-			MyLog.log("coordY= " + coordinateVoxels[1]);
-			MyLog.log("coordZ= " + coordinateVoxels[2]);
-			MyLog.log("lato= " + lato);
-			MyLog.log("mezzo= " + mezzo);
-
-		}
-		start1 = System.currentTimeMillis();
-
-
-//		String lesione1 = "";
-//		String lesione3 = "";
-//		String lesione4 = "";
-		logFileLesione = "";
-//		String out1 = "volatile";
-//		String startingDir1 = "";
-
-//		ArrayList<ArrayList<Double>> xList = new ArrayList<ArrayList<Double>>();
-//		int[] vetH = { 24, 48, 120 };
-//		for (int i1 = 0; i1 < vetH.length; i1++) {
-//			ArrayList<ArrayList<Double>> yList = new ArrayList<ArrayList<Double>>();
-//			lesione1 = str2 + out1 + vetH[i1] + "h.tif";
-//			logFileLesione = str2 + out1 + ".txt";
-//			startingDir1 = str1 + vetH[i1] + "h" + File.separator + "SPECT";
-//			start1 = System.currentTimeMillis();
-//			MyLog.waitHere();
-//			yList = caricaMemoriazza(startingDir1, lesione1, vetH[i1], 0.0, logFileLesione);
-//			if (yList == null)
-//				break;
-//			for (int i2 = 0; i2 < yList.size(); i2++) {
-//				xList.add(yList.get(i2));
-//			}
-//		}
-
-
-		double[][] matDVH2 = Utility.calcDVH2(xList);
-
-
-		double[] vetMin = new double[matDVH2.length];
-		double[] vetMax = new double[matDVH2.length];
-		double[] vetMed = new double[matDVH2.length];
-		double[] vetY = new double[matDVH2.length];
-		for (int i1 = 0; i1 < matDVH2.length; i1++) {
-			vetMin[i1] = matDVH2[i1][0];
-			vetMax[i1] = matDVH2[i1][1];
-			vetMed[i1] = matDVH2[i1][2];
-			vetY[i1] = matDVH2[i1][3];
-		}
-		MyLog.log("========================================");
-		MyLog.log("========================================");
-		MyLog.logVector(vetMin, "vetMin");
-		MyLog.logVector(vetMax, "vetMax");
-		MyLog.logVector(vetMed, "vetMed");
-		MyLog.logVector(vetY, "vetY");
-		MyLog.log("========================================");
-		MyLog.log("========================================");
-
-		// ==========================================
-		// DA QUI IN POI POSSO ANCHE ESTRARRE LE ISTRUZIONI ALL'ESTERNO DI CALCDVH2
-		// ==========================================
-		Plot plot8 = MyPlot.PL08_myPlotMultipleSpecial1(vetMin, vetY, vetMax, vetY, vetMed, vetY, "MEDIA", "DOSE [Gy]",
-				"VOL%");
-		plot8.show();
-		// =========================================
-
-		double[] vetErrSup = Utility.calcoliDVHerrSup(vetMed, vetMax);
-		double[] vetErrInf = Utility.calcoliDVHerrInf(vetMed, vetMin);
-
-		double[] vetErrDose = Utility.calcoliDVHerrDose2(vetMin, vetMax);
-		MyLog.logVector(vetErrDose, "vetErrDose");
-		MyLog.logVector(vetErrSup, "vetErrSup");
-		MyLog.logVector(vetErrInf, "vetErrInf");
-
-		double errFin = Utility.calcoliDVHerrFinale(vetMed, vetErrDose);
-
-		int percent = 98;
-		double[] vetOut98 = Utility.calcoliDVH(vetErrDose, vetMed, vetY, percent);
-
-		double valD98 = vetOut98[0];
-		double errD98 = vetOut98[1];
-		percent = 2;
-		double[] vetOut2 = Utility.calcoliDVH(vetErrDose, vetMed, vetY, percent);
-
-		double valD2 = vetOut2[0];
-		double errD2 = vetOut2[1];
-
-		double Dmedia = Utility.vetMeanSecond(vetMed);
-
-		double ErrMedia = Utility.vetMeanSecond(vetErrDose);
-
-		double[][] export1 = Utility.samplerDVH(vetErrDose, vetY);
-
-		String str11 = "";
-		// esperimento esportazione
-		for (int i1 = 0; i1 < export1.length; i1++) {
-			str11 = str11 + export1[i1][0] + "; ";
-		}
-
-		String aux1 = "#600#\tESPORTAZIONE vetErrDose = " + str11;
-		MyLog.logAppend(logFileLesione, aux1);
-		str11 = "";
-		for (int i1 = 0; i1 < export1.length; i1++) {
-			str11 = str11 + export1[i1][1] + "; ";
-		}
-		aux1 = "#601#\tESPORTAZIONE percentuali = " + str11;
-		MyLog.logAppend(logFileLesione, aux1);
-
-		MyLog.log("valD98= " + valD98);
-		MyLog.log("err98= " + errD98);
-		MyLog.log("valD2= " + valD2);
-		MyLog.log("errD2= " + errD2);
-		MyLog.log("Dmedia= " + Dmedia);
-		MyLog.log("ErrMedia= " + ErrMedia);
-
-		NonBlockingGenericDialog resultsDialog = new NonBlockingGenericDialog("SV07 - Results");
-		resultsDialog.addMessage("Riassunto dati DVH ", titleFont);
-		resultsDialog.setFont(defaultFont);
-
-		resultsDialog.addMessage("=============");
-		resultsDialog.addMessage(
-				"D98= " + String.format("%.4f", valD98) + " \u00B1 " + String.format("%.4f", errD98) + " Gy");
-		resultsDialog
-				.addMessage("D2= " + String.format("%.4f", valD2) + " \u00B1 " + String.format("%.4f", errD2) + " Gy");
-		resultsDialog.addMessage(
-				"Dmedia= " + String.format("%.4f", Dmedia) + " \u00B1 " + String.format("%.4f", ErrMedia) + " Gy");
-		resultsDialog.showDialog();
-
-	}
-
-
 	/**
 	 * Calcolo DVH come subroutine
 	 * 
 	 * @param dosimetryFolder
 	 */
-	static ArrayList<ArrayList<Double>> pureDVH1(String dosimetryFolder, boolean[] puntiSelezionati, double par_a) {
+	static ArrayList<ArrayList<Double>> start_DVH1(String dosimetryFolder, boolean[] puntiSelezionati, double par_a) {
 
 //		int lato = Utility.latoCubo();
 //		int mezzo = (lato - 1) / 2;
@@ -239,17 +41,19 @@ public class VoxelDosimetry {
 		double[] vetx120 = null;
 		double[] vety120 = null;
 
+		MyLog.here();
+
 		ArrayList<ArrayList<Double>> xList = new ArrayList<ArrayList<Double>>();
 		int[] vetH = { 24, 48, 120 };
 		for (int i1 = 0; i1 < puntiSelezionati.length; i1++) {
 			if (puntiSelezionati[i1]) {
 				ArrayList<ArrayList<Double>> yList = new ArrayList<ArrayList<Double>>();
 				lesione1 = dosimetryFolder + out1 + vetH[i1] + "h.tif";
-				IJ.log("lesione1= " + lesione1);
+				MyLog.log("lesione1= " + lesione1);
 				startingDir1 = dosimetryFolder + File.separator + "ImagesFolder" + File.separator + vetH[i1] + "h"
 						+ File.separator + "SPECT";
-				IJ.log("startingDir1= " + startingDir1);
-				yList = caricaMemoriazza(startingDir1, lesione1, vetH[i1], par_a, logVolatile);
+				MyLog.log("startingDir1= " + startingDir1);
+				yList = creazioneImmagini_DVH2(startingDir1, lesione1, vetH[i1], par_a, logVolatile);
 				if (yList == null) {
 					xList.add(null);
 					xList.add(null);
@@ -285,8 +89,6 @@ public class VoxelDosimetry {
 		if (arrList1 != null)
 			vety120 = Utility.arrayListToArrayDouble(arrList1);
 
-		MyPlot.PL11_myPlotMultiple2(vetx24, vety24, vetx48, vety48, vetx120, vety120, "24h=red 48h=green 120h=blue",
-				"VALUE", "VOL%");
 		return xList;
 
 	}
@@ -297,7 +99,7 @@ public class VoxelDosimetry {
 	 * @param vetIn
 	 * @return
 	 */
-	double vetErr(double[] vetIn) {
+	static double vetErr(double[] vetIn) {
 
 		double sum = 0;
 		for (int i1 = 0; i1 < vetIn.length; i1++) {
@@ -319,7 +121,7 @@ public class VoxelDosimetry {
 	 * @param ore
 	 * @param pathLesione
 	 */
-	static ArrayList<ArrayList<Double>> caricaMemoriazza(String pathStackIn, String pathStackMask, int ore,
+	static ArrayList<ArrayList<Double>> creazioneImmagini_DVH2(String pathStackIn, String pathStackMask, int ore,
 			double par_a, String pathLesione) {
 
 		ImagePlus impStackIn = null;
@@ -333,11 +135,13 @@ public class VoxelDosimetry {
 		int x2 = 0;
 		int y2 = 0;
 		int z2 = 0;
-		int x3 = 0;
-		int y3 = 0;
-		int z3 = 0;
+//		int x3 = 0;
+//		int y3 = 0;
+//		int z3 = 0;
 
-		start1 = System.currentTimeMillis();
+		MyLog.here();
+
+		long start1 = System.currentTimeMillis();
 		int lato = Utility.latoCubo();
 		int mezzo = (lato - 1) / 2;
 		if (Double.isNaN(par_a))
@@ -363,7 +167,6 @@ public class VoxelDosimetry {
 			break;
 		}
 //		double par_a = Double.parseDouble(MyLog.readFromLog(pathLesione, "#302#", "=", true));
-		MyLog.here("par_a= " + par_a);
 
 		impStackIn = MyStack.readStackFiles2(pathStackIn);
 		// convertendo a 32 bit viene eliminata la calibrazione e la noia di avere il
@@ -378,14 +181,14 @@ public class VoxelDosimetry {
 		impStackMask.setTitle("MASK " + ore + "h");
 //		impStackMask.show();
 
-		if (loggoVoxels) {
+		if (MyGlobals.loggoVoxels) {
 			// serve solo per DEBUG durante le prove
-			x2 = coordinateVoxels[0];
-			y2 = coordinateVoxels[1];
-			z2 = coordinateVoxels[2];
-			x3 = x2 - mezzo;
-			y3 = y2 - mezzo;
-			z3 = z2 - mezzo;
+			x2 = MyGlobals.coordinateVoxels[0];
+			y2 = MyGlobals.coordinateVoxels[1];
+			z2 = MyGlobals.coordinateVoxels[2];
+//			x3 = x2 - mezzo;
+//			y3 = y2 - mezzo;
+//			z3 = z2 - mezzo;
 
 			Utility.loggoVoxels2(impStackIn, x2, y2, z2);
 		}
@@ -428,7 +231,6 @@ public class VoxelDosimetry {
 		MyLog.log("deltaT= " + deltaT);
 		MyLog.log("par_a= " + par_a);
 		MyLog.log("------------------------");
-		MyLog.here();
 
 		// ####################################################################################
 		// ELABORAZIONE IMMAGINE COMPLETA, SENZA MASCHERA E SENZA CUBI DI ALCUN GENERE
@@ -445,14 +247,14 @@ public class VoxelDosimetry {
 		double aTildeVoxel = 0;
 		ImageProcessor inSlice1 = null;
 		ImageProcessor outSlice1 = null;
-		int conta1 = 0;
+		// int conta1 = 0;
 
 		for (int z1 = 1; z1 <= depth1; z1++) {
 			inSlice1 = stackIn.getProcessor(z1);
 			outSlice1 = stackMatilde.getProcessor(z1);
 			for (int x1 = 0; x1 < width1; x1++) {
 				for (int y1 = 0; y1 < height1; y1++) {
-					conta1++;
+//					conta1++;
 					IJ.showStatus("aTilde " + z1 + " / " + (depth1));
 					voxSignal = inSlice1.getPixelValue(x1, y1);
 					aTildeVoxel = mAtildeSingleVoxel(voxSignal, acqDuration, fatCal, deltaT, par_a);
@@ -469,7 +271,7 @@ public class VoxelDosimetry {
 		if (MyStack.stackIsEmpty(impMatilde))
 			MyLog.waitHere("impMatilde vuota");
 
-		if (loggoVoxels) {
+		if (MyGlobals.loggoVoxels) {
 
 			Utility.loggoVoxels2(impStackIn, x2, y2, z2);
 			Utility.loggoCuxels3(impStackIn, x2, y2, z2, lato, mezzo);
@@ -477,6 +279,7 @@ public class VoxelDosimetry {
 			Utility.loggoVoxels2(impMatilde, x2, y2, z2);
 			Utility.loggoCuxels3(impMatilde, x2, y2, z2, lato, mezzo);
 		}
+
 		double[] tapata2 = MyStack.MyStackStatistics(impMatilde, impStackMask);
 
 		// -------------------------------------
@@ -498,7 +301,7 @@ public class VoxelDosimetry {
 		// ####################################################
 		// PATATA COMPLETA CON SVALUES
 		// ####################################################
-		int conta2 = 0;
+//		int conta2 = 0;
 
 		if (MyStack.stackIsEmpty(stackMatilde))
 			MyLog.waitHere("stackMatilde vuoto");
@@ -510,7 +313,7 @@ public class VoxelDosimetry {
 			for (int y1 = mezzo; y1 < (height1 - mezzo); y1++) {
 				IJ.showStatus("patataCompleta " + z1 + " / " + depth1);
 				for (int x1 = mezzo; x1 < (width1 - mezzo); x1++) {
-					if (x1 == coordX && y1 == coordY && z1 == coordZ)
+					if (x1 == MyGlobals.coordX && y1 == MyGlobals.coordY && z1 == MyGlobals.coordZ)
 						log2 = true;
 					else
 						log2 = false;
@@ -523,7 +326,7 @@ public class VoxelDosimetry {
 					double pixPatata = 0;
 
 					for (int i1 = 0; i1 < vetVoxels.length; i1++) {
-						conta2++;
+						// conta2++;
 						pixPatata = (vetVoxels[i1] * vetSvalues[i1]) / 1000.;
 						valPatataCompleta = valPatataCompleta + pixPatata;
 					}
@@ -535,7 +338,7 @@ public class VoxelDosimetry {
 		ImagePlus impPatataCompleta = new ImagePlus("PatataCompleta " + ore + "h", stackPatataCompleta);
 		// impPatataCompleta.show();
 
-		if (loggoVoxels) {
+		if (MyGlobals.loggoVoxels) {
 			Utility.loggoVoxels2(impPatataCompleta, x2, y2, z2);
 			Utility.loggoCuxels4(impRubik, mezzo, mezzo, mezzo, lato, mezzo);
 			Utility.loggoCuxels3(impPatataCompleta, x2, y2, z2, lato, mezzo);
@@ -575,7 +378,7 @@ public class VoxelDosimetry {
 		}
 
 		ImagePlus impPatataMascherata = new ImagePlus("PATATA_MASCHERATA  " + ore + "h", stackPatataMascherata);
-		if (loggoVoxels) {
+		if (MyGlobals.loggoVoxels) {
 			Utility.loggoVoxels2(impStackMask, x2, y2, z2);
 			Utility.loggoCuxels3(impStackMask, x2, y2, z2, lato, mezzo);
 
@@ -592,7 +395,7 @@ public class VoxelDosimetry {
 		impPatataMascherata.setSlice((int) tapata3[6]);
 		impPatataMascherata.show();
 
-		end1 = System.currentTimeMillis();
+		long end1 = System.currentTimeMillis();
 
 		String time1 = MyLog.logElapsed(start1, end1);
 
@@ -633,8 +436,8 @@ public class VoxelDosimetry {
 		double integral2 = tapata3[10];
 
 		NonBlockingGenericDialog resultsDialog = new NonBlockingGenericDialog("SV05 - Results");
-		resultsDialog.addMessage("Results " + ore + "h", titleFont);
-		resultsDialog.setFont(defaultFont);
+		resultsDialog.addMessage("Results " + ore + "h", MyGlobals.titleFont);
+		resultsDialog.setFont(MyGlobals.defaultFont);
 
 		resultsDialog.addMessage("======== IMMAGINE INPUT  MASCHERATA ======");
 		resultsDialog.addMessage("minStackVal= " + String.format("%.4f", minStackVal3) + "     x= " + minStackX3
@@ -670,7 +473,7 @@ public class VoxelDosimetry {
 		if (resultsDialog.wasCanceled())
 			return null;
 
-		ArrayList<ArrayList<Double>> out1 = Utility.calculateDVH(impPatataMascherata, ore);
+		ArrayList<ArrayList<Double>> out1 = VoxelDosimetry.sub_DVH3(impPatataMascherata, ore);
 
 		return out1;
 	}
@@ -708,6 +511,346 @@ public class VoxelDosimetry {
 
 		ImagePlus impStack = new ImagePlus("tabella", stack);
 		impStack.show();
+	}
+
+	/**
+	 * Parte 2 calcolo DVH
+	 * 
+	 * @param vetx24
+	 * @param vety24
+	 * @param vetx48
+	 * @param vety48
+	 * @param vetx120
+	 * @param vety120
+	 * @return
+	 */
+	static double[][] subDVH2(double[] vetx24, double[] vety24, double[] vetx48, double[] vety48, double[] vetx120,
+			double[] vety120) {
+
+		MyLog.log("eseguoCalcDVH2");
+
+		double[] vetx48new = null;
+		double[] vety48new = null;
+		double[] vetx120new = null;
+		double[] vety120new = null;
+
+		double[] vetxLow = null;
+		double[] vetyLow = null;
+		double[] vetxHigh = null;
+		double[] vetyHigh = null;
+
+		int situa = 0;
+		if (vetx24 != null && vetx48 != null && vetx120 != null)
+			situa = 0;
+		if (vetx24 != null && vetx48 != null && vetx120 == null)
+			situa = 1;
+		if (vetx24 != null && vetx48 == null && vetx120 != null)
+			situa = 2;
+		if (vetx24 == null && vetx48 != null && vetx120 != null)
+			situa = 3;
+
+		double[][] matout1 = null;
+		double[][] matout2 = null;
+		double[][] matout3 = null;
+		double[][] matout4 = null;
+		double[] vetMin = null;
+		double[] vetMax = null;
+		double[] vetMedia = null;
+		double[] vetY = null;
+
+		switch (situa) {
+		case 1:
+			vetxLow = vetx24;
+			vetyLow = vety24;
+			vetxHigh = vetx48;
+			vetyHigh = vety48;
+			matout1 = Utility.interpolator(vetxLow, vetyLow, vetxHigh, vetyHigh);
+			vetx48new = Utility.matToVect(matout1, 0);
+			vety48new = Utility.matToVect(matout1, 1);
+			matout3 = Utility.rasegotto2(vetx24, vetx48new, vety24);
+			vetMin = Utility.matToVect(matout3, 0);
+			vetMax = Utility.matToVect(matout3, 1);
+			vetY = Utility.matToVect(matout3, 2);
+			matout4 = Utility.mediolotto2(vetMin, vetMax, vetY);
+			vetMedia = Utility.matToVect(matout4, 0);
+			break;
+		case 2:
+			vetxLow = vetx24;
+			vetyLow = vety24;
+			vetxHigh = vetx120;
+			vetyHigh = vety120;
+			matout1 = Utility.interpolator(vetxLow, vetyLow, vetxHigh, vetyHigh);
+			vetx120new = Utility.matToVect(matout1, 0);
+			vety120new = Utility.matToVect(matout1, 1);
+			matout3 = Utility.rasegotto2(vetx24, vetx120new, vety24);
+			vetMin = Utility.matToVect(matout3, 0);
+			vetMax = Utility.matToVect(matout3, 1);
+			vetY = Utility.matToVect(matout3, 2);
+			matout4 = Utility.mediolotto2(vetMin, vetMax, vetY);
+			vetMedia = Utility.matToVect(matout4, 0);
+			break;
+		case 3:
+			vetxLow = vetx48;
+			vetyLow = vety48;
+			vetxHigh = vetx120;
+			vetyHigh = vety120;
+			matout1 = Utility.interpolator(vetxLow, vetyLow, vetxHigh, vetyHigh);
+			vetx120new = Utility.matToVect(matout1, 0);
+			vety120new = Utility.matToVect(matout1, 1);
+			matout3 = Utility.rasegotto2(vetx48, vetx120new, vety48);
+			vetMin = Utility.matToVect(matout3, 0);
+			vetMax = Utility.matToVect(matout3, 1);
+			vetY = Utility.matToVect(matout3, 2);
+			matout4 = Utility.mediolotto2(vetMin, vetMax, vetY);
+			break;
+		default:
+			vetxLow = vetx24;
+			vetyLow = vety24;
+			vetxHigh = vetx48;
+			vetyHigh = vety48;
+			matout1 = Utility.interpolator(vetxLow, vetyLow, vetxHigh, vetyHigh);
+			vetx48new = Utility.matToVect(matout1, 0);
+			vety48new = Utility.matToVect(matout1, 1);
+			vetxLow = vetx24;
+			vetyLow = vety24;
+			vetxHigh = vetx120;
+			vetyHigh = vety120;
+			matout2 = Utility.interpolator(vetxLow, vetyLow, vetxHigh, vetyHigh);
+			vetx120new = Utility.matToVect(matout2, 0);
+			vety120new = Utility.matToVect(matout2, 1);
+			matout3 = Utility.rasegotto(vetx24, vetx48new, vetx120new, vety24);
+			vetMin = Utility.matToVect(matout3, 0);
+			vetMax = Utility.matToVect(matout3, 1);
+			vetY = Utility.matToVect(matout3, 2);
+			matout4 = Utility.mediolotto2(vetMin, vetMax, vetY);
+			vetMedia = Utility.matToVect(matout4, 0);
+		}
+
+		double[][] matout5 = new double[vetY.length][4];
+		for (int i1 = 0; i1 < vetY.length; i1++) {
+			matout5[i1][0] = matout3[i1][0];
+			matout5[i1][1] = matout3[i1][1];
+			matout5[i1][2] = matout4[i1][0];
+			matout5[i1][3] = matout4[i1][1];
+		}
+		return matout5;
+	}
+
+	static double[] calcoliDVHerrSup(double[] vetMed, double[] vetMax) {
+		double[] vetErrSup = new double[vetMed.length];
+		double errDose = 0;
+		for (int i1 = 0; i1 < vetMed.length; i1++) {
+			errDose = vetMax[i1] - vetMed[i1];
+			vetErrSup[i1] = errDose;
+		}
+		return vetErrSup;
+	}
+
+	static double[] calcoliDVHerrInf(double[] vetMed, double[] vetMin) {
+		double[] vetErrInf = new double[vetMed.length];
+		double errDose = 0;
+		for (int i1 = 0; i1 < vetMed.length; i1++) {
+			errDose = vetMed[i1] - vetMin[i1];
+			vetErrInf[i1] = errDose;
+		}
+		return vetErrInf;
+	}
+
+	static double calcoliDVHerrFinale(double[] vetMedia, double[] errMedia) {
+		double[] vetErrDose = new double[vetMedia.length];
+		double errDose = 0;
+		for (int i1 = 0; i1 < vetMedia.length; i1++) {
+			errDose = (vetMedia[i1] / vetMedia.length) * errMedia[i1];
+			vetErrDose[i1] = errDose;
+		}
+		double sumErrDose = 0;
+		for (int i1 = 0; i1 < vetErrDose.length; i1++) {
+			sumErrDose = sumErrDose + vetErrDose[i1] * vetErrDose[i1];
+		}
+
+		double errOut = Math.sqrt(sumErrDose);
+
+		return errOut;
+	}
+
+	static double[] calcoliDVHerrDose2(double[] vetMin, double[] vetMax) {
+		double[] vetErrDose = new double[vetMax.length];
+		double errDose = 0;
+		for (int i1 = 0; i1 < vetMax.length; i1++) {
+			errDose = (vetMax[i1] - vetMin[i1]) / 2.;
+			vetErrDose[i1] = errDose;
+		}
+		return vetErrDose;
+	}
+
+	static double[] calcoliDVH(double[] vetErrDose, double[] vetMedia, double[] vetY, int percent) {
+
+		double valPercent = 0;
+		double errPercent = 0;
+		// double aux1 = 0;
+		// calcolo la differenza tra Y e la percentuale cercata
+		double[] vetDelta1 = new double[vetY.length];
+		for (int i1 = 0; i1 < vetY.length; i1++) {
+			vetDelta1[i1] = Math.abs(vetY[i1] - (double) percent);
+			// IJ.log("" + i1 + " vetDelta1= " + vetDelta1[i1]);
+		}
+		// cerco la posizione del minimo sul vettore differenza
+		double min = Double.MAX_VALUE;
+		double value;
+		int minpos = 0;
+		for (int i1 = 0; i1 < vetY.length; i1++) {
+			value = vetDelta1[i1];
+			if (value < min) {
+				min = value;
+				minpos = i1;
+			}
+		}
+
+		MyLog.log("minpos= " + minpos + " / " + vetY.length + " per percentuale= " + percent);
+
+		// ora minpos contiene la posizione del minimo
+		valPercent = vetMedia[minpos];
+		errPercent = vetErrDose[minpos];
+		double[] vetOut = new double[2];
+		vetOut[0] = valPercent;
+		vetOut[1] = errPercent;
+		return vetOut;
+	}
+
+	/**
+	 * Parte 1 calcolo DVH rimozione doppioni e creazione array numerosita'
+	 * 
+	 * @param vetVoxel
+	 * @return
+	 */
+	static ArrayList<ArrayList<Double>> sub_DVH4(double[] vetVoxel, int ore) {
+		// ---------------------------------
+
+		MyLog.log("eseguo calcDVH1 " + ore + " ore");
+		
+		
+		
+		Arrays.sort(vetVoxel);
+
+
+		// --------------------------------
+		// rimozione dei doppioni e creazione array
+		int n1 = vetVoxel.length;
+		double[] temp = new double[n1];
+		int j1 = 0;
+		for (int i1 = 0; i1 < n1 - 1; i1++) {
+			if (Double.compare(vetVoxel[i1], vetVoxel[i1 + 1]) != 0) {
+				temp[j1++] = vetVoxel[i1];
+			}
+		}
+		temp[j1++] = vetVoxel[n1 - 1];
+
+		double[] vetRemoved = new double[j1];
+		for (int i1 = 0; i1 < j1; i1++) {
+			vetRemoved[i1] = temp[i1];
+		}
+		// --------------------------------
+		// conteggio numerosita'
+		double[][] vetNum = new double[vetRemoved.length + 1][3];
+		for (int i1 = 0; i1 < vetRemoved.length; i1++) {
+			vetNum[i1 + 1][0] = vetRemoved[i1]; // parto da posizione [1[0] perche' in seguito vado a forzare 100 in
+												// posizione [0][0]
+		}
+		double aux1 = 0;
+		for (int i1 = 0; i1 < vetVoxel.length; i1++) {
+			aux1 = vetVoxel[i1];
+			for (int i2 = 1; i2 < vetNum.length; i2++) {
+				int comp = Double.compare(aux1, vetNum[i2][0]);
+				if (comp == 0) {
+					vetNum[i2][1] = vetNum[i2][1] + 1.0; // in posizione [][1] effettuo il conteggio numerosita'
+				}
+			}
+
+		}
+		// --------------------------------
+		// calcolo della % volume
+		for (int i2 = vetNum.length - 1; i2 >= 1; i2--) {
+			if (i2 == vetNum.length - 1) {
+				vetNum[i2][2] = vetNum[i2][1] / vetVoxel.length * 100;
+			} else {
+				vetNum[i2][2] = vetNum[i2][1] / vetVoxel.length * 100 + vetNum[i2 + 1][2]; // in posizione [][2]
+																							// mettiamo la % volume
+			}
+		}
+
+		//
+		// Questo e'il punto dove viene forzato il 100% in posizione [0][2]
+		//
+		vetNum[0][0] = 0;
+		vetNum[0][1] = 1;
+		vetNum[0][2] = 100;
+
+		MyLog.logMatrixVertical(vetNum, "vetNum" + MyLog.here1());
+
+		// ------------------------------------------------------
+		// A questo punto vorrei provare a restituire un Arraylist<ArrayList>, questo
+		// potrebbe permettermi di aggiungere i dati ad un ArrayList<ArrayList>>
+		// esterno, ma non ne sono troppo sicurobisogna testarlo molto ma molto bene
+		// ------------------------------------------------------
+		ArrayList<ArrayList<Double>> arrList1 = new ArrayList<ArrayList<Double>>();
+
+//		MyLog.log("Ore= "+ore);
+
+		for (int i2 = 0; i2 < vetNum[0].length; i2++) {
+			ArrayList<Double> arrList2 = new ArrayList<Double>();
+			for (int i1 = 0; i1 < vetNum.length; i1++) {
+				arrList2.add(vetNum[i1][i2]);
+//				MyLog.log(MyLog.here1() + "    " + vetNum[i1][i2]);
+			}
+			arrList1.add(arrList2);
+		}
+
+		return arrList1;
+
+	}
+
+	/**
+	 * Calcolo del DVH Elenco del segnale nei voxel con maschera >0
+	 * 
+	 * @param patataMascherata in patata mascherata abbiamo segnale solo nei voxels
+	 *                         selezionati nella mask, quindi usando solo i voxels >
+	 *                         0 sono a posto
+	 * @param ore
+	 */
+	public static ArrayList<ArrayList<Double>> sub_DVH3(ImagePlus patataMascherata, int ore) {
+
+		// patataMascherata.show();
+
+		if (patataMascherata == null)
+			MyLog.waitHere("patataMascherata == null");
+		ImageStack stack = patataMascherata.getImageStack();
+		if (stack == null)
+			MyLog.waitHere("stack == null");
+
+		int width = stack.getWidth();
+		int height = stack.getHeight();
+		int depth = stack.getSize();
+		double voxel = 0;
+		double[] vetVoxel = null;
+
+		ArrayList<Double> arrList = new ArrayList<Double>();
+		for (int z1 = 1; z1 < depth; z1++) {
+			for (int x1 = 0; x1 < width; x1++) {
+				for (int y1 = 0; y1 < height; y1++) {
+					voxel = stack.getVoxel(x1, y1, z1);
+					if (voxel > 0) {
+						arrList.add(voxel);
+					}
+				}
+			}
+		}
+
+		MyLog.logArrayList(arrList, "arrList " + MyLog.here1());
+
+		vetVoxel = Utility.arrayListToArrayDouble(arrList);
+		ArrayList<ArrayList<Double>> pippo = VoxelDosimetry.sub_DVH4(vetVoxel, ore);
+
+		return pippo;
 	}
 
 	/**

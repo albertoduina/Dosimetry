@@ -1,7 +1,5 @@
 package Dosimetry;
 
-import java.awt.Dimension;
-import java.awt.Font;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -17,13 +15,10 @@ import java.util.Locale;
 import flanagan.analysis.Regression;
 import ij.IJ;
 import ij.ImagePlus;
-import ij.gui.GenericDialog;
 import ij.gui.NonBlockingGenericDialog;
-import ij.io.DirectoryChooser;
 import ij.measure.CurveFitter;
 import ij.plugin.PlugIn;
 import ij.util.DicomTools;
-import ij.util.FontUtil;
 
 //
 //DATI SOMMINISTRAZIONE 			#001#-#009# 
@@ -44,36 +39,17 @@ import ij.util.FontUtil;
  */
 public class Dosimetria_Lu177 implements PlugIn {
 
-	static String fontStyle = "Arial";
-	static Font defaultFont = FontUtil.getFont(fontStyle, Font.PLAIN, 13);
-	static Font textFont = FontUtil.getFont(fontStyle, Font.ITALIC, 16);
-	static Font titleFont = FontUtil.getFont(fontStyle, Font.BOLD, 16);
-
-	static String m_patName;
-	static Date m_patBirthday = null;
-	static String m_patYears;
-	static String m_patID;
-	static String m_serDate;
-	static String m_styDate;
-	static String m_styName;
-	static String petSeriesName;
-	static String desktopPath;
-	static String desktopDosimetryFolderPath;
-	static String desktopImagesSubfolderPath;
-	static String pathPermanente;
-	static String pathVolatile;
-	static String[] arrayOfString = { "24h", "48h", "120h" };
-	String format1 = "dd-MM-yyyy HH:mm:ss";
-	String[] config = null;
+	public static String pathVolatile;
 
 	public void run(String paramString) {
 
 		Locale.setDefault(Locale.US);
-		desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
-		pathPermanente = desktopPath + File.separator + "DosimetryFolder" + File.separator + "permanente.txt";
-		pathVolatile = desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
-		desktopDosimetryFolderPath = desktopPath + File.separator + "DosimetryFolder";
-		desktopImagesSubfolderPath = desktopDosimetryFolderPath + File.separator + "ImagesFolder";
+		MyGlobals.desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
+		MyGlobals.pathPermanente = MyGlobals.desktopPath + File.separator + "DosimetryFolder" + File.separator
+				+ "permanente.txt";
+		pathVolatile = MyGlobals.desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
+		MyGlobals.desktopDosimetryFolderPath = MyGlobals.desktopPath + File.separator + "DosimetryFolder";
+		MyGlobals.desktopImagesSubfolderPath = MyGlobals.desktopDosimetryFolderPath + File.separator + "ImagesFolder";
 
 		String petctviewerTitle = "";
 		Double activitySomministrazione = null;
@@ -93,13 +69,13 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		String jarName = Utility.getJarTitle();
 
-		config = Utility.leggiConfig("Dosimetry_Config.txt");
+		MyGlobals.coordinates();
 
 		// ===========================================================
 		// LEGGO CARTELLA DOSIMETRY FOLDER (E SOTTOCARTELLA IMAGES FOLDER)
 		// ===========================================================
-		String[] insOut = inspector(desktopDosimetryFolderPath);
-		datiSomministrazioneValidi = Utility.datiSomministrazionePresenti(pathPermanente);
+		String[] insOut = inspector(MyGlobals.desktopDosimetryFolderPath);
+		datiSomministrazioneValidi = Utility.datiSomministrazionePresenti(MyGlobals.pathPermanente);
 		if (insOut == null) {
 			MyLog.log("NON ESISTE DOSIMETRY_FOLDER SUL DESKTOP");
 			nuovoPaziente = true;
@@ -114,7 +90,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// DIALOGO CON DATI PAZIENTE PRECEDENTE - NUOVA LESIONE
 			// ===========================================================
 			MyLog.log("DIALOGO NUOVO PAZIENTE OPPURE NUOVA LESIONE");
-			out1 = dialogImmaginiPazientePrecedente_LP21(insOut);
+			out1 = MyDialog.dialogImmaginiPazientePrecedente_LP21(insOut);
 			MyLog.log("out1= " + out1);
 
 			if (out1 == 2) {
@@ -127,7 +103,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 				// SUL PAZIENTE PRECEDENTE DOBBIAMO VEDERE SE E' UNA NUOVA LESIONE (ED ALLORA
 				// ANALIZZEREMO LE MEDESIME IMMAGINI) OPPURE SE E'UN NUOVO DISTRETTO DI CUI
 				// ANDARE A CARICARE LE IMMAGINI
-				nuovoDistretto = dialogDistretto_LP07();
+				nuovoDistretto = MyDialog.dialogDistretto_LP07();
 			}
 		}
 		if (!datiSomministrazioneValidi)
@@ -142,25 +118,25 @@ public class Dosimetria_Lu177 implements PlugIn {
 			if (arrayOfFile2 == null)
 				return;
 			MyLog.log("NUOVO PAZIENTE, INIZIALIZZAZIONE LOG E RICHIESTA DATI SOMMINISTRAZIONE");
-			MyLog.logDeleteAll(desktopDosimetryFolderPath);
-			MyLog.logInit(pathPermanente);
+			MyLog.logDeleteAll(MyGlobals.desktopDosimetryFolderPath);
+			MyLog.logInit(MyGlobals.pathPermanente);
 			MyLog.logInit(pathVolatile);
-			Utility.deleteAllFilesWithSpecificExtension(desktopDosimetryFolderPath, "tif");
+			Utility.deleteAllFilesWithSpecificExtension(MyGlobals.desktopDosimetryFolderPath, "tif");
 
 			boolean ok1 = false;
 
 			do {
-				dataSomministrazione = dialogInputDataSomministrazione_LP11();
+				dataSomministrazione = MyDialog.dialogInputDataSomministrazione_LP11();
 				if (dataSomministrazione == null) // ritorna null se premuto cancel
 					return;
 				if (dataSomministrazione.isEmpty()) // ritorna vuoto se errata introduzione
 					continue;
-				oraSomministrazione = dialogInputOraSomministrazione_LP12();
+				oraSomministrazione = MyDialog.dialogInputOraSomministrazione_LP12();
 				if (oraSomministrazione == null) // ritorna null se premuto cancel
 					return;
 				if (oraSomministrazione.isEmpty()) // ritorna vuoto se errata introduzione
 					continue;
-				activitySomministrazione = dialogInputActivitySomministrazione_LP13();
+				activitySomministrazione = MyDialog.dialogInputActivitySomministrazione_LP13();
 
 				if (dataSomministrazione != null && oraSomministrazione != null) {
 					dataOraSomministrazione = getDateTime(dataToDicom(dataSomministrazione),
@@ -169,14 +145,14 @@ public class Dosimetria_Lu177 implements PlugIn {
 					in1[0] = dataSomministrazione;
 					in1[1] = oraSomministrazione;
 					in1[2] = "" + activitySomministrazione;
-					ok1 = dialogConfermaDatiSomministrazione_LP10(in1);
+					ok1 = MyDialog.dialogConfermaDatiSomministrazione_LP10(in1);
 				} else
 					ok1 = false;
 			} while (!ok1);
 
 			MyLog.log("NUOVO PAZIENTE, SCRITTURA DATI SOMMINISTRAZIONE SU VOLATILE");
 
-			SimpleDateFormat sdf = new SimpleDateFormat(format1);
+			SimpleDateFormat sdf = new SimpleDateFormat(MyGlobals.format1);
 			String myDTT = sdf.format(dataOraSomministrazione);
 
 			String aux1 = "";
@@ -189,11 +165,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 			aux1 = "#003#\tActivity= " + activitySomministrazione;
 			MyLog.logAppend(pathVolatile, aux1);
 			// copia da volatile a permanente i dati di SOMMINISTRAZIONE
-			MyLog.logCopyRange(pathVolatile, pathPermanente, 0, 3);
+			MyLog.logCopyRange(pathVolatile, MyGlobals.pathPermanente, 0, 3);
 
 			raccoltaDati(arrayOfFile2, dataOraSomministrazione);
 			// copia da volatile a permanente i dati di IMAGE INFO 24-48-120
-			MyLog.logCopyRange(pathVolatile, pathPermanente, 10, 60);
+			MyLog.logCopyRange(pathVolatile, MyGlobals.pathPermanente, 10, 60);
 		} else if (nuovoDistretto)
 
 		{ // stesso paziente nuovo distretto nuova lesione
@@ -205,36 +181,38 @@ public class Dosimetria_Lu177 implements PlugIn {
 			arrayOfFile2 = desktopImagesFolderFill();
 			if (arrayOfFile2 == null)
 				return;
-			Utility.deleteAllFilesWithSpecificExtension(desktopDosimetryFolderPath, "tif");
+			Utility.deleteAllFilesWithSpecificExtension(MyGlobals.desktopDosimetryFolderPath, "tif");
 
 			MyLog.logInit(pathVolatile);
 			// copia da permanente a volatile i dati di SOMMINISTRAZIONE
-			MyLog.logCopyRange(pathPermanente, pathVolatile, 0, 3);
+			MyLog.logCopyRange(MyGlobals.pathPermanente, pathVolatile, 0, 3);
 			// copia da permanente a volatile i dati di IMAGE INFO 24-48-120
-			MyLog.logCopyRange(pathPermanente, pathVolatile, 10, 60);
-			dataOraSomministrazione = Utility.getDateTime(MyLog.readFromLog(pathVolatile, "#002#", "="), format1);
+			MyLog.logCopyRange(MyGlobals.pathPermanente, pathVolatile, 10, 60);
+			dataOraSomministrazione = Utility.getDateTime(MyLog.readFromLog(pathVolatile, "#002#", "="),
+					MyGlobals.format1);
 			activitySomministrazione = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#003#", "="));
 			MyLog.log("dataOraSomministrazione= " + dataOraSomministrazione);
 			raccoltaDati(arrayOfFile2, dataOraSomministrazione);
 			// copia da volatile a permanente i dati di IMAGE INFO 24-48-120
-			MyLog.logCopyRange(pathVolatile, pathPermanente, 10, 60);
-			azzeraFlags(pathPermanente);
+			MyLog.logCopyRange(pathVolatile, MyGlobals.pathPermanente, 10, 60);
+			azzeraFlags(MyGlobals.pathPermanente);
 
 		} else {
 			// ============================================
 			// STESSO PAZIENTE, STESSO DISTRETTO, NUOVA LESIONE
 			// ============================================
 			MyLog.log("NUOVA LESIONE, RECUPERO DATI SOMMINISTRAZIONE DA PERMANENTE");
-			Utility.deleteAllFilesWithSpecificExtension(desktopDosimetryFolderPath, "tif");
+			Utility.deleteAllFilesWithSpecificExtension(MyGlobals.desktopDosimetryFolderPath, "tif");
 			MyLog.logInit(pathVolatile);
 			// copia da permanente a volatile i dati di IMAGE INFO 24-48-120
-			MyLog.logCopyRange(pathPermanente, pathVolatile, 0, 3);
+			MyLog.logCopyRange(MyGlobals.pathPermanente, pathVolatile, 0, 3);
 			// copia da permanente a volatile i dati di IMAGE INFO 24-48-120
-			MyLog.logCopyRange(pathPermanente, pathVolatile, 10, 60);
-			dataOraSomministrazione = Utility.getDateTime(MyLog.readFromLog(pathVolatile, "#002#", "="), format1);
+			MyLog.logCopyRange(MyGlobals.pathPermanente, pathVolatile, 10, 60);
+			dataOraSomministrazione = Utility.getDateTime(MyLog.readFromLog(pathVolatile, "#002#", "="),
+					MyGlobals.format1);
 			activitySomministrazione = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#003#", "="));
 			MyLog.log("dataOraSomministrazione= " + dataOraSomministrazione);
-			azzeraFlags(pathPermanente);
+			azzeraFlags(MyGlobals.pathPermanente);
 		}
 
 		// ===========================================================================
@@ -298,15 +276,13 @@ public class Dosimetria_Lu177 implements PlugIn {
 			return;
 		File fil1 = result1.get(0);
 		String path1 = fil1.getAbsolutePath();
-		imp1 =
-
-				Utility.openImage(path1);
+		imp1 = Utility.openImage(path1);
 		imp1.show();
 		String meta1 = Utility.getMeta(slice1, imp1);
 
 		if (nuoveImmagini) {
 			petctviewerTitle = stringaLaboriosa(meta1);
-			MyLog.logAppend(pathPermanente, "24h=" + petctviewerTitle);
+			MyLog.logAppend(MyGlobals.pathPermanente, "24h=" + petctviewerTitle);
 		}
 		// 0020,000E Series Instance UID:
 		// 1.2.840.113619.2.184.31108.1067210107.1661517437.7028981
@@ -356,14 +332,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 		File fil3 = result3.get(0);
 		String path3 = fil3.getAbsolutePath();
 		imp3 = Utility.openImage(path3);
-//		String tit3 = imp3.getTitle();
-//		tit3 = "A048 ## " + tit3;
-//		imp3.setTitle(tit3);
 		imp3.show();
 		String meta3 = Utility.getMeta(slice1, imp3);
 		if (nuoveImmagini) {
 			petctviewerTitle = stringaLaboriosa(meta3);
-			MyLog.logAppend(pathPermanente, "48h=" + petctviewerTitle);
+			MyLog.logAppend(MyGlobals.pathPermanente, "48h=" + petctviewerTitle);
 		}
 
 		String petUID3 = DicomTools.getTag(imp3, "0020,000E");
@@ -388,13 +361,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		String seriesUID3 = petUID3 + ", " + ctUID4;
 
-//		aux11 = "#" + String.format("%03d", count55++) + "#\t48h TitlePrimaImmagine= " + imp3.getTitle();
-//		Utility.logAppend(pathVolatile, aux11);
-//		aux11 = "#" + String.format("%03d", count55++) + "#\t48h TitleSecondaImmagine= " + imp4.getTitle();
-//		Utility.logAppend(pathVolatile, aux11);
-//		aux11 = "#" + String.format("%03d", count55++) + "#\t48h SeriesUID PET_CT_VIEWER= " + seriesUID3;
-//		Utility.logAppend(pathVolatile, aux11);
-
 		IJ.runPlugIn("Pet_Ct_Viewer", seriesUID3);
 		IJ.wait(500);
 
@@ -418,7 +384,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		String meta5 = Utility.getMeta(slice1, imp5);
 		if (nuoveImmagini) {
 			petctviewerTitle = stringaLaboriosa(meta5);
-			MyLog.logAppend(pathPermanente, "120h=" + petctviewerTitle);
+			MyLog.logAppend(MyGlobals.pathPermanente, "120h=" + petctviewerTitle);
 		}
 
 		String petUID5 = DicomTools.getTag(imp5, "0020,000E");
@@ -446,13 +412,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		ctUID6 = ctUID6.trim();
 
 		String seriesUID5 = petUID5 + ", " + ctUID6;
-
-//		aux11 = "#" + String.format("%03d", count55++) + "#\t120h TitlePrimaImmagine= " + imp5.getTitle();
-//		Utility.logAppend(pathVolatile, aux11);
-//		aux11 = "#" + String.format("%03d", count55++) + "#\t120h TitleSecondaImmagine= " + imp6.getTitle();
-//		Utility.logAppend(pathVolatile, aux11);
-//		aux11 = "#" + String.format("%03d", count55++) + "#\t120h SeriesUID PET_CT_VIEWER= " + seriesUID5;
-//		Utility.logAppend(pathVolatile, aux11);
 
 		IJ.runPlugIn("Pet_Ct_Viewer", seriesUID5);
 		IJ.wait(500);
@@ -524,7 +483,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			IJ.runPlugIn("Dosimetry.Dosimetry_v2", "");
 
 			if (nuoveImmagini)
-				MyLog.logEnd(pathPermanente);
+				MyLog.logEnd(MyGlobals.pathPermanente);
 
 			// ==========================================================================================
 			// Elaborazione 24/48/120h
@@ -634,15 +593,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 			double[] vetInput = null;
 
-//			int count = 0;
-//			boolean[] puntiSelezionatiFit = pointsSelection_LP33(); /// selezione dei 2 o 3 punti su cui fare il fit
-//			for (boolean aux : puntiSelezionatiFit) {
-//				if (aux)
-//					count++;
-//			}
-			// Utility.closePlot(titolo1);
-
-			MIRD_display_LP66(MIRD_vol24, MIRD_vol48, MIRD_vol120);
+			MyDialog.MIRD_display_LP66(MIRD_vol24, MIRD_vol48, MIRD_vol120);
 
 			// #########################################################################
 			// QUI MOSTRERO' IL DVH
@@ -656,20 +607,34 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			do {
 
+				////////////////////////////////////////////////////////////////////////
+				// MyLog.waitHere("PUNTO PL01 - LP33");
+				////////////////////////////////////////////////////////////////////////
+
+				String titolo1 = "Punti";
+				MyGlobals.titPL01 = MyPlot.PL01_MIRD_pointsPlotter(xp1, yp1, null, titolo1,
+						"24h=red 48h=green 120h=blue");
+
+				boolean[] puntiSelezionati = pointsSelection_LP33(); /// selezione dei 2 o 3 punti su cui in seguito
+																		/// fare il fit
+				Utility.closePlot(MyGlobals.titPL01);
+
+				int count = 0;
+				boolean threepoints = false;
+				for (int i1 = 0; i1 < puntiSelezionati.length; i1++) {
+					if (puntiSelezionati[i1] == true)
+						count++;
+				}
+				if (count == 3)
+					threepoints = true;
+
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
-				String titolo1 = "Punti_PP01";
-				MyPlot.PL01_MIRD_pointsPlotter(xp1, yp1, null, titolo1, "24h=red 48h=green 120h=blue");
-				////////////////////////////////////////////////////////
-				boolean[] puntiSelezionati = pointsSelection_LP33(); /// selezione dei 2 o 3 punti su cui fare il fit
-				Utility.closePlot(titolo1);
+				double[] vetOut4 = processaCalcolaFit2or3(xp1, yp1, MIRD_vol24, MIRD_vol48, MIRD_vol120, pathImage,
+						puntiSelezionati);
 
-				double[] vetOut4 = processa(xp1, yp1, MIRD_vol24, MIRD_vol48, MIRD_vol120, pathImage, puntiSelezionati);
-
-
-//				MyLog.waitHere();
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
@@ -700,9 +665,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 				aux5 = "#302#\tMIRD FLANAGAN FIT param 1= " + aa;
 				MyLog.logAppend(pathVolatile, aux5);
 
-				ArrayList<ArrayList<Double>> xList = VoxelDosimetry.pureDVH1(pathImage, puntiSelezionati, aa);
-
-				// MyLog.waitHere("s1= " + s1 + " s2= " + s2 + " m1= " + m1 + " m2= " + m2);
+				ArrayList<ArrayList<Double>> xList = VoxelDosimetry.start_DVH1(pathImage, puntiSelezionati, aa);
 
 				vetInput = new double[14];
 
@@ -725,139 +688,183 @@ public class Dosimetria_Lu177 implements PlugIn {
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
-//				VoxelDosimetry.pureDVH1(pathImage);
+				double[] vetx24 = new double[0];
+				double[] vety24 = new double[0];
+				double[] vetx48 = new double[0];
+				double[] vety48 = new double[0];
+				double[] vetx120 = new double[0];
+				double[] vety120 = new double[0];
+
+				ArrayList<Double> arrList1 = null;
+
+				arrList1 = xList.get(0);
+				if (arrList1 != null) {
+					vetx24 = Utility.arrayListToArrayDouble(arrList1);
+					MyLog.logVector(vetx24, "vetx24");
+				} else
+					vetx24 = null;
+				arrList1 = xList.get(2);
+				if (arrList1 != null) {
+					vety24 = Utility.arrayListToArrayDouble(arrList1);
+					MyLog.logVector(vety24, "vety24");
+				} else
+					vety24 = null;
+				arrList1 = xList.get(3);
+				if (arrList1 != null) {
+					vetx48 = Utility.arrayListToArrayDouble(arrList1);
+					MyLog.logVector(vetx48, "vetx48");
+				} else
+					vetx48 = null;
+				arrList1 = xList.get(5);
+				if (arrList1 != null) {
+					vety48 = Utility.arrayListToArrayDouble(arrList1);
+					MyLog.logVector(vety48, "vety48");
+				} else
+					vety48 = null;
+				arrList1 = xList.get(6);
+				if (arrList1 != null) {
+					vetx120 = Utility.arrayListToArrayDouble(arrList1);
+					MyLog.logVector(vetx120, "vetx120");
+				} else
+					vetx120 = null;
+				arrList1 = xList.get(8);
+				if (arrList1 != null) {
+					vety120 = Utility.arrayListToArrayDouble(arrList1);
+					MyLog.logVector(vety120, "vety120");
+				} else
+					vety120 = null;
+
+				MyGlobals.titPL11 = MyPlot.PL11_myPlotMultiple2(vetx24, vety24, vetx48, vety48, vetx120, vety120,
+						"INPUT 24red,48green,120blue", "assexx", "asseyy");
 
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
-				desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
-				pathPermanente = desktopPath + File.separator + "DosimetryFolder" + File.separator + "permanente.txt";
-				pathVolatile = desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
+				// §§§§§§ QUI RIFACCIAMO IL FIT UNICAMENTE PER STAMPARE IL GRAFICO §§§§§§
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
-//				String titolo1 = "Punti_PP01";
-//				MyPlot.MIRD_pointsPlotter(xp1, yp1, null, titolo1);
-//				////////////////////////////////////////////////////////
-//				int count2 = 0;
-//				boolean[] puntiSelezionati = pointsSelection_LP33(); /// selezione dei 2 o 3 punti su cui fare il fit
-//				for (boolean aux : puntiSelezionati) {
-//					if (aux)
-//						count2++;
-//				}
-//				if (count2 == 2) {
+				if (threepoints) {
+					Regression rf = Utility.MIRD_curveFitterSpecialFlanagan(xp1, yp1);
+					MyGlobals.titPL0405 = MyPlot.PL05_MIRD_curvePlotterSpecialFlanagan(rf, xp1, yp1, null);
+				} else {
+					CurveFitter cf = Utility.MIRD_curveFitterSpecialImageJ(xp1, yp1);
+					MyGlobals.titPL0405 = MyPlot.PL04_MIRD_curvePlotterSpecialImageJ(cf, xp1, yp1, puntiSelezionati,
+							null);
+				}
 
-//					Utility.closePlot(titolo1);
-				//
-//				// String titolo2 = "Punti_PP02";
-//				// MyPlot.PL01_MIRD_pointsPlotter(xp1, yp1, puntiSelezionatiFit, titolo2);
+				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
-//					aux5 = "#194#\t----- POINT SELECTION ------------------";
-//					MyLog.logModify(pathVolatile, "#194#", aux5);
-//
-//					aux5 = "#195#\t Selezionati i punti 24h= " + puntiSelezionati[0] + " 48h= " + puntiSelezionati[1]
-//							+ " 120h= " + puntiSelezionati[2];
-//
-//					MyLog.logModify(pathVolatile, "#195#", aux5);
+				double[][] matDVH2 = VoxelDosimetry.subDVH2(vetx24, vety24, vetx48, vety48, vetx120, vety120);
 
-//					int count3 = 0;
-//					double[] xp2 = new double[count];
-//					double[] yp2 = new double[count];
-//					for (int i1 = 0; i1 < xp1.length; i1++) {
-//						if (puntiSelezionatiFit[i1]) {
-//							xp2[count2] = xp1[i1];
-//							yp2[count2] = yp1[i1];
-//							count3++;
-//						}
-//					}
-// 				Utility.closePlot(titolo2);
-//				VoxelDosimetry S_VoxelDosimetry2 = new VoxelDosimetry();
-//				S_VoxelDosimetry2.pureDVH1(pathImage);
+				double[] vetMin = new double[matDVH2.length];
+				double[] vetMax = new double[matDVH2.length];
+				double[] vetMed = new double[matDVH2.length];
+				double[] vetY = new double[matDVH2.length];
+				for (int i1 = 0; i1 < matDVH2.length; i1++) {
+					vetMin[i1] = matDVH2[i1][0];
+					vetMax[i1] = matDVH2[i1][1];
+					vetMed[i1] = matDVH2[i1][2];
+					vetY[i1] = matDVH2[i1][3];
+				}
 
-//					double[] vetOut6 = processaConImagej(xp1, yp1, puntiSelezionati, MIRD_vol24, MIRD_vol48,
-//							MIRD_vol120);
-//
-//					AA = vetOut6[0];
-//					aa = vetOut6[1];
-//					SA = vetOut6[2];
-//					Sa = vetOut6[3];
-//					mAtilde = vetOut6[4];
-//					disintegrazioni = vetOut6[5];
-//					uptake = vetOut6[6];
-//					massa = vetOut6[7];
-//					tmezzo = vetOut6[8];
-//					tau = vetOut6[9];
-//					SmAtilde = vetOut6[10];
-//					Sdisintegrazioni = vetOut6[11];
-//					Suptake = vetOut6[12];
-//					Smassa = vetOut6[13];
-//					Stmezzo = vetOut6[14];
-//					Stau = vetOut6[15];
-//					dose = vetOut6[16];
-//					Sdose = vetOut6[17];
-//					Rsquared = vetOut6[18];
-//					s1 = vetOut6[19];
-//					s2 = vetOut6[20];
-//					m1 = vetOut6[21];
-//					m2 = vetOut6[22];
-//					aux5 = "#302#\tMIRD FLANAGAN FIT param 1= " + aa;
-//					MyLog.logAppend(pathVolatile, aux5);
-//
-//					VoxelDosimetry.pureDVH1(pathImage);
-//
-//				}
-
-				VoxelDosimetry.voxelDosim222(xList);
-
-//				Utility.calcDVH2(null);
-
-				////// //////////////////////////////////////////////////////////////////////
-				////// IW2AYV////////////////////////////////////////////////////////////////
-				////// //////////////////////////////////////////////////////////////////////
+				///////////////////////////////////////////////////////////////////////////
+				// MyLog.waitHere("PUNTO LP68");
+				///////////////////////////////////////////////////////////////////////////
 				// ==========================================================================
 				// PARTE REVIEW CHE DEVE RITORNARE INDIETRO PER RIFARE UNO O PIU'DEI CALCOLI
 				// FINALMENTE SAREMO FELICI E GORGOGLIONI DELLE NOSTRE ELABORAZIONI
 				// ==========================================================================
 //				decis1 = MIRD_display_LP67(MIRD_vol24, MIRD_vol48, MIRD_vol120, uptake, massa, tmezzo, dose);
-				decis1 = MIRD_display_LP68(vetInput); // accetta risultati o ripeti analisi
+				decis1 = MyDialog.MIRD_display_LP68(vetInput); // accetta risultati o ripeti analisi
 				if (decis1 == 0)
 					return;
 				// boolean fit = false;
 				if (decis1 == 1) {
-					rip = dialogRipetizione_LP08(); // SCELTA PROBLEMA: CONTORNAMENTO O FIT
+					rip = MyDialog.dialogRipetizione_LP08(); // SCELTA PROBLEMA: CONTORNAMENTO O FIT
 					if (rip == 0)
 						return;
 				}
-				Utility.closePlot("PLOT FLANAGAN");
-				Utility.closePlot("PLOT IMAGEJ");
+				Utility.closePlot(MyGlobals.titPL0405);
+				Utility.closePlot(MyGlobals.titPL11);
 
-				/// ritorno da selezione 2 o 3 punti
+				MyGlobals.titPL08 = MyPlot.PL08_myPlotMultipleSpecial1(vetMin, vetY, vetMax, vetY, vetMed, vetY,
+						"MEDIA", "DOSE [Gy]", "VOL%");
+
+				double[] vetErrSup = VoxelDosimetry.calcoliDVHerrSup(vetMed, vetMax);
+				double[] vetErrInf = VoxelDosimetry.calcoliDVHerrInf(vetMed, vetMin);
+
+				double[] vetErrDose = VoxelDosimetry.calcoliDVHerrDose2(vetMin, vetMax);
+				MyLog.logVector(vetErrDose, "vetErrDose");
+				MyLog.logVector(vetErrSup, "vetErrSup");
+				MyLog.logVector(vetErrInf, "vetErrInf");
+
+				double errFin = VoxelDosimetry.calcoliDVHerrFinale(vetMed, vetErrDose);
+
+				int percent = 98;
+				double[] vetOut98 = VoxelDosimetry.calcoliDVH(vetErrDose, vetMed, vetY, percent);
+
+				double valD98 = vetOut98[0];
+				double errD98 = vetOut98[1];
+				percent = 2;
+				double[] vetOut2 = VoxelDosimetry.calcoliDVH(vetErrDose, vetMed, vetY, percent);
+
+				double valD2 = vetOut2[0];
+				double errD2 = vetOut2[1];
+
+				double Dmedia = Utility.vetMeanSecond(vetMed);
+
+				double ErrMedia = Utility.vetMeanSecond(vetErrDose);
+
+				double[][] export1 = Utility.samplerDVH(vetErrDose, vetY);
+
+				String str11 = "";
+				// esperimento esportazione
+				for (int i1 = 0; i1 < export1.length; i1++) {
+					str11 = str11 + export1[i1][0] + "; ";
+				}
+
+				NonBlockingGenericDialog resultsDialog = new NonBlockingGenericDialog("SV07 - Results");
+				resultsDialog.addMessage("Riassunto dati DVH ", MyGlobals.titleFont);
+				resultsDialog.setFont(MyGlobals.defaultFont);
+
+				resultsDialog.addMessage("=============");
+				resultsDialog.addMessage(
+						"D98= " + String.format("%.4f", valD98) + " \u00B1 " + String.format("%.4f", errD98) + " Gy");
+				resultsDialog.addMessage(
+						"D2= " + String.format("%.4f", valD2) + " \u00B1 " + String.format("%.4f", errD2) + " Gy");
+				resultsDialog.addMessage("Dmedia= " + String.format("%.4f", Dmedia) + " \u00B1 "
+						+ String.format("%.4f", ErrMedia) + " Gy");
+				resultsDialog.showDialog();
+
 			} while (rip < 2 && decis1 < 2);
 
 			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			// QUI ENTRO PER PROBLEMI DI CONTORNAMENTO DA LP08
 			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			if (rip == 2) {
-				selection = dialogReview_LP32();
+				selection = MyDialog.dialogReview_LP32();
 				String aux1 = "";
 				switch (selection) {
 				case "24h":
 //					scelta = 1;
 					aux1 = "#901#\tok24= false";
-					MyLog.logModify(pathPermanente, "#901#", aux1);
+					MyLog.logModify(MyGlobals.pathPermanente, "#901#", aux1);
 					aux1 = "#904#\tokk= false";
-					MyLog.logModify(pathPermanente, "#904#", aux1);
+					MyLog.logModify(MyGlobals.pathPermanente, "#904#", aux1);
 					break;
 				case "48h":
 //					scelta = 2;
 					aux1 = "#902#\tok48= false";
-					MyLog.logModify(pathPermanente, "#902#", aux1);
+					MyLog.logModify(MyGlobals.pathPermanente, "#902#", aux1);
 					aux1 = "#904#\tokk= false";
-					MyLog.logModify(pathPermanente, "#904#", aux1);
+					MyLog.logModify(MyGlobals.pathPermanente, "#904#", aux1);
 					break;
 				case "120h":
 //					scelta = 3;
 					aux1 = "#903#\tok120= false";
-					MyLog.logModify(pathPermanente, "#903#", aux1);
+					MyLog.logModify(MyGlobals.pathPermanente, "#903#", aux1);
 					aux1 = "#904#\tokk= false";
-					MyLog.logModify(pathPermanente, "#904#", aux1);
+					MyLog.logModify(MyGlobals.pathPermanente, "#904#", aux1);
 					break;
 				}
 			}
@@ -1003,8 +1010,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		MyLog.logDedupe(pathVolatile); // ELIMINAZIONE DOPPIONI
 
-		String lesionName = Utility.dialogBattezzaLesioni_LP27(pathVolatile);
-		String path22 = desktopPath + File.separator + "DosimetryFolder" + File.separator;
+		String lesionName = MyDialog.dialogBattezzaLesioni_LP27(pathVolatile);
+		String path22 = MyGlobals.desktopPath + File.separator + "DosimetryFolder" + File.separator;
 
 		Utility.rinominaImmagini(path22 + "volatile24h.tif", path22 + lesionName + "24h.tif");
 		Utility.rinominaImmagini(path22 + "volatile48h.tif", path22 + lesionName + "48h.tif");
@@ -1055,30 +1062,31 @@ public class Dosimetria_Lu177 implements PlugIn {
 	 */
 	static String stringaLaboriosa(String meta) {
 
-		m_patName = compressPatName(getDicomValue(meta, "0010,0010"));
-		String aux1 = "#600#\tm_patname= " + m_patName;
-		MyLog.logAppend(pathPermanente, aux1);
+		MyGlobals.m_patName = compressPatName(getDicomValue(meta, "0010,0010"));
+		String aux1 = "#600#\tm_patname= " + MyGlobals.m_patName;
+		MyLog.logAppend(MyGlobals.pathPermanente, aux1);
 		String tmp = getDicomValue(meta, "0010,0030");
-		m_patBirthday = getDateTime(tmp, null);
-		if (m_patBirthday != null) {
+		MyGlobals.m_patBirthday = getDateTime(tmp, null);
+		if (MyGlobals.m_patBirthday != null) {
 			long sdyTime, birthTime, currDiff;
 			Integer years;
 			int type2 = -1;
 			Date studyDateTime = getStudyDateTime(meta, type2);
 			sdyTime = studyDateTime.getTime();
-			birthTime = m_patBirthday.getTime();
+			birthTime = MyGlobals.m_patBirthday.getTime();
 			currDiff = (sdyTime - birthTime) / (24 * 60 * 60 * 1000); // number of days
 			years = (int) (currDiff / 365.242199);
-			m_patYears = years.toString() + "y";
+			MyGlobals.m_patYears = years.toString() + "y";
 		}
-		m_patID = compressID(getDicomValue(meta, "0010,0020"));
+		MyGlobals.m_patID = compressID(getDicomValue(meta, "0010,0020"));
 		int type3 = -1;
 		Date studyDateTime1 = getStudyDateTime(meta, type3);
-		m_serDate = UsaDateFormat(studyDateTime1);
-		m_styName = getDicomValue(meta, "0008,1030");
-		petSeriesName = getDicomValue(meta, "0008,103E");
-		String laboriosa = "Pet-Ct: " + m_patName + "   " + m_patYears + "   " + m_patID + "   " + m_serDate + "   "
-				+ m_styName + "   " + petSeriesName.toLowerCase();
+		MyGlobals.m_serDate = UsaDateFormat(studyDateTime1);
+		MyGlobals.m_styName = getDicomValue(meta, "0008,1030");
+		MyGlobals.petSeriesName = getDicomValue(meta, "0008,103E");
+		String laboriosa = "Pet-Ct: " + MyGlobals.m_patName + "   " + MyGlobals.m_patYears + "   " + MyGlobals.m_patID
+				+ "   " + MyGlobals.m_serDate + "   " + MyGlobals.m_styName + "   "
+				+ MyGlobals.petSeriesName.toLowerCase();
 
 		return laboriosa;
 	}
@@ -1307,375 +1315,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 	}
 
 	/**
-	 * Dialogo inserimento dati iniezione
-	 * 
-	 * @return
-	 */
-	String dialogInputDataSomministrazione_LP11() {
-
-		MyLog.log("dialogInputDataSomministrazione_LP11");
-		String data0;
-
-		int day;
-		int month;
-		int year;
-		int year4;
-
-		MyLog.log("LP11 start");
-		GenericDialog gd11 = new GenericDialog("LP11 - Date input");
-		gd11.addMessage("Giorno della somministrazione: ", titleFont);
-		gd11.setFont(defaultFont);
-		String label11 = "Giorno: ";
-		String format11 = "0";
-		int digits11 = 4;
-		gd11.addStringField(label11, format11, digits11);
-		label11 = "Mese: ";
-		gd11.addStringField(label11, format11, digits11);
-		label11 = "Anno: ";
-		gd11.addStringField(label11, format11, digits11);
-
-		gd11.setCancelLabel("Cancel");
-		gd11.showDialog();
-		if (gd11.wasCanceled()) {
-			MyLog.log("Cancel");
-			return null;
-		}
-
-		String aux1 = "";
-		day = Utility.parseInt(gd11.getNextString());
-		month = Utility.parseInt(gd11.getNextString());
-		aux1 = gd11.getNextString();
-		year = Utility.parseInt(aux1);
-		if (aux1.length() == 4) {
-			year4 = year;
-		} else {
-			year4 = year + 2000;
-		}
-		// dopo varie prove NON fidandomi di java, ricostruisco da solo la data nel
-		// formato
-		// desiderato, in modo da non avere sgradite sorprese
-		data0 = String.format("%02d", day) + "-" + String.format("%02d", month) + "-" + String.format("%04d", year4);
-		format11 = "dd-MM-yyyy";
-		boolean ok1 = Utility.isValidDate(data0, format11);
-		if (ok1) {
-			return data0;
-		} else {
-			Utility.dialogErrorMessage_LP06("LP11 " + data0 + " Data inserita ERRATA");
-			return "";
-		}
-	}
-
-	/**
-	 * Dialogo inserimento dati iniezione
-	 * 
-	 * @return
-	 */
-	String dialogInputOraSomministrazione_LP12() {
-
-		MyLog.log("dialogInputOraSomministrazione_LP12");
-		String ora0;
-
-		int hour;
-		int minute;
-		int second = 0;
-
-		MyLog.log("LP12 start");
-		GenericDialog gd11 = new GenericDialog("LP12 - Hour input");
-		gd11.addMessage("Orario somministrazione: ", titleFont);
-		gd11.setFont(defaultFont);
-		String label11 = "Ora: ";
-		String format11 = "0";
-		int digits11 = 4;
-		gd11.addStringField(label11, format11, digits11);
-		label11 = "Minuto: ";
-		gd11.addStringField(label11, format11, digits11);
-		gd11.setCancelLabel("Cancel");
-		gd11.showDialog();
-		if (gd11.wasCanceled()) {
-			MyLog.waitHere("Cancel");
-			return null;
-		}
-
-		hour = Utility.parseInt(gd11.getNextString());
-		minute = Utility.parseInt(gd11.getNextString());
-		// dopo varie prove fidandomi di java, ricostruisco da solo la data nel formato
-		// desiderato, in modo da non avere sgradite sorprese
-		ora0 = String.format("%02d", hour) + ":" + String.format("%02d", minute) + ":" + String.format("%02d", second);
-		format11 = "HH:mm:ss";
-		boolean ok1 = Utility.isValidDate(ora0, format11);
-		if (ok1) {
-			return ora0;
-		} else {
-			Utility.dialogErrorMessage_LP06("LP12 " + ora0 + " Ora inserita ERRATA");
-			return "";
-		}
-	}
-
-	/**
-	 * Dialogo inserimento dati iniezione
-	 * 
-	 * @return
-	 */
-	double dialogInputActivitySomministrazione_LP13() {
-
-		MyLog.log("dialogInputActivitySomministrazione_LP13");
-//		String activity2;
-
-		double activity1;
-
-		MyLog.log("LP13 start");
-		GenericDialog gd11 = new GenericDialog("LP13 - Activity input");
-		gd11.addMessage("Introduci i seguenti dati per il nuovo paziente", titleFont);
-		gd11.setFont(defaultFont);
-		String label13 = "Attivita' somministrata";
-		double default13 = 0.0;
-		int digits13 = 8;
-		gd11.addNumericField(label13, default13, digits13, 10, "[MBq]");
-		gd11.setCancelLabel("Cancel");
-		gd11.showDialog();
-		if (gd11.wasCanceled()) {
-			MyLog.waitHere("Cancel");
-			return Double.NaN;
-		}
-		activity1 = gd11.getNextNumber();
-
-		return activity1;
-	}
-
-	boolean dialogDistretto_LP07() {
-
-		MyLog.log("dialogo LP07");
-		GenericDialog genericDialog3 = new GenericDialog("LP07 - ALTRO DISTRETTO");
-		genericDialog3.setFont(defaultFont);
-		genericDialog3.addMessage("Posizione lesione", titleFont);
-		genericDialog3.addMessage("La lesione si trova in questo o altro distretto?");
-		genericDialog3.setOKLabel("STESSO DISTRETTO");
-		genericDialog3.setCancelLabel("ALTRO DISTRETTO");
-		genericDialog3.showDialog();
-		if (genericDialog3.wasCanceled()) {
-			MyLog.log("LP07 - true STESSO DISTRETTO");
-			return true;
-		} else {
-			MyLog.log("LP07 - false ALTRO DISTRETTO");
-			return false;
-		}
-	}
-
-	static int dialogRipetizione_LP08() {
-
-		MyLog.log("dialogo LP08");
-		GenericDialog genericDialog3 = new GenericDialog("LP08 - COSA RIPETERE");
-		genericDialog3.setFont(defaultFont);
-		genericDialog3.addMessage("Scelta tipo di problema:", titleFont);
-		genericDialog3.enableYesNoCancel("CONTORNAMENTO", "FIT");
-
-		genericDialog3.setCancelLabel("Cancel");
-		genericDialog3.showDialog();
-
-		if (genericDialog3.wasCanceled()) {
-			MyLog.log("LP08 0 Cancel");
-			return 0;
-		} else if (genericDialog3.wasOKed()) {
-			MyLog.log("LP08 2 CONTORNAMENTO");
-			return 2;
-		} else {
-			MyLog.log("LP08 1 FIT");
-			return 1;
-		}
-	}
-
-	/**
-	 * Dialogo conferma dati iniezione
-	 * 
-	 * @param in1
-	 * @return
-	 */
-	boolean dialogConfermaDatiSomministrazione_LP10(String[] in1) {
-
-		MyLog.log("dialogConfermaDatiSomministrazione_LP10");
-		String data11 = in1[0];
-		String ora11 = in1[1];
-		String activity11 = in1[2];
-
-		GenericDialog conf11 = new GenericDialog("LP10 - CONFERMA DATI INSERITI");
-
-		conf11.addMessage("CONFERMA DATI SOMMINISTRAZIONE", titleFont);
-		conf11.setFont(defaultFont);
-		conf11.addMessage("Data " + data11 + "   [dd-mm-yyyy]");
-		conf11.addMessage("Ora " + ora11 + "   [hh:mm:ss]");
-		conf11.addMessage("Attivita' introdotta " + activity11 + "   [MBq]");
-		conf11.showDialog();
-
-		if (conf11.wasOKed()) {
-			MyLog.log("LP10 - true PREMUTO OK");
-			return true;
-		} else {
-			MyLog.log("LP00 - true PREMUTO Cancel");
-			return false;
-		}
-	}
-
-	/**
-	 * Dialogo con dati delle cartelle 24/48/120
-	 * 
-	 * @param aList
-	 */
-	boolean dialogReview_LP05(ArrayList<ArrayList<String>> aList) {
-
-		MyLog.log("dialogReview_LP05");
-		GenericDialog reviewDialog = new GenericDialog("LP05 - Review Dicom Tags");
-		reviewDialog.addMessage("Check the Dicom tags", titleFont);
-		reviewDialog.setFont(defaultFont);
-		reviewDialog.addMessage("Please review if the acquisition settings used are correct.");
-		for (int a4 = 0; a4 < aList.size(); a4++) {
-			reviewDialog.addMessage(arrayOfString[a4] + " folder path:");
-			String str22 = "";
-			ArrayList<String> cList = aList.get(a4);
-			for (int b4 = 0; b4 < cList.size(); b4++) {
-				String str9 = cList.get(b4);
-				str22 = str22 + str9;
-			}
-			reviewDialog.addMessage(str22);
-		}
-		reviewDialog.showDialog();
-		if (reviewDialog.wasCanceled()) {
-			return false;
-		} else {
-			reviewDialog.dispose();
-			return true;
-		}
-
-	}
-
-	/**
-	 * Dialogo che mostra dati immagini del dosimetryFolder
-	 * 
-	 * @return
-	 */
-	boolean dialogInitialize_LP00() {
-
-		MyLog.log("dialogInitialize_LP00");
-		GenericDialog genericDialog3 = new GenericDialog("LP00 - INIZIALIZZA PER NUOVO PAZIENTE");
-		genericDialog3.addMessage("Inizializza per nuovo paziente", titleFont);
-		genericDialog3.setFont(defaultFont);
-		genericDialog3.addMessage("File PERMANENTE salvataggio dati", defaultFont);
-		genericDialog3.setOKLabel("MANTIENI");
-		genericDialog3.setCancelLabel("INIZIALIZZA");
-		genericDialog3.showDialog();
-		if (genericDialog3.wasCanceled()) {
-			MyLog.log("LP00 - true PREMUTO INIZIALIZZA");
-			return true; // EBBENE SI, DA BENE COSI'
-		} else {
-			MyLog.log("LP00 - false PREMUTO MANTIENI");
-			return false;
-		}
-	}
-
-	/**
-	 * Dialogo cancellazione immagini e dati paziente precedente
-	 * 
-	 * @param str20
-	 * @return
-	 */
-	boolean dialogNonBlockingDelete_LP01(String str20) {
-
-		MyLog.log("dialogNonBlockingDelete_LP01");
-		NonBlockingGenericDialog nonBlockingGenericDialog = new NonBlockingGenericDialog("LP01 - Command Confirmation");
-		nonBlockingGenericDialog.addMessage("Confirmation Dialog", titleFont);
-		nonBlockingGenericDialog.setFont(defaultFont);
-		nonBlockingGenericDialog.addMessage(
-				"Are you sure to delete all files in the following folder?\nThis action is irreversible.\n" + str20);
-		nonBlockingGenericDialog.setCancelLabel("ANNULLA");
-		nonBlockingGenericDialog.showDialog();
-		if (nonBlockingGenericDialog.wasCanceled()) {
-			MyLog.log("LP01 - false PREMUTO ANNULLA");
-			return false;
-		} else {
-			MyLog.log("LP01 - true PREMUTO OK");
-			return true;
-		}
-	}
-
-	/**
-	 * Dialo selezione cartella 24h nuovo paziente
-	 * 
-	 * @return
-	 */
-	boolean dialogSelection_LP02() {
-
-		MyLog.log("dialogSelection_LP02");
-		GenericDialog genericDialog = new GenericDialog("LP02 - Select images Folder");
-		genericDialog.addMessage("24h Folder Selection", titleFont);
-		genericDialog.setFont(defaultFont);
-		genericDialog.addMessage("Select folder of the 24h acquisition");
-		genericDialog.setOKLabel("BROWSE");
-		genericDialog.setCancelLabel("Cancel");
-		genericDialog.showDialog();
-		if (genericDialog.wasCanceled()) {
-			MyLog.log("LP02 - false PREMUTO Cancel");
-			return false;
-		} else {
-			MyLog.log("LP02 - true PREMUTO BROWSE");
-			genericDialog.dispose();
-			return true;
-		}
-	}
-
-	/**
-	 * Selezione cartella immagini
-	 * 
-	 * @return
-	 */
-	String directorySelection_LP_20() {
-
-		MyLog.log("directorySelection_LP_20");
-		DirectoryChooser directoryChooser = new DirectoryChooser("LP20 Directory Selection");
-		String str3 = directoryChooser.getDirectory();
-		if (str3 == null) {
-			Utility.dialogErrorMessage_LP06("Wrong selection. Please try again.");
-			MyLog.log("LP20 - null  ERROR MESSAGE Wrong selection. Please try again ");
-			return null;
-		} else {
-			MyLog.log("LP20 - selezione effettuata");
-		}
-		return str3;
-	}
-
-	/**
-	 * Conferma cartelle selezionate
-	 * 
-	 * @param str24
-	 * @param str48
-	 * @param str120
-	 * @return
-	 */
-	boolean dialogConfirmFolder_LP03(String str24, String str48, String str120) {
-
-		MyLog.log("dialogConfirmFolder_LP03");
-		GenericDialog genericDialog1 = new GenericDialog("LP03 - Confirm images Folder");
-		genericDialog1.addMessage("Confirm Image Selection", titleFont);
-		genericDialog1.addMessage("Check Image Folder Auto-Selection", defaultFont);
-		genericDialog1.addMessage("24h folder path:", textFont);
-		genericDialog1.addMessage(str24, defaultFont);
-		genericDialog1.addMessage("48h folder path:", textFont);
-		genericDialog1.addMessage(str48, defaultFont);
-		genericDialog1.addMessage("120h folder path:", textFont);
-		genericDialog1.addMessage(str120, defaultFont);
-		genericDialog1.setOKLabel("CONFIRM");
-		genericDialog1.setCancelLabel("Cancel");
-		genericDialog1.showDialog();
-		if (genericDialog1.wasCanceled()) {
-			MyLog.log("LP03 - false PREMUTO Cancel");
-			return false;
-		} else {
-			MyLog.log("LP03 - true PREMUTO CONFIRM");
-			genericDialog1.dispose();
-			return true;
-		}
-
-	}
-
-	/**
 	 * Inizializzazione dei file di log
 	 * 
 	 * @param init
@@ -1688,12 +1327,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 		SimpleDateFormat dateformat = new SimpleDateFormat("dd MMM yyyy - HH:mm.ss");
 		MyLog.logInit(pathVolatile);
 		MyLog.logAppend(pathVolatile, "INITIALIZED " + dateformat.format(now));
-		File f1 = new File(pathPermanente);
+		File f1 = new File(MyGlobals.pathPermanente);
 		if (init || !f1.exists()) {
-			MyLog.logInit(pathPermanente);
-			MyLog.logAppend(pathPermanente, "INITIALIZED " + dateformat.format(now));
+			MyLog.logInit(MyGlobals.pathPermanente);
+			MyLog.logAppend(MyGlobals.pathPermanente, "INITIALIZED " + dateformat.format(now));
 		} else {
-			MyLog.logAppend(pathPermanente, "PRESERVED " + dateformat.format(now));
+			MyLog.logAppend(MyGlobals.pathPermanente, "PRESERVED " + dateformat.format(now));
 		}
 
 	}
@@ -1735,22 +1374,22 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 					File file6 = null;
 					if (file5.getName().contains("IRAC")) {
-						file6 = new File(desktopImagesSubfolderPath + File.separator + arrayOfString[b2]
+						file6 = new File(desktopImagesSubfolderPath + File.separator + MyGlobals.arrayOfString[b2]
 								+ File.separator + "SPECT" + File.separator + file5.getName());
 						try {
 							copyDirectory(file5, file6);
 						} catch (Exception exception) {
-							Utility.dialogErrorMessage_LP06(
+							MyDialog.dialogErrorMessage_LP06(
 									"An Error occurred while coping the SPECT image. Please try again!");
 							return;
 						}
 					} else if (file5.getName().contains("CTAC")) {
-						file6 = new File(desktopImagesSubfolderPath + File.separator + arrayOfString[b2]
+						file6 = new File(desktopImagesSubfolderPath + File.separator + MyGlobals.arrayOfString[b2]
 								+ File.separator + "CT" + File.separator + file5.getName());
 						try {
 							copyDirectory(file5, file6);
 						} catch (Exception exception) {
-							Utility.dialogErrorMessage_LP06(
+							MyDialog.dialogErrorMessage_LP06(
 									"An Error occurred while coping CT images. Please try again!");
 							return;
 						}
@@ -1759,8 +1398,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 					}
 				}
 			} else {
-				Utility.dialogErrorMessage_LP06(
-						"It was not possible to import files for " + arrayOfString[b2] + " folder.");
+				MyDialog.dialogErrorMessage_LP06(
+						"It was not possible to import files for " + MyGlobals.arrayOfString[b2] + " folder.");
 			}
 
 		}
@@ -1818,66 +1457,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 	}
 
 	/**
-	 * Presenza immagini nel dosimetry folder all'avvio
-	 * 
-	 * @param str20
-	 * @return
-	 */
-	boolean dialogImmaginiPazientePrecedente_LP21_OLD(String[] str20) {
-
-		MyLog.log("dialogImmaginiPazientePrecedente_LP21");
-		NonBlockingGenericDialog nonBlockingGenericDialog = new NonBlockingGenericDialog(
-				"LP21 - Immagini paziente precedente");
-		nonBlockingGenericDialog.addMessage("Presenza immagini paziente precedente", titleFont);
-		nonBlockingGenericDialog.setFont(defaultFont);
-		nonBlockingGenericDialog.addMessage(
-				"Attenzione: in DosimetryFolder sul Desktop ci sono le immagini \n" + str20[0] + " di " + str20[1],
-				defaultFont);
-		nonBlockingGenericDialog.setCancelLabel("CONTINUA CON ALTRE LESIONI");
-		nonBlockingGenericDialog.setOKLabel("PASSA A NUOVO PAZIENTE");
-		nonBlockingGenericDialog.showDialog();
-		if (nonBlockingGenericDialog.wasCanceled()) {
-			MyLog.log("LP21 false CONTINUA CON ALTRE LESIONI");
-			return false;
-		} else {
-			MyLog.log("LP21 true PASSA A NUOVO PAZIENTE");
-			return true;
-		}
-	}
-
-	/**
-	 * Presenza immagini nel dosimetry folder all'avvio Testato, esegue cancel &
-	 * cross
-	 * 
-	 * @param str20
-	 * @return
-	 */
-	int dialogImmaginiPazientePrecedente_LP21(String[] str20) {
-
-		MyLog.log("dialogImmaginiPazientePrecedente_LP21");
-		NonBlockingGenericDialog nonBlockingGenericDialog = new NonBlockingGenericDialog(
-				"LP21 - Presenza immagini paziente precedente");
-		nonBlockingGenericDialog.addMessage("Presenza immagini paziente precedente", titleFont);
-		nonBlockingGenericDialog.setFont(defaultFont);
-		nonBlockingGenericDialog.addMessage(
-				"Attenzione: in DosimetryFolder sul Desktop ci sono le immagini \n" + str20[0] + " di " + str20[1]);
-		nonBlockingGenericDialog.enableYesNoCancel("PASSA A NUOVO PAZIENTE", "CONTINUA CON ALTRE LESIONI");
-//		nonBlockingGenericDialog.setCancelLabel("");
-//		nonBlockingGenericDialog.setOKLabel("PASSA A NUOVO PAZIENTE");
-		nonBlockingGenericDialog.showDialog();
-		if (nonBlockingGenericDialog.wasCanceled()) {
-			MyLog.log("LP21 0 Cancel");
-			return 0;
-		} else if (nonBlockingGenericDialog.wasOKed()) {
-			MyLog.log("LP21 2 PASSA A NUOVO PAZIENTE");
-			return 2;
-		} else {
-			MyLog.log("LP21 1 CONTINUA CON ALTRE LESIONI");
-			return 1;
-		}
-	}
-
-	/**
 	 * Cancellazione e creazione dosimetry folder e images folder, loro riempimento
 	 * 
 	 * @return lista delle tre cartelle create in imagesFolder (contenuto in
@@ -1891,14 +1470,14 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		// chiede di identificare la cartella 24h sorgente
 		do {
-			boolean ok = dialogSelection_LP02();
+			boolean ok = MyDialog.dialogSelection_LP02();
 			if (!ok)
 				return null;
-			strDir24h = directorySelection_LP_20(); // nome directory 24h
+			strDir24h = MyDialog.directorySelection_LP_20(); // nome directory 24h
 		} while (strDir24h == null);
 		// costruisce i due path 48h e 120h
-		strDir48h = strDir24h.replace(arrayOfString[0], arrayOfString[1]); // nome directory 48h
-		strDir120h = strDir24h.replace(arrayOfString[0], arrayOfString[2]); // nome directory 120h
+		strDir48h = strDir24h.replace(MyGlobals.arrayOfString[0], MyGlobals.arrayOfString[1]); // nome directory 48h
+		strDir120h = strDir24h.replace(MyGlobals.arrayOfString[0], MyGlobals.arrayOfString[2]); // nome directory 120h
 		File file24 = new File(strDir24h);
 		File file48 = new File(strDir48h);
 		File file120 = new File(strDir120h);
@@ -1921,31 +1500,32 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// chiede conferma della selezione effettuata e solo dopo la conferma cancella
 		// l'esistente
 
-		boolean ok = dialogConfirmFolder_LP03(strDir24h, strDir48h, strDir120h);
+		boolean ok = MyDialog.dialogConfirmFolder_LP03(strDir24h, strDir48h, strDir120h);
 		if (ok) {
 
-			File file1 = new File(desktopImagesSubfolderPath);
+			File file1 = new File(MyGlobals.desktopImagesSubfolderPath);
 			// cancella cartella anco se piena
 			Utility.deleteDirectory(file1);
 
 			// crea le cartelle destinazione
-			for (int b1 = 0; b1 < arrayOfString.length; b1++) {
+			for (int b1 = 0; b1 < MyGlobals.arrayOfString.length; b1++) {
 
-				File file5 = new File(desktopImagesSubfolderPath + File.separator + arrayOfString[b1]);
+				File file5 = new File(
+						MyGlobals.desktopImagesSubfolderPath + File.separator + MyGlobals.arrayOfString[b1]);
 				if (file5.mkdirs()) {
 				} else {
 					MyLog.log("cartella non creata= " + file5.toString());
 				}
 
-				File file6 = new File(
-						desktopImagesSubfolderPath + File.separator + arrayOfString[b1] + File.separator + "CT");
+				File file6 = new File(MyGlobals.desktopImagesSubfolderPath + File.separator
+						+ MyGlobals.arrayOfString[b1] + File.separator + "CT");
 				if (file6.mkdirs()) {
 				} else {
 					MyLog.log("cartella non creata= " + file6.toString());
 				}
 
-				File file7 = new File(
-						desktopImagesSubfolderPath + File.separator + arrayOfString[b1] + File.separator + "SPECT");
+				File file7 = new File(MyGlobals.desktopImagesSubfolderPath + File.separator
+						+ MyGlobals.arrayOfString[b1] + File.separator + "SPECT");
 				if (file7.mkdirs()) {
 				} else {
 					MyLog.log("cartella non creata= " + file7.toString());
@@ -1963,7 +1543,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 		File[] arrayOfFile1 = { file24, file48, file120 };
 		File[] arrayOfFile2 = new File[arrayOfFile1.length];
 
-		copyFilesToDesktopDosimetryFolder(arrayOfFile1, arrayOfFile2, arrayOfBoolean, desktopImagesSubfolderPath);
+		copyFilesToDesktopDosimetryFolder(arrayOfFile1, arrayOfFile2, arrayOfBoolean,
+				MyGlobals.desktopImagesSubfolderPath);
 		return arrayOfFile2;
 
 	}
@@ -2010,14 +1591,14 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		ArrayList<ArrayList<String>> aList = new ArrayList<ArrayList<String>>();
 		ArrayList<Long> eList = new ArrayList<Long>();
-		for (byte b3 = 0; b3 < arrayOfString.length; b3++) {
+		for (byte b3 = 0; b3 < MyGlobals.arrayOfString.length; b3++) {
 			ImagePlus imp8 = IJ.openImage(vetFile[b3].getAbsolutePath());
 			int durata = Utility.MIRD_calcoloDurataAcquisizione(imp8);
 			String acqDate = DicomTools.getTag(imp8, "0008,0022").trim();
 			String acqTime = DicomTools.getTag(imp8, "0008,0032").trim();
 			// MyLog.log("getDateTime: date= " + acqDate + " time=" + acqTime);
 			Date myDateTime1 = getDateTime(acqDate, acqTime);
-			SimpleDateFormat sdf = new SimpleDateFormat(format1);
+			SimpleDateFormat sdf = new SimpleDateFormat(MyGlobals.format1);
 			String myDateTime2 = sdf.format(myDateTime1);
 
 			long myDelta1 = Utility.MIRD_calcoloDeltaT(myDate0, myDateTime1);
@@ -2047,7 +1628,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 		for (int a4 = 0; a4 < aList.size(); a4++) {
 			count2 = a4 * 20 + 10;
 //			aux1 = "#010#\t---- IMAGE INFO " + arrayOfString[a4] + " ----";
-			aux2 = "#" + String.format("%03d", count2++) + "#\t---- IMAGE INFO " + arrayOfString[a4] + " ----";
+			aux2 = "#" + String.format("%03d", count2++) + "#\t---- IMAGE INFO " + MyGlobals.arrayOfString[a4]
+					+ " ----";
 			MyLog.logAppend(pathVolatile, aux2);
 			String str22 = "";
 			ArrayList<String> cList = aList.get(a4);
@@ -2064,52 +1646,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 	}
 
 	/**
-	 * Dialogo non modale selezione immagini 24/48/120 Onora il Cancel
-	 * 
-	 * @return
-	 */
-	boolean dialogInstructions_LP30() {
-
-		MyLog.log("dialogInstructions_LP30");
-		Dimension screen = IJ.getScreenSize();
-		NonBlockingGenericDialog gd1 = new NonBlockingGenericDialog("LP30 - ISTRUZIONI");
-		gd1.setFont(defaultFont);
-		gd1.addMessage("Trova le lesioni su PET-CT Viewer su tutte e tre le \nimmagini 24h, 48h e 120h, poi premi OK");
-		gd1.setLocation(screen.width * 2 / 3, screen.height * 1 / 3);
-		gd1.showDialog();
-
-		if (gd1.wasCanceled()) {
-			MyLog.log("LP30 - false PREMUTO CANCEL");
-			return false;
-		} else {
-			MyLog.log("LP30 - true PREMUTO OK");
-			return true;
-		}
-	}
-
-	/**
-	 * Dialogo non modale di selezione
-	 * 
-	 * @return
-	 */
-	String dialogReview_LP32() {
-
-		MyLog.log("dialogReview_LP32");
-		String[] items = { "24h", "48h", "120h" };
-		int rows = 3;
-		int columns = 1;
-		NonBlockingGenericDialog gd1 = new NonBlockingGenericDialog("LP32 - REVIEW");
-		gd1.setFont(defaultFont);
-		gd1.addRadioButtonGroup("IMMAGINE DA RIANALIZZARE", items, rows, columns, "VA BENE COSI'");
-		gd1.addMessage("SELEZIONARE E POI PREMERE OK");
-		gd1.showDialog();
-		MyLog.log("LP32 - true PREMUTO OK");
-		String selection = gd1.getNextRadioButton();
-		return selection;
-	}
-
-	/**
-	 * Dialogo non modale di selezione
+	 * Dialogo non modale di selezione dei punti su cui di seguito fare il fit
 	 * 
 	 * @return
 	 */
@@ -2126,7 +1663,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		do {
 			gd1 = new NonBlockingGenericDialog("LP33 - SELECTION");
 			gd1.addCheckboxGroup(rows, columns, items, def);
-			gd1.addMessage("Selezionare ALMENO\ndue punti su cui\nfare il FIT", defaultFont);
+			gd1.addMessage("Selezionare ALMENO\ndue punti su cui\nfare il FIT", MyGlobals.defaultFont);
 			gd1.showDialog();
 			out1 = new boolean[def.length];
 			for (int i1 = 0; i1 < def.length; i1++) {
@@ -2147,22 +1684,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 	}
 
 	/**
-	 * Dialogo non modale di selezione
-	 * 
-	 * @return
-	 */
-	boolean dialogSelection_LP31() {
-
-		MyLog.log("dialogSelection_LP31");
-		NonBlockingGenericDialog gd1 = new NonBlockingGenericDialog("LP31 - START");
-		gd1.setFont(defaultFont);
-		gd1.addMessage("PREMERE OK");
-		gd1.showDialog();
-		MyLog.log("LP31 - true PREMUTO OK");
-		return true;
-	}
-
-	/**
 	 * SErve ad azzerare, mettendoli a false i tag #901#, #902#, #903 e #904#,
 	 * utilizzati per comunicare tra Dosimetria_Lu17 e Dosimetry_v2,
 	 * 
@@ -2180,143 +1701,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		aux1 = "#904#\tokk= false";
 		MyLog.logModify(path, "#904#", aux1);
 
-	}
-
-	/**
-	 * Mostra i volumi 24h 48h e 120h
-	 * 
-	 * @param vol24
-	 * @param vol48
-	 * @param vol120
-	 */
-	void MIRD_display_LP66(double vol24, double vol48, double vol120) {
-
-		double media = (vol24 + vol48 + vol120) / 3.0;
-		double per24 = ((vol24 - media) * 100) / media;
-		double per48 = ((vol48 - media) * 100) / media;
-		double per120 = ((vol120 - media) * 100) / media;
-		String aux24 = "Volume24 h= " + String.format("%.2f", vol24) + " cm3    (" + String.format("%+,.1f%%", per24)
-				+ " rispetto a media)";
-		String aux48 = "Volume48 h= " + String.format("%.2f", vol48) + " cm3    (" + String.format("%+,.1f%%", per48)
-				+ " rispetto a media)";
-		String aux120 = "Volume120 h= " + String.format("%.2f", vol120) + " cm3    ("
-				+ String.format("%+,.1f%%", per120) + " rispetto a media)";
-
-		MyLog.log("MIRD_display_LP66");
-		NonBlockingGenericDialog gd1 = new NonBlockingGenericDialog("LP66 - VOLUMI CALCOLATI");
-		gd1.setFont(defaultFont);
-
-		gd1.addMessage(aux24);
-		gd1.addMessage(aux48);
-		gd1.addMessage(aux120);
-
-		gd1.showDialog();
-		MyLog.log("LP66 - true PREMUTO OK");
-		return;
-	}
-
-	/**
-	 * Mostra i risultati ottenuti
-	 * 
-	 * @param vol24
-	 * @param vol48
-	 * @param vol120
-	 */
-	static int MIRD_display_LP67(double vol24, double vol48, double vol120, double uptake, double massa, double tmezzo,
-			double dose) {
-
-//		String[] items = { "24h", "48h", "120h" };
-		String aux1 = "";
-		MyLog.log("MIRD_display_LP67");
-		GenericDialog gd1 = new GenericDialog("LP67 - RISULTATI");
-		gd1.addMessage("RISULTATI  OTTENUTI", titleFont);
-		gd1.setFont(defaultFont);
-
-		// (" + String.format("%+,.1f%%", per24)
-
-		double errr = 8.34567;
-
-		aux1 = "uptake%= " + String.format("%.2f%%", uptake) + "    \u00B1 " + String.format("%.2f%%", errr);
-		gd1.addMessage(aux1);
-
-		gd1.addMessage("vol24= " + String.format("%.2f", vol24) + " cm3    vol48= " + String.format("%.2f", vol48)
-				+ " cm3    vol120= " + String.format("%.2f", vol120) + " cm3");
-		aux1 = "massa= " + String.format("%.2f", massa) + " g";
-		gd1.addMessage(aux1);
-		aux1 = "t1/2= " + String.format("%.2f", tmezzo) + " ore" + String.format("%.2f", tmezzo / 24) + " giorni";
-		gd1.addMessage(aux1);
-		aux1 = "dose= " + String.format("%.2f", dose) + " Gy";
-		gd1.addMessage(aux1);
-		gd1.enableYesNoCancel("ACCETTA RISULTATI", "RIPETI ANALISI");
-
-		gd1.showDialog();
-
-		if (gd1.wasCanceled()) {
-			MyLog.log("LP67= 0 Cancel");
-			return 0;
-		} else if (gd1.wasOKed()) {
-			MyLog.log("LP67= 2 ACCETTA RISULTATI");
-			return 2;
-		} else {
-			MyLog.log("LP67= 1 RIPETI CONTORNATURA");
-			return 1;
-		}
-	}
-
-	/**
-	 * Mostra i risultati ottenuti
-	 * 
-	 * @param vol24
-	 * @param vol48
-	 * @param vol120
-	 */
-	static int MIRD_display_LP68(double[] vetInput) {
-
-		double vol24 = vetInput[0];
-		double vol48 = vetInput[1];
-		double vol120 = vetInput[2];
-		double uptake = vetInput[3];
-		double massa = vetInput[4];
-		double tmezzo = vetInput[5];
-		double dose = vetInput[6];
-		double Suptake = vetInput[10];
-		double Smassa = vetInput[11];
-		double Stmezzo = vetInput[12];
-		double Sdose = vetInput[13];
-
-		String aux1 = "";
-
-		MyLog.log("MIRD_display_LP68");
-		GenericDialog gd1 = new GenericDialog("LP68 - RISULTATI");
-		gd1.addMessage("RISULTATI  OTTENUTI", titleFont);
-		gd1.setFont(defaultFont);
-
-		aux1 = "uptake%= " + String.format("%.2f", uptake * 100) + " \u00B1 " + String.format("%.2f%%", Suptake * 100);
-		gd1.addMessage(aux1);
-
-		gd1.addMessage("vol24= " + String.format("%.2f", vol24) + " cm3    vol48= " + String.format("%.2f", vol48)
-				+ " cm3    vol120= " + String.format("%.2f", vol120) + " cm3");
-		aux1 = "massa= " + String.format("%.2f", massa) + " \u00B1 " + String.format("%.2f", Smassa) + " g";
-		gd1.addMessage(aux1);
-		aux1 = "t1/2= " + String.format("%.2f", tmezzo) + " \u00B1 " + String.format("%.2f", Stmezzo) + " ore ...... "
-				+ String.format("%.2f", tmezzo / 24) + " \u00B1 " + String.format("%.2f", Stmezzo / 24) + " giorni";
-		gd1.addMessage(aux1);
-		aux1 = "dose= " + String.format("%.2f", dose) + " \u00B1 " + String.format("%.2f", Sdose) + " Gy";
-		gd1.addMessage(aux1);
-		gd1.enableYesNoCancel("ACCETTA RISULTATI", "RIPETI ANALISI");
-
-		gd1.showDialog();
-
-		if (gd1.wasCanceled()) {
-			MyLog.log("LP68= 0 Cancel");
-			return 0;
-		} else if (gd1.wasOKed()) {
-			MyLog.log("LP68= 2 ACCETTA RISULTATI");
-			return 2;
-		} else {
-			MyLog.log("LP68= 1 RIPETI CONTORNATURA");
-			return 1;
-		}
 	}
 
 	static double[] processaConFlanagan(double[] xp1, double[] yp1, double MIRD_vol24, double MIRD_vol48,
@@ -2356,6 +1740,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 		double s2 = Double.NaN;
 		double m1 = Double.NaN;
 		double m2 = Double.NaN;
+
+		MyLog.waitHere("eseguo: processaConFlanagan");
 
 		for (int i1 = 0; i1 < xp1.length; i1++) {
 
@@ -2492,6 +1878,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 		double[] xp2 = null;
 		double[] yp2 = null;
 
+		MyLog.waitHere("eseguo: processaConImageJ");
+
 		if (puntiSelezionati == null) {
 			xp2 = xp1;
 			yp2 = yp1;
@@ -2595,8 +1983,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 	 * @param MIRD_vol120
 	 * @return
 	 */
-	static double[] processa(double[] xp1, double[] yp1, double MIRD_vol24, double MIRD_vol48, double MIRD_vol120,
-			String pathImage, boolean[] puntiSelezionati) {
+	static double[] processaCalcolaFit2or3(double[] xp1, double[] yp1, double MIRD_vol24, double MIRD_vol48,
+			double MIRD_vol120, String pathImage, boolean[] puntiSelezionati) {
 
 		Regression rf = null;
 		CurveFitter cf = null;
@@ -2640,9 +2028,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 		}
 
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
-		desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
-		pathPermanente = desktopPath + File.separator + "DosimetryFolder" + File.separator + "permanente.txt";
-		pathVolatile = desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
+		MyGlobals.desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
+		MyGlobals.pathPermanente = MyGlobals.desktopPath + File.separator + "DosimetryFolder" + File.separator
+				+ "permanente.txt";
+		pathVolatile = MyGlobals.desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
 		// String titolo2 = "Punti_PP02";
@@ -2655,13 +2044,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 				+ puntiSelezionati[2];
 
 		MyLog.logModify(pathVolatile, "#195#", aux5);
-		
+
 		int count = 0;
 		for (boolean aux : puntiSelezionati) {
 			if (aux)
 				count++;
 		}
-
 
 		int count2 = 0;
 		double[] xp2 = new double[count];
@@ -2676,11 +2064,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// Utility.closePlot(titolo2);
 
 		if (count2 == 2) {
+
 			// =============================================================
 			// SELEZIONATI DUE SOLI PUNTI - FIT DA ESEGUIRE CON IMAGEJ
 			// =============================================================
 			cf = Utility.MIRD_curveFitterSpecialImageJ(xp2, yp2);
-			MyPlot.PL04_MIRD_curvePlotterSpecialImageJ(cf, xp1, yp1, puntiSelezionati, "24h=red 48h=green 120h=blue");
+//			MyPlot.PL04_MIRD_curvePlotterSpecialImageJ(cf, xp1, yp1, puntiSelezionati, "24h=red 48h=green 120h=blue");
 			// -------- recupero i dati da stampare ---------------
 			paramsIJ = cf.getParams();
 			numParams = cf.getNumParams();
@@ -2718,13 +2107,15 @@ public class Dosimetria_Lu177 implements PlugIn {
 			m1 = out2[21];
 			m2 = out2[22];
 		} else if (count2 == 3) {
+			IJ.showStatus("SITUAZIONE 003");
 			// =============================================================
 			// SELEZIONATI TRE PUNTI - FIT DA ESEGUIRE CON FLANAGAN
 			// =============================================================
 			rf = Utility.MIRD_curveFitterSpecialFlanagan(xp2, yp2);
 			MyLog.logVector(xp2, "xp2 verifica grafico");
 			MyLog.logVector(yp2, "yp2 verifica grafico");
-			MyPlot.PL05_MIRD_curvePlotterSpecialFlanagan(rf, xp2, yp2, "24h=red 48h=green 120h=blue");
+			// MyPlot.PL05_MIRD_curvePlotterSpecialFlanagan(rf, xp2, yp2, "24h=red 48h=green
+			// 120h=blue");
 			// -------- recupero i dati da stampare ---------------
 			rSquaredFLA = rf.getCoefficientOfDetermination();
 			paramsFLA = rf.getBestEstimates();
@@ -2759,7 +2150,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 			m1 = out2[21];
 			m2 = out2[22];
 		}
-
 
 		// MyLog.waitHere("s1= " + s1 + " s2= " + s2 + " m1= " + m1 + " m2= " + m2);
 

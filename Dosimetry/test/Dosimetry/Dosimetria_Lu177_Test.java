@@ -73,7 +73,7 @@ public class Dosimetria_Lu177_Test {
 	public final void test_LP32_DialogReview() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
-		String selection = dosimetria_Lu177.dialogReview_LP32();
+		String selection = MyDialog.dialogReview_LP32();
 		MyLog.log("LP32 restituisce " + selection);
 		MyLog.waitHere("SPETTA");
 		assertTrue(true);
@@ -83,7 +83,7 @@ public class Dosimetria_Lu177_Test {
 	public final void test_LP31_DialogSelection() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
-		boolean ok = dosimetria_Lu177.dialogSelection_LP31();
+		boolean ok = MyDialog.dialogSelection_LP31();
 		MyLog.waitHere("SPETTA");
 		assertTrue(ok);
 	}
@@ -92,7 +92,7 @@ public class Dosimetria_Lu177_Test {
 	public final void test_LP30_DialogInstructions() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
-		boolean ok = dosimetria_Lu177.dialogInstructions_LP30();
+		boolean ok = MyDialog.dialogInstructions_LP30();
 		MyLog.waitHere("SPETTA");
 		assertTrue(ok);
 	}
@@ -102,7 +102,7 @@ public class Dosimetria_Lu177_Test {
 
 		String[] in1 = { "aa", "bb" };
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
-		dosimetria_Lu177.dialogImmaginiPazientePrecedente_LP21(in1);
+		MyDialog.dialogImmaginiPazientePrecedente_LP21(in1);
 		MyLog.waitHere("SPETTA");
 		assertTrue(true);
 	}
@@ -111,7 +111,7 @@ public class Dosimetria_Lu177_Test {
 	public final void test_LP20_DialogDirectorySelection() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
-		dosimetria_Lu177.directorySelection_LP_20();
+		MyDialog.directorySelection_LP_20();
 		MyLog.waitHere("SPETTA");
 		assertTrue(true);
 	}
@@ -121,7 +121,7 @@ public class Dosimetria_Lu177_Test {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
 		String[] in1 = { "02-01-2022", "12:44:00", "3.456" };
-		dosimetria_Lu177.dialogConfermaDatiSomministrazione_LP10(in1);
+		MyDialog.dialogConfermaDatiSomministrazione_LP10(in1);
 		MyLog.waitHere("SPETTA");
 		assertTrue(true);
 	}
@@ -129,7 +129,7 @@ public class Dosimetria_Lu177_Test {
 	@Test
 	public final void test_LP08_DialogRipetizione() {
 
-		Dosimetria_Lu177.dialogRipetizione_LP08();
+		MyDialog.dialogRipetizione_LP08();
 		MyLog.waitHere("SPETTA");
 		assertTrue(true);
 	}
@@ -138,7 +138,7 @@ public class Dosimetria_Lu177_Test {
 	public final void test_LP07_DialogDistretto() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
-		dosimetria_Lu177.dialogDistretto_LP07();
+		MyDialog.dialogDistretto_LP07();
 		MyLog.waitHere("SPETTA");
 		assertTrue(true);
 	}
@@ -153,7 +153,7 @@ public class Dosimetria_Lu177_Test {
 		blist.add("pluto");
 		blist.add("paperino");
 		alist.add(blist);
-		boolean ok = dosimetria_Lu177.dialogReview_LP05(alist);
+		boolean ok = MyDialog.dialogReview_LP05(alist);
 		MyLog.waitHere("SPETTA");
 		assertTrue(ok);
 	}
@@ -162,7 +162,7 @@ public class Dosimetria_Lu177_Test {
 	public final void test_LP11_DialogInputDataSomministrazione() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
-		String out1 = dosimetria_Lu177.dialogInputDataSomministrazione_LP11();
+		String out1 = MyDialog.dialogInputDataSomministrazione_LP11();
 		if (out1 == null) {
 			MyLog.waitHere("out1==null");
 		} else {
@@ -176,7 +176,7 @@ public class Dosimetria_Lu177_Test {
 	public final void test_LP12_DialogInputOraSomministrazione() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
-		String out1 = dosimetria_Lu177.dialogInputOraSomministrazione_LP12();
+		String out1 = MyDialog.dialogInputOraSomministrazione_LP12();
 		if (out1 == null) {
 			MyLog.waitHere("out1==null");
 		} else {
@@ -191,7 +191,7 @@ public class Dosimetria_Lu177_Test {
 	public final void test_LP13_DialogInputActivitySomministrazione() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
-		double out1 = dosimetria_Lu177.dialogInputActivitySomministrazione_LP13();
+		double out1 = MyDialog.dialogInputActivitySomministrazione_LP13();
 		if (out1 == Double.NaN) {
 			MyLog.waitHere("out1==null");
 		} else {
@@ -206,7 +206,7 @@ public class Dosimetria_Lu177_Test {
 	public final void test_LP03_DialogConfirmFolder() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
-		boolean ok = dosimetria_Lu177.dialogConfirmFolder_LP03("Path 24h", "Path 48h", "Path 120h");
+		boolean ok = MyDialog.dialogConfirmFolder_LP03("Path 24h", "Path 48h", "Path 120h");
 		MyLog.waitHere("SPETTA");
 		assertTrue(ok);
 	}
@@ -215,7 +215,7 @@ public class Dosimetria_Lu177_Test {
 	public final void test_LP02_DialogSelection() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
-		boolean ok = dosimetria_Lu177.dialogSelection_LP02();
+		boolean ok = MyDialog.dialogSelection_LP02();
 		MyLog.waitHere("SPETTA");
 		assertTrue(ok);
 	}
@@ -224,7 +224,7 @@ public class Dosimetria_Lu177_Test {
 	public final void test_LP01_DialogNonBlockingDelete() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
-		boolean ok = dosimetria_Lu177.dialogNonBlockingDelete_LP01("Path della cartella");
+		boolean ok = MyDialog.dialogNonBlockingDelete_LP01("Path della cartella");
 		MyLog.waitHere("SPETTA");
 		assertTrue(ok);
 	}
@@ -233,7 +233,7 @@ public class Dosimetria_Lu177_Test {
 	public final void test_LP00_DialogInitialize() {
 
 		Dosimetria_Lu177 dosimetria_Lu177 = new Dosimetria_Lu177();
-		boolean ok = dosimetria_Lu177.dialogInitialize_LP00();
+		boolean ok = MyDialog.dialogInitialize_LP00();
 		MyLog.waitHere("SPETTA");
 		assertTrue(ok);
 	}
@@ -245,7 +245,7 @@ public class Dosimetria_Lu177_Test {
 		double vol24 = 124.5001;
 		double vol48 = 95.5190;
 		double vol120 = 212.6678;
-		dosimetria_Lu177.MIRD_display_LP66(vol24, vol48, vol120);
+		MyDialog.MIRD_display_LP66(vol24, vol48, vol120);
 		MyLog.waitHere("SPETTA");
 		assertTrue(false);
 	}
@@ -260,7 +260,7 @@ public class Dosimetria_Lu177_Test {
 		double massa = 21.155967;
 		double tmezzo = 33.580609;
 		double dose = 10.147774;
-		Dosimetria_Lu177.MIRD_display_LP67(vol24, vol48, vol120, uptake, massa, tmezzo, dose);
+		MyDialog.MIRD_display_LP67(vol24, vol48, vol120, uptake, massa, tmezzo, dose);
 		MyLog.waitHere("SPETTA");
 	}
 
@@ -270,7 +270,7 @@ public class Dosimetria_Lu177_Test {
 		double[] out2 = { 50.741488, 0.020641, 2458.251552, 24.582515, 41.119521, 21.155967, 33.580609, 1992.100123,
 				10.147774, 10.539239, 0.005856, 864.416111, 8.644161, 8.540712, 13.596632, 9.528169, 700.499280,
 				5.016710 };
-		Dosimetria_Lu177.MIRD_display_LP68(out2);
+		MyDialog.MIRD_display_LP68(out2);
 		MyLog.waitHere("SPETTA");
 	}
 

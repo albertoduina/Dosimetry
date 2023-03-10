@@ -1,6 +1,5 @@
 package Dosimetry;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Rectangle;
@@ -24,14 +23,11 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.WindowManager;
-import ij.gui.GenericDialog;
 import ij.gui.ImageWindow;
 import ij.gui.NewImage;
-import ij.gui.NonBlockingGenericDialog;
 import ij.gui.Plot;
 import ij.gui.PlotWindow;
 import ij.gui.Roi;
-import ij.io.OpenDialog;
 import ij.io.Opener;
 import ij.measure.Calibration;
 import ij.measure.CurveFitter;
@@ -54,21 +50,21 @@ import ij.util.FontUtil;
 public class Utility {
 
 //	private static final Object[][] matrice = null;
-	static String fontStyle = "Arial";
-	static Font defaultFont = FontUtil.getFont(fontStyle, Font.PLAIN, 13);
-	static Font textFont = FontUtil.getFont(fontStyle, Font.ITALIC, 16);
-	static Font titleFont = FontUtil.getFont(fontStyle, Font.BOLD, 16);
-	long start1;
-	long start2;
-	long start3;
-	long start4;
-	long end1;
-	long end2;
-	long end3;
-	long end4;
-	static int coordX;
-	static int coordY;
-	static int coordZ;
+//	static String fontStyle = "Arial";
+//	static Font defaultFont = FontUtil.getFont(fontStyle, Font.PLAIN, 13);
+//	static Font textFont = FontUtil.getFont(fontStyle, Font.ITALIC, 16);
+//	static Font titleFont = FontUtil.getFont(fontStyle, Font.BOLD, 16);
+//	long start1;
+//	long start2;
+//	long start3;
+//	long start4;
+//	long end1;
+//	long end2;
+//	long end3;
+//	long end4;
+//	static int coordX;
+//	static int coordY;
+//	static int coordZ;
 
 	public static int latoCubo() {
 		// ATTENZIONE il lato DEVE essere dispari
@@ -325,109 +321,6 @@ public class Utility {
 	}
 
 	/**
-	 * Utilizzata da Dosimetry_v2
-	 * 
-	 * @param ok24
-	 * @param ok48
-	 * @param ok120
-	 * @param defaultFont
-	 * @return
-	 */
-	static ImagePlus dialogSceltaAutomaticaImmagine_DD10(boolean ok24, boolean ok48, boolean ok120, Font defaultFont) {
-
-		boolean[] choice = new boolean[3];
-		String default1 = "";
-		Color color24 = Color.red;
-		Color color48 = Color.red;
-		Color color120 = Color.red;
-		if (ok24) {
-			color24 = Color.green;
-			choice[0] = true;
-		}
-		if (ok48) {
-			color48 = Color.green;
-			choice[1] = true;
-		}
-		if (ok120) {
-			color120 = Color.green;
-			choice[2] = true;
-		}
-
-		String[] lista1 = WindowManager.getImageTitles();
-		//
-		// cerco di gestire la scelta di default in modo che presenti la prossima
-		// immagine "rossa" non ancora elaborata, in questo modo l'operatore può
-		// limitarsi ad accettare l'immagine proposta
-		//
-
-		for (int i1 = 0; i1 < 3; i1++) {
-			if (!choice[i1]) {
-				default1 = lista1[i1];
-				break;
-			}
-		}
-
-		Dimension screen = IJ.getScreenSize();
-//		ImageWindow window = WindowManager.getCurrentWindow();
-//		window.setLocationAndSize(0, 0, (int) (((double) screen.height) / 2), (int) (((double) screen.height) / 2));
-
-		NonBlockingGenericDialog scelta1 = new NonBlockingGenericDialog("DD10 - Immagine da analizzare");
-		scelta1.addImageChoice("scelta immagine", default1);
-		scelta1.addMessage(lista1[0], defaultFont, color24);
-		scelta1.addMessage(lista1[1], defaultFont, color48);
-		scelta1.addMessage(lista1[2], defaultFont, color120);
-		scelta1.setLocation(screen.width * 2 / 3, screen.height * 2 / 3);
-		scelta1.showDialog();
-
-		if (scelta1.wasCanceled())
-			return null;
-		ImagePlus dicomImage1 = scelta1.getNextImage();
-		return dicomImage1;
-	}
-
-	static String dialogSceltaLesione_SV02(String path) {
-
-		File path1 = new File(path);
-		File[] filesAndDirs = path1.listFiles();
-		File file = null;
-		String name;
-		ArrayList<String> scelta = new ArrayList<String>();
-
-		if (filesAndDirs == null)
-			return null;
-		for (int i1 = 0; i1 < filesAndDirs.length; i1++) {
-			file = filesAndDirs[i1];
-			if (file.isFile()) {
-				name = file.getName();
-				if (name.contains(".")) {
-					String[] parts = name.split("\\.");
-					if (parts[1].equals("txt")) {
-						if ((!parts[0].equals("volatile")) && (!parts[0].equals("permanente")))
-							scelta.add(parts[0]);
-					}
-				} else {
-					Utility.dialogErrorMessage_LP06("NON CI SONO LESIONI SALVATE");
-					return null;
-				}
-
-			}
-		}
-
-		// se è un file guardo se l'estensione e' txt
-
-		String[] scelta2 = Utility.arrayListToArrayString(scelta);
-
-		NonBlockingGenericDialog scelta1 = new NonBlockingGenericDialog("SV02 - Selezionare nome lesione");
-		scelta1.addChoice("scelta lesione", scelta2, scelta2[0]);
-		scelta1.showDialog();
-
-		if (scelta1.wasCanceled())
-			return null;
-		String out = scelta1.getNextChoice();
-		return out;
-	}
-
-	/**
 	 * Legge un intero da una stringa.
 	 * 
 	 * @param tmp1
@@ -561,7 +454,6 @@ public class Utility {
 
 		MyLog.log("=== CURVE FITTER SPECIAL IMAGEJ 001 ====");
 
-		
 		CurveFitter cf1 = new CurveFitter(vetX, vetY);
 		cf1.doFit(CurveFitter.EXPONENTIAL);
 		return cf1;
@@ -647,62 +539,6 @@ public class Utility {
 
 		long diff = dateTime24.getTime() - dateTime0.getTime();
 		return diff;
-	}
-
-	/**
-	 * Assegnazione nome alle lesioni
-	 * 
-	 * @param pathVolatile
-	 * @param pathPermanente
-	 */
-	static String dialogBattezzaLesioni_LP27(String pathVolatile) {
-		// alla fine del nostro reiterativo lavoro decidiamo che dobbiamo salvare il
-		// tutto CHE COSA POTRA'MAI ANDARE STORTO???
-		NonBlockingGenericDialog compliments1 = new NonBlockingGenericDialog("LP27 - Battezza lesioni");
-		compliments1.setFont(defaultFont);
-		compliments1.addMessage("COMPLIMENTI, HAI COMPLETATO L'ANALISI DELLA LESIONE");
-		compliments1.addStringField("NomeLesione per memorizzazione", "");
-		compliments1.showDialog();
-		String lesionName = compliments1.getNextString();
-		MyLog.log("eseguo battezzaLesioni con LP27 lesionName= " + lesionName);
-
-		// ora i nostri dati verrano battezzati col nome fornito dal ... PADRINO !!!
-		// il nome del nuovo file diverra' lesionName.txt, non occorre un controllo che
-		// l'operatore non ci abbia CASUALMENTE fornito lo stesso nome di una altra
-		// lesione, in tal caso gli verra'cantata tutta la canzone "Il gorilla" di
-		// Fabrizio de Andre', ovviamente con esempi pratici.
-
-		int pos = pathVolatile.lastIndexOf(File.separator);
-		String pathBase = pathVolatile.substring(0, pos);
-		String pathLesione = pathBase + File.separator + lesionName + ".txt";
-
-		MyLog.logEnd(pathVolatile);
-		MyLog.logMove(pathLesione, pathVolatile);
-		MyLog.logInit(pathVolatile);
-		return lesionName;
-	}
-
-	/**
-	 * Selezione altro distretto anatomico
-	 * 
-	 */
-	static void dialogAltroDistretto_DD08() {
-		MyLog.log("DD08_altroDistretto");
-		GenericDialog finished1 = new GenericDialog("DD08 - Altro distretto");
-		finished1.setFont(defaultFont);
-
-		finished1.addMessage("HAI TERMINATO ANALISI DISTRETTO?");
-		finished1.addMessage("se rispondi ALTRA LESIONE vuoi analizzare un altra lesione");
-		finished1.addMessage(
-				"se rispondi FINITO vuoi passare in LoadPatient e caricare un altro distretto anatomico OPPURE HAI TERMINATO");
-		finished1.setOKLabel("FINITO");
-		finished1.setCancelLabel("ALTRA LESIONE");
-
-		finished1.showDialog();
-		if (finished1.wasCanceled())
-			MyLog.log("DD08 premuto ALTRA LESIONE");
-		if (finished1.wasOKed())
-			MyLog.log("DD08 premuto FINITO");
 	}
 
 	/**
@@ -828,7 +664,7 @@ public class Utility {
 
 			Stmezzo = (Math.log(2) * Sa) / Math.pow(aa, 2);
 			Stau = SmAtilde / somministrata;
-			}
+		}
 
 		double[] vetDose = MIRD_calcoloDose(massa, mAtilde, SmAtilde, Smassa, pathVolatile);
 
@@ -1050,81 +886,6 @@ public class Utility {
 		}
 	}
 
-	/**
-	 * Visualizzazione messaggi di errore
-	 * 
-	 * @param paramString
-	 */
-	static void dialogErrorMessage_LP06(String paramString) {
-
-		MyLog.log("dialogErrorMessage_LP06");
-		GenericDialog genericDialog = new GenericDialog("LP06 - Error");
-		genericDialog.setFont(defaultFont);
-		genericDialog.addMessage(paramString);
-		genericDialog.hideCancelButton();
-		genericDialog.showDialog();
-	}
-
-	/**
-	 * Visualizzazione messaggi di errore
-	 * 
-	 * @param paramString
-	 */
-	static boolean dialogErrorMessageWithCancel_LP09(String paramString) {
-
-		MyLog.log("dialogErrorMessagWithCancel_LP09");
-		GenericDialog gd1 = new GenericDialog("LP09 - Error");
-		gd1.setFont(defaultFont);
-		gd1.addMessage(paramString);
-		gd1.showDialog();
-		if (gd1.wasCanceled())
-			return true;
-		else
-			return false;
-	}
-
-	/**
-	 * selezione di un file da parte dell'utilizzatore
-	 * 
-	 * @param message messaggio per l'utilizzatore
-	 * @return path dell'immagine selezionata
-	 */
-	public static String dialogFileSelection_FM01(String message, String defaultPath) {
-
-		OpenDialog od1 = new OpenDialog(message);
-		OpenDialog.setDefaultDirectory(defaultPath);
-		return od1.getPath();
-
-	}
-
-	/**
-	 * selezione di un file da parte dell'utilizzatore
-	 *
-	 * @return
-	 */
-	public static int dialogAltreLesioni_FM02() {
-
-		MyLog.log("FM02 start");
-		GenericDialog gd1 = new GenericDialog("FM02 - AltreLesioni");
-		gd1.addMessage("Ci sono altre lesioni nel fegato?", titleFont);
-		gd1.setFont(defaultFont);
-		gd1.enableYesNoCancel("ALTRE LESIONI", "FINITE");
-
-		gd1.setCancelLabel("Cancel");
-		gd1.showDialog();
-		if (gd1.wasCanceled()) {
-			MyLog.log("FM02 0 Cancel");
-			return 0;
-		} else if (gd1.wasOKed()) {
-			MyLog.log("FM02 2 ALTRE LESIONI");
-			return 2;
-		} else {
-			MyLog.log("FM02 1 FINITE ");
-			return 1;
-		}
-
-	}
-
 	public static String getJarTitle() {
 
 		String jarName = "unknown";
@@ -1150,7 +911,7 @@ public class Utility {
 		Opener opener = new Opener();
 		ImagePlus imp = opener.openImage(path);
 		if (imp == null) {
-			Utility.dialogErrorMessage_LP06(path);
+			MyDialog.dialogErrorMessage_LP06(path);
 			return null;
 		}
 		return imp;
@@ -1160,7 +921,7 @@ public class Utility {
 		Opener opener = new Opener();
 		ImagePlus imp = opener.openImage(file.getPath());
 		if (imp == null) {
-			Utility.dialogErrorMessage_LP06(file.getPath());
+			MyDialog.dialogErrorMessage_LP06(file.getPath());
 			return null;
 		}
 		return imp;
@@ -1450,391 +1211,6 @@ public class Utility {
 		return aux1;
 	}
 
-	/**
-	 * Calcolo del DVH
-	 * 
-	 * @param patataMascherata in patata mascherata abbiamo segnale solo nei voxels
-	 *                         selezionati nella mask, quindi usando solo i voxels >
-	 *                         0 sono a posto
-	 * @param ore
-	 */
-	static ArrayList<ArrayList<Double>> calculateDVH(ImagePlus patataMascherata, int ore) {
-
-		MyLog.log("eseguo calculateDVH " + ore + " ore");
-		MyLog.here();
-
-		// patataMascherata.show();
-
-		if (patataMascherata == null)
-			MyLog.waitHere("patataMascherata == null");
-		ImageStack stack = patataMascherata.getImageStack();
-		if (stack == null)
-			MyLog.waitHere("stack == null");
-
-		int width = stack.getWidth();
-		int height = stack.getHeight();
-		int depth = stack.getSize();
-		double voxel = 0;
-		double[] vetVoxel = null;
-		MyLog.here();
-
-		ArrayList<Double> arrList = new ArrayList<Double>();
-		for (int z1 = 1; z1 < depth; z1++) {
-			for (int x1 = 0; x1 < width; x1++) {
-				for (int y1 = 0; y1 < height; y1++) {
-					voxel = stack.getVoxel(x1, y1, z1);
-					if (voxel > 0) {
-						arrList.add(voxel);
-					}
-				}
-			}
-		}
-
-		MyLog.logArrayList(arrList, "arrList");
-		MyLog.here();
-
-		vetVoxel = Utility.arrayListToArrayDouble(arrList);
-		ArrayList<ArrayList<Double>> pippo = calcDVH1(vetVoxel, ore);
-		MyLog.here();
-
-		return pippo;
-	}
-
-	/**
-	 * Parte 1 calcolo DVH
-	 * 
-	 * @param vetVoxel
-	 * @return
-	 */
-	static ArrayList<ArrayList<Double>> calcDVH1(double[] vetVoxel, int ore) {
-		// ---------------------------------
-
-		MyLog.log("eseguo calcDVH1 " + ore + " ore");
-		// sort array voxels
-		MyLog.here();
-		MyLog.logVector(vetVoxel, "vetVoxel input");
-
-		MyLog.here();
-		Arrays.sort(vetVoxel);
-		MyLog.logVector(vetVoxel, "vetVoxel sortato");
-		MyLog.here();
-
-		// --------------------------------
-		// rimozione dei doppioni e creazione array
-		int n1 = vetVoxel.length;
-		double[] temp = new double[n1];
-		int j1 = 0;
-		for (int i1 = 0; i1 < n1 - 1; i1++) {
-			if (Double.compare(vetVoxel[i1], vetVoxel[i1 + 1]) != 0) {
-				temp[j1++] = vetVoxel[i1];
-			}
-		}
-		temp[j1++] = vetVoxel[n1 - 1];
-
-		double[] vetRemoved = new double[j1];
-		for (int i1 = 0; i1 < j1; i1++) {
-			vetRemoved[i1] = temp[i1];
-		}
-		// --------------------------------
-		// conteggio numerosita'
-		double[][] vetNum = new double[vetRemoved.length + 1][3];
-		for (int i1 = 0; i1 < vetRemoved.length; i1++) {
-			vetNum[i1 + 1][0] = vetRemoved[i1]; // parto da posizione [1[0] perche' in seguito vado a forzare 100 in
-												// posizione [0][0]
-		}
-		double aux1 = 0;
-		for (int i1 = 0; i1 < vetVoxel.length; i1++) {
-			aux1 = vetVoxel[i1];
-			for (int i2 = 1; i2 < vetNum.length; i2++) {
-				int comp = Double.compare(aux1, vetNum[i2][0]);
-				if (comp == 0) {
-					vetNum[i2][1] = vetNum[i2][1] + 1.0; // in posizione [][1] effettuo il conteggio numerosita'
-				}
-			}
-
-		}
-		// --------------------------------
-		// calcolo della % volume
-		for (int i2 = vetNum.length - 1; i2 >= 1; i2--) {
-			if (i2 == vetNum.length - 1) {
-				vetNum[i2][2] = vetNum[i2][1] / vetVoxel.length * 100;
-			} else {
-				vetNum[i2][2] = vetNum[i2][1] / vetVoxel.length * 100 + vetNum[i2 + 1][2]; // in posizione [][2]
-																							// mettiamo la % volume
-			}
-		}
-
-		//
-		// Questo e'il punto dove vioene forzato il 100% in posizione [0][2]
-		//
-		vetNum[0][0] = 0;
-		vetNum[0][1] = 1;
-		vetNum[0][2] = 100;
-
-		MyLog.logMatrixVertical(vetNum, "vetNum");
-
-		// ------------------------------------------------------
-		// A questo punto vorrei provare a restituire un Arraylist<ArrayList>, questo
-		// potrebbe permettermi di aggiungere i dati ad un ArrayList<ArrayList>>
-		// esterno, ma non ne sono troppo sicurobisogna testarlo molto ma molto bene
-		// ------------------------------------------------------
-		ArrayList<ArrayList<Double>> arrList1 = new ArrayList<ArrayList<Double>>();
-
-		for (int i2 = 0; i2 < vetNum[0].length; i2++) {
-			ArrayList<Double> arrList2 = new ArrayList<Double>();
-			for (int i1 = 0; i1 < vetNum.length; i1++) {
-				arrList2.add(vetNum[i1][i2]);
-			}
-			arrList1.add(arrList2);
-		}
-
-		return arrList1;
-
-	}
-
-	static double[][] calcDVH2(ArrayList<ArrayList<Double>> arrIn1) {
-
-		double[] vetx24 = null;
-		double[] vety24 = null;
-		double[] vetx48 = null;
-		double[] vety48 = null;
-		double[] vetx120 = null;
-		double[] vety120 = null;
-
-		MyLog.log("eseguoCalcDVH2");
-		int len1 = arrIn1.size();
-		// separo i vari array in modo da facilitare il successivo lavoro
-		// NOTA BENE i diversi array 24, 48 e 120 avranno lunghezze diverse a seconda
-		// delle numerosita'
-
-		ArrayList<Double> arrList1 = null;
-
-		arrList1 = arrIn1.get(0);
-		vetx24 = Utility.arrayListToArrayDouble(arrList1);
-		arrList1 = arrIn1.get(2);
-		vety24 = Utility.arrayListToArrayDouble(arrList1);
-		arrList1 = arrIn1.get(3);
-		vetx48 = Utility.arrayListToArrayDouble(arrList1);
-		arrList1 = arrIn1.get(5);
-		vety48 = Utility.arrayListToArrayDouble(arrList1);
-		arrList1 = arrIn1.get(6);
-		vetx120 = Utility.arrayListToArrayDouble(arrList1);
-		arrList1 = arrIn1.get(8);
-		vety120 = Utility.arrayListToArrayDouble(arrList1);
-
-//		MyPlot.PL11_myPlotMultiple2(vetx24, vety24, vetx48, vety48, vetx120, vety120,
-//				"INPUT 24red,48green,120blue", "assexx", "asseyy");
-
-		MyLog.log("=============== dati in input ===============");
-		MyLog.logVector(vetx24, "vetX24");
-		MyLog.logVector(vety24, "vetY24");
-		MyLog.logVector(vetx48, "vetX48");
-		MyLog.logVector(vety48, "vetY48");
-		MyLog.logVector(vetx120, "vetX120");
-		MyLog.logVector(vety120, "vetY120");
-
-		double[][] matout48 = Utility.interpolator(vetx24, vety24, vetx48, vety48);
-
-		double[] vetx48new = new double[matout48.length];
-		double[] vety48new = new double[matout48.length];
-		for (int i1 = 0; i1 < matout48.length; i1++) {
-			vetx48new[i1] = matout48[i1][0];
-			vety48new[i1] = matout48[i1][1];
-		}
-		MyLog.log("=============== dati interpolati 48 ===============");
-		MyLog.logVector(vetx48new, "vetx48new");
-//		MyLog.logVector(vety48new, "vety48new");
-
-		double[][] matout120 = Utility.interpolator(vetx24, vety24, vetx120, vety120);
-
-		double[] vetx120new = new double[matout120.length];
-		double[] vety120new = new double[matout120.length];
-		for (int i1 = 0; i1 < matout48.length; i1++) {
-			vetx120new[i1] = matout120[i1][0];
-			vety120new[i1] = matout120[i1][1];
-		}
-		MyLog.log("=============== dati interpolati 120 ===============");
-		MyLog.logVector(vetx120new, "vetx120new");
-//		MyLog.logVector(vety120new, "vety120new");
-
-//		Plot plot3 = MyPlot.PL06_myPlotSingle2(vetx24, vety24, "INPUT24", "grafX24", "grafY24", Color.red);
-//		plot3.show();
-//		Plot plot4 = MyPlot.PL10_myPlotMultiple2(vetx48, vety48, vetx48new, vety48new, "INTERP48 green=interp", "grafX48new",
-//				"Y48new");
-//		plot4.show();
-//		Plot plot5 = MyPlot.PL10_myPlotMultiple2(vetx120, vety120, vetx120new, vety120new, "INTERP120 green=interp", "grafX120",
-//				"grafY120");
-//		plot5.show();
-//		MyLog.waitHere();
-//	
-
-		int a1 = vetx24.length;
-		int a2 = vetx48new.length;
-		int a3 = vetx120new.length;
-		int a4;
-
-		if (a1 > a2)
-			a4 = a1;
-		else
-			a4 = a2;
-		if (a4 < a3)
-			a4 = a3;
-
-		IJ.log("========================================");
-
-		int f1 = 0;
-		int f2 = 0;
-		int f3 = 0;
-
-		for (int i1 = 0; i1 < a4; i1++) {
-			if (f1 < a1 - 1)
-				f1++;
-			if (f2 < a2 - 1)
-				f2++;
-			if (f3 < a3 - 1)
-				f3++;
-
-//			String aux1 = String.format("||  %10f |  %10f ||  %10f |  %10f ||  %10f |  %10f ||", vetx24[f1], vety24[f1],
-//					vetx48new[f2], vety48new[f2], vetx120new[f3], vety120new[f3]);
-//			IJ.log(aux1);
-
-		}
-		MyLog.logVector(vety24, "vetY24 prima di rasegotto");
-		double[][] matout1 = Utility.rasegotto(vetx24, vetx48new, vetx120new, vety24);
-
-		double[] vetMin = new double[matout1.length];
-		double[] vetMax = new double[matout1.length];
-		double[] vetY = new double[matout1.length];
-		for (int i1 = 0; i1 < matout1.length; i1++) {
-			vetMin[i1] = matout1[i1][0];
-			vetMax[i1] = matout1[i1][1];
-			vetY[i1] = matout1[i1][2];
-		}
-
-//		Plot plot6 = MyPlot.PL12_myPlotMultiple(vetMin, vetY, vetMax, vetY, "RASEGATO", "grafX", "grafY");
-//		plot6.show();
-		MyLog.log("=============== dati rasegati ===============");
-		MyLog.logVector(vetMin, "vetMin");
-//		MyLog.logVector(vetY, "vetY");
-		MyLog.logVector(vetMax, "vetMax");
-//		MyLog.logVector(vetY, "vetY");
-
-//		MyLog.waitHere();
-
-		double[][] matout2 = Utility.mediolotto(vetx24, vetx48new, vetx120new, vety24);
-
-		double[] vetMedia = new double[matout2.length];
-		double[] vetY2 = new double[matout2.length];
-		for (int i1 = 0; i1 < matout2.length; i1++) {
-			vetMedia[i1] = matout2[i1][0];
-			vetY2[i1] = matout2[i1][1];
-		}
-		MyLog.logVector(vetMedia, "vetmedia");
-//		MyLog.logVector(vetY2, "vetY2 boh");
-
-//		Plot plot7 = myPlotSingle2(vetMedia, vetY, "MEDIA", "grafX", "grafY", Color.RED);
-//		plot7.show();
-
-		// verifico che le lunghezze degli array bidimensionali ottenuti in output
-		// rimangano uguali
-		int len2 = vety24.length;
-		int len3 = matout1.length;
-		int len4 = matout2.length;
-		if (len2 != len3 || len3 != len4)
-			MyLog.waitHere("ATTENZIONE lunghezze matrici di output differenti");
-
-		double[][] matout3 = new double[vety24.length][4];
-		for (int i1 = 0; i1 < vety24.length; i1++) {
-			matout3[i1][0] = matout1[i1][0];
-			matout3[i1][1] = matout1[i1][1];
-			matout3[i1][2] = matout2[i1][0];
-			matout3[i1][3] = matout2[i1][1];
-		}
-
-		return matout3;
-	}
-
-	static double[] calcoliDVHerrDose2(double[] vetMin, double[] vetMax) {
-		double[] vetErrDose = new double[vetMax.length];
-		double errDose = 0;
-		for (int i1 = 0; i1 < vetMax.length; i1++) {
-			errDose = (vetMax[i1] - vetMin[i1]) / 2.;
-			vetErrDose[i1] = errDose;
-		}
-		return vetErrDose;
-	}
-
-	static double[] calcoliDVHerrSup(double[] vetMed, double[] vetMax) {
-		double[] vetErrSup = new double[vetMed.length];
-		double errDose = 0;
-		for (int i1 = 0; i1 < vetMed.length; i1++) {
-			errDose = vetMax[i1] - vetMed[i1];
-			vetErrSup[i1] = errDose;
-		}
-		return vetErrSup;
-	}
-
-	static double[] calcoliDVHerrInf(double[] vetMed, double[] vetMin) {
-		double[] vetErrInf = new double[vetMed.length];
-		double errDose = 0;
-		for (int i1 = 0; i1 < vetMed.length; i1++) {
-			errDose = vetMed[i1] - vetMin[i1];
-			vetErrInf[i1] = errDose;
-		}
-		return vetErrInf;
-	}
-
-	static double calcoliDVHerrFinale(double[] vetMedia, double[] errMedia) {
-		double[] vetErrDose = new double[vetMedia.length];
-		double errDose = 0;
-		for (int i1 = 0; i1 < vetMedia.length; i1++) {
-			errDose = (vetMedia[i1] / vetMedia.length) * errMedia[i1];
-			vetErrDose[i1] = errDose;
-		}
-		double sumErrDose = 0;
-		for (int i1 = 0; i1 < vetErrDose.length; i1++) {
-			sumErrDose = sumErrDose + vetErrDose[i1] * vetErrDose[i1];
-		}
-
-		double errOut = Math.sqrt(sumErrDose);
-
-		return errOut;
-	}
-
-	static double[] calcoliDVH(double[] vetErrDose, double[] vetMedia, double[] vetY, int percent) {
-
-		double valPercent = 0;
-		double errPercent = 0;
-		double aux1 = 0;
-		// calcolo la differenza tra Y e la percentuale cercata
-		double[] vetDelta1 = new double[vetY.length];
-		for (int i1 = 0; i1 < vetY.length; i1++) {
-			vetDelta1[i1] = Math.abs(vetY[i1] - (double) percent);
-			// IJ.log("" + i1 + " vetDelta1= " + vetDelta1[i1]);
-		}
-		// cerco la posizione del minimo sul vettore differenza
-		double min = Double.MAX_VALUE;
-		double value;
-		int minpos = 0;
-		for (int i1 = 0; i1 < vetY.length; i1++) {
-			value = vetDelta1[i1];
-			if (value < min) {
-				min = value;
-				minpos = i1;
-			}
-		}
-
-		MyLog.log("minpos= " + minpos + " / " + vetY.length + " per percentuale= " + percent);
-
-		// ora minpos contiene la posizione del minimo
-		valPercent = vetMedia[minpos];
-		errPercent = vetErrDose[minpos];
-		double[] vetOut = new double[2];
-		vetOut[0] = valPercent;
-		vetOut[1] = errPercent;
-		return vetOut;
-	}
-
 	static int searchPercentPosition(double[] vetIn, double[] vetY, int percent) {
 
 		// calcolo la differenza tra Y e la percentuale cercata
@@ -1882,50 +1258,8 @@ public class Utility {
 		return vetOut;
 	}
 
-	static double[] calcoliDVHOLD(double[] vetMin, double[] vetMax, double[] vetMedia, double[] vetY, int percent) {
-
-		double[] vetErrDose = new double[vetY.length];
-		double errDose = 0;
-		for (int i1 = 0; i1 < vetY.length; i1++) {
-			errDose = (vetMax[i1] - vetMin[i1]) / 2.;
-			vetErrDose[i1] = errDose;
-		}
-
-		double valPercent = 0;
-		double errPercent = 0;
-		double aux1 = 0;
-		// calcolo la differenza tra Y e la percentuale cercata
-		double[] vetDelta1 = new double[vetY.length];
-		for (int i1 = 0; i1 < vetY.length; i1++) {
-			vetDelta1[i1] = Math.abs(vetY[i1] - (double) percent);
-			// IJ.log("" + i1 + " vetDelta1= " + vetDelta1[i1]);
-		}
-		// cerco la posizione del minimo sul vettore differenza
-		double min = Double.MAX_VALUE;
-		double value;
-		int minpos = 0;
-		for (int i1 = 0; i1 < vetY.length; i1++) {
-			value = vetDelta1[i1];
-			if (value < min) {
-				min = value;
-				minpos = i1;
-			}
-		}
-
-		MyLog.log("minpos= " + minpos + " / " + vetY.length + " per percentuale= " + percent);
-
-		// ora minpos contiene la posizione del minimo
-		valPercent = vetMedia[minpos];
-		errPercent = vetErrDose[minpos];
-		double[] vetOut = new double[2];
-		vetOut[0] = valPercent;
-		vetOut[1] = errPercent;
-		return vetOut;
-	}
 
 	static double[][] rasegotto(double[] vetx24, double[] vetx48, double[] vetx120, double[] vety24) {
-
-		MyLog.logVector(vety24, "vetY24 dentro rasegotto");
 
 		double matout[][] = new double[vetx24.length][3];
 		for (int i1 = 0; i1 < vetx24.length; i1++) {
@@ -1936,11 +1270,32 @@ public class Utility {
 		return matout;
 	}
 
+	static double[][] rasegotto2(double[] vetxlow, double[] vetxhigh, double[] vety24) {
+
+		double matout[][] = new double[vety24.length][3];
+		for (int i1 = 0; i1 < vety24.length; i1++) {
+			matout[i1][0] = Math.min(vetxlow[i1], vetxhigh[i1]);
+			matout[i1][1] = Math.max(vetxlow[i1], vetxhigh[i1]);
+			matout[i1][2] = vety24[i1];
+		}
+		return matout;
+	}
+
 	static double[][] mediolotto(double[] vetx24, double[] vetx48, double[] vetx120, double[] vety24) {
 
 		double matout[][] = new double[vetx24.length][2];
 		for (int i1 = 0; i1 < vetx24.length; i1++) {
 			matout[i1][0] = media(vetx24[i1], vetx48[i1], vetx120[i1]);
+			matout[i1][1] = vety24[i1];
+		}
+		return matout;
+	}
+
+	static double[][] mediolotto2(double[] vetxlow, double[] vetxhigh, double[] vety24) {
+
+		double matout[][] = new double[vety24.length][2];
+		for (int i1 = 0; i1 < vety24.length; i1++) {
+			matout[i1][0] = (vetxlow[i1] + vetxhigh[i1]) / 2.0;
 			matout[i1][1] = vety24[i1];
 		}
 		return matout;
@@ -1958,9 +1313,9 @@ public class Utility {
 
 	static double media(double aa, double bb, double cc) {
 
-		double media2 = (aa + bb + cc) / 3.0;
+		double media1 = (aa + bb + cc) / 3.0;
 
-		return media2;
+		return media1;
 	}
 
 	/**
@@ -2075,9 +1430,9 @@ public class Utility {
 		vetOut[1] = MyLog.readFromLog(myPath, "#002#", "=");
 		vetOut[2] = MyLog.readFromLog(myPath, "#003#", "=");
 
-		coordX = parseInt(vetOut[0]);
-		coordY = parseInt(vetOut[1]);
-		coordZ = parseInt(vetOut[2]);
+//		coordX = parseInt(vetOut[0]);
+//		coordY = parseInt(vetOut[1]);
+//		coordZ = parseInt(vetOut[2]);
 
 		return vetOut;
 	}
@@ -2520,6 +1875,21 @@ public class Utility {
 		}
 
 		return x2;
+	}
+
+	/**
+	 * 
+	 * @param matIn
+	 * @param col
+	 * @return
+	 */
+	public static double[] matToVect(double[][] matIn, int col) {
+
+		double[] vetOut = new double[matIn.length];
+		for (int i1 = 0; i1 < matIn.length; i1++) {
+			vetOut[i1] = matIn[i1][col];
+		}
+		return vetOut;
 	}
 
 }

@@ -56,7 +56,7 @@ public class Fegato_MIRD implements PlugIn {
 		MyLog.log("============================");
 		MyLog.log("START Fegato_MIRD");
 		MyLog.log("============================");
-		String pathToto = Utility.dialogFileSelection_FM01("Seleziona FEGATO IN TOTO",
+		String pathToto = MyDialog.dialogFileSelection_FM01("Seleziona FEGATO IN TOTO",
 				desktopPath + File.separator + "DosimetryFolder" + File.separator);
 		if (pathToto != null)
 			arrLesioni.add(pathToto); // nelle elemento 0 ho il pathToto
@@ -72,12 +72,12 @@ public class Fegato_MIRD implements PlugIn {
 		int count = 1;
 		int out1 = 0;
 		do {
-			pathLesione = Utility.dialogFileSelection_FM01("LOOP selezione lesioni " + count++,
+			pathLesione = MyDialog.dialogFileSelection_FM01("LOOP selezione lesioni " + count++,
 					desktopPath + File.separator + "DosimetryFolder" + File.separator);
 			if (pathLesione != null)
 				arrLesioni.add(pathLesione);
 
-			out1 = Utility.dialogAltreLesioni_FM02();
+			out1 = MyDialog.dialogAltreLesioni_FM02();
 
 		} while (out1 == 2);
 
@@ -372,7 +372,7 @@ public class Fegato_MIRD implements PlugIn {
 			vetInput[13] = Sdose;
 
 			/// qui bisogna introdurre la decisione e l'eventuale ritorno
-			decis1 = Dosimetria_Lu177.MIRD_display_LP68(vetInput); // accetta risultati o ripeti analisi
+			decis1 = MyDialog.MIRD_display_LP68(vetInput); // accetta risultati o ripeti analisi
 			if (decis1 == 0)
 				return;
 //		// boolean fit = false;

@@ -138,7 +138,7 @@ public class Dosimetry_v2 implements PlugIn {
 			MyLog.log("LOOP ESTERNO LIVELLO ZERO");
 
 			String[] lista1 = WindowManager.getImageTitles();
-			ImagePlus selectedImage = Utility.dialogSceltaAutomaticaImmagine_DD10(ok24, ok48, ok120, defaultFont);
+			ImagePlus selectedImage = MyDialog.dialogSceltaAutomaticaImmagine_DD10(ok24, ok48, ok120, defaultFont);
 			if (selectedImage == null)
 				return;
 //		Utility.nonImageToFront("DD10 - Immagine da analizzare");
