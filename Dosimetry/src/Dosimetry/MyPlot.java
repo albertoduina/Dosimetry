@@ -139,7 +139,8 @@ public class MyPlot {
 		if (profilex1 != null && profiley1 != null) {
 			l1 = profilex1.length;
 			l2 = xx.length;
-			IJ.log("AAA l1= " + l1 + " l2= " + l2);
+			// MyLog.log("AAA l1= " + l1 + " l2= " + l2);
+			IJ.wait(10);
 			System.arraycopy(profilex1, 0, xx, prec, l1);
 			System.arraycopy(profiley1, 0, yy, prec, l1);
 			prec = prec + l1;
@@ -150,7 +151,8 @@ public class MyPlot {
 		if (profilex2 != null && profiley2 != null) {
 			l1 = profilex2.length;
 			l2 = xx.length;
-			IJ.log("BBB l1= " + l1 + " l2= " + l2);
+			// MyLog.log("BBB l1= " + l1 + " l2= " + l2);
+			IJ.wait(10);
 			System.arraycopy(profilex2, 0, xx, prec, l1);
 			System.arraycopy(profiley2, 0, yy, prec, l1);
 			prec = prec + l1;
@@ -160,7 +162,8 @@ public class MyPlot {
 		if (profilex3 != null && profiley3 != null) {
 			l1 = profilex3.length;
 			l2 = xx.length;
-			IJ.log("CCC l1= " + l1 + " l2= " + l2);
+			// MyLog.log("CCC l1= " + l1 + " l2= " + l2);
+			IJ.wait(10);
 			System.arraycopy(profilex3, 0, xx, prec, l1 - 1);
 			System.arraycopy(profiley3, 0, yy, prec, l1 - 1);
 			prec = prec + l1;

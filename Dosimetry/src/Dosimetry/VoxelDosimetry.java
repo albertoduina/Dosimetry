@@ -728,11 +728,9 @@ public class VoxelDosimetry {
 
 		MyLog.log("eseguo calcDVH1 " + ore + " ore");
 		
-		
-		
+	
 		Arrays.sort(vetVoxel);
-
-
+		
 		// --------------------------------
 		// rimozione dei doppioni e creazione array
 		int n1 = vetVoxel.length;
@@ -765,7 +763,6 @@ public class VoxelDosimetry {
 					vetNum[i2][1] = vetNum[i2][1] + 1.0; // in posizione [][1] effettuo il conteggio numerosita'
 				}
 			}
-
 		}
 		// --------------------------------
 		// calcolo della % volume
@@ -785,7 +782,7 @@ public class VoxelDosimetry {
 		vetNum[0][1] = 1;
 		vetNum[0][2] = 100;
 
-		MyLog.logMatrixVertical(vetNum, "vetNum" + MyLog.here1());
+//		MyLog.logMatrixVertical(vetNum, "vetNum" + MyLog.here1());
 
 		// ------------------------------------------------------
 		// A questo punto vorrei provare a restituire un Arraylist<ArrayList>, questo
@@ -845,7 +842,7 @@ public class VoxelDosimetry {
 			}
 		}
 
-		MyLog.logArrayList(arrList, "arrList " + MyLog.here1());
+//		MyLog.logArrayList(arrList, "arrList " + MyLog.here1());
 
 		vetVoxel = Utility.arrayListToArrayDouble(arrList);
 		ArrayList<ArrayList<Double>> pippo = VoxelDosimetry.sub_DVH4(vetVoxel, ore);

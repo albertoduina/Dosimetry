@@ -426,6 +426,15 @@ public class Dosimetria_Lu177 implements PlugIn {
 		double MIRD_vol48 = Double.NaN;
 		double MIRD_vol120 = Double.NaN;
 		int decis1 = -1;
+	
+		double[] vetMin = null;
+		double[] vetMax = null;
+		double[] vetMed = null;
+		double[] vetY = null;
+
+		
+		
+	
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		// PUNTO DI INIZIO DEI LOOP DI ELABORAZIONE, FINISCONO SOLO SE E QUANDO I
 		// RISULTATI VENGONO DEFINITIVAMENTE ACCETTATI/APPROVATI O PER ESAURIMENTO DELLA
@@ -756,10 +765,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 				double[][] matDVH2 = VoxelDosimetry.subDVH2(vetx24, vety24, vetx48, vety48, vetx120, vety120);
 
-				double[] vetMin = new double[matDVH2.length];
-				double[] vetMax = new double[matDVH2.length];
-				double[] vetMed = new double[matDVH2.length];
-				double[] vetY = new double[matDVH2.length];
+				vetMin = new double[matDVH2.length];
+				vetMax = new double[matDVH2.length];
+				vetMed = new double[matDVH2.length];
+				vetY = new double[matDVH2.length];
 				for (int i1 = 0; i1 < matDVH2.length; i1++) {
 					vetMin[i1] = matDVH2[i1][0];
 					vetMax[i1] = matDVH2[i1][1];
@@ -786,55 +795,15 @@ public class Dosimetria_Lu177 implements PlugIn {
 				}
 				Utility.closePlot(MyGlobals.titPL0405);
 				Utility.closePlot(MyGlobals.titPL11);
+				
+				
+				
 
-				MyGlobals.titPL08 = MyPlot.PL08_myPlotMultipleSpecial1(vetMin, vetY, vetMax, vetY, vetMed, vetY,
-						"MEDIA", "DOSE [Gy]", "VOL%");
+					
+				
+				
+				
 
-				double[] vetErrSup = VoxelDosimetry.calcoliDVHerrSup(vetMed, vetMax);
-				double[] vetErrInf = VoxelDosimetry.calcoliDVHerrInf(vetMed, vetMin);
-
-				double[] vetErrDose = VoxelDosimetry.calcoliDVHerrDose2(vetMin, vetMax);
-				MyLog.logVector(vetErrDose, "vetErrDose");
-				MyLog.logVector(vetErrSup, "vetErrSup");
-				MyLog.logVector(vetErrInf, "vetErrInf");
-
-				double errFin = VoxelDosimetry.calcoliDVHerrFinale(vetMed, vetErrDose);
-
-				int percent = 98;
-				double[] vetOut98 = VoxelDosimetry.calcoliDVH(vetErrDose, vetMed, vetY, percent);
-
-				double valD98 = vetOut98[0];
-				double errD98 = vetOut98[1];
-				percent = 2;
-				double[] vetOut2 = VoxelDosimetry.calcoliDVH(vetErrDose, vetMed, vetY, percent);
-
-				double valD2 = vetOut2[0];
-				double errD2 = vetOut2[1];
-
-				double Dmedia = Utility.vetMeanSecond(vetMed);
-
-				double ErrMedia = Utility.vetMeanSecond(vetErrDose);
-
-				double[][] export1 = Utility.samplerDVH(vetErrDose, vetY);
-
-				String str11 = "";
-				// esperimento esportazione
-				for (int i1 = 0; i1 < export1.length; i1++) {
-					str11 = str11 + export1[i1][0] + "; ";
-				}
-
-				NonBlockingGenericDialog resultsDialog = new NonBlockingGenericDialog("SV07 - Results");
-				resultsDialog.addMessage("Riassunto dati DVH ", MyGlobals.titleFont);
-				resultsDialog.setFont(MyGlobals.defaultFont);
-
-				resultsDialog.addMessage("=============");
-				resultsDialog.addMessage(
-						"D98= " + String.format("%.4f", valD98) + " \u00B1 " + String.format("%.4f", errD98) + " Gy");
-				resultsDialog.addMessage(
-						"D2= " + String.format("%.4f", valD2) + " \u00B1 " + String.format("%.4f", errD2) + " Gy");
-				resultsDialog.addMessage("Dmedia= " + String.format("%.4f", Dmedia) + " \u00B1 "
-						+ String.format("%.4f", ErrMedia) + " Gy");
-				resultsDialog.showDialog();
 
 			} while (rip < 2 && decis1 < 2);
 
@@ -873,6 +842,54 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+		MyGlobals.titPL08 = MyPlot.PL08_myPlotMultipleSpecial1(vetMin, vetY, vetMax, vetY, vetMed, vetY,
+				"MEDIA", "DOSE [Gy]", "VOL%");
+
+		double[] vetErrSup = VoxelDosimetry.calcoliDVHerrSup(vetMed, vetMax);
+		double[] vetErrInf = VoxelDosimetry.calcoliDVHerrInf(vetMed, vetMin);
+
+		double[] vetErrDose = VoxelDosimetry.calcoliDVHerrDose2(vetMin, vetMax);
+		MyLog.logVector(vetErrDose, "vetErrDose");
+		MyLog.logVector(vetErrSup, "vetErrSup");
+		MyLog.logVector(vetErrInf, "vetErrInf");
+
+		double errFin = VoxelDosimetry.calcoliDVHerrFinale(vetMed, vetErrDose);
+
+		int percent = 98;
+		double[] vetOut98 = VoxelDosimetry.calcoliDVH(vetErrDose, vetMed, vetY, percent);
+
+		double valD98 = vetOut98[0];
+		double errD98 = vetOut98[1];
+		percent = 2;
+		double[] vetOut2 = VoxelDosimetry.calcoliDVH(vetErrDose, vetMed, vetY, percent);
+
+		double valD2 = vetOut2[0];
+		double errD2 = vetOut2[1];
+
+		double Dmedia = Utility.vetMeanSecond(vetMed);
+
+		double ErrMedia = Utility.vetMeanSecond(vetErrDose);
+
+		double[][] export1 = Utility.samplerDVH(vetErrDose, vetY);
+
+		String str11 = "";
+		// esperimento esportazione
+		for (int i1 = 0; i1 < export1.length; i1++) {
+			str11 = str11 + export1[i1][0] + "; ";
+		}
+
+		NonBlockingGenericDialog resultsDialog = new NonBlockingGenericDialog("SV07 - Results");
+		resultsDialog.addMessage("Riassunto dati DVH ", MyGlobals.titleFont);
+		resultsDialog.setFont(MyGlobals.defaultFont);
+
+		resultsDialog.addMessage("=============");
+		resultsDialog.addMessage(
+				"D98= " + String.format("%.4f", valD98) + " \u00B1 " + String.format("%.4f", errD98) + " Gy");
+		resultsDialog.addMessage(
+				"D2= " + String.format("%.4f", valD2) + " \u00B1 " + String.format("%.4f", errD2) + " Gy");
+		resultsDialog.addMessage("Dmedia= " + String.format("%.4f", Dmedia) + " \u00B1 "
+				+ String.format("%.4f", ErrMedia) + " Gy");
+		resultsDialog.showDialog();
 
 		// ================= POSTSCRITTURA ===========================================
 		// UNA VOLTA CHE L'OPERATORE HA DETTO SI, SCRIVIAMO TUTTA LA MONNEZZA IN

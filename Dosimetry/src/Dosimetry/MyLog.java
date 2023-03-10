@@ -57,7 +57,7 @@ public class MyLog {
 				+ Thread.currentThread().getStackTrace()[2].getLineNumber() + " class="
 				+ Thread.currentThread().getStackTrace()[2].getClassName() + " method="
 				+ Thread.currentThread().getStackTrace()[2].getMethodName();
-		IJ.log(qui);
+		MyLog.log(qui);
 		return qui;
 	}
 
