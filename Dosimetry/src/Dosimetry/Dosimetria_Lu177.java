@@ -158,7 +158,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			String aux1 = "";
 			aux1 = "#000#\tImagejVersion= " + IJversion + " JavaVersion= " + JavaVersion + " JarName= " + jarName;
 			MyLog.logAppend(pathVolatile, aux1);
-			aux1 = "#001#\t-- SOMMINISTRAZIONE --";
+			aux1 = "#001#\t------------ SOMMINISTRAZIONE ------------";
 			MyLog.logAppend(pathVolatile, aux1);
 			aux1 = "#002#\tDateTime administration= " + myDTT;
 			MyLog.logAppend(pathVolatile, aux1);
@@ -426,15 +426,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 		double MIRD_vol48 = Double.NaN;
 		double MIRD_vol120 = Double.NaN;
 		int decis1 = -1;
-	
+
 		double[] vetMin = null;
 		double[] vetMax = null;
 		double[] vetMed = null;
 		double[] vetY = null;
 
-		
-		
-	
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		// PUNTO DI INIZIO DEI LOOP DI ELABORAZIONE, FINISCONO SOLO SE E QUANDO I
 		// RISULTATI VENGONO DEFINITIVAMENTE ACCETTATI/APPROVATI O PER ESAURIMENTO DELLA
@@ -554,7 +551,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// dopo approvazione "ministeriale" definitiva
 
 			int count5 = 200;
-			aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD PRE-CALCULATION 24h ----";
+			aux5 = "#" + String.format("%03d", count5++) + "#\t-------- MIRD PRE-CALCULATION 24h --------";
 			MyLog.logAppend(pathVolatile, aux5);
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol24= " + out24[0];
 			MyLog.logAppend(pathVolatile, aux5);
@@ -563,7 +560,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv24= " + out24[2];
 			MyLog.logAppend(pathVolatile, aux5);
 			count5 = 220;
-			aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD PRE-CALCULATION 48h ----";
+			aux5 = "#" + String.format("%03d", count5++) + "#\t-------- MIRD PRE-CALCULATION 48h --------";
 			MyLog.logAppend(pathVolatile, aux5);
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol48= " + out48[0];
 			MyLog.logAppend(pathVolatile, aux5);
@@ -572,7 +569,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv48= " + out48[2];
 			MyLog.logAppend(pathVolatile, aux5);
 			count5 = 240;
-			aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD PRE-CALCULATION 120h ----";
+			aux5 = "#" + String.format("%03d", count5++) + "#\t------- MIRD PRE-CALCULATION 120h -------";
 			MyLog.logAppend(pathVolatile, aux5);
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol120= " + out120[0];
 			MyLog.logAppend(pathVolatile, aux5);
@@ -795,15 +792,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 				}
 				Utility.closePlot(MyGlobals.titPL0405);
 				Utility.closePlot(MyGlobals.titPL11);
-				
-				
-				
-
-					
-				
-				
-				
-
 
 			} while (rip < 2 && decis1 < 2);
 
@@ -842,8 +830,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		MyGlobals.titPL08 = MyPlot.PL08_myPlotMultipleSpecial1(vetMin, vetY, vetMax, vetY, vetMed, vetY,
-				"MEDIA", "DOSE [Gy]", "VOL%");
+		MyGlobals.titPL08 = MyPlot.PL08_myPlotMultipleSpecial1(vetMin, vetY, vetMax, vetY, vetMed, vetY, "MEDIA",
+				"DOSE [Gy]", "VOL%");
 
 		double[] vetErrSup = VoxelDosimetry.calcoliDVHerrSup(vetMed, vetMax);
 		double[] vetErrInf = VoxelDosimetry.calcoliDVHerrInf(vetMed, vetMin);
@@ -873,9 +861,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 		double[][] export1 = Utility.samplerDVH(vetErrDose, vetY);
 
 		String str11 = "";
+		String str12 = "";
 		// esperimento esportazione
 		for (int i1 = 0; i1 < export1.length; i1++) {
 			str11 = str11 + export1[i1][0] + "; ";
+			str12 = str12 + export1[i1][1] + "; ";
 		}
 
 		NonBlockingGenericDialog resultsDialog = new NonBlockingGenericDialog("SV07 - Results");
@@ -885,10 +875,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 		resultsDialog.addMessage("=============");
 		resultsDialog.addMessage(
 				"D98= " + String.format("%.4f", valD98) + " \u00B1 " + String.format("%.4f", errD98) + " Gy");
+		resultsDialog
+				.addMessage("D2= " + String.format("%.4f", valD2) + " \u00B1 " + String.format("%.4f", errD2) + " Gy");
 		resultsDialog.addMessage(
-				"D2= " + String.format("%.4f", valD2) + " \u00B1 " + String.format("%.4f", errD2) + " Gy");
-		resultsDialog.addMessage("Dmedia= " + String.format("%.4f", Dmedia) + " \u00B1 "
-				+ String.format("%.4f", ErrMedia) + " Gy");
+				"Dmedia= " + String.format("%.4f", Dmedia) + " \u00B1 " + String.format("%.4f", ErrMedia) + " Gy");
 		resultsDialog.showDialog();
 
 		// ================= POSTSCRITTURA ===========================================
@@ -902,7 +892,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			flanagan = true;
 
 		int count5 = 200;
-		aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD CALCULATION 24h ----";
+		aux5 = "#" + String.format("%03d", count5++) + "#\t---------- MIRD CALCULATION 24h ----------";
 		MyLog.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol24= " + out24[0];
 		MyLog.logAppend(pathVolatile, aux5);
@@ -911,7 +901,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv24= " + out24[2];
 		MyLog.logAppend(pathVolatile, aux5);
 		count5 = 220;
-		aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD CALCULATION 48h ----";
+		aux5 = "#" + String.format("%03d", count5++) + "#\t---------- MIRD CALCULATION 48h ----------";
 		MyLog.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol48= " + out48[0];
 		MyLog.logAppend(pathVolatile, aux5);
@@ -920,7 +910,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv48= " + out48[2];
 		MyLog.logAppend(pathVolatile, aux5);
 		count5 = 240;
-		aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD CALCULATION 120h ----";
+		aux5 = "#" + String.format("%03d", count5++) + "#\t---------- MIRD CALCULATION 120h ---------";
 		MyLog.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol120= " + out120[0];
 		MyLog.logAppend(pathVolatile, aux5);
@@ -935,7 +925,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 			count5 = 260;
-			aux5 = "#" + String.format("%03d", count5++) + "#\t----- MIRD FIT RESULTS IMAGEJ --------";
+			aux5 = "#" + String.format("%03d", count5++) + "#\t------- MIRD FIT RESULTS IMAGEJ ----------";
 			MyLog.logAppend(pathVolatile, aux5);
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD IJ FIT param 0= " + AA;
 			MyLog.logAppend(pathVolatile, aux5);
@@ -948,7 +938,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// CON FLANAGAN E BASTA
 			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			count5 = 270;
-			aux5 = "#" + String.format("%03d", count5++) + "#\t----- MIRD FIT RESULTS FLANAGAN --------";
+			aux5 = "#" + String.format("%03d", count5++) + "#\t------- MIRD FIT RESULTS FLANAGAN --------";
 			MyLog.logAppend(pathVolatile, aux5);
 
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD FLANAGAN FIT param 0= " + AA;
@@ -986,7 +976,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		aux5 = "#" + String.format("%03d", count5++) + "#\tdose= " + dose;
 		MyLog.logAppend(pathVolatile, aux5);
 
-		aux5 = "#" + String.format("%03d", count5++) + "#\t--------- CALCOLO ERRORI ----------";
+		aux5 = "#" + String.format("%03d", count5++) + "#\t------------- CALCOLO ERRORI -------------";
 		MyLog.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\terrore SA= " + SA;
 		MyLog.logAppend(pathVolatile, aux5);
@@ -1008,7 +998,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		MyLog.logAppend(pathVolatile, aux5);
 
 		count5 = 500;
-		aux5 = "#" + String.format("%03d", count5++) + "#\t-------- CALCOLO DOSE -----------";
+		aux5 = "#" + String.format("%03d", count5++) + "#\t------------- CALCOLO DOSE ---------------";
 		MyLog.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose s1= " + s1;
 		MyLog.logAppend(pathVolatile, aux5);
@@ -1019,6 +1009,14 @@ public class Dosimetria_Lu177 implements PlugIn {
 		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose m2= " + m2;
 		MyLog.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tUtility.MIRD_calcoloDose massa= " + massa;
+		MyLog.logAppend(pathVolatile, aux5);
+
+		count5 = 600;
+		aux5 = "#" + String.format("%03d", count5++) + "#\t---------- ESPORTAZIONE GRAFICI ----------";
+		MyLog.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tCALCOLO ERRORE DVH= " + str11;
+		MyLog.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tPERCENTUALE= " + str12;
 		MyLog.logAppend(pathVolatile, aux5);
 
 		// ==============================================================
@@ -1034,13 +1032,13 @@ public class Dosimetria_Lu177 implements PlugIn {
 		Utility.rinominaImmagini(path22 + "volatile48h.tif", path22 + lesionName + "48h.tif");
 		Utility.rinominaImmagini(path22 + "volatile120h.tif", path22 + lesionName + "120h.tif");
 
-		/// POTREBBE ESSERE QUESTO CHE RIPETE I CALCOLI !
-		// IJ.runPlugIn("Dosimetry.S_VoxelDosimetry", lesionName);
-
 		Utility.chiudiTutto();
 		IJ.showMessage("FINE LAVORO");
 	}
 
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
