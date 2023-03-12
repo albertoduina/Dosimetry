@@ -1,0 +1,6 @@
+---- INIZIO ---------
+#001# Visualizza IJ.log= si
+#002# Log voxels= no
+#003# Coordinate [x,y,z] Voxel centrale del cubo 6x6 di cui fare il log = 63, 70, 35
+#004# Mostra "Results" SV05= no
+---- FINE ---------

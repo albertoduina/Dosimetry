@@ -137,15 +137,22 @@
 			<fileset dir="${output}">
 				<include name="*.jar" />
 			</fileset>
-			
+
 			<!-- aggiunte le librerie Flanagan al zip file di distribuzione, 
 				non so se vada bene con i copyright,
 				ma sicuramente permette di non avere problemi di funzionamento -->
 			<fileset dir="${lib}">
 				<include name="flanagan.jar" />
 			</fileset>
+			<fileset dir=".">
+				<include name="DosimetryConfig.txt" />
+			</fileset>
+			
 
 		</zip>
+		
+
+
 	</target>
 
 

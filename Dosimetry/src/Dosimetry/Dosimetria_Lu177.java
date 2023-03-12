@@ -121,7 +121,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 			MyLog.logDeleteAll(MyGlobals.desktopDosimetryFolderPath);
 			MyLog.logInit(MyGlobals.pathPermanente);
 			MyLog.logInit(pathVolatile);
-			Utility.deleteAllFilesWithSpecificExtension(MyGlobals.desktopDosimetryFolderPath, "tif");
 
 			boolean ok1 = false;
 
@@ -1043,13 +1042,14 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		MyLog.logDedupe(pathVolatile); // ELIMINAZIONE DOPPIONI
 
-		String lesionName = MyDialog.dialogBattezzaLesioni_LP27(pathVolatile);
-		String path22 = MyGlobals.desktopPath + File.separator + "DosimetryFolder" + File.separator;
+		MyDialog.dialogBattezzaLesioni_LP27(pathVolatile);
+//		String path22 = MyGlobals.desktopPath + File.separator + "DosimetryFolder" + File.separator;
 
-		Utility.rinominaImmagini(path22 + "volatile24h.tif", path22 + lesionName + "24h.tif");
-		Utility.rinominaImmagini(path22 + "volatile48h.tif", path22 + lesionName + "48h.tif");
-		Utility.rinominaImmagini(path22 + "volatile120h.tif", path22 + lesionName + "120h.tif");
+//		Utility.rinominaImmagini(path22 + "volatile24h.tif", path22 + lesionName + "24h.tif");
+//		Utility.rinominaImmagini(path22 + "volatile48h.tif", path22 + lesionName + "48h.tif");
+//		Utility.rinominaImmagini(path22 + "volatile120h.tif", path22 + lesionName + "120h.tif");
 
+		Utility.deleteAllFilesWithSpecificExtension(MyGlobals.desktopDosimetryFolderPath, "tif");
 		Utility.chiudiTutto();
 		IJ.showMessage("FINE LAVORO");
 	}

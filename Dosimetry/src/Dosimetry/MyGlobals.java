@@ -36,6 +36,7 @@ public class MyGlobals {
 
 	public static boolean attivaLog = false;
 	public static boolean loggoVoxels = false;
+	public static boolean mostraResultsSV05 = false;
 	public static int[] coordinateVoxels = null;
 
 	public static int coordX;
@@ -62,10 +63,12 @@ public class MyGlobals {
 			return;
 		String aux1 = MyLog.readFromLog(myPath, "#001#", "=");
 		String aux2 = MyLog.readFromLog(myPath, "#002#", "=");
-		String aux3= MyLog.readFromLog(myPath, "#003#", "=");
+		String aux3 = MyLog.readFromLog(myPath, "#003#", "=");
+		String aux4 = MyLog.readFromLog(myPath, "#004#", "=");
 
 		attivaLog = aux1.equalsIgnoreCase("SI");
 		loggoVoxels = aux2.equalsIgnoreCase("SI");
+		mostraResultsSV05 = aux4.equalsIgnoreCase("SI");
 		coordinateVoxels = MyGlobals.leggiCoordinateVoxels(aux3);
 
 		MyLog.log("attivaLog= " + attivaLog + "\nloggoVoxels= " + loggoVoxels + "\ncoordinateVoxels[0] X= "
@@ -75,8 +78,6 @@ public class MyGlobals {
 		coordY = coordinateVoxels[1];
 		coordZ = coordinateVoxels[2];
 	}
-
-
 
 	/**
 	 * lato del cubo da utilizzare per i calcoli
@@ -95,7 +96,6 @@ public class MyGlobals {
 		int mezzo = (latoCubo() - 1) / 2;
 		return mezzo;
 	}
-
 
 	static int[] leggiCoordinateVoxels(String in1) {
 

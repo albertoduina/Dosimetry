@@ -295,12 +295,12 @@ public class MyPlot {
 		Plot plot = new Plot("PL08 " + title, xlabel, ylabel);
 		plot.setColor(Color.gray);
 		plot.add("filled", profilex2, profiley2);
-		plot.setColor(Color.red);
+		plot.setColor(Color.blue);
 		plot.add("line", profilex2, profiley2);
 		plot.setLineWidth(1);
 		plot.setColor(Color.white);
 		plot.add("filled", profilex1, profiley1);
-		plot.setColor(Color.red);
+		plot.setColor(Color.blue);
 		plot.add("line", profilex1, profiley1);
 		plot.setColor(Color.blue);
 		plot.setLineWidth(4);
