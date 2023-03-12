@@ -6,7 +6,6 @@ import java.awt.Rectangle;
 import java.awt.Window;
 import java.io.File;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -48,51 +47,6 @@ import ij.util.FontUtil;
 //
 
 public class Utility {
-
-//	private static final Object[][] matrice = null;
-//	static String fontStyle = "Arial";
-//	static Font defaultFont = FontUtil.getFont(fontStyle, Font.PLAIN, 13);
-//	static Font textFont = FontUtil.getFont(fontStyle, Font.ITALIC, 16);
-//	static Font titleFont = FontUtil.getFont(fontStyle, Font.BOLD, 16);
-//	long start1;
-//	long start2;
-//	long start3;
-//	long start4;
-//	long end1;
-//	long end2;
-//	long end3;
-//	long end4;
-//	static int coordX;
-//	static int coordY;
-//	static int coordZ;
-
-	public static int latoCubo() {
-		// ATTENZIONE il lato DEVE essere dispari
-		// in questo modo avremo un pixel centrale
-		int lato = 5;
-
-		return lato;
-	}
-
-//	/**
-//	 * Introdotto il file DosimetryConfig.txt
-//	 * 
-//	 * @return
-//	 */
-//	public static boolean stampa() {
-//
-//		String[] config = Utility.leggiConfig("DosimetryConfig.txt");
-//		if (config == null) {
-//			return true;
-//		}
-//
-//		String strIn = config[0];
-//		if (strIn.equalsIgnoreCase("SI")) {
-//			return true;
-//		} else {
-//			return false;
-//		}
-//	}
 
 	/**
 	 * Porta petctviewr toFront
@@ -1151,66 +1105,6 @@ public class Utility {
 		}
 	}
 
-	static void myScalaColori() {
-
-		int countx = 0;
-		int county = 0;
-		int countz = 0;
-		int maxcount = 0;
-		int slice = 0;
-		double voxMask = 0;
-		int width = 128;
-		int height = 128;
-		int depth = 128;
-		int lato = 6;
-		int bitdepth = 24;
-
-		ImageStack stack = ImageStack.create(width, height, depth, bitdepth);
-
-		for (int z1 = 1; z1 < depth; z1 = z1 + 4) {
-			countz++;
-			countx = 0;
-			for (int x1 = 0; x1 < width; x1 = x1 + 4) {
-				countx++;
-				county = 0;
-				for (int y1 = 0; y1 < height; y1 = y1 + 4) {
-					county++;
-					int pippo = Utility.rainbowPixel(countx, county, countz);
-					float[] puppo = new float[8 * 8 * 8];
-					for (int i1 = 0; i1 < puppo.length; i1++)
-						puppo[i1] = (float) pippo;
-
-					stack.setVoxels(z1, x1, y1, 8, 8, 8, puppo);
-				}
-			}
-		}
-
-		ImagePlus imp1 = new ImagePlus("TITOLO", stack);
-		imp1.show();
-
-		return;
-	}
-
-	private static int rainbowPixel2(double xspan, double yspan) {
-
-		double red = 255. - yspan * 255. * (1.0 + Math.sin(6.3 * xspan)) / 2.;
-		double green = 255. - yspan * 255. * (1.0 + Math.cos(6.3 * xspan)) / 2.;
-		double blue = 255. - yspan * 255. * (1.0 - Math.sin(6.3 * xspan)) / 2.;
-
-		return ((int) red << 16) + ((int) green << 8) + (int) blue;
-
-	}
-
-	private static int rainbowPixel(int xcount, int ycount, int zcount) {
-
-		double red = 256 / xcount;
-		double green = 255 / ycount;
-		double blue = 255 / zcount;
-		int aux1 = ((int) red << 16) + ((int) green << 8) + (int) blue;
-//		MyLog.log("" + xcount + " " + ycount + "  " + zcount + " " + aux1);
-		return aux1;
-	}
-
 	static int searchPercentPosition(double[] vetIn, double[] vetY, int percent) {
 
 		// calcolo la differenza tra Y e la percentuale cercata
@@ -1257,7 +1151,6 @@ public class Utility {
 
 		return vetOut;
 	}
-
 
 	static double[][] rasegotto(double[] vetx24, double[] vetx48, double[] vetx120, double[] vety24) {
 
@@ -1410,94 +1303,51 @@ public class Utility {
 
 	}
 
-	static String[] leggiConfig(String target) {
-
-		URL url3 = Utility.class.getResource("Dosimetria_Lu177.class");
-		String myString = url3.toString();
-		int start = myString.indexOf("plugins");
-		int end = myString.lastIndexOf("!");
-		if (start < 0 || end < 0)
-			return null;
-		String myPart1 = myString.substring(start, end);
-		int end2 = myPart1.lastIndexOf("/");
-		String myPart2 = myPart1.substring(0, end2);
-		String myPath = myPart2 + File.separator + target;
-		File f1 = new File(myPath);
-		if (!f1.isFile())
-			return null;
-		String[] vetOut = new String[3];
-		vetOut[0] = MyLog.readFromLog(myPath, "#001#", "=");
-		vetOut[1] = MyLog.readFromLog(myPath, "#002#", "=");
-		vetOut[2] = MyLog.readFromLog(myPath, "#003#", "=");
-
-//		coordX = parseInt(vetOut[0]);
-//		coordY = parseInt(vetOut[1]);
-//		coordZ = parseInt(vetOut[2]);
-
-		return vetOut;
-	}
-
-	static int[] leggiCoordinateVoxels(String[] puffi) {
-
-		String strIn = puffi[2];
-		String[] vet = strIn.split(",");
-		int[] vetOut = new int[vet.length];
-		for (int i1 = 0; i1 < vet.length; i1++) {
-			vetOut[i1] = Utility.parseInt(vet[i1]);
-		}
-
-		return vetOut;
-	}
-
-	static boolean leggiLogVoxelsConfig(String[] puffi) {
-		String strIn = puffi[1];
-		if (strIn.equalsIgnoreCase("SI"))
-			return true;
-		else
-			return false;
-	}
-
 	static void loggoVoxels2(ImagePlus impStack, int x1, int y1, int z1) {
 
-		Calibration cal = impStack.getCalibration();
-		ImageStack imagestack = impStack.getImageStack();
-		double calSignal = imagestack.getVoxel(x1, y1, z1);
-		double voxSignal = cal.getCValue(calSignal);
+		if (MyGlobals.loggoVoxels) {
+			Calibration cal = impStack.getCalibration();
+			ImageStack imagestack = impStack.getImageStack();
+			double calSignal = imagestack.getVoxel(x1, y1, z1);
+			double voxSignal = cal.getCValue(calSignal);
 
-		MyLog.log("#############################################");
-		MyLog.log("immagine_" + impStack.getTitle() + "_cal= " + voxSignal + " at " + x1 + ", " + y1 + ", " + z1);
+			MyLog.log("#############################################");
+			MyLog.log("immagine_" + impStack.getTitle() + "_cal= " + voxSignal + " at " + x1 + ", " + y1 + ", " + z1);
+		}
 	}
 
 	static void loggoCuxels2(ImagePlus impStack, int x1, int y1, int z1, int lato, int mezzo) {
 
-		ImageStack imagestack = impStack.getImageStack();
-		float[] calSignal = imagestack.getVoxels(x1, y1, z1, lato, lato, lato, null);
-		MyLog.log("###### CUXELS2  immagine_" + impStack.getTitle() + "_CUBE #############");
+		if (MyGlobals.loggoVoxels) {
+			ImageStack imagestack = impStack.getImageStack();
+			float[] calSignal = imagestack.getVoxels(x1, y1, z1, lato, lato, lato, null);
+			MyLog.log("###### CUXELS2  immagine_" + impStack.getTitle() + "_CUBE #############");
 
-		String aux2 = "";
-		for (int i3 = x1 - mezzo; i3 < x1 + mezzo + 1; i3++) {
-			aux2 = aux2 + "; coordX " + String.format("%03d", i3);
-		}
-
-		String aux1 = "";
-		int count = y1 - mezzo;
-		int count2 = 0;
-		int slice = z1 - mezzo;
-		MyLog.log("slice " + slice + "+++" + aux2);
-		for (int i1 = 0; i1 < calSignal.length - lato - 1; i1 = i1 + lato) {
-			aux1 = "";
-			for (int i2 = 0; i2 < lato; i2++) {
-				aux1 = aux1 + String.format("%+08.2f", calSignal[i1 + i2]) + ";  ";
+			String aux2 = "";
+			for (int i3 = x1 - mezzo; i3 < x1 + mezzo + 1; i3++) {
+				aux2 = aux2 + "; coordX " + String.format("%03d", i3);
 			}
-			MyLog.log("coordY " + String.format("%03d", count) + ";   " + aux1);
-			count++;
-			count2++;
-			if (count2 == lato) {
-				count2 = 0;
-				slice++;
-				if (i1 < (calSignal.length - lato))
-					MyLog.log("slice " + slice + "+++" + aux2);
-				count = y1 - mezzo;
+
+			String aux1 = "";
+			int count = y1 - mezzo;
+			int count2 = 0;
+			int slice = z1 - mezzo;
+			MyLog.log("slice " + slice + "+++" + aux2);
+			for (int i1 = 0; i1 < calSignal.length - lato - 1; i1 = i1 + lato) {
+				aux1 = "";
+				for (int i2 = 0; i2 < lato; i2++) {
+					aux1 = aux1 + String.format("%+08.2f", calSignal[i1 + i2]) + ";  ";
+				}
+				MyLog.log("coordY " + String.format("%03d", count) + ";   " + aux1);
+				count++;
+				count2++;
+				if (count2 == lato) {
+					count2 = 0;
+					slice++;
+					if (i1 < (calSignal.length - lato))
+						MyLog.log("slice " + slice + "+++" + aux2);
+					count = y1 - mezzo;
+				}
 			}
 		}
 	}
@@ -1510,37 +1360,41 @@ public class Utility {
 		a1 = x1 - mezzo;
 		b1 = y1 - mezzo;
 		c1 = z1 - mezzo;
-		MyLog.log("a1= " + a1 + " b1= " + b1 + " c1= " + c1);
 
-		ImageStack imagestack = impStack.getImageStack();
-		float[] calSignal = imagestack.getVoxels(a1, b1, c1, lato, lato, lato, null);
+		if (MyGlobals.loggoVoxels) {
 
-		MyLog.log("###### CUXELS3  immagine_" + impStack.getTitle() + "_CUBE #############");
+			MyLog.log("a1= " + a1 + " b1= " + b1 + " c1= " + c1);
 
-		String aux2 = "";
-		for (int i3 = x1 - mezzo; i3 < x1 + mezzo + 1; i3++) {
-			aux2 = aux2 + "; coordX " + String.format("%03d", i3);
-		}
+			ImageStack imagestack = impStack.getImageStack();
+			float[] calSignal = imagestack.getVoxels(a1, b1, c1, lato, lato, lato, null);
 
-		String aux1 = "";
-		int count = y1 - mezzo;
-		int count2 = 0;
-		int slice = z1 - mezzo;
-		MyLog.log("slice " + slice + "+++" + aux2);
-		for (int i1 = 0; i1 < (calSignal.length - lato) + 1; i1 = i1 + lato) {
-			aux1 = "";
-			for (int i2 = 0; i2 < lato; i2++) {
-				aux1 = aux1 + String.format("%+08.2f", calSignal[i1 + i2]) + ";  ";
+			MyLog.log("###### CUXELS3  immagine_" + impStack.getTitle() + "_CUBE #############");
+
+			String aux2 = "";
+			for (int i3 = x1 - mezzo; i3 < x1 + mezzo + 1; i3++) {
+				aux2 = aux2 + "; coordX " + String.format("%03d", i3);
 			}
-			MyLog.log("coordY " + String.format("%03d", count) + ";   " + aux1);
-			count++;
-			count2++;
-			if (count2 == lato) {
-				count2 = 0;
-				slice++;
-				if (i1 < (calSignal.length - lato))
-					MyLog.log("slice " + slice + "+++" + aux2);
-				count = y1 - mezzo;
+
+			String aux1 = "";
+			int count = y1 - mezzo;
+			int count2 = 0;
+			int slice = z1 - mezzo;
+			MyLog.log("slice " + slice + "+++" + aux2);
+			for (int i1 = 0; i1 < (calSignal.length - lato) + 1; i1 = i1 + lato) {
+				aux1 = "";
+				for (int i2 = 0; i2 < lato; i2++) {
+					aux1 = aux1 + String.format("%+08.2f", calSignal[i1 + i2]) + ";  ";
+				}
+				MyLog.log("coordY " + String.format("%03d", count) + ";   " + aux1);
+				count++;
+				count2++;
+				if (count2 == lato) {
+					count2 = 0;
+					slice++;
+					if (i1 < (calSignal.length - lato))
+						MyLog.log("slice " + slice + "+++" + aux2);
+					count = y1 - mezzo;
+				}
 			}
 		}
 	}
@@ -1553,37 +1407,41 @@ public class Utility {
 		a1 = x1 - mezzo;
 		b1 = y1 - mezzo;
 		c1 = z1 - mezzo;
-		MyLog.log("a1= " + a1 + " b1= " + b1 + " c1= " + c1);
 
-		ImageStack imagestack = impStack.getImageStack();
-		float[] calSignal = imagestack.getVoxels(a1, b1, c1, lato, lato, lato, null);
+		if (MyGlobals.loggoVoxels) {
 
-		MyLog.log("###### CUXELS3  immagine_" + impStack.getTitle() + "_CUBE #############");
+			MyLog.log("a1= " + a1 + " b1= " + b1 + " c1= " + c1);
 
-		String aux2 = "";
-		for (int i3 = x1 - mezzo; i3 < x1 + mezzo + 1; i3++) {
-			aux2 = aux2 + "; coordX " + String.format("%03d", i3);
-		}
+			ImageStack imagestack = impStack.getImageStack();
+			float[] calSignal = imagestack.getVoxels(a1, b1, c1, lato, lato, lato, null);
 
-		String aux1 = "";
-		int count = y1 - mezzo;
-		int count2 = 0;
-		int slice = z1 - mezzo;
-		MyLog.log("slice " + slice + "+++" + aux2);
-		for (int i1 = 0; i1 < (calSignal.length - lato) + 1; i1 = i1 + lato) {
-			aux1 = "";
-			for (int i2 = 0; i2 < lato; i2++) {
-				aux1 = aux1 + String.format("%+.2E", calSignal[i1 + i2]) + ";  ";
+			MyLog.log("###### CUXELS3  immagine_" + impStack.getTitle() + "_CUBE #############");
+
+			String aux2 = "";
+			for (int i3 = x1 - mezzo; i3 < x1 + mezzo + 1; i3++) {
+				aux2 = aux2 + "; coordX " + String.format("%03d", i3);
 			}
-			MyLog.log("coordY " + String.format("%03d", count) + ";   " + aux1);
-			count++;
-			count2++;
-			if (count2 == lato) {
-				count2 = 0;
-				slice++;
-				if (i1 < (calSignal.length - lato))
-					MyLog.log("slice " + slice + "+++" + aux2);
-				count = y1 - mezzo;
+
+			String aux1 = "";
+			int count = y1 - mezzo;
+			int count2 = 0;
+			int slice = z1 - mezzo;
+			MyLog.log("slice " + slice + "+++" + aux2);
+			for (int i1 = 0; i1 < (calSignal.length - lato) + 1; i1 = i1 + lato) {
+				aux1 = "";
+				for (int i2 = 0; i2 < lato; i2++) {
+					aux1 = aux1 + String.format("%+.2E", calSignal[i1 + i2]) + ";  ";
+				}
+				MyLog.log("coordY " + String.format("%03d", count) + ";   " + aux1);
+				count++;
+				count2++;
+				if (count2 == lato) {
+					count2 = 0;
+					slice++;
+					if (i1 < (calSignal.length - lato))
+						MyLog.log("slice " + slice + "+++" + aux2);
+					count = y1 - mezzo;
+				}
 			}
 		}
 	}
@@ -1757,7 +1615,7 @@ public class Utility {
 		String[] tabellaStringhe = Utility.generaTabella();
 		int[][] tabellaBella = Utility.tabellaPuntatori(tabellaStringhe);
 		double[] valuesBella = Utility.tabellaSValues(tabellaStringhe);
-		int lato = Utility.latoCubo();
+		int lato = MyGlobals.latoCubo();
 		int mezzo = (lato - 1) / 2;
 		int bitdepth = 32;
 		ImageStack stackRubik = ImageStack.create(lato, lato, lato, bitdepth);

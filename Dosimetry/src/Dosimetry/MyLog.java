@@ -27,13 +27,7 @@ public class MyLog {
 
 		boolean stampa = false;
 
-		String[] config = Utility.leggiConfig("DosimetryConfig.txt");
-		if (config == null) {
-			IJ.log(str);
-			return;
-		}
-		String strIn = config[0];
-		if (strIn.equalsIgnoreCase("SI")) {
+		if (MyGlobals.attivaLog) {
 			stampa = true;
 		} else {
 			// IJ.log("stampa=false");

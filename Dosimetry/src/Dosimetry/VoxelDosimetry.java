@@ -18,28 +18,19 @@ import ij.process.ImageProcessor;
 public class VoxelDosimetry {
 
 	/**
-	 * Calcolo DVH come subroutine
+	 * Calcolo iniziale immagini per DVH
 	 * 
 	 * @param dosimetryFolder
+	 * @param puntiSelezionati
+	 * @param par_a
+	 * @return
 	 */
 	static ArrayList<ArrayList<Double>> start_DVH1(String dosimetryFolder, boolean[] puntiSelezionati, double par_a) {
 
-//		int lato = Utility.latoCubo();
-//		int mezzo = (lato - 1) / 2;
-
 		String lesione1 = "";
-//		String lesione3 = "";
-//		String lesione4 = "";
 		String logVolatile = dosimetryFolder + File.separator + "volatile.txt";
 		String out1 = "volatile";
 		String startingDir1 = "";
-
-		double[] vetx24 = null;
-		double[] vety24 = null;
-		double[] vetx48 = null;
-		double[] vety48 = null;
-		double[] vetx120 = null;
-		double[] vety120 = null;
 
 		MyLog.here();
 
@@ -68,26 +59,6 @@ public class VoxelDosimetry {
 				xList.add(null);
 			}
 		}
-
-		ArrayList<Double> arrList1 = null;
-		arrList1 = xList.get(0);
-		if (arrList1 != null)
-			vetx24 = Utility.arrayListToArrayDouble(arrList1);
-		arrList1 = xList.get(2);
-		if (arrList1 != null)
-			vety24 = Utility.arrayListToArrayDouble(arrList1);
-		arrList1 = xList.get(3);
-		if (arrList1 != null)
-			vetx48 = Utility.arrayListToArrayDouble(arrList1);
-		arrList1 = xList.get(5);
-		if (arrList1 != null)
-			vety48 = Utility.arrayListToArrayDouble(arrList1);
-		arrList1 = xList.get(6);
-		if (arrList1 != null)
-			vetx120 = Utility.arrayListToArrayDouble(arrList1);
-		arrList1 = xList.get(8);
-		if (arrList1 != null)
-			vety120 = Utility.arrayListToArrayDouble(arrList1);
 
 		return xList;
 
@@ -135,15 +106,12 @@ public class VoxelDosimetry {
 		int x2 = 0;
 		int y2 = 0;
 		int z2 = 0;
-//		int x3 = 0;
-//		int y3 = 0;
-//		int z3 = 0;
 
 		MyLog.here();
 
 		long start1 = System.currentTimeMillis();
-		int lato = Utility.latoCubo();
-		int mezzo = (lato - 1) / 2;
+		int lato = MyGlobals.latoCubo();
+		int mezzo = MyGlobals.mezzoLato();
 		if (Double.isNaN(par_a))
 			MyLog.waitHere("par_a= NaN");
 
@@ -179,16 +147,12 @@ public class VoxelDosimetry {
 		impStackMask.setDisplayRange(50, 255);
 		impStackMask.setSlice(sl);
 		impStackMask.setTitle("MASK " + ore + "h");
-//		impStackMask.show();
 
 		if (MyGlobals.loggoVoxels) {
 			// serve solo per DEBUG durante le prove
 			x2 = MyGlobals.coordinateVoxels[0];
 			y2 = MyGlobals.coordinateVoxels[1];
 			z2 = MyGlobals.coordinateVoxels[2];
-//			x3 = x2 - mezzo;
-//			y3 = y2 - mezzo;
-//			z3 = z2 - mezzo;
 
 			Utility.loggoVoxels2(impStackIn, x2, y2, z2);
 		}
@@ -514,7 +478,7 @@ public class VoxelDosimetry {
 	}
 
 	/**
-	 * Parte 2 calcolo DVH
+	 * Gestione calocoli DVH a seconda dei punti selezionati
 	 * 
 	 * @param vetx24
 	 * @param vety24
@@ -636,6 +600,13 @@ public class VoxelDosimetry {
 		return matout5;
 	}
 
+	/**
+	 * Calcolo DVH errore dose superiore per grafico
+	 * 
+	 * @param vetMed
+	 * @param vetMax
+	 * @return
+	 */
 	static double[] calcoliDVHerrSup(double[] vetMed, double[] vetMax) {
 		double[] vetErrSup = new double[vetMed.length];
 		double errDose = 0;
@@ -646,6 +617,13 @@ public class VoxelDosimetry {
 		return vetErrSup;
 	}
 
+	/**
+	 * Calcolo DVH errore dose inferiore per grafico
+	 * 
+	 * @param vetMed
+	 * @param vetMin
+	 * @return
+	 */
 	static double[] calcoliDVHerrInf(double[] vetMed, double[] vetMin) {
 		double[] vetErrInf = new double[vetMed.length];
 		double errDose = 0;
@@ -656,6 +634,13 @@ public class VoxelDosimetry {
 		return vetErrInf;
 	}
 
+	/**
+	 * Calcolo DVH errore
+	 * 
+	 * @param vetMedia
+	 * @param errMedia
+	 * @return
+	 */
 	static double calcoliDVHerrFinale(double[] vetMedia, double[] errMedia) {
 		double[] vetErrDose = new double[vetMedia.length];
 		double errDose = 0;
@@ -673,6 +658,13 @@ public class VoxelDosimetry {
 		return errOut;
 	}
 
+	/**
+	 * Calolo DVH errore
+	 * 
+	 * @param vetMin
+	 * @param vetMax
+	 * @return
+	 */
 	static double[] calcoliDVHerrDose2(double[] vetMin, double[] vetMax) {
 		double[] vetErrDose = new double[vetMax.length];
 		double errDose = 0;
@@ -683,6 +675,16 @@ public class VoxelDosimetry {
 		return vetErrDose;
 	}
 
+	/**
+	 * Calcolo DVH ricerca approssimata di una percentuale, facendo il minimo della
+	 * differenza
+	 * 
+	 * @param vetErrDose
+	 * @param vetMedia
+	 * @param vetY
+	 * @param percent
+	 * @return
+	 */
 	static double[] calcoliDVH(double[] vetErrDose, double[] vetMedia, double[] vetY, int percent) {
 
 		double valPercent = 0;
@@ -718,19 +720,19 @@ public class VoxelDosimetry {
 	}
 
 	/**
-	 * Parte 1 calcolo DVH rimozione doppioni e creazione array numerosita'
+	 * Calcolo DVH rimozione doppioni e creazione array numerosita'
 	 * 
 	 * @param vetVoxel
+	 * @param ore
 	 * @return
 	 */
 	static ArrayList<ArrayList<Double>> sub_DVH4(double[] vetVoxel, int ore) {
 		// ---------------------------------
 
 		MyLog.log("eseguo calcDVH1 " + ore + " ore");
-		
-	
+
 		Arrays.sort(vetVoxel);
-		
+
 		// --------------------------------
 		// rimozione dei doppioni e creazione array
 		int n1 = vetVoxel.length;
@@ -861,6 +863,7 @@ public class VoxelDosimetry {
 	 * @return
 	 */
 	static double mAtildeSingleVoxel(double voxSignal, double acqDuration, double fatCal, double deltaT, double par_a) {
+
 		double ahhVoxel = voxSignal / (acqDuration * fatCal);
 		double aVoxel = ahhVoxel / Math.exp(-(par_a * deltaT));
 		double aTildeVoxel = (aVoxel / par_a) * 3600;

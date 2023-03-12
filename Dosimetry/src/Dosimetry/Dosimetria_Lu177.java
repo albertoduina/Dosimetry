@@ -748,12 +748,30 @@ public class Dosimetria_Lu177 implements PlugIn {
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
 				if (threepoints) {
+					MyLog.log("TRE PUNTI CON FLANAGAN");
+					MyLog.logVector(xp1, "xp1");
+					MyLog.logVector(yp1, "yp1");
 					Regression rf = Utility.MIRD_curveFitterSpecialFlanagan(xp1, yp1);
 					MyGlobals.titPL0405 = MyPlot.PL05_MIRD_curvePlotterSpecialFlanagan(rf, xp1, yp1, null);
 				} else {
-					CurveFitter cf = Utility.MIRD_curveFitterSpecialImageJ(xp1, yp1);
+					MyLog.log("DUE PUNTI CON IMAGEJ");
+
+					int count2 = 0;
+					double[] xp2 = new double[2];
+					double[] yp2 = new double[2];
+					for (int i1 = 0; i1 < xp1.length; i1++) {
+						if (puntiSelezionati[i1]) {
+							xp2[count2] = xp1[i1];
+							yp2[count2] = yp1[i1];
+							count2++;
+						}
+					}
+					MyLog.logVector(xp2, "xp2");
+					MyLog.logVector(yp2, "yp2");
+
+					CurveFitter cf = Utility.MIRD_curveFitterSpecialImageJ(xp2, yp2); // qui ci vanno xp2 e yp2
 					MyGlobals.titPL0405 = MyPlot.PL04_MIRD_curvePlotterSpecialImageJ(cf, xp1, yp1, puntiSelezionati,
-							null);
+							null); // qui invece ci vanno xp1 e yp1
 				}
 
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
