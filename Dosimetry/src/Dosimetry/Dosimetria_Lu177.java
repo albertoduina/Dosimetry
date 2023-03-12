@@ -875,14 +875,20 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		double ErrMedia = Utility.vetMeanSecond(vetErrDose);
 
-		double[][] export1 = Utility.samplerDVH(vetErrDose, vetY);
+		double[][] export1 = Utility.samplerDVH(vetMed, vetY);
+		double[][] export2 = Utility.samplerDVH(vetErrSup, vetY);
+		double[][] export3 = Utility.samplerDVH(vetErrInf, vetY);
 
 		String str11 = "";
 		String str12 = "";
+		String str13 = "";
+		String str14 = "";
 		// esperimento esportazione
 		for (int i1 = 0; i1 < export1.length; i1++) {
 			str11 = str11 + export1[i1][0] + "; ";
-			str12 = str12 + export1[i1][1] + "; ";
+			str12 = str12 + export2[i1][0] + "; ";
+			str13 = str13 + export3[i1][0] + "; ";
+			str14 = str14 + export3[i1][1] + "; ";
 		}
 
 		NonBlockingGenericDialog resultsDialog = new NonBlockingGenericDialog("SV07 - Results");
@@ -1031,9 +1037,13 @@ public class Dosimetria_Lu177 implements PlugIn {
 		count5 = 600;
 		aux5 = "#" + String.format("%03d", count5++) + "#\t---------- ESPORTAZIONE GRAFICI ----------";
 		MyLog.logAppend(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tCALCOLO ERRORE DVH= " + str11;
+		aux5 = "#" + String.format("%03d", count5++) + "#\tDVH MEDIO= " + str11;
 		MyLog.logAppend(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tPERCENTUALE= " + str12;
+		aux5 = "#" + String.format("%03d", count5++) + "#\tERRORE SUPERIORE= " + str12;
+		MyLog.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tERRORE INFERIORE= " + str13;
+		MyLog.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tPERCENTUALE= " + str14;
 		MyLog.logAppend(pathVolatile, aux5);
 
 		// ==============================================================
