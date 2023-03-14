@@ -1,5 +1,0 @@
----- INIZIO ---------
-Visualizza stampe su IJ.log= SI
-Visualizza log dei voxels= SI
-Coordinate [x,y,z] Voxel centrale del cubo 6x6 di cui fare il log = 60,55,30
----- FINE ---------
