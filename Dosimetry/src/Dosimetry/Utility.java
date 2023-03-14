@@ -1152,6 +1152,15 @@ public class Utility {
 		return vetOut;
 	}
 
+	/**
+	 * Calcolo di maggiore e minore (punto piu' a destra e punto piu' a sinistra)
+	 * 
+	 * @param vetx24
+	 * @param vetx48
+	 * @param vetx120
+	 * @param vety24
+	 * @return
+	 */
 	static double[][] rasegotto(double[] vetx24, double[] vetx48, double[] vetx120, double[] vety24) {
 
 		double matout[][] = new double[vetx24.length][3];
@@ -1163,6 +1172,14 @@ public class Utility {
 		return matout;
 	}
 
+	/**
+	 * Calcolo di maggiore e minore (punto piu' a destra e punto piu' a sinistra)
+	 * 
+	 * @param vetxlow
+	 * @param vetxhigh
+	 * @param vety24
+	 * @return
+	 */
 	static double[][] rasegotto2(double[] vetxlow, double[] vetxhigh, double[] vety24) {
 
 		double matout[][] = new double[vety24.length][3];
@@ -1174,41 +1191,83 @@ public class Utility {
 		return matout;
 	}
 
+	/**
+	 * Calcolo del vettore medio
+	 * 
+	 * @param vetx24
+	 * @param vetx48
+	 * @param vetx120
+	 * @param vety24
+	 * @return
+	 */
 	static double[][] mediolotto(double[] vetx24, double[] vetx48, double[] vetx120, double[] vety24) {
+
+		if (vetx24.length != vety24.length)
+			MyLog.waitHere("vetx24.length != vety24.length");
+		if (vetx48.length != vety24.length)
+			MyLog.waitHere("vetx48.length != vety24.length");
+		if (vetx120.length != vety24.length)
+			MyLog.waitHere("vetx120.length != vety24.length");
 
 		double matout[][] = new double[vetx24.length][2];
 		for (int i1 = 0; i1 < vetx24.length; i1++) {
-			matout[i1][0] = media(vetx24[i1], vetx48[i1], vetx120[i1]);
+			matout[i1][0] = (vetx24[i1] + vetx48[i1] + vetx120[i1]) / 3.0;
 			matout[i1][1] = vety24[i1];
 		}
 		return matout;
 	}
 
-	static double[][] mediolotto2(double[] vetxlow, double[] vetxhigh, double[] vety24) {
+	/**
+	 * calcolo del vettore medio
+	 * 
+	 * @param vetxlow
+	 * @param vetxhigh
+	 * @param vetylow
+	 * @return
+	 */
+	static double[][] mediolotto2(double[] vetxlow, double[] vetxhigh, double[] vetylow) {
+		
+		if (vetxlow==null) MyLog.waitHere("vetxlow==null");
+		if (vetxhigh==null) MyLog.waitHere("vetxhigh==null");
+		if (vetylow==null) MyLog.waitHere("vetylow==null");
 
-		double matout[][] = new double[vety24.length][2];
-		for (int i1 = 0; i1 < vety24.length; i1++) {
+		if (vetxlow.length != vetylow.length)
+			MyLog.waitHere("vetxlow.length != vety24.length");
+		if (vetxhigh.length != vetylow.length)
+			MyLog.waitHere("vetxhigh.length != vety24.length");
+
+		double matout[][] = new double[vetylow.length][2];
+		for (int i1 = 0; i1 < vetylow.length; i1++) {
 			matout[i1][0] = (vetxlow[i1] + vetxhigh[i1]) / 2.0;
-			matout[i1][1] = vety24[i1];
+			matout[i1][1] = vetylow[i1];
 		}
 		return matout;
 	}
 
+	/**
+	 * minore tra tre valori
+	 * 
+	 * @param aa
+	 * @param bb
+	 * @param cc
+	 * @return
+	 */
 	static double minore(double aa, double bb, double cc) {
 
 		return Math.min(Math.min(aa, bb), cc);
 	}
 
+	/**
+	 * maggiore tra tre valori
+	 * 
+	 * @param aa
+	 * @param bb
+	 * @param cc
+	 * @return
+	 */
 	static double maggiore(double aa, double bb, double cc) {
 
 		return Math.max(Math.max(aa, bb), cc);
-	}
-
-	static double media(double aa, double bb, double cc) {
-
-		double media1 = (aa + bb + cc) / 3.0;
-
-		return media1;
 	}
 
 	/**
@@ -1303,6 +1362,14 @@ public class Utility {
 
 	}
 
+	/**
+	 * log di un singolo voxel
+	 * 
+	 * @param impStack
+	 * @param x1
+	 * @param y1
+	 * @param z1
+	 */
 	static void loggoVoxels2(ImagePlus impStack, int x1, int y1, int z1) {
 
 		if (MyGlobals.loggoVoxels) {
@@ -1316,6 +1383,15 @@ public class Utility {
 		}
 	}
 
+	/**
+	 * log di un voxel cubico 
+	 * @param impStack
+	 * @param x1
+	 * @param y1
+	 * @param z1
+	 * @param lato
+	 * @param mezzo
+	 */
 	static void loggoCuxels2(ImagePlus impStack, int x1, int y1, int z1, int lato, int mezzo) {
 
 		if (MyGlobals.loggoVoxels) {
@@ -1352,6 +1428,16 @@ public class Utility {
 		}
 	}
 
+	/**
+	 * log di un voxel cubico
+	 * 
+	 * @param impStack
+	 * @param x1
+	 * @param y1
+	 * @param z1
+	 * @param lato
+	 * @param mezzo
+	 */
 	static void loggoCuxels3(ImagePlus impStack, int x1, int y1, int z1, int lato, int mezzo) {
 
 		int a1;
@@ -1399,6 +1485,16 @@ public class Utility {
 		}
 	}
 
+	/**
+	 * log di un voxel cubico
+	 * 
+	 * @param impStack
+	 * @param x1
+	 * @param y1
+	 * @param z1
+	 * @param lato
+	 * @param mezzo
+	 */
 	static void loggoCuxels4(ImagePlus impStack, int x1, int y1, int z1, int lato, int mezzo) {
 
 		int a1;
@@ -1641,6 +1737,17 @@ public class Utility {
 
 	}
 
+	/**
+	 * 
+	 * 
+	 * @param voxSignal
+	 * @param acqDuration
+	 * @param fatCal
+	 * @param deltaT
+	 * @param par_a
+	 * @param log1
+	 * @return
+	 */
 	public static double matildeSingleVoxel(double voxSignal, double acqDuration, double fatCal, double deltaT,
 			double par_a, boolean log1) {
 
@@ -1656,6 +1763,16 @@ public class Utility {
 		return aTildeVoxel;
 	}
 
+	/**
+	 * 
+	 * 
+	 * @param tabellaBella
+	 * @param valuesBella
+	 * @param i9
+	 * @param j9
+	 * @param k9
+	 * @return
+	 */
 	public static double searchValue(int[][] tabellaBella, double[] valuesBella, int i9, int j9, int k9) {
 
 		int i8 = Math.abs(i9);
@@ -1679,6 +1796,11 @@ public class Utility {
 		return sValue;
 	}
 
+	/**
+	 * 
+	 * 
+	 * @param impMatrix
+	 */
 	public static void matrixEnlarger(ImagePlus impMatrix) {
 
 		ImageStack stack = impMatrix.getStack();

@@ -444,6 +444,11 @@ public class VoxelDosimetry {
 		return out1;
 	}
 
+	/**
+	 * 
+	 * @param vetTabella
+	 * @param lato
+	 */
 	void loggoTabellaBella(float[] vetTabella, int lato) {
 
 		MyLog.log("############## vetTabella VALORI CONVERSIONE ##############");
@@ -463,6 +468,11 @@ public class VoxelDosimetry {
 		}
 	}
 
+	/**
+	 * 
+	 * @param vetTabella
+	 * @param lato
+	 */
 	void creoStackTabellaBella(float[] vetTabella, int lato) {
 
 		int width = lato;
@@ -537,7 +547,7 @@ public class VoxelDosimetry {
 			vetMin = Utility.matToVect(matout3, 0);
 			vetMax = Utility.matToVect(matout3, 1);
 			vetY = Utility.matToVect(matout3, 2);
-			matout4 = Utility.mediolotto2(vetMin, vetMax, vetY);
+			matout4 = Utility.mediolotto2(vetx24, vetx48new, vetY);
 			vetMedia = Utility.matToVect(matout4, 0);
 			break;
 		case 2:
@@ -552,7 +562,7 @@ public class VoxelDosimetry {
 			vetMin = Utility.matToVect(matout3, 0);
 			vetMax = Utility.matToVect(matout3, 1);
 			vetY = Utility.matToVect(matout3, 2);
-			matout4 = Utility.mediolotto2(vetMin, vetMax, vetY);
+			matout4 = Utility.mediolotto2(vetx24, vetx120new, vety24);
 			vetMedia = Utility.matToVect(matout4, 0);
 			break;
 		case 3:
@@ -567,7 +577,7 @@ public class VoxelDosimetry {
 			vetMin = Utility.matToVect(matout3, 0);
 			vetMax = Utility.matToVect(matout3, 1);
 			vetY = Utility.matToVect(matout3, 2);
-			matout4 = Utility.mediolotto2(vetMin, vetMax, vetY);
+			matout4 = Utility.mediolotto2(vetx48, vetx120new, vety48);
 			break;
 		default:
 			vetxLow = vetx24;
@@ -588,7 +598,7 @@ public class VoxelDosimetry {
 			vetMin = Utility.matToVect(matout3, 0);
 			vetMax = Utility.matToVect(matout3, 1);
 			vetY = Utility.matToVect(matout3, 2);
-			matout4 = Utility.mediolotto2(vetMin, vetMax, vetY);
+			matout4 = Utility.mediolotto(vetx24, vetx48new, vetx120new, vety24);
 			vetMedia = Utility.matToVect(matout4, 0);
 		}
 
