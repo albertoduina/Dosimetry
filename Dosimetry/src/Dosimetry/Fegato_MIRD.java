@@ -21,12 +21,14 @@ public class Fegato_MIRD implements PlugIn {
 	// PATIENT-DOSIMETRY INFO 48 h #130#-#159#
 	// PATIENT-DOSIMETRY INFO 24 h #160#-#199#
 	//
+	// non capisco che succede
 
 	public static String pathVolatile;
 
 
 	public void run(String arg) {
 
+		
 		Locale.setDefault(Locale.US);
 		MyGlobals.coordinates();
 
