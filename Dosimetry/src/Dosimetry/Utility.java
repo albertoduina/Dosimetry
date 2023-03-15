@@ -606,6 +606,9 @@ public class Utility {
 		double Smassa = vetSdKnuth(vetVol);
 		double Stmezzo = Double.NaN;
 		double Stau = Double.NaN;
+		
+		/// test
+		
 //		double Sdose = Double.NaN;
 
 		if (errors != null) {
