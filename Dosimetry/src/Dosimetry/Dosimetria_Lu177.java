@@ -44,6 +44,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 	public void run(String paramString) {
 
 		Locale.setDefault(Locale.US);
+		MyGlobals.coordinates();
+
 		MyGlobals.desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
 		MyGlobals.pathPermanente = MyGlobals.desktopPath + File.separator + "DosimetryFolder" + File.separator
 				+ "permanente.txt";
@@ -68,8 +70,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		String JavaVersion = System.getProperty("java.version");
 
 		String jarName = Utility.getJarTitle();
-
-		MyGlobals.coordinates();
 
 		// ===========================================================
 		// LEGGO CARTELLA DOSIMETRY FOLDER (E SOTTOCARTELLA IMAGES FOLDER)
@@ -620,8 +620,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 				MyGlobals.titPL01 = MyPlot.PL01_MIRD_pointsPlotter(xp1, yp1, null, titolo1,
 						"24h=red 48h=green 120h=blue");
 
-				boolean[] puntiSelezionati = pointsSelection_LP33(); /// selezione dei 2 o 3 punti su cui in seguito
-																		/// fare il fit
+				boolean[] puntiSelezionati = MyDialog.pointsSelection_LP33(); /// selezione dei 2 o 3 punti su cui in
+																				/// seguito
+				/// fare il fit
 				Utility.closePlot(MyGlobals.titPL01);
 
 				int count = 0;
@@ -637,8 +638,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
-				double[] vetOut4 = processaCalcolaFit2or3(xp1, yp1, MIRD_vol24, MIRD_vol48, MIRD_vol120, pathImage,
-						puntiSelezionati);
+				double[] vetOut4 = Utility.processaCalcolaFit2or3(xp1, yp1, MIRD_vol24, MIRD_vol48, MIRD_vol120,
+						pathImage, puntiSelezionati);
 
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
@@ -1659,10 +1660,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 			aList.add(bList);
 		}
 		// --------------------------------------------------------------------------------------
-		// Nel file volatile vengono scritti dal seguente loop:
-		// #031#,#032#,#033#,#034#,#035#,#036#,#037#,#038#,
-		// #041#,#042#,#043#,#044#,#045#,#046#,#047#,#048#,
-		// #051#,#052#,#053#,#054#,#055#,#056#,#057#,#058#,
+		// Nel file volatile vengono scritti dal seguente loop i seguenti TAG e i
+		// relativio dati
+		// #011#,#012#,#013#,#014#,#015#,#016#,#017#,#018#,#019#
+		// #031#,#032#,#033#,#034#,#035#,#036#,#037#,#038#,#039#
+		// #051#,#052#,#053#,#054#,#055#,#056#,#057#,#058#,#059#
 		// --------------------------------------------------------------------------------------
 //		String aux1 = "";
 		String aux2 = "";
@@ -1689,44 +1691,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 	}
 
 	/**
-	 * Dialogo non modale di selezione dei punti su cui di seguito fare il fit
-	 * 
-	 * @return
-	 */
-	static boolean[] pointsSelection_LP33() {
-
-		MyLog.log("dialogReview_LP33");
-		String[] items = { "   24h", "   48h", "   120h" };
-		boolean[] def = { true, true, true };
-		int rows = 4;
-		int columns = 1;
-		int count = 0;
-		boolean[] out1 = null;
-		NonBlockingGenericDialog gd1 = null;
-		do {
-			gd1 = new NonBlockingGenericDialog("LP33 - SELECTION");
-			gd1.addCheckboxGroup(rows, columns, items, def);
-			gd1.addMessage("Selezionare ALMENO\ndue punti su cui\nfare il FIT", MyGlobals.defaultFont);
-			gd1.showDialog();
-			out1 = new boolean[def.length];
-			for (int i1 = 0; i1 < def.length; i1++) {
-				out1[i1] = gd1.getNextBoolean();
-				if (out1[i1] == true)
-					count++;
-			}
-			if (count < 2)
-				IJ.error("Dovevi selezionare ALMENO due punti,\nRIPROVACI ..... BYE-BYE!");
-		} while (count < 2);
-		if (gd1.wasCanceled()) {
-			MyLog.log("LP33 - false PREMUTO CANCEL");
-			return null;
-		} else {
-			MyLog.log("LP33 - true PREMUTO OK");
-			return out1;
-		}
-	}
-
-	/**
 	 * SErve ad azzerare, mettendoli a false i tag #901#, #902#, #903 e #904#,
 	 * utilizzati per comunicare tra Dosimetria_Lu17 e Dosimetry_v2,
 	 * 
@@ -1743,489 +1707,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 		MyLog.logModify(path, "#903#", aux1);
 		aux1 = "#904#\tokk= false";
 		MyLog.logModify(path, "#904#", aux1);
-
-	}
-
-	static double[] processaConFlanagan(double[] xp1, double[] yp1, double MIRD_vol24, double MIRD_vol48,
-			double MIRD_vol120) {
-
-		Regression rf = null;
-//		CurveFitter cf = null;
-//		String aux5 = "";
-		double[] out2 = null;
-//		int numParams = 0;
-//		double[] outCF = null;
-//		double[] paramsIJ = null;
-		double[] paramsFLA = null;
-		double[] errorsFLA = null;
-//		double rSquaredIJ = 0;
-		double rSquaredFLA = 0;
-		double AA = Double.NaN;
-		double aa = Double.NaN;
-		double SA = Double.NaN;
-		double Sa = Double.NaN;
-		double mAtilde = Double.NaN;
-		double disintegrazioni = Double.NaN;
-		double uptake = Double.NaN;
-		double massa = Double.NaN;
-		double tmezzo = Double.NaN;
-		double tau = Double.NaN;
-		double SmAtilde = Double.NaN;
-		double Sdisintegrazioni = Double.NaN;
-		double Suptake = Double.NaN;
-		double Smassa = Double.NaN;
-		double Stmezzo = Double.NaN;
-		double Stau = Double.NaN;
-		double dose = Double.NaN;
-		double Sdose = Double.NaN;
-		double Rsquared = Double.NaN;
-		double s1 = Double.NaN;
-		double s2 = Double.NaN;
-		double m1 = Double.NaN;
-		double m2 = Double.NaN;
-
-		MyLog.waitHere("eseguo: processaConFlanagan");
-
-		for (int i1 = 0; i1 < xp1.length; i1++) {
-
-			MyLog.log("in " + i1 + " xp1= " + xp1[i1] + " yp1= " + yp1[i1]);
-
-		}
-
-//		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
-//		desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
-//		pathPermanente = desktopPath + File.separator + "DosimetryFolder" + File.separator + "permanente.txt";
-//		pathVolatile = desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
-//		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
-
-		// =============================================================
-		// FIT DA ESEGUIRE IN OGNI CASO CON FLANAGAN
-		// =============================================================
-		rf = Utility.MIRD_curveFitterSpecialFlanagan(xp1, yp1);
-		MyLog.here(" STO PER STAMPARE PL05");
-		MyPlot.PL05_MIRD_curvePlotterSpecialFlanagan(rf, xp1, yp1, "254h=red 48h=green 120h=blue");
-		// -------- recupero i dati da stampare ---------------
-		rSquaredFLA = rf.getCoefficientOfDetermination();
-		paramsFLA = rf.getBestEstimates();
-		paramsFLA = Utility.vetReverser(paramsFLA);
-		errorsFLA = rf.getBestEstimatesErrors();
-		errorsFLA = Utility.vetReverser(errorsFLA);
-
-		out2 = Utility.calcoliDosimetrici(paramsFLA, errorsFLA, rSquaredFLA, MIRD_vol24, MIRD_vol48, MIRD_vol120,
-				pathVolatile);
-
-		AA = out2[0];
-		aa = out2[1];
-		SA = out2[2];
-		Sa = out2[3];
-		mAtilde = out2[4];
-		disintegrazioni = out2[5];
-		uptake = out2[6];
-		massa = out2[7];
-		tmezzo = out2[8];
-		tau = out2[9];
-		SmAtilde = out2[10];
-		Sdisintegrazioni = out2[11];
-		Suptake = out2[12];
-		Smassa = out2[13];
-		Stmezzo = out2[14];
-		Stau = out2[15];
-		dose = out2[16];
-		Sdose = out2[17];
-		Rsquared = out2[18];
-		s1 = out2[19];
-		s2 = out2[20];
-		m1 = out2[21];
-		m2 = out2[22];
-
-		MyLog.log("==== VALORE MEDIO DOPO FLANAGAN =====");
-		MyLog.log("parametro A= " + AA);
-		MyLog.log("parametro a= " + aa);
-		MyLog.log("mAtilde= " + mAtilde);
-		MyLog.log("# disintegrazioni= " + disintegrazioni);
-		MyLog.log("uptake[%]= " + uptake);
-		MyLog.log("massa= " + massa);
-		MyLog.log("tmezzo= " + tmezzo);
-		MyLog.log("tau= " + tau);
-		MyLog.log("dose= " + dose);
-		MyLog.log("==== ERRORI ==========");
-		MyLog.log("errore SA= " + SA);
-		MyLog.log("errore Sa= " + Sa);
-		MyLog.log("SmAtilde= " + SmAtilde);
-		MyLog.log("S# disintegrazioni= " + Sdisintegrazioni);
-		MyLog.log("Suptake= " + Suptake);
-		MyLog.log("Smassa= " + Smassa);
-		MyLog.log("Stmezzo= " + Stmezzo);
-		MyLog.log("Stau= " + Stau);
-		MyLog.log("Sdose= " + Sdose);
-		MyLog.log("Rsquared= " + Rsquared);
-		MyLog.log("s1= " + s1);
-		MyLog.log("s2= " + s2);
-		MyLog.log("m1= " + m1);
-		MyLog.log("m2= " + m2);
-		MyLog.log("====================================");
-
-		return out2;
-
-	}
-
-	/**
-	 * Esecuzione del fit mediante ImageJ o Flanagan a seconda se 2 o 3 punti
-	 * selezionati
-	 * 
-	 * @param xp1
-	 * @param yp1
-	 * @param MIRD_vol24
-	 * @param MIRD_vol48
-	 * @param MIRD_vol120
-	 * @return
-	 */
-	static double[] processaConImagej(double[] xp1, double[] yp1, boolean[] puntiSelezionati, double MIRD_vol24,
-			double MIRD_vol48, double MIRD_vol120) {
-
-//		Regression rf = null;
-		CurveFitter cf = null;
-//		String aux5 = "";
-		double[] out2 = null;
-		int numParams = 0;
-		double[] outCF = null;
-		double[] paramsIJ = null;
-//		double[] paramsFLA = null;
-//		double[] errorsFLA = null;
-		double rSquaredIJ = 0;
-//		double rSquaredFLA = 0;
-		double AA = Double.NaN;
-		double aa = Double.NaN;
-		double SA = Double.NaN;
-		double Sa = Double.NaN;
-		double mAtilde = Double.NaN;
-		double disintegrazioni = Double.NaN;
-		double uptake = Double.NaN;
-		double massa = Double.NaN;
-		double tmezzo = Double.NaN;
-		double tau = Double.NaN;
-		double SmAtilde = Double.NaN;
-		double Sdisintegrazioni = Double.NaN;
-		double Suptake = Double.NaN;
-		double Smassa = Double.NaN;
-		double Stmezzo = Double.NaN;
-		double Stau = Double.NaN;
-		double dose = Double.NaN;
-		double Sdose = Double.NaN;
-		double Rsquared = Double.NaN;
-		double s1 = Double.NaN;
-		double s2 = Double.NaN;
-		double m1 = Double.NaN;
-		double m2 = Double.NaN;
-
-		double[] xp2 = null;
-		double[] yp2 = null;
-
-		MyLog.waitHere("eseguo: processaConImageJ");
-
-		if (puntiSelezionati == null) {
-			xp2 = xp1;
-			yp2 = yp1;
-		} else {
-			xp2 = new double[2];
-			yp2 = new double[2];
-			int count = 0;
-			for (int i1 = 0; i1 < xp1.length; i1++) {
-				if (puntiSelezionati[i1]) {
-					xp2[count] = xp1[i1];
-					yp2[count] = yp1[i1];
-					count++;
-				}
-			}
-		}
-
-		// =============================================================
-		// SELEZIONATI DUE SOLI PUNTI - FIT DA ESEGUIRE CON IMAGEJ
-		// =============================================================
-		cf = Utility.MIRD_curveFitterSpecialImageJ(xp2, yp2);
-
-		MyPlot.PL04_MIRD_curvePlotterSpecialImageJ(cf, xp1, yp1, puntiSelezionati, "24h=red 48h=green 120h=blue");
-		// -------- recupero i dati da stampare ---------------
-		paramsIJ = cf.getParams();
-		numParams = cf.getNumParams();
-		outCF = new double[numParams];
-		for (int i1 = 0; i1 < numParams; i1++) {
-			MyLog.log("MIRD FIT param " + i1 + " =" + paramsIJ[i1]);
-			outCF[i1] = paramsIJ[i1];
-		}
-		rSquaredIJ = cf.getRSquared();
-
-		out2 = Utility.calcoliDosimetrici(paramsIJ, null, rSquaredIJ, MIRD_vol24, MIRD_vol48, MIRD_vol120,
-				pathVolatile);
-
-		AA = out2[0];
-		aa = out2[1];
-		SA = out2[2];
-		Sa = out2[3];
-		mAtilde = out2[4];
-		disintegrazioni = out2[5];
-		uptake = out2[6];
-		massa = out2[7];
-		tmezzo = out2[8];
-		tau = out2[9];
-		SmAtilde = out2[10];
-		Sdisintegrazioni = out2[11];
-		Suptake = out2[12];
-		Smassa = out2[13];
-		Stmezzo = out2[14];
-		Stau = out2[15];
-		dose = out2[16];
-		Sdose = out2[17];
-		Rsquared = out2[18];
-		s1 = out2[19];
-		s2 = out2[20];
-		m1 = out2[21];
-		m2 = out2[22];
-
-		// MyLog.waitHere("s1= " + s1 + " s2= " + s2 + " m1= " + m1 + " m2= " + m2);
-
-		MyLog.log("==== VALORE MEDIO DOPO IMAGEJ =====");
-		MyLog.log("parametro A= " + AA);
-		MyLog.log("parametro a= " + aa);
-		MyLog.log("mAtilde= " + mAtilde);
-		MyLog.log("# disintegrazioni= " + disintegrazioni);
-		MyLog.log("uptake[%]= " + uptake);
-		MyLog.log("massa= " + massa);
-		MyLog.log("tmezzo= " + tmezzo);
-		MyLog.log("tau= " + tau);
-		MyLog.log("dose= " + dose);
-		MyLog.log("==== ERRORI ==========");
-		MyLog.log("errore SA= " + SA);
-		MyLog.log("errore Sa= " + Sa);
-		MyLog.log("SmAtilde= " + SmAtilde);
-		MyLog.log("S# disintegrazioni= " + Sdisintegrazioni);
-		MyLog.log("Suptake= " + Suptake);
-		MyLog.log("Smassa= " + Smassa);
-		MyLog.log("Stmezzo= " + Stmezzo);
-		MyLog.log("Stau= " + Stau);
-		MyLog.log("Sdose= " + Sdose);
-		MyLog.log("Rsquared= " + Rsquared);
-		MyLog.log("s1= " + s1);
-		MyLog.log("s2= " + s2);
-		MyLog.log("m1= " + m1);
-		MyLog.log("m2= " + m2);
-		MyLog.log("====================================");
-
-		return out2;
-
-	}
-
-	/**
-	 * Esecuzione del fit mediante ImageJ o Flanagan a seconda se 2 o 3 punti
-	 * selezionati
-	 * 
-	 * @param xp1
-	 * @param yp1
-	 * @param MIRD_vol24
-	 * @param MIRD_vol48
-	 * @param MIRD_vol120
-	 * @return
-	 */
-	static double[] processaCalcolaFit2or3(double[] xp1, double[] yp1, double MIRD_vol24, double MIRD_vol48,
-			double MIRD_vol120, String pathImage, boolean[] puntiSelezionati) {
-
-		Regression rf = null;
-		CurveFitter cf = null;
-		String aux5 = "";
-		double[] out2 = null;
-		int numParams = 0;
-		double[] outCF = null;
-		double[] paramsIJ = null;
-		double[] paramsFLA = null;
-		double[] errorsFLA = null;
-		double rSquaredIJ = 0;
-		double rSquaredFLA = 0;
-		double AA = Double.NaN;
-		double aa = Double.NaN;
-		double SA = Double.NaN;
-		double Sa = Double.NaN;
-		double mAtilde = Double.NaN;
-		double disintegrazioni = Double.NaN;
-		double uptake = Double.NaN;
-		double massa = Double.NaN;
-		double tmezzo = Double.NaN;
-		double tau = Double.NaN;
-		double SmAtilde = Double.NaN;
-		double Sdisintegrazioni = Double.NaN;
-		double Suptake = Double.NaN;
-		double Smassa = Double.NaN;
-		double Stmezzo = Double.NaN;
-		double Stau = Double.NaN;
-		double dose = Double.NaN;
-		double Sdose = Double.NaN;
-		double Rsquared = Double.NaN;
-		double s1 = Double.NaN;
-		double s2 = Double.NaN;
-		double m1 = Double.NaN;
-		double m2 = Double.NaN;
-
-		for (int i1 = 0; i1 < xp1.length; i1++) {
-
-			MyLog.log("in " + i1 + " xp1= " + xp1[i1] + " yp1= " + yp1[i1]);
-
-		}
-
-		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
-		MyGlobals.desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
-		MyGlobals.pathPermanente = MyGlobals.desktopPath + File.separator + "DosimetryFolder" + File.separator
-				+ "permanente.txt";
-		pathVolatile = MyGlobals.desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
-		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
-
-		// String titolo2 = "Punti_PP02";
-		// MyPlot.PL01_MIRD_pointsPlotter(xp1, yp1, puntiSelezionatiFit, titolo2);
-
-		aux5 = "#194#\t----- POINT SELECTION ------------------";
-		MyLog.logModify(pathVolatile, "#194#", aux5);
-
-		aux5 = "#195#\t Selezionati i punti 24h= " + puntiSelezionati[0] + " 48h= " + puntiSelezionati[1] + " 120h= "
-				+ puntiSelezionati[2];
-
-		MyLog.logModify(pathVolatile, "#195#", aux5);
-
-		int count = 0;
-		for (boolean aux : puntiSelezionati) {
-			if (aux)
-				count++;
-		}
-
-		int count2 = 0;
-		double[] xp2 = new double[count];
-		double[] yp2 = new double[count];
-		for (int i1 = 0; i1 < xp1.length; i1++) {
-			if (puntiSelezionati[i1]) {
-				xp2[count2] = xp1[i1];
-				yp2[count2] = yp1[i1];
-				count2++;
-			}
-		}
-		// Utility.closePlot(titolo2);
-
-		if (count2 == 2) {
-
-			// =============================================================
-			// SELEZIONATI DUE SOLI PUNTI - FIT DA ESEGUIRE CON IMAGEJ
-			// =============================================================
-			cf = Utility.MIRD_curveFitterSpecialImageJ(xp2, yp2);
-//			MyPlot.PL04_MIRD_curvePlotterSpecialImageJ(cf, xp1, yp1, puntiSelezionati, "24h=red 48h=green 120h=blue");
-			// -------- recupero i dati da stampare ---------------
-			paramsIJ = cf.getParams();
-			numParams = cf.getNumParams();
-			outCF = new double[numParams];
-			for (int i1 = 0; i1 < numParams; i1++) {
-				MyLog.log("MIRD FIT param " + i1 + " =" + paramsIJ[i1]);
-				outCF[i1] = paramsIJ[i1];
-			}
-			rSquaredIJ = cf.getRSquared();
-
-			out2 = Utility.calcoliDosimetrici(paramsIJ, null, rSquaredIJ, MIRD_vol24, MIRD_vol48, MIRD_vol120,
-					pathVolatile);
-
-			AA = out2[0];
-			aa = out2[1];
-			SA = out2[2];
-			Sa = out2[3];
-			mAtilde = out2[4];
-			disintegrazioni = out2[5];
-			uptake = out2[6];
-			massa = out2[7];
-			tmezzo = out2[8];
-			tau = out2[9];
-			SmAtilde = out2[10];
-			Sdisintegrazioni = out2[11];
-			Suptake = out2[12];
-			Smassa = out2[13];
-			Stmezzo = out2[14];
-			Stau = out2[15];
-			dose = out2[16];
-			Sdose = out2[17];
-			Rsquared = out2[18];
-			s1 = out2[19];
-			s2 = out2[20];
-			m1 = out2[21];
-			m2 = out2[22];
-		} else if (count2 == 3) {
-			IJ.showStatus("SITUAZIONE 003");
-			// =============================================================
-			// SELEZIONATI TRE PUNTI - FIT DA ESEGUIRE CON FLANAGAN
-			// =============================================================
-			rf = Utility.MIRD_curveFitterSpecialFlanagan(xp2, yp2);
-			MyLog.logVector(xp2, "xp2 verifica grafico");
-			MyLog.logVector(yp2, "yp2 verifica grafico");
-			// MyPlot.PL05_MIRD_curvePlotterSpecialFlanagan(rf, xp2, yp2, "24h=red 48h=green
-			// 120h=blue");
-			// -------- recupero i dati da stampare ---------------
-			rSquaredFLA = rf.getCoefficientOfDetermination();
-			paramsFLA = rf.getBestEstimates();
-			paramsFLA = Utility.vetReverser(paramsFLA);
-			errorsFLA = rf.getBestEstimatesErrors();
-			errorsFLA = Utility.vetReverser(errorsFLA);
-
-			out2 = Utility.calcoliDosimetrici(paramsFLA, errorsFLA, rSquaredFLA, MIRD_vol24, MIRD_vol48, MIRD_vol120,
-					pathVolatile);
-
-			AA = out2[0];
-			aa = out2[1];
-			SA = out2[2];
-			Sa = out2[3];
-			mAtilde = out2[4];
-			disintegrazioni = out2[5];
-			uptake = out2[6];
-			massa = out2[7];
-			tmezzo = out2[8];
-			tau = out2[9];
-			SmAtilde = out2[10];
-			Sdisintegrazioni = out2[11];
-			Suptake = out2[12];
-			Smassa = out2[13];
-			Stmezzo = out2[14];
-			Stau = out2[15];
-			dose = out2[16];
-			Sdose = out2[17];
-			Rsquared = out2[18];
-			s1 = out2[19];
-			s2 = out2[20];
-			m1 = out2[21];
-			m2 = out2[22];
-		}
-
-		// MyLog.waitHere("s1= " + s1 + " s2= " + s2 + " m1= " + m1 + " m2= " + m2);
-
-		MyLog.log("==== PRIMA DI REVIEW =====");
-		MyLog.log("count2= " + count2);
-		MyLog.log("==== VALORE MEDIO DOPO IMAGEJ =====");
-		MyLog.log("parametro A= " + AA);
-		MyLog.log("parametro a= " + aa);
-		MyLog.log("mAtilde= " + mAtilde);
-		MyLog.log("# disintegrazioni= " + disintegrazioni);
-		MyLog.log("uptake[%]= " + uptake);
-		MyLog.log("massa= " + massa);
-		MyLog.log("tmezzo= " + tmezzo);
-		MyLog.log("tau= " + tau);
-		MyLog.log("dose= " + dose);
-		MyLog.log("==== ERRORI ==========");
-		MyLog.log("errore SA= " + SA);
-		MyLog.log("errore Sa= " + Sa);
-		MyLog.log("SmAtilde= " + SmAtilde);
-		MyLog.log("S# disintegrazioni= " + Sdisintegrazioni);
-		MyLog.log("Suptake= " + Suptake);
-		MyLog.log("Smassa= " + Smassa);
-		MyLog.log("Stmezzo= " + Stmezzo);
-		MyLog.log("Stau= " + Stau);
-		MyLog.log("Sdose= " + Sdose);
-		MyLog.log("Rsquared= " + Rsquared);
-		MyLog.log("s1= " + s1);
-		MyLog.log("s2= " + s2);
-		MyLog.log("m1= " + m1);
-		MyLog.log("m2= " + m2);
-		MyLog.log("====================================");
-
-		return out2;
 
 	}
 

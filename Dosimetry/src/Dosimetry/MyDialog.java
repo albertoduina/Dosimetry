@@ -777,7 +777,8 @@ public class MyDialog {
 	public static String dialogFileSelection_FM01(String message, String defaultPath) {
 
 		OpenDialog od1 = new OpenDialog(message);
-		OpenDialog.setDefaultDirectory(defaultPath);
+		if (defaultPath != null || defaultPath != "")
+			OpenDialog.setDefaultDirectory(defaultPath);
 		return od1.getPath();
 
 	}
@@ -889,6 +890,44 @@ public class MyDialog {
 			return null;
 		String out = scelta1.getNextChoice();
 		return out;
+	}
+
+	/**
+	 * Dialogo non modale di selezione dei punti su cui di seguito fare il fit
+	 * 
+	 * @return
+	 */
+	static boolean[] pointsSelection_LP33() {
+	
+		MyLog.log("dialogReview_LP33");
+		String[] items = { "   24h", "   48h", "   120h" };
+		boolean[] def = { true, true, true };
+		int rows = 4;
+		int columns = 1;
+		int count = 0;
+		boolean[] out1 = null;
+		NonBlockingGenericDialog gd1 = null;
+		do {
+			gd1 = new NonBlockingGenericDialog("LP33 - SELECTION");
+			gd1.addCheckboxGroup(rows, columns, items, def);
+			gd1.addMessage("Selezionare ALMENO\ndue punti su cui\nfare il FIT", MyGlobals.defaultFont);
+			gd1.showDialog();
+			out1 = new boolean[def.length];
+			for (int i1 = 0; i1 < def.length; i1++) {
+				out1[i1] = gd1.getNextBoolean();
+				if (out1[i1] == true)
+					count++;
+			}
+			if (count < 2)
+				IJ.error("Dovevi selezionare ALMENO due punti,\nRIPROVACI ..... BYE-BYE!");
+		} while (count < 2);
+		if (gd1.wasCanceled()) {
+			MyLog.log("LP33 - false PREMUTO CANCEL");
+			return null;
+		} else {
+			MyLog.log("LP33 - true PREMUTO OK");
+			return out1;
+		}
 	}
 
 }

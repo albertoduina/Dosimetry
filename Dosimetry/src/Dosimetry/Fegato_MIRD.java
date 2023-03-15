@@ -2,6 +2,7 @@ package Dosimetry;
 
 import java.awt.Font;
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
@@ -21,59 +22,44 @@ public class Fegato_MIRD implements PlugIn {
 	// PATIENT-DOSIMETRY INFO 24 h #160#-#199#
 	//
 
-	static String fontStyle = "Arial";
-	static Font defaultFont = FontUtil.getFont(fontStyle, Font.PLAIN, 13);
-	static Font textFont = FontUtil.getFont(fontStyle, Font.ITALIC, 16);
-	static Font titleFont = FontUtil.getFont(fontStyle, Font.BOLD, 16);
+	public static String pathVolatile;
 
-	static String m_patName;
-	static Date m_patBirthday = null;
-	static String m_patYears;
-	static String m_patID;
-	static String m_serDate;
-	static String m_styDate;
-	static String m_styName;
-	static String petSeriesName;
-	static String desktopPath;
-	static String desktopDosimetryFolderPath;
-	static String desktopImagesSubfolderPath;
-	static String pathPermanente;
-	static String pathVolatile;
-	static String[] arrayOfString = { "24h", "48h", "120h" };
-	String format1 = "dd-MM-yyyy HH:mm:ss";
 
 	public void run(String arg) {
 
 		Locale.setDefault(Locale.US);
-		desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
-		pathPermanente = desktopPath + File.separator + "DosimetryFolder" + File.separator + "permanente.txt";
-		pathVolatile = desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
-		desktopDosimetryFolderPath = desktopPath + File.separator + "DosimetryFolder";
-		desktopImagesSubfolderPath = desktopDosimetryFolderPath + File.separator + "ImagesFolder";
+		MyGlobals.coordinates();
+
+		MyGlobals.desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
+		MyGlobals.pathPermanente = MyGlobals.desktopPath + File.separator + "DosimetryFolder" + File.separator
+				+ "permanente.txt";
+		pathVolatile = MyGlobals.desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
+		MyGlobals.desktopDosimetryFolderPath = MyGlobals.desktopPath + File.separator + "DosimetryFolder";
+		MyGlobals.desktopImagesSubfolderPath = MyGlobals.desktopDosimetryFolderPath + File.separator + "ImagesFolder";
 
 		ArrayList<String> arrLesioni = new ArrayList<String>();
 
 		MyLog.log("============================");
 		MyLog.log("START Fegato_MIRD");
 		MyLog.log("============================");
-		String pathToto = MyDialog.dialogFileSelection_FM01("Seleziona FEGATO IN TOTO",
-				desktopPath + File.separator + "DosimetryFolder" + File.separator);
+		String pathToto = MyDialog.dialogFileSelection_FM01("Seleziona FEGATO IN TOTO", null);
 		if (pathToto != null)
 			arrLesioni.add(pathToto); // nelle elemento 0 ho il pathToto
-		// copio parte del logFegatoInToto in volatile.txt perche'poi servira'
 
+		// VUOTO PATH VOLATILE PER POTERLO USARE
 		MyLog.logDeleteSingle(pathVolatile);
 		MyLog.logInit(pathVolatile);
-		pathVolatile = desktopPath + File.separator + "DosimetryFolder" + File.separator + "volatile.txt";
-
+		// copio parte del logFegatoInToto in volatile.txt perche'poi servira'
 		MyLog.logCopyRange(pathToto, pathVolatile, 0, 182);
 
 		String pathLesione = "";
 		int count = 1;
 		int out1 = 0;
+
+		// String path1 = pathToto.substring(0, pathToto.lastIndexOf(File.separator));
+
 		do {
-			pathLesione = MyDialog.dialogFileSelection_FM01("LOOP selezione lesioni " + count++,
-					desktopPath + File.separator + "DosimetryFolder" + File.separator);
+			pathLesione = MyDialog.dialogFileSelection_FM01("LOOP selezione lesioni " + count++, null);
 			if (pathLesione != null)
 				arrLesioni.add(pathLesione);
 
@@ -81,13 +67,15 @@ public class Fegato_MIRD implements PlugIn {
 
 		} while (out1 == 2);
 
-		String deletepath = desktopPath + File.separator + "DosimetryFolder" + File.separator
-				+ "FegatoSenzaLesioni.txt";
+		String deletepath = MyGlobals.desktopDosimetryFolderPath + File.separator + "FegatoSenzaLesioni.txt";
 		MyLog.logDeleteSingle(deletepath);
 
 		anaLiver(arrLesioni);
 
 		// Dosimetria_Lu177.processa(false);
+		Utility.deleteAllFilesWithSpecificExtension(MyGlobals.desktopDosimetryFolderPath, "tif");
+		Utility.chiudiTutto();
+
 
 	}
 
@@ -145,15 +133,17 @@ public class Fegato_MIRD implements PlugIn {
 		double m2 = Double.NaN;
 
 		int decis1 = 0;
-		double[] out24=null;
-		double[] out48=null;
-		double[] out120=null;
-		
-		
-		
+		double[] out24 = null;
+		double[] out48 = null;
+		double[] out120 = null;
 
 		for (int i1 = 0; i1 < arrLesioni.size(); i1++) {
 			aux1 = arrLesioni.get(i1);
+			if (i1 == 0)
+				MyLog.log("------ FEGATO IN TOTO ------");
+			else
+				MyLog.log("---- LESIONE NUMERO= " + i1 + " ----");
+
 			int roiMax24 = Utility.parseInt(MyLog.readFromLog(aux1, "#114#", "=")); // #114#
 			MyLog.log("#114# roiMax= " + roiMax24);
 			int roiMax48 = Utility.parseInt(MyLog.readFromLog(aux1, "#144#", "=")); // #144#
@@ -190,8 +180,8 @@ public class Fegato_MIRD implements PlugIn {
 			arrIntegrale24.add(integrale24);
 			arrIntegrale48.add(integrale48);
 			arrIntegrale120.add(integrale120);
-
 		}
+		MyLog.log(" --------------------------------");
 
 		aux1 = arrLesioni.get(0);
 		xp1[0] = Double.parseDouble(MyLog.readFromLog(aux1, "#019#", "=")); // deltaT
@@ -227,9 +217,7 @@ public class Fegato_MIRD implements PlugIn {
 		MyLog.log("integralePulito48=" + integralePulito48);
 		int integralePulito120 = subtractInteger(arrIntegrale120);
 		MyLog.log("integralePulito120=" + integralePulito120);
-		
-		
-		
+
 		// ==========================================================================================
 		// PARTE relativa alle immagini 24/48/120h
 		// ==========================================================================================
@@ -238,22 +226,24 @@ public class Fegato_MIRD implements PlugIn {
 		// se non mi ha scritto il tag #121# di volatile vuol dire che Dosimetry_v2 non
 		// ha analizzato la immagine 24h (probabile cancel dato al menu)
 
-		if (MyLog.readFromLog(pathVolatile, "#121#", "=") == null)
+		if (MyLog.readFromLog(pathVolatile, "#121#", "=") == null) {
+			MyLog.waitHere();
 			return;
+		}
 
 		double[] in24 = new double[5];
 //		double[] in1 = new double[5];
 //		double[] in1 = new double[5];
 		in24[0] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#018#", "=")); // acquisition duration
 //		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#121#", "=")); // pixel number over
-																						// threshold
-		in24[1]=conteggioPulito24;
-		
+		// threshold
+		in24[1] = conteggioPulito24;
+
 		in24[2] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#003#", "=")); // activity
 		in24[3] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#115#", "=")); // contouring threshold
 																						// level
 //		in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#122#", "=")); // over threshold count
-		in24[4]= integralePulito24;
+		in24[4] = integralePulito24;
 		// integral
 		MyLog.logVector(in24, "in24");
 
@@ -268,14 +258,14 @@ public class Fegato_MIRD implements PlugIn {
 		double[] in48 = new double[5];
 		in48[0] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#038#", "=")); // acquisition duration
 //		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#151#", "=")); // pixel number over
-																						// threshold
-		in48[1]=conteggioPulito48;			
+		// threshold
+		in48[1] = conteggioPulito48;
 		in48[2] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#003#", "=")); // activity
 		in48[3] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#145#", "=")); // contouring threshold
 																						// level
 //		in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#152#", "=")); // over threshold count
-		in48[4]= integralePulito48;
-																						// integral
+		in48[4] = integralePulito48;
+		// integral
 		MyLog.logVector(in48, "in48");
 		out48 = Utility.MIRD_point(in48);
 		MyLog.logVector(out48, "out48");
@@ -288,19 +278,18 @@ public class Fegato_MIRD implements PlugIn {
 		double[] in120 = new double[5];
 		in120[0] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#058#", "=")); // acquisition duration
 //		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#181#", "=")); // pixel number over
-		in120[1]=conteggioPulito120;
-																						// threshold
+		in120[1] = conteggioPulito120;
+		// threshold
 		in120[2] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#003#", "=")); // activity
 		in120[3] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#175#", "=")); // contouring threshold
 																						// level
 //		in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#182#", "=")); // over threshold count
-		in120[4]= integralePulito120;
-																						// integral
+		in120[4] = integralePulito120;
+		// integral
 		MyLog.logVector(in120, "in120");
 		out120 = Utility.MIRD_point(in120);
-		
-		MyLog.logVector(out120, "out120");
 
+		MyLog.logVector(out120, "out120");
 
 		// Mostro i 3 volumi calcolati ed i punti, senza fit, in modo che, con LP33
 		// venga scelto l'eventuale punto da togliere
@@ -309,14 +298,29 @@ public class Fegato_MIRD implements PlugIn {
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
-		yp1[0] = integralePulito24;
-		yp1[1] = integralePulito48;
-		yp1[2] = integralePulito120;
+		// yp1[0] = integralePulito24;
+		// yp1[1] = integralePulito48;
+		// yp1[2] = integralePulito120;
+
+		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+
+		yp1[0] = out24[2];
+		yp1[1] = out48[2];
+		yp1[2] = out120[2];
+
+		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
 		int count5 = 194;
 		String aux5 = "";
 		aux5 = "#" + String.format("%03d", count5++) + "#\t----- POINT SELECTION ------------------";
 		MyLog.logAppend(pathVolatile, aux5);
+
+		String pathImage = System.getProperty("user.home") + File.separator + "Desktop" + File.separator
+				+ "DosimetryFolder" + File.separator;
 
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
@@ -326,8 +330,37 @@ public class Fegato_MIRD implements PlugIn {
 
 			MyLog.logVector(xp1, "xp1");
 			MyLog.logVector(yp1, "yp1");
-			double[] vetOut4 = Dosimetria_Lu177.processaConImagej(xp1, yp1, null,  MIRD_vol24, MIRD_vol48, MIRD_vol120);
-			
+			////////////////////////////////////////////////////////////////////////
+			// MyLog.waitHere("PUNTO PL01 - LP33");
+			////////////////////////////////////////////////////////////////////////
+
+			String titolo1 = "Punti";
+			MyGlobals.titPL01 = MyPlot.PL01_MIRD_pointsPlotter(xp1, yp1, null, titolo1, "24h=red 48h=green 120h=blue");
+
+			boolean[] puntiSelezionati = MyDialog.pointsSelection_LP33(); /// selezione dei 2 o 3 punti su cui in
+																			/// seguito
+			/// fare il fit
+			Utility.closePlot(MyGlobals.titPL01);
+
+			int count = 0;
+			boolean threepoints = false;
+			for (int i1 = 0; i1 < puntiSelezionati.length; i1++) {
+				if (puntiSelezionati[i1] == true)
+					count++;
+			}
+			if (count == 3)
+				threepoints = true;
+
+			// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+			// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+			// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+
+			double[] vetOut4 = Utility.processaCalcolaFit2or3(xp1, yp1, MIRD_vol24, MIRD_vol48, MIRD_vol120, pathImage,
+					puntiSelezionati);
+
+			// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+			// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+			// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
 			AA = vetOut4[0];
 			aa = vetOut4[1];
@@ -352,7 +385,6 @@ public class Fegato_MIRD implements PlugIn {
 			s2 = vetOut4[19];
 			m1 = vetOut4[20];
 			m2 = vetOut4[21];
-
 
 			double[] vetInput = new double[14];
 
@@ -385,7 +417,7 @@ public class Fegato_MIRD implements PlugIn {
 		// Vado a riscrivere i TAG #122#, #152, #182#
 
 		aux5 = "";
-		
+
 //		aux5 = "#114#\tMaximum lesion count AGGIORNATO= " + roiMaxPulito24;
 //		Utility.logModify(pathVolatile, "#114#", aux5);
 //		aux5 = "#144#\tMaximum lesion count AGGIORNATO= " + roiMaxPulito48;
@@ -399,14 +431,14 @@ public class Fegato_MIRD implements PlugIn {
 //		Utility.logModify(pathVolatile, "#145#", aux5);
 //		aux5 = "#175#\tContouring threshold level AGGIORNATO= " + thresholdPulito120;
 //		Utility.logModify(pathVolatile, "#175#", aux5);
-			
+
 		aux5 = "#121#\tPixel number over threshold level AGGIORNATO= " + conteggioPulito24;
 		MyLog.logModify(pathVolatile, "#121#", aux5);
 		aux5 = "#151#\tPixel number over threshold level AGGIORNATO= " + conteggioPulito48;
 		MyLog.logModify(pathVolatile, "#151#", aux5);
 		aux5 = "#181#\tPixel number over threshold level AGGIORNATO= " + conteggioPulito120;
 		MyLog.logModify(pathVolatile, "#181#", aux5);
-		
+
 		aux5 = "#122#\tintegrale24 AGGIORNATO= " + integralePulito24;
 		MyLog.logModify(pathVolatile, "#122#", aux5);
 		aux5 = "#152#\tintegrale48 AGGIORNATO= " + integralePulito48;
@@ -424,7 +456,7 @@ public class Fegato_MIRD implements PlugIn {
 		// ============================================================================
 
 		boolean flanagan = false;
-		
+
 		if (Double.isNaN(SmAtilde))
 			flanagan = false;
 		else
@@ -514,7 +546,7 @@ public class Fegato_MIRD implements PlugIn {
 		MyLog.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tdisintegrazioni= " + disintegrazioni;
 		MyLog.logAppend(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tuptake[%]= " + uptake;
+		aux5 = "#" + String.format("%03d", count5++) + "#\tuptake[%]= " + uptake * 100;
 		MyLog.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tmassa= " + massa;
 		MyLog.logAppend(pathVolatile, aux5);

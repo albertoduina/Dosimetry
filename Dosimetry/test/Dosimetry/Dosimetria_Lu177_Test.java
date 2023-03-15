@@ -63,7 +63,7 @@ public class Dosimetria_Lu177_Test {
 	@Test
 	public final void test_LP33_PointsSelection() {
 
-		boolean[] selection = Dosimetria_Lu177.pointsSelection_LP33();
+		boolean[] selection = MyDialog.pointsSelection_LP33();
 		MyLog.log("LP33 restituisce " + selection);
 		MyLog.waitHere("SPETTA");
 		assertTrue(true);
