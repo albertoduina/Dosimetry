@@ -25,10 +25,8 @@ public class Fegato_MIRD implements PlugIn {
 
 	public static String pathVolatile;
 
-
 	public void run(String arg) {
 
-		
 		Locale.setDefault(Locale.US);
 		MyGlobals.coordinates();
 
@@ -77,7 +75,6 @@ public class Fegato_MIRD implements PlugIn {
 		// Dosimetria_Lu177.processa(false);
 		Utility.deleteAllFilesWithSpecificExtension(MyGlobals.desktopDosimetryFolderPath, "tif");
 		Utility.chiudiTutto();
-
 
 	}
 
@@ -189,9 +186,9 @@ public class Fegato_MIRD implements PlugIn {
 		xp1[0] = Double.parseDouble(MyLog.readFromLog(aux1, "#019#", "=")); // deltaT
 		xp1[1] = Double.parseDouble(MyLog.readFromLog(aux1, "#039#", "=")); // deltaT
 		xp1[2] = Double.parseDouble(MyLog.readFromLog(aux1, "#059#", "=")); // deltaT
-		MIRD_vol24 = Double.parseDouble(MyLog.readFromLog(aux1, "#201#", "="));
-		MIRD_vol48 = Double.parseDouble(MyLog.readFromLog(aux1, "#221#", "="));
-		MIRD_vol120 = Double.parseDouble(MyLog.readFromLog(aux1, "#241#", "="));
+//		MIRD_vol24 = Double.parseDouble(MyLog.readFromLog(aux1, "#201#", "="));
+//		MIRD_vol48 = Double.parseDouble(MyLog.readFromLog(aux1, "#221#", "="));
+//		MIRD_vol120 = Double.parseDouble(MyLog.readFromLog(aux1, "#241#", "="));
 
 		// nella routine subtract sottraiamo all'elemento 0 tutti i successivi elementi
 		// e poi restituiamo il risultato
@@ -250,6 +247,9 @@ public class Fegato_MIRD implements PlugIn {
 		MyLog.logVector(in24, "in24");
 
 		out24 = Utility.MIRD_point(in24);
+		MIRD_vol24 = out24[0];
+		
+		
 		MyLog.logVector(out24, "out24");
 
 		// 48h
@@ -271,6 +271,8 @@ public class Fegato_MIRD implements PlugIn {
 		MyLog.logVector(in48, "in48");
 		out48 = Utility.MIRD_point(in48);
 		MyLog.logVector(out48, "out48");
+		MIRD_vol48 = out48[0];
+
 
 		// 120h
 		// se non mi ha scritto il tag #181# di volatile vuol dire che Dosimetry_v2 non
@@ -290,6 +292,7 @@ public class Fegato_MIRD implements PlugIn {
 		// integral
 		MyLog.logVector(in120, "in120");
 		out120 = Utility.MIRD_point(in120);
+		MIRD_vol120 = out120[0];
 
 		MyLog.logVector(out120, "out120");
 
@@ -356,6 +359,7 @@ public class Fegato_MIRD implements PlugIn {
 			// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 			// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 			// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+
 
 			double[] vetOut4 = Utility.processaCalcolaFit2or3(xp1, yp1, MIRD_vol24, MIRD_vol48, MIRD_vol120, pathImage,
 					puntiSelezionati);
