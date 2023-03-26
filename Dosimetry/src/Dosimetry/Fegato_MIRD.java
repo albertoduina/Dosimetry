@@ -248,8 +248,7 @@ public class Fegato_MIRD implements PlugIn {
 
 		out24 = Utility.MIRD_point(in24);
 		MIRD_vol24 = out24[0];
-		
-		
+
 		MyLog.logVector(out24, "out24");
 
 		// 48h
@@ -272,7 +271,6 @@ public class Fegato_MIRD implements PlugIn {
 		out48 = Utility.MIRD_point(in48);
 		MyLog.logVector(out48, "out48");
 		MIRD_vol48 = out48[0];
-
 
 		// 120h
 		// se non mi ha scritto il tag #181# di volatile vuol dire che Dosimetry_v2 non
@@ -360,6 +358,9 @@ public class Fegato_MIRD implements PlugIn {
 			// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 			// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
+			// i MIRD_vol24, MIRD_vol48, MIRD_vol120 sono calcolati freschi freaschi, non
+			// ricavati dai vecchi dati del log, analogamente xp1 ed yp1 sono i punti selezionato orOra.
+			// pertanto i dati di output andrebbero considerati aggiornati NEH?????
 
 			double[] vetOut4 = Utility.processaCalcolaFit2or3(xp1, yp1, MIRD_vol24, MIRD_vol48, MIRD_vol120, pathImage,
 					puntiSelezionati);

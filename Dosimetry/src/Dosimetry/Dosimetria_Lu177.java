@@ -874,7 +874,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		double Dmedia = Utility.vetMeanSecond(vetMed);
 
-		double ErrMedia = Utility.vetMeanSecond(vetErrDose);
+		double errMedia = Utility.vetMeanSecond(vetErrDose);
 
 		double[][] export1 = Utility.samplerDVH(vetMed, vetY);
 		double[][] export2 = Utility.samplerDVH(vetErrSup, vetY);
@@ -902,7 +902,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		resultsDialog
 				.addMessage("D2= " + String.format("%.4f", valD2) + " \u00B1 " + String.format("%.4f", errD2) + " Gy");
 		resultsDialog.addMessage(
-				"Dmedia= " + String.format("%.4f", Dmedia) + " \u00B1 " + String.format("%.4f", ErrMedia) + " Gy");
+				"Dmedia= " + String.format("%.4f", Dmedia) + " \u00B1 " + String.format("%.4f", errMedia) + " Gy");
 		resultsDialog.showDialog();
 
 		// ================= POSTSCRITTURA ===========================================
@@ -1046,6 +1046,27 @@ public class Dosimetria_Lu177 implements PlugIn {
 		MyLog.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tPERCENTUALE= " + str14;
 		MyLog.logAppend(pathVolatile, aux5);
+		
+		count5=700;
+		aux5 = "#" + String.format("%03d", count5++) + "#\t---------- DVH VOXEL DOSIMETRY -----------";
+		MyLog.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tDOSE MEDIA= " + Dmedia;
+		MyLog.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tDOSE 2%= " + valD2;
+		MyLog.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tDOSE 98%= " + valD98;
+		MyLog.logAppend(pathVolatile, aux5);
+		count5=711;
+		aux5 = "#" + String.format("%03d", count5++) + "#\tERRORE DOSE MEDIA= " + errMedia;
+		MyLog.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tERRORE DOSE 2%= " + errD2;
+		MyLog.logAppend(pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tERRORE DOSE 98%= " + errD98;
+		MyLog.logAppend(pathVolatile, aux5);
+		
+		
+		
+		
 
 		// ==============================================================
 		// BATTESIMO DELLA LESIONE
