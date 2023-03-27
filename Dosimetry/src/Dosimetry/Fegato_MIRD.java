@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import ij.Prefs;
 import ij.plugin.PlugIn;
 import ij.util.FontUtil;
 
@@ -29,6 +30,7 @@ public class Fegato_MIRD implements PlugIn {
 
 		Locale.setDefault(Locale.US);
 		MyGlobals.coordinates();
+		MyGlobals.fegatoPath = Prefs.get("fegato.Path", "");
 
 		MyGlobals.desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
 		MyGlobals.pathPermanente = MyGlobals.desktopPath + File.separator + "DosimetryFolder" + File.separator
@@ -42,9 +44,14 @@ public class Fegato_MIRD implements PlugIn {
 		MyLog.log("============================");
 		MyLog.log("START Fegato_MIRD");
 		MyLog.log("============================");
-		String pathToto = MyDialog.dialogFileSelection_FM01("Seleziona FEGATO IN TOTO", null);
+		String pathToto = MyDialog.dialogFileSelection_FM01("Seleziona FEGATO IN TOTO", MyGlobals.fegatoPath);
 		if (pathToto != null)
 			arrLesioni.add(pathToto); // nelle elemento 0 ho il pathToto
+
+		String myPath = pathToto.substring(0, pathToto.lastIndexOf(File.separator));
+		Prefs.set("fegato.Path", myPath);
+
+		MyGlobals.fegatoPath = Prefs.get("fegato.Path", "");
 
 		// VUOTO PATH VOLATILE PER POTERLO USARE
 		MyLog.logDeleteSingle(pathVolatile);
@@ -59,7 +66,7 @@ public class Fegato_MIRD implements PlugIn {
 		// String path1 = pathToto.substring(0, pathToto.lastIndexOf(File.separator));
 
 		do {
-			pathLesione = MyDialog.dialogFileSelection_FM01("LOOP selezione lesioni " + count++, null);
+			pathLesione = MyDialog.dialogFileSelection_FM01("LOOP selezione lesioni " + count++, MyGlobals.fegatoPath);
 			if (pathLesione != null)
 				arrLesioni.add(pathLesione);
 
@@ -359,7 +366,8 @@ public class Fegato_MIRD implements PlugIn {
 			// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
 			// i MIRD_vol24, MIRD_vol48, MIRD_vol120 sono calcolati freschi freaschi, non
-			// ricavati dai vecchi dati del log, analogamente xp1 ed yp1 sono i punti selezionato orOra.
+			// ricavati dai vecchi dati del log, analogamente xp1 ed yp1 sono i punti
+			// selezionato orOra.
 			// pertanto i dati di output andrebbero considerati aggiornati NEH?????
 
 			double[] vetOut4 = Utility.processaCalcolaFit2or3(xp1, yp1, MIRD_vol24, MIRD_vol48, MIRD_vol120, pathImage,
@@ -553,7 +561,7 @@ public class Fegato_MIRD implements PlugIn {
 		MyLog.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tdisintegrazioni= " + disintegrazioni;
 		MyLog.logAppend(pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tuptake[%]= " + uptake * 100;
+		aux5 = "#" + String.format("%03d", count5++) + "#\tuptake[%]= " + uptake;
 		MyLog.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tmassa= " + massa;
 		MyLog.logAppend(pathVolatile, aux5);

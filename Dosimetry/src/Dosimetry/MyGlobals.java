@@ -25,6 +25,7 @@ public class MyGlobals {
 	public static String desktopDosimetryFolderPath;
 	public static String desktopImagesSubfolderPath;
 	public static String pathPermanente;
+	public static String fegatoPath;
 	public static String[] arrayOfString = { "24h", "48h", "120h" };
 	public static String format1 = "dd-MM-yyyy HH:mm:ss";
 //	public static String[] config = null;
@@ -33,6 +34,7 @@ public class MyGlobals {
 	public static String titPL08 = null;
 	public static String titPL11 = null;
 	public static String titPL0405 = null;
+	
 
 	public static boolean attivaLog = false;
 	public static boolean loggoVoxels = false;
