@@ -93,6 +93,7 @@ public class Fegato_MIRD implements PlugIn {
 	public void anaLiver(ArrayList<String> arrLesioni) {
 
 		String aux1 = "";
+		String fegatoto = "";
 		// leggiamo i valori dal fegato in toto e dai vari file lesione e mettiamo il
 		// tutto in un array in cui l'elemento0 e' il fegato in toto
 
@@ -145,9 +146,10 @@ public class Fegato_MIRD implements PlugIn {
 
 		for (int i1 = 0; i1 < arrLesioni.size(); i1++) {
 			aux1 = arrLesioni.get(i1);
-			if (i1 == 0)
+			if (i1 == 0) {
 				MyLog.log("------ FEGATO IN TOTO ------");
-			else
+				fegatoto = aux1;
+			} else
 				MyLog.log("---- LESIONE NUMERO= " + i1 + " ----");
 
 			int roiMax24 = Utility.parseInt(MyLog.readFromLog(aux1, "#114#", "=")); // #114#
@@ -609,12 +611,24 @@ public class Fegato_MIRD implements PlugIn {
 		MyLog.logAppend(pathVolatile, aux5);
 
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
+		// dal TAG 600 in poi, mi limito a copiare i dati dal FEGATO in TOTO
+		boolean trovato = false;
+		String[] vetTotoString = MyLog.readSimpleText(fegatoto);
+		
+		for (int i1 = 0; i1 < vetTotoString.length; i1++) {
+			if (vetTotoString[i1].contains("#600#"))
+				trovato = true;
+			if (trovato) {
+				aux5 = vetTotoString[i1];
+				MyLog.logAppend(pathVolatile, aux5);
+			}
+		}
+
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
 		int pos = pathVolatile.lastIndexOf(File.separator);
 		String pathBase = pathVolatile.substring(0, pos);
 		String pathLesione = pathBase + File.separator + "FegatoSenzaLesioni.txt";
-		MyLog.logEnd(pathVolatile);
 		MyLog.logMove(pathLesione, pathVolatile);
 		MyLog.logInit(pathVolatile);
 

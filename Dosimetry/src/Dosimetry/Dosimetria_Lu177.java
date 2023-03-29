@@ -741,7 +741,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 					vety120 = null;
 
 				MyGlobals.titPL11 = MyPlot.PL11_myPlotMultiple2(vetx24, vety24, vetx48, vety48, vetx120, vety120,
-						"INPUT 24red,48green,120blue", "assexx", "asseyy");
+						"INPUT 24red,48green,120blue", "DOSE [Gy]", "VOL%");
 
 				// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 				// §§§§§§ QUI RIFACCIAMO IL FIT UNICAMENTE PER STAMPARE IL GRAFICO §§§§§§

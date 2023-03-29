@@ -681,5 +681,9 @@ public class MyLog {
 		String[] out2 = out1.toArray(new String[0]);
 		return out2;
 	}
+	
+	
+	
+
 
 }
