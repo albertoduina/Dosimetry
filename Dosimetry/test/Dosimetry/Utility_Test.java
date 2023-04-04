@@ -101,7 +101,6 @@ public class Utility_Test {
 
 	}
 
-
 	@Test
 	public final void test_logModifyEsistente() {
 
@@ -367,14 +366,19 @@ public class Utility_Test {
 	@Test
 	public final void test_inCubo() {
 
-		ImagePlus impRubik = Utility.inCubo();
+		Utility utility = new Utility();
+
+		String[] tabSvalues = utility.readTextFileSVALUESFromResources("testdata/S-values.txt", false);
+
+		MyLog.logVector(tabSvalues, "tabSvalues");
+
+		ImagePlus impRubik = Utility.inCubo(tabSvalues);
 
 		impRubik.show();
 		MyLog.waitHere("VERIFICA");
 
 	}
 
-	
 	@Test
 	public final void test_calcDVH1() {
 
@@ -388,7 +392,6 @@ public class Utility_Test {
 		MyLog.waitHere("SPETTA");
 
 	}
-
 
 	@Test
 	public final void test_generaTabella() {
@@ -441,7 +444,6 @@ public class Utility_Test {
 		MyLog.waitHere("GHET FRESA? POLSA!!!");
 
 	}
-
 
 	@Test
 	public final void test_calcDVH2() {
@@ -560,7 +562,6 @@ public class Utility_Test {
 		MyLog.logVector(vetxBB, "vetxBB");
 		MyLog.logVector(vetyBB, "vetyBB");
 		MyLog.logMatrixVertical(matout1, "pippo");
-
 
 		MyLog.waitHere("GHET FRESA? POLSA!!!");
 

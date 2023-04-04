@@ -80,6 +80,7 @@ public class MyGlobals {
 		coordY = coordinateVoxels[1];
 		coordZ = coordinateVoxels[2];
 	}
+	
 
 	/**
 	 * lato del cubo da utilizzare per i calcoli

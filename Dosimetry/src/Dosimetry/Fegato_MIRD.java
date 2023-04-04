@@ -2,11 +2,13 @@ package Dosimetry;
 
 import java.awt.Font;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import ij.IJ;
 import ij.Prefs;
 import ij.plugin.PlugIn;
 import ij.util.FontUtil;
@@ -40,6 +42,9 @@ public class Fegato_MIRD implements PlugIn {
 		MyGlobals.desktopImagesSubfolderPath = MyGlobals.desktopDosimetryFolderPath + File.separator + "ImagesFolder";
 
 		ArrayList<String> arrLesioni = new ArrayList<String>();
+
+//		Utility.readFileSvalues("S-values.txt");
+
 
 		MyLog.log("============================");
 		MyLog.log("START Fegato_MIRD");
@@ -614,7 +619,7 @@ public class Fegato_MIRD implements PlugIn {
 		// dal TAG 600 in poi, mi limito a copiare i dati dal FEGATO in TOTO
 		boolean trovato = false;
 		String[] vetTotoString = MyLog.readSimpleText(fegatoto);
-		
+
 		for (int i1 = 0; i1 < vetTotoString.length; i1++) {
 			if (vetTotoString[i1].contains("#600#"))
 				trovato = true;

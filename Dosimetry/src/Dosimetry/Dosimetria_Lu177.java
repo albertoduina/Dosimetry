@@ -70,6 +70,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 		String JavaVersion = System.getProperty("java.version");
 
 		String jarName = Utility.getJarTitle();
+		
+
 
 		// ===========================================================
 		// LEGGO CARTELLA DOSIMETRY FOLDER (E SOTTOCARTELLA IMAGES FOLDER)

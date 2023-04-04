@@ -252,7 +252,13 @@ public class VoxelDosimetry {
 		// -------------------------------------
 		// CUBO CON SVALUES
 		// -------------------------------------
-		ImagePlus impRubik = Utility.inCubo();
+		
+		Utility utility = new Utility();
+		String[] tabSvalues = utility.readTextFileSVALUESFromResources("S-values.txt", true);
+		
+		
+		
+		ImagePlus impRubik = Utility.inCubo(tabSvalues);
 		if (MyStack.stackIsEmpty(impRubik))
 			MyLog.waitHere("impRubik vuota");
 

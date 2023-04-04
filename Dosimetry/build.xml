@@ -145,14 +145,10 @@
 				<include name="flanagan.jar" />
 			</fileset>
 			<fileset dir=".">
-				<include name="DosimetryConfig.txt" />
+				<!--include name="DosimetryConfig.txt" /-->
+				<include name="*.txt" />
 			</fileset>
-			
-
 		</zip>
-		
-
-
 	</target>
 
 
@@ -169,7 +165,6 @@
 			<fileset dir="${output}" includes="*.jar" />
 			<fileset dir="lib" includes="flanagan.jar" />
 		</copy>
-
 	</target>
 
 
