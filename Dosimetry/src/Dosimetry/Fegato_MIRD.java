@@ -43,9 +43,6 @@ public class Fegato_MIRD implements PlugIn {
 
 		ArrayList<String> arrLesioni = new ArrayList<String>();
 
-//		Utility.readFileSvalues("S-values.txt");
-
-
 		MyLog.log("============================");
 		MyLog.log("START Fegato_MIRD");
 		MyLog.log("============================");
@@ -157,29 +154,29 @@ public class Fegato_MIRD implements PlugIn {
 			} else
 				MyLog.log("---- LESIONE NUMERO= " + i1 + " ----");
 
-			int roiMax24 = Utility.parseInt(MyLog.readFromLog(aux1, "#114#", "=")); // #114#
+			int roiMax24 = Utility.parseInt(MyReader.readFromLog(aux1, "#114#", "=")); // #114#
 			MyLog.log("#114# roiMax= " + roiMax24);
-			int roiMax48 = Utility.parseInt(MyLog.readFromLog(aux1, "#144#", "=")); // #144#
+			int roiMax48 = Utility.parseInt(MyReader.readFromLog(aux1, "#144#", "=")); // #144#
 			MyLog.log("#114# roiMax= " + roiMax48);
-			int roiMax120 = Utility.parseInt(MyLog.readFromLog(aux1, "#174#", "=")); // #174#
+			int roiMax120 = Utility.parseInt(MyReader.readFromLog(aux1, "#174#", "=")); // #174#
 			MyLog.log("#114# roiMax= " + roiMax120);
-			double threshold24 = Double.parseDouble(MyLog.readFromLog(aux1, "#115#", "=")); // #115#
+			double threshold24 = Double.parseDouble(MyReader.readFromLog(aux1, "#115#", "=")); // #115#
 			MyLog.log("#115# threshold= " + threshold24);
-			double threshold48 = Double.parseDouble(MyLog.readFromLog(aux1, "#145#", "=")); // #145#
+			double threshold48 = Double.parseDouble(MyReader.readFromLog(aux1, "#145#", "=")); // #145#
 			MyLog.log("#115# threshold= " + threshold24);
-			double threshold120 = Double.parseDouble(MyLog.readFromLog(aux1, "#175#", "=")); // #175#
+			double threshold120 = Double.parseDouble(MyReader.readFromLog(aux1, "#175#", "=")); // #175#
 			MyLog.log("#115# threshold= " + threshold24);
-			int conteggio24 = Utility.parseInt(MyLog.readFromLog(aux1, "#121#", "=")); // #121#
+			int conteggio24 = Utility.parseInt(MyReader.readFromLog(aux1, "#121#", "=")); // #121#
 			MyLog.log("#121# conteggio24= " + conteggio24);
-			int conteggio48 = Utility.parseInt(MyLog.readFromLog(aux1, "#151#", "=")); // #151#
+			int conteggio48 = Utility.parseInt(MyReader.readFromLog(aux1, "#151#", "=")); // #151#
 			MyLog.log("#151# conteggio48= " + conteggio48);
-			int conteggio120 = Utility.parseInt(MyLog.readFromLog(aux1, "#181#", "=")); // #181#
+			int conteggio120 = Utility.parseInt(MyReader.readFromLog(aux1, "#181#", "=")); // #181#
 			MyLog.log("#181# conteggio120= " + conteggio120);
-			int integrale24 = Utility.parseInt(MyLog.readFromLog(aux1, "#122#", "=")); // #122#
+			int integrale24 = Utility.parseInt(MyReader.readFromLog(aux1, "#122#", "=")); // #122#
 			MyLog.log("#122# integrale24= " + integrale24);
-			int integrale48 = Utility.parseInt(MyLog.readFromLog(aux1, "#152#", "=")); // #152#
+			int integrale48 = Utility.parseInt(MyReader.readFromLog(aux1, "#152#", "=")); // #152#
 			MyLog.log("#152# integrale48= " + integrale48);
-			int integrale120 = Utility.parseInt(MyLog.readFromLog(aux1, "#182#", "=")); // #182#
+			int integrale120 = Utility.parseInt(MyReader.readFromLog(aux1, "#182#", "=")); // #182#
 			MyLog.log("#182# integrale120= " + integrale120);
 			arrRoiMax24.add(roiMax24);
 			arrRoiMax48.add(roiMax48);
@@ -197,9 +194,9 @@ public class Fegato_MIRD implements PlugIn {
 		MyLog.log(" --------------------------------");
 
 		aux1 = arrLesioni.get(0);
-		xp1[0] = Double.parseDouble(MyLog.readFromLog(aux1, "#019#", "=")); // deltaT
-		xp1[1] = Double.parseDouble(MyLog.readFromLog(aux1, "#039#", "=")); // deltaT
-		xp1[2] = Double.parseDouble(MyLog.readFromLog(aux1, "#059#", "=")); // deltaT
+		xp1[0] = Double.parseDouble(MyReader.readFromLog(aux1, "#019#", "=")); // deltaT
+		xp1[1] = Double.parseDouble(MyReader.readFromLog(aux1, "#039#", "=")); // deltaT
+		xp1[2] = Double.parseDouble(MyReader.readFromLog(aux1, "#059#", "=")); // deltaT
 //		MIRD_vol24 = Double.parseDouble(MyLog.readFromLog(aux1, "#201#", "="));
 //		MIRD_vol48 = Double.parseDouble(MyLog.readFromLog(aux1, "#221#", "="));
 //		MIRD_vol120 = Double.parseDouble(MyLog.readFromLog(aux1, "#241#", "="));
@@ -239,7 +236,7 @@ public class Fegato_MIRD implements PlugIn {
 		// se non mi ha scritto il tag #121# di volatile vuol dire che Dosimetry_v2 non
 		// ha analizzato la immagine 24h (probabile cancel dato al menu)
 
-		if (MyLog.readFromLog(pathVolatile, "#121#", "=") == null) {
+		if (MyReader.readFromLog(pathVolatile, "#121#", "=") == null) {
 			MyLog.waitHere();
 			return;
 		}
@@ -247,13 +244,13 @@ public class Fegato_MIRD implements PlugIn {
 		double[] in24 = new double[5];
 //		double[] in1 = new double[5];
 //		double[] in1 = new double[5];
-		in24[0] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#018#", "=")); // acquisition duration
+		in24[0] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#018#", "=")); // acquisition duration
 //		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#121#", "=")); // pixel number over
 		// threshold
 		in24[1] = conteggioPulito24;
 
-		in24[2] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#003#", "=")); // activity
-		in24[3] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#115#", "=")); // contouring threshold
+		in24[2] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#003#", "=")); // activity
+		in24[3] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#115#", "=")); // contouring threshold
 																						// level
 //		in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#122#", "=")); // over threshold count
 		in24[4] = integralePulito24;
@@ -268,15 +265,15 @@ public class Fegato_MIRD implements PlugIn {
 		// 48h
 		// se non mi ha scritto il tag #151# di volatile vuol dire che Dosimetry_v2 non
 		// ha analizzato la immagine 24h (probabile cancel dato al menu)
-		if (MyLog.readFromLog(pathVolatile, "#151#", "=") == null)
+		if (MyReader.readFromLog(pathVolatile, "#151#", "=") == null)
 			return;
 		double[] in48 = new double[5];
-		in48[0] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#038#", "=")); // acquisition duration
+		in48[0] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#038#", "=")); // acquisition duration
 //		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#151#", "=")); // pixel number over
 		// threshold
 		in48[1] = conteggioPulito48;
-		in48[2] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#003#", "=")); // activity
-		in48[3] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#145#", "=")); // contouring threshold
+		in48[2] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#003#", "=")); // activity
+		in48[3] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#145#", "=")); // contouring threshold
 																						// level
 //		in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#152#", "=")); // over threshold count
 		in48[4] = integralePulito48;
@@ -289,15 +286,15 @@ public class Fegato_MIRD implements PlugIn {
 		// 120h
 		// se non mi ha scritto il tag #181# di volatile vuol dire che Dosimetry_v2 non
 		// ha analizzato la immagine 24h (probabile cancel dato al menu)
-		if (MyLog.readFromLog(pathVolatile, "#181#", "=") == null)
+		if (MyReader.readFromLog(pathVolatile, "#181#", "=") == null)
 			return;
 		double[] in120 = new double[5];
-		in120[0] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#058#", "=")); // acquisition duration
+		in120[0] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#058#", "=")); // acquisition duration
 //		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#181#", "=")); // pixel number over
 		in120[1] = conteggioPulito120;
 		// threshold
-		in120[2] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#003#", "=")); // activity
-		in120[3] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#175#", "=")); // contouring threshold
+		in120[2] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#003#", "=")); // activity
+		in120[3] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#175#", "=")); // contouring threshold
 																						// level
 //		in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#182#", "=")); // over threshold count
 		in120[4] = integralePulito120;
@@ -618,7 +615,7 @@ public class Fegato_MIRD implements PlugIn {
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 		// dal TAG 600 in poi, mi limito a copiare i dati dal FEGATO in TOTO
 		boolean trovato = false;
-		String[] vetTotoString = MyLog.readSimpleText(fegatoto);
+		String[] vetTotoString = MyReader.readSimpleText(fegatoto);
 
 		for (int i1 = 0; i1 < vetTotoString.length; i1++) {
 			if (vetTotoString[i1].contains("#600#"))

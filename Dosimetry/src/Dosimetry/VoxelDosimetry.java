@@ -117,21 +117,21 @@ public class VoxelDosimetry {
 
 		switch (ore) {
 		case 24:
-			acqDuration = Double.parseDouble(MyLog.readFromLog(pathLesione, "#018#", "=", true)); // acqduration 24h
+			acqDuration = Double.parseDouble(MyReader.readFromLog(pathLesione, "#018#", "=", true)); // acqduration 24h
 																									// // // 24h
-			deltaT = Double.parseDouble(MyLog.readFromLog(pathLesione, "#019#", "=", true)); // deltaT 24h
-			fatCal = Double.parseDouble(MyLog.readFromLog(pathLesione, "#202#", "=", true)); // fatCal24h
+			deltaT = Double.parseDouble(MyReader.readFromLog(pathLesione, "#019#", "=", true)); // deltaT 24h
+			fatCal = Double.parseDouble(MyReader.readFromLog(pathLesione, "#202#", "=", true)); // fatCal24h
 			break;
 		case 48:
-			acqDuration = Double.parseDouble(MyLog.readFromLog(pathLesione, "#038#", "=", true)); // acqduration 48 //
+			acqDuration = Double.parseDouble(MyReader.readFromLog(pathLesione, "#038#", "=", true)); // acqduration 48 //
 																									// // 48h
-			deltaT = Double.parseDouble(MyLog.readFromLog(pathLesione, "#039#", "=", true)); // deltaT 24h
-			fatCal = Double.parseDouble(MyLog.readFromLog(pathLesione, "#222#", "=", true)); // fatCal48h
+			deltaT = Double.parseDouble(MyReader.readFromLog(pathLesione, "#039#", "=", true)); // deltaT 24h
+			fatCal = Double.parseDouble(MyReader.readFromLog(pathLesione, "#222#", "=", true)); // fatCal48h
 			break;
 		case 120:
-			acqDuration = Double.parseDouble(MyLog.readFromLog(pathLesione, "#058#", "=", true)); // acqduration 120h
-			deltaT = Double.parseDouble(MyLog.readFromLog(pathLesione, "#059#", "=", true)); // deltaT 24h
-			fatCal = Double.parseDouble(MyLog.readFromLog(pathLesione, "#242#", "=", true)); // fatCal120h
+			acqDuration = Double.parseDouble(MyReader.readFromLog(pathLesione, "#058#", "=", true)); // acqduration 120h
+			deltaT = Double.parseDouble(MyReader.readFromLog(pathLesione, "#059#", "=", true)); // deltaT 24h
+			fatCal = Double.parseDouble(MyReader.readFromLog(pathLesione, "#242#", "=", true)); // fatCal120h
 			break;
 		}
 //		double par_a = Double.parseDouble(MyLog.readFromLog(pathLesione, "#302#", "=", true));
@@ -253,9 +253,9 @@ public class VoxelDosimetry {
 		// CUBO CON SVALUES
 		// -------------------------------------
 		
-		Utility utility = new Utility();
-		String[] tabSvalues = utility.readTextFileSVALUESFromResources("S-values.txt", true);
-		
+		MyReader reader = new MyReader();
+		String[] tabSvalues = reader.readTextFileSVALUESFromResources("S-value.txt", true);
+		MyLog.logVector(tabSvalues, "tabSvalues");
 		
 		
 		ImagePlus impRubik = Utility.inCubo(tabSvalues);

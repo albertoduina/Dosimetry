@@ -63,10 +63,10 @@ public class MyGlobals {
 		File f1 = new File(myPath);
 		if (!f1.isFile())
 			return;
-		String aux1 = MyLog.readFromLog(myPath, "#001#", "=");
-		String aux2 = MyLog.readFromLog(myPath, "#002#", "=");
-		String aux3 = MyLog.readFromLog(myPath, "#003#", "=");
-		String aux4 = MyLog.readFromLog(myPath, "#004#", "=");
+		String aux1 = MyReader.readFromLog(myPath, "#001#", "=");
+		String aux2 = MyReader.readFromLog(myPath, "#002#", "=");
+		String aux3 = MyReader.readFromLog(myPath, "#003#", "=");
+		String aux4 = MyReader.readFromLog(myPath, "#004#", "=");
 
 		attivaLog = aux1.equalsIgnoreCase("SI");
 		loggoVoxels = aux2.equalsIgnoreCase("SI");

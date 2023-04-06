@@ -107,9 +107,9 @@ public class Dosimetry_v2 implements PlugIn {
 //		String[] vetLogList = Utility.readLog(pathPermanente);
 		String[] vetPetCtViewerTitle = new String[3];
 		for (int i1 = 0; i1 < 3; i1++) {
-			vetPetCtViewerTitle[0] = MyLog.readFromLog(pathPermanente, "24h=", "=");
-			vetPetCtViewerTitle[1] = MyLog.readFromLog(pathPermanente, "48h=", "=");
-			vetPetCtViewerTitle[2] = MyLog.readFromLog(pathPermanente, "120h=", "=");
+			vetPetCtViewerTitle[0] = MyReader.readFromLog(pathPermanente, "24h=", "=");
+			vetPetCtViewerTitle[1] = MyReader.readFromLog(pathPermanente, "48h=", "=");
+			vetPetCtViewerTitle[2] = MyReader.readFromLog(pathPermanente, "120h=", "=");
 		}
 
 		String[] niw1 = WindowManager.getNonImageTitles();
@@ -123,10 +123,10 @@ public class Dosimetry_v2 implements PlugIn {
 		// Dosimetry_v2. In particolare sono utilizzati per comunicare di quale immagine
 		// vogliamo effettuare nuovamente l'analisi, dopo avere preso visione del plot
 		// ==========================================================================
-		ok24 = Boolean.parseBoolean(MyLog.readFromLog(pathPermanente, "#901#", "=", true));
-		ok48 = Boolean.parseBoolean(MyLog.readFromLog(pathPermanente, "#902#", "=", true));
-		ok120 = Boolean.parseBoolean(MyLog.readFromLog(pathPermanente, "#903#", "=", true));
-		okk = Boolean.parseBoolean(MyLog.readFromLog(pathPermanente, "#904#", "=", true));
+		ok24 = Boolean.parseBoolean(MyReader.readFromLog(pathPermanente, "#901#", "=", true));
+		ok48 = Boolean.parseBoolean(MyReader.readFromLog(pathPermanente, "#902#", "=", true));
+		ok120 = Boolean.parseBoolean(MyReader.readFromLog(pathPermanente, "#903#", "=", true));
+		okk = Boolean.parseBoolean(MyReader.readFromLog(pathPermanente, "#904#", "=", true));
 
 		// ======================================================
 		// PARTE NUOVA CICLO ESTERNO PER LA SELEZIONE IMMAGINE

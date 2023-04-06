@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 
@@ -139,31 +140,6 @@ public class Utility_Test {
 		}
 		String pathPermanente = "testdata/permanente.txt";
 		MyLog.logModify(pathPermanente, "#730#", "#730# MODIFICATO (AGGIUNTO)");
-		MyLog.waitHere("SPETTA");
-
-	}
-
-	@Test
-	public final void test_readSimpleText() {
-
-		String pathSorgente = "testdata/sorgente.txt";
-		String[] out1 = MyLog.readSimpleText(pathSorgente);
-		for (String aux : out1) {
-			MyLog.log(aux);
-		}
-		MyLog.waitHere("SPETTA");
-
-	}
-
-	@Test
-	public final void test_readFromLog() {
-
-		String pathSorgente = "testdata/sorgente.txt";
-
-		String code1 = "#003#";
-		String out1 = MyLog.readFromLog(pathSorgente, code1);
-		MyLog.log("TROVATO out1= " + out1);
-
 		MyLog.waitHere("SPETTA");
 
 	}
@@ -366,9 +342,9 @@ public class Utility_Test {
 	@Test
 	public final void test_inCubo() {
 
-		Utility utility = new Utility();
+		MyReader reader = new MyReader();
 
-		String[] tabSvalues = utility.readTextFileSVALUESFromResources("testdata/S-values.txt", false);
+		String[] tabSvalues = reader.readTextFileSVALUESFromResources("testdata/S-values.txt", false);
 
 		MyLog.logVector(tabSvalues, "tabSvalues");
 

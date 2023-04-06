@@ -3,15 +3,11 @@ package Dosimetry;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.List;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -308,7 +304,7 @@ public class MyLog {
 		String aux2 = "";
 		for (int i1 = start; i1 <= end; i1++) {
 			aux1 = "#" + String.format("%03d", i1) + "#";
-			aux2 = MyLog.readFromLog(pathSorgente, aux1);
+			aux2 = MyReader.readFromLog(pathSorgente, aux1);
 			if (aux2 != null) {
 				logAppend(pathDestinazione, aux2);
 			}
@@ -507,179 +503,6 @@ public class MyLog {
 		} catch (Exception e) {
 			System.out.println("errore lettura/scrittura file " + path1);
 		}
-	}
-
-	/**
-	 * Lettura di un tag dal log
-	 * 
-	 * @param path1
-	 * @param code1
-	 * @param separator
-	 * @return
-	 */
-	static double readDoubleFromLog(String path1, String code1, String separator) {
-
-		// leggo una stringa dal log
-		String[] vetText = MyLog.readSimpleText(path1);
-		String[] vetAux1;
-		String out1 = null;
-		if (vetText.length > 0) {
-			for (int i1 = 0; i1 < vetText.length; i1++) {
-				if (vetText[i1].contains(code1)) {
-					vetAux1 = vetText[i1].split(separator);
-					out1 = vetAux1[1].trim();
-				}
-			}
-		}
-
-		return Double.parseDouble(out1);
-	}
-
-	/**
-	 * Restituisce l'intera linea del log per il tag
-	 * 
-	 * @param path1
-	 * @param code1
-	 * @return
-	 */
-	static String readFromLog(String path1, String code1) {
-
-		// leggo una stringa dal log
-		String[] vetText = MyLog.readSimpleText(path1);
-		if (vetText.length > 0) {
-			for (int i1 = 0; i1 < vetText.length; i1++) {
-				if (vetText[i1].contains(code1))
-					return vetText[i1];
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Lettura di un tag dal log
-	 * 
-	 * @param path1
-	 * @param code1
-	 * @param separator
-	 * @return
-	 */
-	static String readFromLog(String path1, String code1, String separator) {
-
-		if (path1 == null)
-			waitHere("path1==null");
-		String[] vetText = MyLog.readSimpleText(path1);
-		if (vetText == null)
-			waitHere("vetText==null");
-
-		String[] vetAux1;
-		String out1 = null;
-		boolean trovato = false;
-		if (vetText.length > 0) {
-			for (int i1 = 0; i1 < vetText.length; i1++) {
-				if (vetText[i1].contains(code1)) {
-					vetAux1 = vetText[i1].split(separator);
-					out1 = vetAux1[1].trim();
-					trovato = true;
-				}
-			}
-		}
-		if (!trovato) {
-			waitHere("non trovo " + code1);
-			return null;
-		}
-		return out1;
-	}
-
-	/**
-	 * Lettura di un tag dal log
-	 * 
-	 * @param path1
-	 * @param code1
-	 * @param separator
-	 * @return
-	 */
-	static String readFromLog(String path1, String code1, String separator, boolean error) {
-
-		if (path1 == null)
-			waitHere("path1==null");
-		String[] vetText = MyLog.readSimpleText(path1);
-		if (vetText == null)
-			waitHere("vetText==null");
-
-		String[] vetAux1;
-		String out1 = null;
-		boolean trovato = false;
-		if (vetText.length > 0) {
-			for (int i1 = 0; i1 < vetText.length; i1++) {
-				if (vetText[i1].contains(code1)) {
-					vetAux1 = vetText[i1].split(separator);
-					out1 = vetAux1[1].trim();
-					trovato = true;
-				}
-			}
-		}
-		if (!trovato) {
-			if (!error)
-				waitHere("non trovo " + code1);
-			return null;
-		}
-		return out1;
-	}
-
-	/**
-	 * Legge tutte le linee di un file testo e le restituisce come vettore di
-	 * stringhe
-	 * 
-	 * @param path1 path del file, completo di nome
-	 * @return vettore stringhe
-	 */
-	public static String[] readSimpleText(String path1) {
-
-		List<String> lines = new ArrayList<String>();
-		BufferedReader br = null;
-		try {
-			br = new BufferedReader(new FileReader(path1));
-		} catch (FileNotFoundException e) {
-			waitHere("fileNotFound error= " + path1);
-			e.printStackTrace();
-		}
-		String line = null;
-		try {
-			line = br.readLine();
-			while (line != null) {
-				lines.add(line);
-				line = br.readLine();
-			}
-			br.close();
-
-		} catch (IOException e) {
-			waitHere("reading error= " + path1);
-			e.printStackTrace();
-		}
-
-		String[] out2 = lines.toArray(new String[0]);
-		return out2;
-	}
-
-	/**
-	 * Legge tutte le linee di un file testo e le restituisce come vettore di
-	 * stringhe
-	 * 
-	 * @param path1 path del file, completo di nome
-	 * @return vettore stringhe
-	 */
-	public static String[] readSimpleText2(String path1) {
-
-		List<String> out1 = null;
-		try {
-			out1 = Files.readAllLines(Path.of(path1));
-			// MyLog.log("lette= " + out1.size() + " linee");
-		} catch (IOException e) {
-			log("errore lettura " + path1);
-			e.printStackTrace();
-		}
-		String[] out2 = out1.toArray(new String[0]);
-		return out2;
 	}
 	
 	

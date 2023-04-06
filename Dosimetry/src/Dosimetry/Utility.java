@@ -4,12 +4,9 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.Window;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -540,12 +537,12 @@ public class Utility {
 
 		String aux1 = "";
 		double aux2 = 0;
-		aux1 = MyLog.readFromLog(path, "#002#", "=");
+		aux1 = MyReader.readFromLog(path, "#002#", "=");
 		if (aux1 == null)
 			return false;
 		if (!Utility.isValidDateTime(aux1, "dd-MM-yyyy HH:mm:ss"))
 			return false;
-		aux1 = MyLog.readFromLog(path, "#003#", "="); // activity
+		aux1 = MyReader.readFromLog(path, "#003#", "="); // activity
 		if (aux1 == null)
 			return false;
 		aux2 = Double.parseDouble(aux1);
@@ -606,7 +603,7 @@ public class Utility {
 		double aa = Math.abs(params[1]);
 		double mAtilde = AA / aa;
 		double disintegrazioni = mAtilde / 100;
-		double somministrata = MyLog.readDoubleFromLog(localVolatile, "#003#", "=");
+		double somministrata = MyReader.readDoubleFromLog(localVolatile, "#003#", "=");
 		double uptake = AA / somministrata;
 		double massa = vetMean(vetVol);
 		double tmezzo = Math.log(2) / aa;
@@ -2386,263 +2383,13 @@ public class Utility {
 		return vetOut;
 	}
 
-	/**
-	 * leggiFileSvalues si preoccupa di andare a leggere il file S-values,
-	 * all'interno del file .JAR
-	 */
-	public static void readFileSvalues(String filename) {
 
-		MyLog.waitHere("filename= " + filename);
-
-		URL url3 = Utility.class.getResource("/" + filename);
-		if (url3 == null)
-			MyLog.waitHere("url3==null");
-
-		String myString = url3.toString();
-//		int start = myString.indexOf("plugins");
-//		int end = myString.lastIndexOf("!");
-//		if (start < 0 || end < 0)
-//			return;
-//		String myPart1 = myString.substring(start, end);
-//
-//		int end2 = myPart1.lastIndexOf("/");
-////		String myPart2 = myPart1.substring(0, end2);
-//		String myPart2 = myPart1;
-//		MyLog.waitHere("myPart2= " + myPart2);
-//		String myPath = myPart2 + "/" + filename;
-		String myPath = myString;
-		MyLog.waitHere("myPath= " + myPath);
-		File f1 = new File(myPath);
-		if (!f1.isFile()) {
-			MyLog.waitHere("FANCULO");
-			return;
-		}
-		String[] rawSval1 = MyLog.readSimpleText2(myPath);
-		// so che le prime due righe sono particolari
-		String[] first = rawSval1[0].split("-");
-		String radioisotope = first[0].trim();
-		String thick = first[1].trim();
-		String type = first[2];
-		int num1 = 4;
-		double[][] tabella = new double[rawSval1.length][num1];
-		String riga = "";
-		String[] aa;
-		for (int i1 = 2; i1 < rawSval1.length; i1++) {
-			riga = rawSval1[i1];
-			aa = riga.split(" ");
-			for (int i2 = 0; i2 < num1; i2++) {
-				tabella[i1][i2] = Double.valueOf(aa[i2]);
-			}
-		}
-		String stampa = "";
-		for (int i1 = 0; i1 < tabella.length; i1++) {
-			stampa = "";
-			for (int i2 = 0; i2 < num1; i2++) {
-				stampa = stampa + tabella[i1][i2];
-			}
-			IJ.log(stampa);
-		}
+	public static boolean isPureAscii(String v) {
+		return Charset.forName("ISO-8859-1").newEncoder().canEncode(v);
+		// or "US-ASCII"
+		// or "ISO-8859-1" for ISO Latin 1
+		// or StandardCharsets.US_ASCII with JDK1.7+
 	}
 
-	static String[] readTextFileInsideJar(String target) {
 
-		URL url3 = Utility.class.getResource("/" + target);
-		if (url3 == null)
-			MyLog.waitHere("url3==null");
-		String myString = url3.toString();
-		int start = myString.indexOf("plugins");
-		int end = myString.lastIndexOf("!");
-		String myPart1 = myString.substring(start, end);
-		int end2 = myPart1.lastIndexOf("/");
-		String myPart2 = myPart1.substring(0, end2);
-		String myPath = myPart2 + File.separator + target;
-		File f1 = new File(myPath);
-		if (!f1.isFile())
-			return null;
-		String[] puffi = new String[3];
-//		puffi[0] = Utility.readFromLog(myPath, "#001#", "=");
-//		puffi[1] = Utility.readFromLog(myPath, "#002#", "=");
-//		puffi[2] = Utility.readFromLog(myPath, "#003#", "=");
-		return puffi;
-	}
-
-	static String[] readTextFileOutsideJar(String target) {
-
-		URL url3 = Utility.class.getResource("Dosimetria_Lu177.class");
-		String myString = url3.toString();
-		int start = myString.indexOf("plugins");
-		int end = myString.lastIndexOf("!");
-		String myPart1 = myString.substring(start, end);
-		int end2 = myPart1.lastIndexOf("/");
-		String myPart2 = myPart1.substring(0, end2);
-		String myPath = myPart2 + File.separator + target;
-		File f1 = new File(myPath);
-		if (!f1.isFile())
-			return null;
-		String[] puffi = new String[3];
-//		puffi[0] = Utility.readFromLog(myPath, "#001#", "=");
-//		puffi[1] = Utility.readFromLog(myPath, "#002#", "=");
-//		puffi[2] = Utility.readFromLog(myPath, "#003#", "=");
-		return puffi;
-	}
-
-//	public static String[] readTextFileEverywhere2(String filename) {
-//		InputStream is = Utility.class.getResourceAsStream("/" + filename);
-//		if (is == null)
-//			MyLog.waitHere("is==null");
-//		InputStreamReader isr = new InputStreamReader(is);
-//		BufferedReader br = new BufferedReader(isr);
-//		StringBuffer sb = new StringBuffer();
-//		String line;
-//		try {
-//			while ((line = br.readLine()) != null) {
-//				sb.append(line + "\n");
-//			}
-//			br.close();
-//			isr.close();
-//			is.close();
-//
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		return sb;
-//	}
-
-	public static String[] readTextFileEverywhere(String filename) {
-
-		URL url3 = Utility.class.getResource("/" + filename);
-		String myPath = "";
-		try {
-			myPath = url3.toURI().getPath();
-			if (myPath == null)
-				MyLog.waitHere("myPath==null");
-		} catch (URISyntaxException e1) {
-			MyLog.waitHere("errore e1= " + e1);
-			e1.printStackTrace();
-		}
-		MyLog.waitHere("myPath= " + myPath);
-		List<String> out1 = null;
-		Path pp = null;
-		try {
-			pp = Paths.get(url3.toURI());
-		} catch (URISyntaxException e1) {
-			MyLog.waitHere("errore pp= " + pp);
-			e1.printStackTrace();
-		}
-		try {
-			out1 = Files.readAllLines(pp);
-			// MyLog.log("lette= " + out1.size() + " linee");
-		} catch (IOException e) {
-			MyLog.waitHere("errore out1=" + out1);
-			e.printStackTrace();
-		}
-		String[] out2 = out1.toArray(new String[0]);
-		return out2;
-	}
-
-	public String[] readTextFileFromResources(String fileName, boolean intoJar) {
-		String thisLine;
-		String myFile = "";
-		List<String> out1 = new ArrayList<String>();
-		if (intoJar)
-			myFile = "/" + fileName;
-		else
-			myFile = fileName;
-		try {
-			InputStream is = Utility.class.getResourceAsStream(myFile);
-			BufferedReader br = new BufferedReader(new InputStreamReader(is));
-			while ((thisLine = br.readLine()) != null) {
-				out1.add(thisLine);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		String[] out2 = out1.toArray(new String[0]);
-		return out2;
-	}
-
-	public String[] readTextFileSVALUESFromResources(String fileName, boolean intoJar) {
-		String myFile = "";
-
-		List<String> out1 = new ArrayList<String>();
-		if (intoJar)
-			myFile = "/" + fileName;
-		else
-			myFile = fileName;
-		try {
-			InputStream is = Utility.class.getResourceAsStream(myFile);
-			if (is==null) MyLog.waitHere("is==null");
-			BufferedReader br = new BufferedReader(new InputStreamReader(is));
-			if (br==null) MyLog.waitHere("is==null");
-			int s1 = 0;
-			String formattedString = "";
-			while ((s1 = br.read()) != -1) {
-
-				char character = (char) s1;
-				int hex1 = 0x9;
-
-				if (character == '\n') {
-					formattedString += "\n";
-				} else if (character == (char) 9) {
-					formattedString += ";";
-				} else if (character == (char) 194) {
-					formattedString += "*";
-				} else if (character == (char) 183) {
-					formattedString += "";
-				} else
-					formattedString += character;
-
-			}
-			out1.add(formattedString);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		String out2 = out1.toString();
-		String[] out3 = out2.split("\n");
-		int teoricLen = (int) Math.pow(MyGlobals.latoCubo() + 1, 3) + 2;
-		MyLog.waitHere("ATTENZIONE:\nla lughezza del file S-values deve essere di \n" + teoricLen
-				+ " righe, contando anche le 2 di intestazione");
-
-		String[] out4 = new String[out3.length - 2];
-		int count=0;
-		for (int i1 = 2; i1 < out3.length; i1++) {
-			out4[count++]=out3[i1];
-		}
-
-		return out4;
-	}
-
-	public void readTextFileFromResourcesOLD(String fileName, boolean fromJar) {
-		String thisLine;
-		String myFile = "";
-		if (fromJar)
-			myFile = "/" + fileName;
-		else
-			myFile = fileName;
-		try {
-			InputStream is = Utility.class.getResourceAsStream(myFile);
-			BufferedReader br = new BufferedReader(new InputStreamReader(is));
-			while ((thisLine = br.readLine()) != null) {
-				IJ.log(thisLine);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void readFileAsListOLD(String name) {
-		String fileName = "/" + name;
-
-		try {
-			URI uri = Objects.requireNonNull(this.getClass().getResource(fileName)).toURI();
-			List<String> lines = Files.readAllLines(Paths.get(uri), Charset.defaultCharset());
-
-			for (String line : lines) {
-				IJ.log(line);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 }

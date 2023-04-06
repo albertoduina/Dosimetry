@@ -189,9 +189,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 			MyLog.logCopyRange(MyGlobals.pathPermanente, pathVolatile, 0, 3);
 			// copia da permanente a volatile i dati di IMAGE INFO 24-48-120
 			MyLog.logCopyRange(MyGlobals.pathPermanente, pathVolatile, 10, 60);
-			dataOraSomministrazione = Utility.getDateTime(MyLog.readFromLog(pathVolatile, "#002#", "="),
+			dataOraSomministrazione = Utility.getDateTime(MyReader.readFromLog(pathVolatile, "#002#", "="),
 					MyGlobals.format1);
-			activitySomministrazione = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#003#", "="));
+			activitySomministrazione = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#003#", "="));
 			MyLog.log("dataOraSomministrazione= " + dataOraSomministrazione);
 			raccoltaDati(arrayOfFile2, dataOraSomministrazione);
 			// copia da volatile a permanente i dati di IMAGE INFO 24-48-120
@@ -209,9 +209,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 			MyLog.logCopyRange(MyGlobals.pathPermanente, pathVolatile, 0, 3);
 			// copia da permanente a volatile i dati di IMAGE INFO 24-48-120
 			MyLog.logCopyRange(MyGlobals.pathPermanente, pathVolatile, 10, 60);
-			dataOraSomministrazione = Utility.getDateTime(MyLog.readFromLog(pathVolatile, "#002#", "="),
+			dataOraSomministrazione = Utility.getDateTime(MyReader.readFromLog(pathVolatile, "#002#", "="),
 					MyGlobals.format1);
-			activitySomministrazione = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#003#", "="));
+			activitySomministrazione = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#003#", "="));
 			MyLog.log("dataOraSomministrazione= " + dataOraSomministrazione);
 			azzeraFlags(MyGlobals.pathPermanente);
 		}
@@ -500,17 +500,17 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// se non mi ha scritto il tag #121# di volatile vuol dire che Dosimetry_v2 non
 			// ha analizzato la immagine 24h (probabile cancel dato al menu)
 
-			if (MyLog.readFromLog(pathVolatile, "#121#", "=") == null)
+			if (MyReader.readFromLog(pathVolatile, "#121#", "=") == null)
 				return;
 
 			double[] in1 = new double[5];
-			in1[0] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#018#", "=")); // acquisition duration
-			in1[1] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#121#", "=")); // pixel number over
+			in1[0] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#018#", "=")); // acquisition duration
+			in1[1] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#121#", "=")); // pixel number over
 																						// threshold
-			in1[2] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#003#", "=")); // activity
-			in1[3] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#115#", "=")); // contouring threshold
+			in1[2] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#003#", "=")); // activity
+			in1[3] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#115#", "=")); // contouring threshold
 																						// level
-			in1[4] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#122#", "=")); // over threshold count
+			in1[4] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#122#", "=")); // over threshold count
 																						// integral
 			out24 = Utility.MIRD_point(in1);
 			MIRD_vol24 = out24[0];
@@ -518,15 +518,15 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// 48h
 			// se non mi ha scritto il tag #151# di volatile vuol dire che Dosimetry_v2 non
 			// ha analizzato la immagine 24h (probabile cancel dato al menu)
-			if (MyLog.readFromLog(pathVolatile, "#151#", "=") == null)
+			if (MyReader.readFromLog(pathVolatile, "#151#", "=") == null)
 				return;
-			in1[0] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#038#", "=")); // acquisition duration
-			in1[1] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#151#", "=")); // pixel number over
+			in1[0] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#038#", "=")); // acquisition duration
+			in1[1] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#151#", "=")); // pixel number over
 																						// threshold
-			in1[2] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#003#", "=")); // activity
-			in1[3] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#145#", "=")); // contouring threshold
+			in1[2] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#003#", "=")); // activity
+			in1[3] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#145#", "=")); // contouring threshold
 																						// level
-			in1[4] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#152#", "=")); // over threshold count
+			in1[4] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#152#", "=")); // over threshold count
 																						// integral
 			out48 = Utility.MIRD_point(in1);
 			MIRD_vol48 = out48[0];
@@ -534,15 +534,15 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// 120h
 			// se non mi ha scritto il tag #181# di volatile vuol dire che Dosimetry_v2 non
 			// ha analizzato la immagine 24h (probabile cancel dato al menu)
-			if (MyLog.readFromLog(pathVolatile, "#181#", "=") == null)
+			if (MyReader.readFromLog(pathVolatile, "#181#", "=") == null)
 				return;
-			in1[0] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#058#", "=")); // acquisition duration
-			in1[1] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#181#", "=")); // pixel number over
+			in1[0] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#058#", "=")); // acquisition duration
+			in1[1] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#181#", "=")); // pixel number over
 																						// threshold
-			in1[2] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#003#", "=")); // activity
-			in1[3] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#175#", "=")); // contouring threshold
+			in1[2] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#003#", "=")); // activity
+			in1[3] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#175#", "=")); // contouring threshold
 																						// level
-			in1[4] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#182#", "=")); // over threshold count
+			in1[4] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#182#", "=")); // over threshold count
 																						// integral
 			out120 = Utility.MIRD_point(in1);
 
@@ -581,11 +581,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 			double[] xp1 = new double[3];
 			double[] yp1 = new double[3];
-			xp1[0] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#019#", "=")); // deltaT
+			xp1[0] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#019#", "=")); // deltaT
 			yp1[0] = out24[2];
-			xp1[1] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#039#", "=")); // deltaT
+			xp1[1] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#039#", "=")); // deltaT
 			yp1[1] = out48[2];
-			xp1[2] = Double.parseDouble(MyLog.readFromLog(pathVolatile, "#059#", "=")); // deltaT
+			xp1[2] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#059#", "=")); // deltaT
 			yp1[2] = out120[2];
 			for (double aux : xp1) {
 				MyLog.log("xp1= " + aux);
