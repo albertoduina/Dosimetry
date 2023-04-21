@@ -65,13 +65,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 		File[] arrayOfFile2 = null;
 		String aux5 = "";
 		int out1 = 0;
-
 		String IJversion = IJ.getVersion();
 		String JavaVersion = System.getProperty("java.version");
-
 		String jarName = Utility.getJarTitle();
-		
-
 
 		// ===========================================================
 		// LEGGO CARTELLA DOSIMETRY FOLDER (E SOTTOCARTELLA IMAGES FOLDER)
@@ -167,8 +163,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			MyLog.logAppend(pathVolatile, aux1);
 			// copia da volatile a permanente i dati di SOMMINISTRAZIONE
 			MyLog.logCopyRange(pathVolatile, MyGlobals.pathPermanente, 0, 3);
-
-			raccoltaDati(arrayOfFile2, dataOraSomministrazione);
+			// raccoltaDati(arrayOfFile2, dataOraSomministrazione);
 			// copia da volatile a permanente i dati di IMAGE INFO 24-48-120
 			MyLog.logCopyRange(pathVolatile, MyGlobals.pathPermanente, 10, 60);
 		} else if (nuovoDistretto)
@@ -193,7 +188,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 					MyGlobals.format1);
 			activitySomministrazione = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#003#", "="));
 			MyLog.log("dataOraSomministrazione= " + dataOraSomministrazione);
-			raccoltaDati(arrayOfFile2, dataOraSomministrazione);
+			IJ.log("002");
+
+			// raccoltaDati(arrayOfFile2, dataOraSomministrazione);
 			// copia da volatile a permanente i dati di IMAGE INFO 24-48-120
 			MyLog.logCopyRange(pathVolatile, MyGlobals.pathPermanente, 10, 60);
 			azzeraFlags(MyGlobals.pathPermanente);
@@ -215,6 +212,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 			MyLog.log("dataOraSomministrazione= " + dataOraSomministrazione);
 			azzeraFlags(MyGlobals.pathPermanente);
 		}
+
+		raccoltaDatiNuova(dataOraSomministrazione);
 
 		// ===========================================================================
 		// per evitare di utilizzare il menu di scelta, dobbiamo avviare pet_ct_viewer
@@ -506,12 +505,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 			double[] in1 = new double[5];
 			in1[0] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#018#", "=")); // acquisition duration
 			in1[1] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#121#", "=")); // pixel number over
-																						// threshold
+																							// threshold
 			in1[2] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#003#", "=")); // activity
 			in1[3] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#115#", "=")); // contouring threshold
-																						// level
+																							// level
 			in1[4] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#122#", "=")); // over threshold count
-																						// integral
+																							// integral
 			out24 = Utility.MIRD_point(in1);
 			MIRD_vol24 = out24[0];
 
@@ -522,12 +521,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 				return;
 			in1[0] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#038#", "=")); // acquisition duration
 			in1[1] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#151#", "=")); // pixel number over
-																						// threshold
+																							// threshold
 			in1[2] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#003#", "=")); // activity
 			in1[3] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#145#", "=")); // contouring threshold
-																						// level
+																							// level
 			in1[4] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#152#", "=")); // over threshold count
-																						// integral
+																							// integral
 			out48 = Utility.MIRD_point(in1);
 			MIRD_vol48 = out48[0];
 
@@ -538,12 +537,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 				return;
 			in1[0] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#058#", "=")); // acquisition duration
 			in1[1] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#181#", "=")); // pixel number over
-																						// threshold
+																							// threshold
 			in1[2] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#003#", "=")); // activity
 			in1[3] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#175#", "=")); // contouring threshold
-																						// level
+																							// level
 			in1[4] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#182#", "=")); // over threshold count
-																						// integral
+																							// integral
 			out120 = Utility.MIRD_point(in1);
 
 			MIRD_vol120 = out120[0];
@@ -1048,8 +1047,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 		MyLog.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tPERCENTUALE= " + str14;
 		MyLog.logAppend(pathVolatile, aux5);
-		
-		count5=700;
+
+		count5 = 700;
 		aux5 = "#" + String.format("%03d", count5++) + "#\t---------- DVH VOXEL DOSIMETRY -----------";
 		MyLog.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tDOSE MEDIA= " + Dmedia;
@@ -1058,17 +1057,13 @@ public class Dosimetria_Lu177 implements PlugIn {
 		MyLog.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tDOSE 98%= " + valD98;
 		MyLog.logAppend(pathVolatile, aux5);
-		count5=711;
+		count5 = 711;
 		aux5 = "#" + String.format("%03d", count5++) + "#\tERRORE DOSE MEDIA= " + errMedia;
 		MyLog.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tERRORE DOSE 2%= " + errD2;
 		MyLog.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tERRORE DOSE 98%= " + errD98;
 		MyLog.logAppend(pathVolatile, aux5);
-		
-		
-		
-		
 
 		// ==============================================================
 		// BATTESIMO DELLA LESIONE
@@ -1412,7 +1407,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 	 * @param arrayOfBoolean
 	 * @param desktopImagesSubfolderPath
 	 */
-	void copyFilesToDesktopDosimetryFolder(File[] arrayOfFile1, File[] arrayOfFile2, boolean[] arrayOfBoolean,
+	boolean copyFilesToDesktopDosimetryFolder(File[] arrayOfFile1, File[] arrayOfFile2, boolean[] arrayOfBoolean,
 			String desktopImagesSubfolderPath) {
 		// ----------------------------------------
 		// Copia delle immagini dalla sorgente al DosimetryFolder situato sul desktop
@@ -1420,6 +1415,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		int len1 = 0;
 		int count1 = 0;
+		int count2 = 0;
 
 		for (int b2 = 0; b2 < arrayOfFile1.length; b2++) {
 			if (arrayOfBoolean[b2]) {
@@ -1428,8 +1424,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 				len1 = len1 + arrayOfFile.length;
 			}
 		}
+//		MyLog.waitHere("len1= " + len1);
 
 		for (int b2 = 0; b2 < arrayOfFile1.length; b2++) {
+			count2 = 0;
 			if (arrayOfBoolean[b2]) {
 				File file = arrayOfFile1[b2];
 				File[] arrayOfFile = file.listFiles();
@@ -1441,6 +1439,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 					File file6 = null;
 					if (file5.getName().contains("IRAC")) {
+						count2++;
 						file6 = new File(desktopImagesSubfolderPath + File.separator + MyGlobals.arrayOfString[b2]
 								+ File.separator + "SPECT" + File.separator + file5.getName());
 						try {
@@ -1448,7 +1447,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 						} catch (Exception exception) {
 							MyDialog.dialogErrorMessage_LP06(
 									"An Error occurred while coping the SPECT image. Please try again!");
-							return;
+							return false;
 						}
 					} else if (file5.getName().contains("CTAC")) {
 						file6 = new File(desktopImagesSubfolderPath + File.separator + MyGlobals.arrayOfString[b2]
@@ -1458,7 +1457,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 						} catch (Exception exception) {
 							MyDialog.dialogErrorMessage_LP06(
 									"An Error occurred while coping CT images. Please try again!");
-							return;
+							return false;
 						}
 					} else if (file5.getName().contains("EM001")) {
 						arrayOfFile2[b2] = file5;
@@ -1468,9 +1467,13 @@ public class Dosimetria_Lu177 implements PlugIn {
 				MyDialog.dialogErrorMessage_LP06(
 						"It was not possible to import files for " + MyGlobals.arrayOfString[b2] + " folder.");
 			}
-
+			if (count2 > 1) {
+				MyLog.waitHere(
+						"ATTENZIONE i file IRAC possono essere solo 1 per ogni cartella (24-48-120).\n \n>>> CANCELLARE DALLE CARTELLE SORGENTI I FILE ECCEDENTI <<<\n \n>>>>>>> POI RIPROVARE <<<<<<");
+				return false;
+			}
 		}
-
+		return true;
 	}
 
 	/**
@@ -1609,10 +1612,13 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 		File[] arrayOfFile1 = { file24, file48, file120 };
 		File[] arrayOfFile2 = new File[arrayOfFile1.length];
-
-		copyFilesToDesktopDosimetryFolder(arrayOfFile1, arrayOfFile2, arrayOfBoolean,
+		boolean ok1 = copyFilesToDesktopDosimetryFolder(arrayOfFile1, arrayOfFile2, arrayOfBoolean,
 				MyGlobals.desktopImagesSubfolderPath);
-		return arrayOfFile2;
+
+		if (ok1) {
+			return arrayOfFile2;
+		} else
+			return null;
 
 	}
 
@@ -1656,9 +1662,13 @@ public class Dosimetria_Lu177 implements PlugIn {
 	 */
 	public void raccoltaDati(File[] vetFile, Date myDate0) {
 
+//		String deb1 = "";
 		ArrayList<ArrayList<String>> aList = new ArrayList<ArrayList<String>>();
 		ArrayList<Long> eList = new ArrayList<Long>();
 		for (byte b3 = 0; b3 < MyGlobals.arrayOfString.length; b3++) {
+			IJ.log(vetFile[b3].toString());
+//			deb1 = vetFile[b3].getName();
+//			IJ.log("b3= " + b3 + " deb1= " + deb1);
 			ImagePlus imp8 = IJ.openImage(vetFile[b3].getAbsolutePath());
 			int durata = Utility.MIRD_calcoloDurataAcquisizione(imp8);
 			String acqDate = DicomTools.getTag(imp8, "0008,0022").trim();
@@ -1672,6 +1682,92 @@ public class Dosimetria_Lu177 implements PlugIn {
 			eList.add(myDelta1);
 			ArrayList<String> bList = new ArrayList<String>();
 			bList.add("\tImage Name= " + vetFile[b3].getName());
+			bList.add("\tAcquisition DateTime= " + myDateTime2);
+			bList.add("\tDummy");
+			bList.add("\tIsotope= " + DicomTools.getTag(imp8, "0011,100D"));
+			bList.add("\tCollimator= " + DicomTools.getTag(imp8, "0018,1180"));
+			bList.add("\tNumber of frames= " + DicomTools.getTag(imp8, "0054,0053"));
+			bList.add("\tActual frame duration= " + DicomTools.getTag(imp8, "0018,1242"));
+			bList.add("\tAcquisition duration= " + durata);
+//			bList.add("\tPathCompleto: " + arrayOfFile2[b3].getAbsolutePath() + "\n"); /// solo per test
+			aList.add(bList);
+		}
+		// --------------------------------------------------------------------------------------
+		// Nel file volatile vengono scritti dal seguente loop i seguenti TAG e i
+		// relativio dati
+		// #011#,#012#,#013#,#014#,#015#,#016#,#017#,#018#,#019#
+		// #031#,#032#,#033#,#034#,#035#,#036#,#037#,#038#,#039#
+		// #051#,#052#,#053#,#054#,#055#,#056#,#057#,#058#,#059#
+		// --------------------------------------------------------------------------------------
+//		String aux1 = "";
+		String aux2 = "";
+		String aux3 = "";
+		int count2 = 0;
+		for (int a4 = 0; a4 < aList.size(); a4++) {
+			count2 = a4 * 20 + 10;
+//			aux1 = "#010#\t---- IMAGE INFO " + arrayOfString[a4] + " ----";
+			aux2 = "#" + String.format("%03d", count2++) + "#\t---- IMAGE INFO " + MyGlobals.arrayOfString[a4]
+					+ " ----";
+			MyLog.logAppend(pathVolatile, aux2);
+			String str22 = "";
+			ArrayList<String> cList = aList.get(a4);
+			for (int b4 = 0; b4 < cList.size(); b4++) {
+				aux2 = "#" + String.format("%03d", count2++) + "#";
+				String str9 = cList.get(b4);
+				str22 = aux2 + str9;
+				MyLog.logAppend(pathVolatile, str22);
+			}
+			aux3 = "#" + String.format("%03d", count2++) + "#" + "\tDeltaT= "
+					+ (double) eList.get(a4) / (1000 * 60 * 60);
+			MyLog.logAppend(pathVolatile, aux3);
+		}
+	}
+
+	/**
+	 * Lettura dati dalle immagini per NUOVO PAZIENTE, scrittura in volatile.txt.
+	 * Questa nuova versione dovrebbe leggere i dati dalla DosimetryFolder, anziche'
+	 * da quella sorgente
+	 * 
+	 * @param vetFile immagini da analizzare
+	 * @param myDate0 dataOra somministrazione per calcolo deltaT
+	 */
+	public void raccoltaDatiNuova(Date myDate0) {
+
+		ArrayList<ArrayList<String>> aList = new ArrayList<ArrayList<String>>();
+
+		String str1 = System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "DosimetryFolder"
+				+ File.separator + "ImagesFolder" + File.separator;
+
+		String startingDir1 = "";
+
+		ArrayList<Long> eList = new ArrayList<Long>();
+		for (byte b3 = 0; b3 < MyGlobals.arrayOfString.length; b3++) {
+			startingDir1 = str1 + MyGlobals.arrayOfString[b3] + File.separator + "SPECT";
+			List<File> result1 = Utility.getFileListing(new File(startingDir1));
+			if (result1 == null) {
+				IJ.error("getFileListing.result1==null");
+			}
+			int len2 = result1.size();
+			if (len2 != 1)
+				return;
+			File fil1 = result1.get(0);
+			String path1 = fil1.getAbsolutePath();
+			ImagePlus imp8 = Utility.openImage(path1);
+//			IJ.log(vetFile[b3].toString());
+////			IJ.log("b3= " + b3 + " deb1= " + deb1);
+//			ImagePlus imp8 = IJ.openImage(vetFile[b3].getAbsolutePath());
+			int durata = Utility.MIRD_calcoloDurataAcquisizione(imp8);
+			String acqDate = DicomTools.getTag(imp8, "0008,0022").trim();
+			String acqTime = DicomTools.getTag(imp8, "0008,0032").trim();
+			// MyLog.log("getDateTime: date= " + acqDate + " time=" + acqTime);
+			Date myDateTime1 = getDateTime(acqDate, acqTime);
+			SimpleDateFormat sdf = new SimpleDateFormat(MyGlobals.format1);
+			String myDateTime2 = sdf.format(myDateTime1);
+
+			long myDelta1 = Utility.MIRD_calcoloDeltaT(myDate0, myDateTime1);
+			eList.add(myDelta1);
+			ArrayList<String> bList = new ArrayList<String>();
+			bList.add("\tImage Name= " + imp8.getTitle());
 			bList.add("\tAcquisition DateTime= " + myDateTime2);
 			bList.add("\tDummy");
 			bList.add("\tIsotope= " + DicomTools.getTag(imp8, "0011,100D"));

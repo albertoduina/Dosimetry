@@ -13,10 +13,6 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.WaitForUserDialog;
 
-/**
- * @author Alberto
- *
- */
 public class MyLog {
 
 	public static void log(String str) {
@@ -249,7 +245,7 @@ public class MyLog {
 	}
 
 	/**
-	 * Inizializza il file di log cancellando se esiste e scrivendoci INIZIO
+	 * Inizializza il log scrivendoci INIZIO
 	 * 
 	 * @param path indirizzo log da utilizzare
 	 */
@@ -504,9 +500,5 @@ public class MyLog {
 			System.out.println("errore lettura/scrittura file " + path1);
 		}
 	}
-	
-	
-	
-
 
 }

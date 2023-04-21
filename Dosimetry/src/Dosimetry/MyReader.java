@@ -11,10 +11,18 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ ****************************
+ * LETTURA DI FILE DI TESTO *
+ ****************************
+ */
+
 public class MyReader {
 
+
 	/**
-	 *  Legge i file in qualsiasi posizione siano: dentro un file jar, fuori dal file jar, dentro junit
+	 * Legge i file in qualsiasi posizione siano: dentro un file jar, fuori dal file
+	 * jar, dentro junit utilizza getResourceAsStream()
 	 * 
 	 * @param fileName
 	 * @param intoJar
@@ -29,7 +37,7 @@ public class MyReader {
 		else
 			myFile = fileName;
 		try {
-			
+
 			InputStream is = this.getClass().getResourceAsStream(myFile);
 			if (is == null)
 				if (is == null)
@@ -46,14 +54,17 @@ public class MyReader {
 	}
 
 	/**
-	 * Legge i file S-value ricevuti dal sito
+	 * Legge i file S-value scaricati dal sito
+	 * https://www.medphys.it/down_svoxel.htm . Il formato del file non contiene
+	 * solo caratteri puramente di testo, comunque questi caratteri speciali vengono
+	 * filtrati e sostituiti, in modo da ottenere stringhe normali.
 	 * 
 	 * @param fileName
 	 * @param intoJar
 	 * @return
 	 */
 	public String[] readTextFileSVALUESFromResources(String fileName, boolean intoJar) {
-		
+
 		String myFile = "";
 		String out1 = "";
 		if (intoJar)
@@ -68,7 +79,7 @@ public class MyReader {
 			int s1 = 0;
 			String formattedString = null;
 			while ((s1 = br.read()) != -1) {
-	
+
 				char character = (char) s1;
 				if (character == '\n') {
 					formattedString += "\n";
@@ -87,25 +98,25 @@ public class MyReader {
 			e.printStackTrace();
 		}
 		MyLog.log("<" + out1 + ">");
-	
+
 		String[] out3 = out1.split("\n");
 		int teoricLen = (int) Math.pow(MyGlobals.latoCubo() + 1, 3) + 2;
 		if (out3.length != teoricLen)
 			MyLog.waitHere("ATTENZIONE:\nla lughezza del file S-values deve essere di \n" + teoricLen
 					+ " righe, contando anche le 2 di intestazione");
-	
+
 		String[] out4 = new String[out3.length - 2];
 		int count1 = 0;
 		for (int i1 = 2; i1 < out3.length; i1++) {
 			out4[count1] = out3[i1];
 			count1++;
 		}
-	
+
 		return out4;
 	}
 
 	/**
-	 * Lettura di un tag dal log
+	 * Lettura di un tag con valore double dal log
 	 * 
 	 * @param path1
 	 * @param code1
@@ -113,7 +124,7 @@ public class MyReader {
 	 * @return
 	 */
 	static double readDoubleFromLog(String path1, String code1, String separator) {
-	
+
 		// leggo una stringa dal log
 		String[] vetText = readSimpleText(path1);
 		String[] vetAux1;
@@ -126,12 +137,12 @@ public class MyReader {
 				}
 			}
 		}
-	
+
 		return Double.parseDouble(out1);
 	}
 
 	/**
-	 * Lettura di un tag dal log
+	 * Lettura di un tag con valore stringa dal log
 	 * 
 	 * @param path1
 	 * @param code1
@@ -139,13 +150,13 @@ public class MyReader {
 	 * @return
 	 */
 	static String readFromLog(String path1, String code1, String separator, boolean error) {
-	
+
 		if (path1 == null)
 			MyLog.waitHere("path1==null");
 		String[] vetText = readSimpleText(path1);
 		if (vetText == null)
 			MyLog.waitHere("vetText==null");
-	
+
 		String[] vetAux1;
 		String out1 = null;
 		boolean trovato = false;
@@ -167,7 +178,7 @@ public class MyReader {
 	}
 
 	/**
-	 * Lettura di un tag dal log
+	 * Lettura di un tag con valore stringa dal log
 	 * 
 	 * @param path1
 	 * @param code1
@@ -175,13 +186,13 @@ public class MyReader {
 	 * @return
 	 */
 	static String readFromLog(String path1, String code1, String separator) {
-	
+
 		if (path1 == null)
 			MyLog.waitHere("path1==null");
 		String[] vetText = readSimpleText(path1);
 		if (vetText == null)
 			MyLog.waitHere("vetText==null");
-	
+
 		String[] vetAux1;
 		String out1 = null;
 		boolean trovato = false;
@@ -209,7 +220,7 @@ public class MyReader {
 	 * @return
 	 */
 	static String readFromLog(String path1, String code1) {
-	
+
 		// leggo una stringa dal log
 		String[] vetText = readSimpleText(path1);
 		if (vetText.length > 0) {
@@ -229,7 +240,7 @@ public class MyReader {
 	 * @return vettore stringhe
 	 */
 	public static String[] readSimpleText2(String path1) {
-	
+
 		List<String> out1 = null;
 		try {
 			out1 = Files.readAllLines(Path.of(path1));
@@ -250,7 +261,7 @@ public class MyReader {
 	 * @return vettore stringhe
 	 */
 	public static String[] readSimpleText(String path1) {
-	
+
 		List<String> lines = new ArrayList<String>();
 		BufferedReader br = null;
 		try {
@@ -267,12 +278,12 @@ public class MyReader {
 				line = br.readLine();
 			}
 			br.close();
-	
+
 		} catch (IOException e) {
 			MyLog.waitHere("reading error= " + path1);
 			e.printStackTrace();
 		}
-	
+
 		String[] out2 = lines.toArray(new String[0]);
 		return out2;
 	}

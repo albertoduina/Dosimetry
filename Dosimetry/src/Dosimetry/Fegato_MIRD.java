@@ -197,9 +197,6 @@ public class Fegato_MIRD implements PlugIn {
 		xp1[0] = Double.parseDouble(MyReader.readFromLog(aux1, "#019#", "=")); // deltaT
 		xp1[1] = Double.parseDouble(MyReader.readFromLog(aux1, "#039#", "=")); // deltaT
 		xp1[2] = Double.parseDouble(MyReader.readFromLog(aux1, "#059#", "=")); // deltaT
-//		MIRD_vol24 = Double.parseDouble(MyLog.readFromLog(aux1, "#201#", "="));
-//		MIRD_vol48 = Double.parseDouble(MyLog.readFromLog(aux1, "#221#", "="));
-//		MIRD_vol120 = Double.parseDouble(MyLog.readFromLog(aux1, "#241#", "="));
 
 		// nella routine subtract sottraiamo all'elemento 0 tutti i successivi elementi
 		// e poi restituiamo il risultato
@@ -242,24 +239,14 @@ public class Fegato_MIRD implements PlugIn {
 		}
 
 		double[] in24 = new double[5];
-//		double[] in1 = new double[5];
-//		double[] in1 = new double[5];
 		in24[0] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#018#", "=")); // acquisition duration
-//		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#121#", "=")); // pixel number over
-		// threshold
 		in24[1] = conteggioPulito24;
-
 		in24[2] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#003#", "=")); // activity
-		in24[3] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#115#", "=")); // contouring threshold
-																						// level
-//		in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#122#", "=")); // over threshold count
+		in24[3] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#115#", "=")); // contouring threshold																				// level
 		in24[4] = integralePulito24;
-		// integral
 		MyLog.logVector(in24, "in24");
-
 		out24 = Utility.MIRD_point(in24);
 		MIRD_vol24 = out24[0];
-
 		MyLog.logVector(out24, "out24");
 
 		// 48h
@@ -269,15 +256,10 @@ public class Fegato_MIRD implements PlugIn {
 			return;
 		double[] in48 = new double[5];
 		in48[0] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#038#", "=")); // acquisition duration
-//		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#151#", "=")); // pixel number over
-		// threshold
 		in48[1] = conteggioPulito48;
 		in48[2] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#003#", "=")); // activity
 		in48[3] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#145#", "=")); // contouring threshold
-																						// level
-//		in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#152#", "=")); // over threshold count
 		in48[4] = integralePulito48;
-		// integral
 		MyLog.logVector(in48, "in48");
 		out48 = Utility.MIRD_point(in48);
 		MyLog.logVector(out48, "out48");
@@ -290,31 +272,17 @@ public class Fegato_MIRD implements PlugIn {
 			return;
 		double[] in120 = new double[5];
 		in120[0] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#058#", "=")); // acquisition duration
-//		in1[1] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#181#", "=")); // pixel number over
 		in120[1] = conteggioPulito120;
-		// threshold
 		in120[2] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#003#", "=")); // activity
 		in120[3] = Double.parseDouble(MyReader.readFromLog(pathVolatile, "#175#", "=")); // contouring threshold
-																						// level
-//		in1[4] = Double.parseDouble(Utility.readFromLog(pathVolatile, "#182#", "=")); // over threshold count
 		in120[4] = integralePulito120;
-		// integral
 		MyLog.logVector(in120, "in120");
 		out120 = Utility.MIRD_point(in120);
 		MIRD_vol120 = out120[0];
-
 		MyLog.logVector(out120, "out120");
 
 		// Mostro i 3 volumi calcolati ed i punti, senza fit, in modo che, con LP33
 		// venga scelto l'eventuale punto da togliere
-
-		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
-		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
-		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
-
-		// yp1[0] = integralePulito24;
-		// yp1[1] = integralePulito48;
-		// yp1[2] = integralePulito120;
 
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
@@ -434,22 +402,6 @@ public class Fegato_MIRD implements PlugIn {
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 		// Vado a riscrivere i TAG #122#, #152, #182#
-
-		aux5 = "";
-
-//		aux5 = "#114#\tMaximum lesion count AGGIORNATO= " + roiMaxPulito24;
-//		Utility.logModify(pathVolatile, "#114#", aux5);
-//		aux5 = "#144#\tMaximum lesion count AGGIORNATO= " + roiMaxPulito48;
-//		Utility.logModify(pathVolatile, "#144#", aux5);
-//		aux5 = "#174#\tMaximum lesion count AGGIORNATO= " + roiMaxPulito120;
-//		Utility.logModify(pathVolatile, "#174#", aux5);
-//
-//		aux5 = "#115#\tContouring threshold level AGGIORNATO= " + thresholdPulito24;
-//		Utility.logModify(pathVolatile, "#115#", aux5);
-//		aux5 = "#145#\tContouring threshold level AGGIORNATO= " + thresholdPulito48;
-//		Utility.logModify(pathVolatile, "#145#", aux5);
-//		aux5 = "#175#\tContouring threshold level AGGIORNATO= " + thresholdPulito120;
-//		Utility.logModify(pathVolatile, "#175#", aux5);
 
 		aux5 = "#121#\tPixel number over threshold level AGGIORNATO= " + conteggioPulito24;
 		MyLog.logModify(pathVolatile, "#121#", aux5);
@@ -576,7 +528,6 @@ public class Fegato_MIRD implements PlugIn {
 		aux5 = "#" + String.format("%03d", count5++) + "#\tdose= " + dose;
 		MyLog.logAppend(pathVolatile, aux5);
 
-		// if (count3 == 3) { /// lo eseguo sempre
 		aux5 = "#" + String.format("%03d", count5++) + "#\t--------- CALCOLO ERRORI ----------";
 		MyLog.logAppend(pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\terrore SA= " + SA;
