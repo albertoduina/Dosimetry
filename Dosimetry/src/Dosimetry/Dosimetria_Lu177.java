@@ -1469,7 +1469,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			}
 			if (count2 > 1) {
 				MyLog.waitHere(
-						"ATTENZIONE i file IRAC possono essere solo 1 per ogni cartella (24-48-120).\n \n>>> CANCELLARE DALLE CARTELLE SORGENTI I FILE ECCEDENTI <<<\n \n>>>>>>> POI RIPROVARE <<<<<<");
+						"ATTENZIONE i file IRAC possono essere solo 1 per ogni cartella (24-48-120).\n \n>>> CANCELLARE DALLE CARTELLE SORGENTI I FILE ECCEDENTI <<<\n \n>>>>>>> CANCELLARE anche la cartella DosimetryFolder del Desktop <<<<<\n \n>>>>>>> POI RIPROVARE <<<<<<");
 				return false;
 			}
 		}
