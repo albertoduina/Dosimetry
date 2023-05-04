@@ -25,6 +25,7 @@ public class MyGlobals {
 	public static String desktopDosimetryFolderPath;
 	public static String desktopImagesSubfolderPath;
 	public static String pathPermanente;
+	public static String pathVolatile;
 	public static String fegatoPath;
 	public static String[] arrayOfString = { "24h", "48h", "120h" };
 	public static String format1 = "dd-MM-yyyy HH:mm:ss";

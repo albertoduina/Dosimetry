@@ -650,6 +650,21 @@ public class MyDialog {
 			return 1;
 		}
 	}
+	
+	/**
+	 * selezione di un file da parte dell'utilizzatore
+	 * 
+	 * @param message messaggio per l'utilizzatore
+	 * @return path dell'immagine selezionata
+	 */
+	public static String dialogFileSelection_FM01(String message, String defaultPath) {
+
+		OpenDialog.setDefaultDirectory(defaultPath);
+		OpenDialog od1 = new OpenDialog("FM01 - "+message);
+		return od1.getPath();
+
+	}
+
 
 	/**
 	 * selezione di un file da parte dell'utilizzatore
@@ -768,20 +783,6 @@ public class MyDialog {
 			return false;
 	}
 
-	/**
-	 * selezione di un file da parte dell'utilizzatore
-	 * 
-	 * @param message messaggio per l'utilizzatore
-	 * @return path dell'immagine selezionata
-	 */
-	public static String dialogFileSelection_FM01(String message, String defaultPath) {
-
-		OpenDialog od1 = new OpenDialog(message);
-		if (defaultPath != null || defaultPath != "")
-			OpenDialog.setDefaultDirectory(defaultPath);
-		return od1.getPath();
-
-	}
 
 	/**
 	 * Utilizzata da Dosimetry_v2
@@ -898,7 +899,7 @@ public class MyDialog {
 	 * @return
 	 */
 	static boolean[] pointsSelection_LP33() {
-	
+
 		MyLog.log("dialogReview_LP33");
 		String[] items = { "   24h", "   48h", "   120h" };
 		boolean[] def = { true, true, true };

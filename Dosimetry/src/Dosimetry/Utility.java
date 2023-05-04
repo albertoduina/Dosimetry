@@ -1636,7 +1636,7 @@ public class Utility {
 		errorsFLA = vetReverser(errorsFLA);
 
 		out2 = calcoliDosimetrici(paramsFLA, errorsFLA, rSquaredFLA, MIRD_vol24, MIRD_vol48, MIRD_vol120,
-				Dosimetria_Lu177.pathVolatile);
+				MyGlobals.pathVolatile);
 
 		AA = out2[0];
 		aa = out2[1];
@@ -1894,24 +1894,26 @@ public class Utility {
 
 		}
 
+		// QUESTA E' UNA CAZZATA INCOMMENSURABILE, RISCRIVERE UNA VARIABILE GLOBALE
+		// COSI'ALLA CAZZO!!!
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
-		MyGlobals.desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
-		MyGlobals.pathPermanente = MyGlobals.desktopPath + File.separator + "DosimetryFolder" + File.separator
-				+ "permanente.txt";
-		Dosimetria_Lu177.pathVolatile = MyGlobals.desktopPath + File.separator + "DosimetryFolder" + File.separator
-				+ "volatile.txt";
+//		MyGlobals.desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
+//		MyGlobals.pathPermanente = MyGlobals.desktopPath + File.separator + "DosimetryFolder" + File.separator
+//				+ "permanente.txt";
+//		MyGlobals.pathVolatile = MyGlobals.desktopPath + File.separator + "DosimetryFolder" + File.separator
+//				+ "volatile.txt";
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
 		// String titolo2 = "Punti_PP02";
 		// MyPlot.PL01_MIRD_pointsPlotter(xp1, yp1, puntiSelezionatiFit, titolo2);
 
 		aux5 = "#194#\t----- POINT SELECTION ------------------";
-		MyLog.logModify(Dosimetria_Lu177.pathVolatile, "#194#", aux5);
+		MyLog.logModify(MyGlobals.pathVolatile, "#194#", aux5);
 
 		aux5 = "#195#\t Selezionati i punti 24h= " + puntiSelezionati[0] + " 48h= " + puntiSelezionati[1] + " 120h= "
 				+ puntiSelezionati[2];
 
-		MyLog.logModify(Dosimetria_Lu177.pathVolatile, "#195#", aux5);
+		MyLog.logModify(MyGlobals.pathVolatile, "#195#", aux5);
 
 		int count = 0;
 		for (boolean aux : puntiSelezionati) {
@@ -1952,7 +1954,7 @@ public class Utility {
 			rSquaredIJ = cf.getRSquared();
 
 			out2 = calcoliDosimetrici(paramsIJ, null, rSquaredIJ, MIRD_vol24, MIRD_vol48, MIRD_vol120,
-					Dosimetria_Lu177.pathVolatile);
+					MyGlobals.pathVolatile);
 
 			AA = out2[0];
 			aa = out2[1];
@@ -1995,8 +1997,9 @@ public class Utility {
 			errorsFLA = rf.getBestEstimatesErrors();
 			errorsFLA = vetReverser(errorsFLA);
 
+
 			out2 = calcoliDosimetrici(paramsFLA, errorsFLA, rSquaredFLA, MIRD_vol24, MIRD_vol48, MIRD_vol120,
-					Dosimetria_Lu177.pathVolatile);
+					MyGlobals.pathVolatile);
 
 			AA = out2[0];
 			aa = out2[1];
@@ -2383,13 +2386,11 @@ public class Utility {
 		return vetOut;
 	}
 
-
 	public static boolean isPureAscii(String v) {
 		return Charset.forName("ISO-8859-1").newEncoder().canEncode(v);
 		// or "US-ASCII"
 		// or "ISO-8859-1" for ISO Latin 1
 		// or StandardCharsets.US_ASCII with JDK1.7+
 	}
-
 
 }
