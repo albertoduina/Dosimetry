@@ -261,6 +261,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		double s2 = Double.NaN;
 		double m1 = Double.NaN;
 		double m2 = Double.NaN;
+		boolean[] puntiSelezionati = null;
 
 		// ===========================================================================
 		// ELABORAZIONE 24h ed apertura PetCtViewer
@@ -632,8 +633,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 				MyGlobals.titPL01 = MyPlot.PL01_MIRD_pointsPlotter(xp1, yp1, null, titolo1,
 						"24h=red 48h=green 120h=blue");
 
-				boolean[] puntiSelezionati = MyDialog.pointsSelection_LP33(); /// selezione dei 2 o 3 punti su cui in
-																				/// seguito
+				puntiSelezionati = MyDialog.pointsSelection_LP33(); /// selezione dei 2 o 3 punti su cui in
+																	/// seguito
 				/// fare il fit
 				Utility.closePlot(MyGlobals.titPL01);
 
@@ -928,13 +929,18 @@ public class Dosimetria_Lu177 implements PlugIn {
 			flanagan = true;
 
 		int count5 = 200;
+
 		aux5 = "#" + String.format("%03d", count5++) + "#\t---------- MIRD CALCULATION 24h ----------";
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol24= " + out24[0];
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal24= " + out24[1];
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv24= " + out24[2];
+		if (puntiSelezionati[0])
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv24= " + out24[2];
+		else
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv24= " + Double.NaN;
+
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 		count5 = 220;
 		aux5 = "#" + String.format("%03d", count5++) + "#\t---------- MIRD CALCULATION 48h ----------";
@@ -943,7 +949,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal48= " + out48[1];
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv48= " + out48[2];
+		if (puntiSelezionati[1])
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv48= " + out48[2];
+		else
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv48= " + Double.NaN;
+
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 		count5 = 240;
 		aux5 = "#" + String.format("%03d", count5++) + "#\t---------- MIRD CALCULATION 120h ---------";
@@ -952,7 +962,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal120= " + out120[1];
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120= " + out120[2];
+		if (puntiSelezionati[2])
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120= " + out120[2];
+		else
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120= " + Double.NaN;
+
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 
 		if (!flanagan) {
@@ -1486,10 +1500,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 				return false;
 			}
 		}
-		
+
 		if (count3 != 3) {
-			MyLog.waitHere(
-					"count3= "+count3+" ATTENZIONE i file EM001 devono ASSOLUTAMENTE essere uno per ogni cartella (24-48-120).\n \n>>>>>>>>>>> PROVVEDERE A RECUPERARLI <<<<<<<<<<<\n \n>>>>>>> CANCELLARE anche la cartella DosimetryFolder del Desktop <<<<<\n \n>>>>>>> POI RIPROVARE <<<<<<");
+			MyLog.waitHere("count3= " + count3
+					+ " ATTENZIONE i file EM001 devono ASSOLUTAMENTE essere uno per ogni cartella (24-48-120).\n \n>>>>>>>>>>> PROVVEDERE A RECUPERARLI <<<<<<<<<<<\n \n>>>>>>> CANCELLARE anche la cartella DosimetryFolder del Desktop <<<<<\n \n>>>>>>> POI RIPROVARE <<<<<<");
 			return false;
 		}
 

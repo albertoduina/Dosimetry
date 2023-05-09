@@ -591,13 +591,21 @@ public class Utility {
 	 * @param pathVolatile
 	 * @return
 	 */
-	static double[] calcoliDosimetrici(double[] params, double[] errors, double Rsquared, double vol24, double vol48,
-			double vol120, String localVolatile) {
+	static double[] calcoliDosimetrici(double[] params, double[] errors, boolean[] puntiSelezionati, double Rsquared,
+			double vol24, double vol48, double vol120, String localVolatile) {
 
-		double[] vetVol = new double[3];
-		vetVol[0] = vol24;
-		vetVol[1] = vol48;
-		vetVol[2] = vol120;
+	
+		// devo mettere in vetVol solo i punti selezionati, quindi passa da un arrayList
+		ArrayList<Double> arrayVol = new ArrayList<Double>();	
+		for (int i1=0; i1<puntiSelezionati.length; i1++) {
+			if (puntiSelezionati[i1]==true) {
+				if (i1==0) arrayVol.add(vol24);
+				if (i1==1) arrayVol.add(vol48);
+				if (i1==2) arrayVol.add(vol120);
+			}
+		}
+		double[] vetVol=Utility.arrayListToArrayDouble(arrayVol);
+		
 
 		double AA = Math.abs(params[0]);
 		double aa = Math.abs(params[1]);
@@ -606,6 +614,7 @@ public class Utility {
 		double somministrata = MyReader.readDoubleFromLog(localVolatile, "#003#", "=");
 		double uptake = AA / somministrata;
 		double massa = vetMean(vetVol);
+
 		double tmezzo = Math.log(2) / aa;
 		double tau = mAtilde / somministrata;
 
@@ -617,8 +626,7 @@ public class Utility {
 		double Smassa = vetSdKnuth(vetVol);
 		double Stmezzo = Double.NaN;
 		double Stau = Double.NaN;
-
-		/// test
+		
 
 //		double Sdose = Double.NaN;
 
@@ -1634,9 +1642,14 @@ public class Utility {
 		paramsFLA = vetReverser(paramsFLA);
 		errorsFLA = rf.getBestEstimatesErrors();
 		errorsFLA = vetReverser(errorsFLA);
+		// se processo con Flanagan vuol dire che ho 3 punti selezionati
+		boolean[] puntiSelezionati = new boolean[3];
+		puntiSelezionati[0] = true;
+		puntiSelezionati[1] = true;
+		puntiSelezionati[2] = true;
 
-		out2 = calcoliDosimetrici(paramsFLA, errorsFLA, rSquaredFLA, MIRD_vol24, MIRD_vol48, MIRD_vol120,
-				MyGlobals.pathVolatile);
+		out2 = calcoliDosimetrici(paramsFLA, errorsFLA, puntiSelezionati, rSquaredFLA, MIRD_vol24, MIRD_vol48,
+				MIRD_vol120, MyGlobals.pathVolatile);
 
 		AA = out2[0];
 		aa = out2[1];
@@ -1780,7 +1793,8 @@ public class Utility {
 		}
 		rSquaredIJ = cf.getRSquared();
 
-		out2 = calcoliDosimetrici(paramsIJ, null, rSquaredIJ, MIRD_vol24, MIRD_vol48, MIRD_vol120, pathLocale);
+		out2 = calcoliDosimetrici(paramsIJ, null, puntiSelezionati, rSquaredIJ, MIRD_vol24, MIRD_vol48, MIRD_vol120,
+				pathLocale);
 
 		AA = out2[0];
 		aa = out2[1];
@@ -1953,7 +1967,7 @@ public class Utility {
 			}
 			rSquaredIJ = cf.getRSquared();
 
-			out2 = calcoliDosimetrici(paramsIJ, null, rSquaredIJ, MIRD_vol24, MIRD_vol48, MIRD_vol120,
+			out2 = calcoliDosimetrici(paramsIJ, null, puntiSelezionati, rSquaredIJ, MIRD_vol24, MIRD_vol48, MIRD_vol120,
 					MyGlobals.pathVolatile);
 
 			AA = out2[0];
@@ -1997,9 +2011,8 @@ public class Utility {
 			errorsFLA = rf.getBestEstimatesErrors();
 			errorsFLA = vetReverser(errorsFLA);
 
-
-			out2 = calcoliDosimetrici(paramsFLA, errorsFLA, rSquaredFLA, MIRD_vol24, MIRD_vol48, MIRD_vol120,
-					MyGlobals.pathVolatile);
+			out2 = calcoliDosimetrici(paramsFLA, errorsFLA, puntiSelezionati, rSquaredFLA, MIRD_vol24, MIRD_vol48,
+					MIRD_vol120, MyGlobals.pathVolatile);
 
 			AA = out2[0];
 			aa = out2[1];
