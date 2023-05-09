@@ -606,6 +606,8 @@ public class Utility {
 		}
 		double[] vetVol=Utility.arrayListToArrayDouble(arrayVol);
 		
+		
+		
 
 		double AA = Math.abs(params[0]);
 		double aa = Math.abs(params[1]);
@@ -614,6 +616,9 @@ public class Utility {
 		double somministrata = MyReader.readDoubleFromLog(localVolatile, "#003#", "=");
 		double uptake = AA / somministrata;
 		double massa = vetMean(vetVol);
+//		MyLog.logVector(vetVol, "vetVol");
+//		MyLog.log("massa= "+ massa);
+//		MyLog.waitHere("toccare la massa");
 
 		double tmezzo = Math.log(2) / aa;
 		double tau = mAtilde / somministrata;

@@ -133,6 +133,7 @@ public class Fegato_MIRD implements PlugIn {
 		double s2 = Double.NaN;
 		double m1 = Double.NaN;
 		double m2 = Double.NaN;
+		boolean[] puntiSelezionati=null;
 
 		int decis1 = 0;
 		double[] out24 = null;
@@ -319,7 +320,7 @@ public class Fegato_MIRD implements PlugIn {
 			String titolo1 = "Punti";
 			MyGlobals.titPL01 = MyPlot.PL01_MIRD_pointsPlotter(xp1, yp1, null, titolo1, "24h=red 48h=green 120h=blue");
 
-			boolean[] puntiSelezionati = MyDialog.pointsSelection_LP33(); /// selezione dei 2 o 3 punti su cui in
+			puntiSelezionati = MyDialog.pointsSelection_LP33(); /// selezione dei 2 o 3 punti su cui in
 																			/// seguito
 			/// fare il fit
 			Utility.closePlot(MyGlobals.titPL01);
@@ -442,7 +443,14 @@ public class Fegato_MIRD implements PlugIn {
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal24= " + out24[1];
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 		MyLog.log(aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv24= " + out24[2];
+		
+		
+		if (puntiSelezionati[0])
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv24= " + out24[2];
+		else
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv24= " + Double.NaN;
+
+//		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv24= " + out24[2];
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 		MyLog.log(aux5);
 		count5 = 220;
@@ -455,7 +463,12 @@ public class Fegato_MIRD implements PlugIn {
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal48= " + out48[1];
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 		MyLog.log(aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv48= " + out48[2];
+		if (puntiSelezionati[1])
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv48= " + out48[2];
+		else
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv48= " + Double.NaN;
+
+	//	aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv48= " + out48[2];
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 		MyLog.log(aux5);
 		count5 = 240;
@@ -467,7 +480,12 @@ public class Fegato_MIRD implements PlugIn {
 		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal120= " + out120[1];
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 		MyLog.log(aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120= " + out120[2];
+		if (puntiSelezionati[2])
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120= " + out120[2];
+		else
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120= " + Double.NaN;
+
+	//	aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120= " + out120[2];
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 		MyLog.log(aux5);
 
