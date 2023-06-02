@@ -2234,10 +2234,12 @@ public class Utility {
 		return vetValori;
 	}
 
+	
 	/**
 	 * Estrae da tabellaABC i valori: Conv, a,b,c e li mette in un vettore
 	 * 
-	 * @param tabellaBella
+	 * @param fileName
+	 * @param intoJar
 	 * @return
 	 */
 	static double[][] tabellaConvABC(String fileName, boolean intoJar) {
@@ -2269,6 +2271,25 @@ public class Utility {
 //		MyLog.waitHere("WANNAGANA");
 
 		return matValori;
+	}
+	
+	
+	
+	
+	/**
+	 * Estrae da tabellaDimPixel il valore: dimPixel e lo restituisce 
+	 * 
+	 * @param fileName
+	 * @param intoJar
+	 * @return
+	 */
+	static double tabellaDimPixel(String fileName, boolean intoJar) {
+
+		MyReader reader = new MyReader();
+		String[] tbl = reader.readTextFileFromResources(fileName, intoJar);
+		double dimPixel = Double.parseDouble(tbl[1]);
+
+		return dimPixel;
 	}
 
 	/**
