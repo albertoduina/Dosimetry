@@ -404,6 +404,31 @@ public class Utility_Test {
 		MyLog.waitHere("GHET FRESA? POLSA!!!");
 
 	}
+	
+	
+	@Test
+	public final void test_tabellaABC() {
+
+		String filename="testdata2/ConvABC.txt";
+		boolean intoJar=false;
+		String stri="";
+	
+		double[][] tabella = Utility.tabellaConvABC(filename, intoJar);
+		
+		for (int i1 = 0; i1 < tabella.length; i1++) {
+			stri = "";
+			for (int i2 = 0; i2 < tabella[0].length; i2++) {
+				stri += tabella[i1][i2] + ",  ";
+			}
+			IJ.log(stri);
+		}
+
+		
+//		MyLog.logMatrix(tabella, "tabella");
+		MyLog.waitHere("WANNAGANA");
+
+	}
+
 
 	@Test
 	public final void test_matildeSingleVoxel() {

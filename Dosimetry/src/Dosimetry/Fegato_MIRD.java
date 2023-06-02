@@ -242,7 +242,7 @@ public class Fegato_MIRD implements PlugIn {
 																									// level
 		in24[4] = integralePulito24;
 		MyLog.logVector(in24, "in24");
-		out24 = Utility.MIRD_point(in24);
+		out24 = Utility.MIRD_point040123(in24);
 		MIRD_vol24 = out24[0];
 		MyLog.logVector(out24, "out24");
 
@@ -260,7 +260,7 @@ public class Fegato_MIRD implements PlugIn {
 																									// threshold
 		in48[4] = integralePulito48;
 		MyLog.logVector(in48, "in48");
-		out48 = Utility.MIRD_point(in48);
+		out48 = Utility.MIRD_point040123(in48);
 		MyLog.logVector(out48, "out48");
 		MIRD_vol48 = out48[0];
 
@@ -278,7 +278,7 @@ public class Fegato_MIRD implements PlugIn {
 																									// threshold
 		in120[4] = integralePulito120;
 		MyLog.logVector(in120, "in120");
-		out120 = Utility.MIRD_point(in120);
+		out120 = Utility.MIRD_point040123(in120);
 		MIRD_vol120 = out120[0];
 		MyLog.logVector(out120, "out120");
 

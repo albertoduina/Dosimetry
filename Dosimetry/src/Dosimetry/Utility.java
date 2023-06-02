@@ -323,7 +323,7 @@ public class Utility {
 	 * @param pathVolatile
 	 * @param pathPermanente
 	 */
-	static double[] MIRD_point(double[] in1) {
+	static double[] MIRD_point040123(double[] in1) {
 
 		double durata = in1[0]; // #018# acquisition duration
 		double conteggio = in1[1]; // #119# // pixel number over threshold
@@ -361,6 +361,62 @@ public class Utility {
 		MIRD_out1[0] = MIRD_vol; // #201# MIRD_vol24
 		MIRD_out1[1] = MIRD_fatCal; // #202# MIRD_fatCal24
 		MIRD_out1[2] = MIRD_attiv; // #203# MIRD_attiv24
+
+		return MIRD_out1;
+	}
+
+	/**
+	 * Calcola i parametri di plottaggio di un punto, modificato come indicato in
+	 * "formule v.2" del 110523 includendo anche calcolo errori
+	 * 
+	 * @param in1
+	 * @param dimMagicPix
+	 * @param matABC
+	 * @return
+	 */
+	static double[][] MIRD_point110523(double[] in1, double dimMagicPix, double[][] matABC) {
+
+		double durata = in1[0]; // #018# acquisition duration
+		double conteggio = in1[1]; // #119# // pixel number over threshold
+		double integral = in1[4]; // #120# over threshold count integral
+		
+		double conv1 = matABC[0][0];
+		double a1 = matABC[1][0];
+		double b1 = matABC[2][0];
+		double c1 = matABC[3][0];
+
+		double MIRD_vol = conteggio * Math.pow(dimMagicPix, 3) / 1000.;
+		double MIRD_RC = a1 / (1 + Math.pow((b1 / MIRD_vol), c1));
+		double MIRD_fatCal = conv1 / MIRD_RC;
+		double MIRD_attiv = MIRD_fatCal * (conteggio / durata);
+
+		double conv1Err = matABC[0][1];
+		double a1Err = matABC[1][1];
+		double b1Err = matABC[2][1];
+		double c1Err = matABC[3][1];
+		double conteggioErr = Math.sqrt(conteggio);
+
+		double MIRD_volErr = Double.NaN; // COSI' STA SCRITTO, colpa di Finocchiaro !!!!
+		double quattro = Math.pow((b1 / MIRD_vol), c1);
+		double uno = Math.pow((a1Err / (1 + quattro)), 2);
+		double due = Math.pow((a1 * c1 * quattro * b1Err) / (b1 * Math.pow(1 + quattro, 2)), 2);
+		double tre = (a1 * quattro * Math.log(b1 / MIRD_vol) * c1Err) / Math.pow(1 + quattro, 2);
+		double MIRD_RCErr = Math.sqrt(uno + due + tre);
+
+		double MIRD_fatCalErr = Math.sqrt(Math.pow(conv1 * MIRD_RCErr, 2) + Math.pow(MIRD_RC * conv1Err, 2));
+		double MIRD_attivErr = Math
+				.sqrt(Math.pow(conteggio * MIRD_fatCalErr, 2) + Math.pow(MIRD_fatCal * conteggioErr, 2));
+
+		double[][] MIRD_out1 = new double[4][2];
+		MIRD_out1[0][0] = MIRD_vol;
+		MIRD_out1[1][0] = MIRD_fatCal;
+		MIRD_out1[2][0] = MIRD_attiv;
+		MIRD_out1[3][0] = MIRD_RC;
+
+		MIRD_out1[0][1] = MIRD_volErr;
+		MIRD_out1[1][1] = MIRD_fatCalErr;
+		MIRD_out1[2][1] = MIRD_attivErr;
+		MIRD_out1[3][1] = MIRD_RCErr;
 
 		return MIRD_out1;
 	}
@@ -594,20 +650,19 @@ public class Utility {
 	static double[] calcoliDosimetrici(double[] params, double[] errors, boolean[] puntiSelezionati, double Rsquared,
 			double vol24, double vol48, double vol120, String localVolatile) {
 
-	
 		// devo mettere in vetVol solo i punti selezionati, quindi passa da un arrayList
-		ArrayList<Double> arrayVol = new ArrayList<Double>();	
-		for (int i1=0; i1<puntiSelezionati.length; i1++) {
-			if (puntiSelezionati[i1]==true) {
-				if (i1==0) arrayVol.add(vol24);
-				if (i1==1) arrayVol.add(vol48);
-				if (i1==2) arrayVol.add(vol120);
+		ArrayList<Double> arrayVol = new ArrayList<Double>();
+		for (int i1 = 0; i1 < puntiSelezionati.length; i1++) {
+			if (puntiSelezionati[i1] == true) {
+				if (i1 == 0)
+					arrayVol.add(vol24);
+				if (i1 == 1)
+					arrayVol.add(vol48);
+				if (i1 == 2)
+					arrayVol.add(vol120);
 			}
 		}
-		double[] vetVol=Utility.arrayListToArrayDouble(arrayVol);
-		
-		
-		
+		double[] vetVol = Utility.arrayListToArrayDouble(arrayVol);
 
 		double AA = Math.abs(params[0]);
 		double aa = Math.abs(params[1]);
@@ -631,7 +686,6 @@ public class Utility {
 		double Smassa = vetSdKnuth(vetVol);
 		double Stmezzo = Double.NaN;
 		double Stau = Double.NaN;
-		
 
 //		double Sdose = Double.NaN;
 
@@ -2178,6 +2232,43 @@ public class Utility {
 			vetValori[i1] = Double.parseDouble(parsed[3]);
 		}
 		return vetValori;
+	}
+
+	/**
+	 * Estrae da tabellaABC i valori: Conv, a,b,c e li mette in un vettore
+	 * 
+	 * @param tabellaBella
+	 * @return
+	 */
+	static double[][] tabellaConvABC(String fileName, boolean intoJar) {
+
+		MyReader reader = new MyReader();
+		String[] tbl = reader.readTextFileFromResources(fileName, intoJar);
+
+//		MyLog.waitHere("tblLength= " + tbl.length);
+//		
+//		for (String aux1 :tbl)
+//			IJ.log("" + aux1);
+
+		String[] parsed = null;
+		String riga = "";
+		double[][] matValori = new double[tbl.length - 1][2];
+		int p1 = 0;
+		for (int i1 = 1; i1 < tbl.length; i1++) {
+			riga = tbl[i1];
+			parsed = riga.split(";");
+			matValori[p1][0] = Double.parseDouble(parsed[1]);
+			matValori[p1][1] = Double.parseDouble(parsed[2]);
+			p1++;
+		}
+//		IJ.log("conv= " + matValori[0][0] + " converr= " + matValori[0][1]);
+//		IJ.log("a= " + matValori[1][0] + " aerr= " + matValori[1][1]);
+//		IJ.log("b= " + matValori[2][0] + " berr= " + matValori[2][1]);
+//		IJ.log("c= " + matValori[3][0] + " cerr= " + matValori[3][1]);
+//
+//		MyLog.waitHere("WANNAGANA");
+
+		return matValori;
 	}
 
 	/**

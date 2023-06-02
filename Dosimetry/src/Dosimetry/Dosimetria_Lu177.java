@@ -30,10 +30,16 @@ import ij.util.DicomTools;
 //PATIENT-DOSIMETRY INFO 24 h		#160#-#199#
 //
 
+// AGGIORNAMENTO v4 del 11052023
+
+
+
+
 /**
  * Programma main di dosimetria per Lu177
  * 
- * @version v3 ccc
+ * 
+ * @version v4
  * @author ----
  * @since 05 dec 2022
  */
@@ -490,6 +496,20 @@ public class Dosimetria_Lu177 implements PlugIn {
 
 			if (nuoveImmagini)
 				MyLog.logEnd(MyGlobals.pathPermanente);
+			
+			// ==========================================================================================
+			// Lettura tabellaABC ( file: ConvABC.txt ) 020623
+			// ==========================================================================================
+			
+			String fileName="ConvABC.txt";
+			boolean intoJar=true;
+			
+			double[][] matABC=  Utility.tabellaConvABC(fileName, intoJar);
+			
+			MyLog.logMatrix(matABC, "matABC");
+			MyLog.waitHere();
+			
+			
 
 			// ==========================================================================================
 			// Elaborazione 24/48/120h
@@ -515,7 +535,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			in1[4] = Double.parseDouble(MyReader.readFromLog(MyGlobals.pathVolatile, "#122#", "=")); // over threshold
 																										// count
 			// integral
-			out24 = Utility.MIRD_point(in1);
+			out24 = Utility.MIRD_point040123(in1);
 			MIRD_vol24 = out24[0];
 
 			// 48h
@@ -535,7 +555,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			in1[4] = Double.parseDouble(MyReader.readFromLog(MyGlobals.pathVolatile, "#152#", "=")); // over threshold
 																										// count
 			// integral
-			out48 = Utility.MIRD_point(in1);
+			out48 = Utility.MIRD_point040123(in1);
 			MIRD_vol48 = out48[0];
 
 			// 120h
@@ -555,7 +575,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 			in1[4] = Double.parseDouble(MyReader.readFromLog(MyGlobals.pathVolatile, "#182#", "=")); // over threshold
 																										// count
 			// integral
-			out120 = Utility.MIRD_point(in1);
+			out120 = Utility.MIRD_point040123(in1);
 
 			MIRD_vol120 = out120[0];
 
