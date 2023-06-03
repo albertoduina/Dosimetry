@@ -379,33 +379,51 @@ public class Utility {
 		double durata = in1[0]; // #018# acquisition duration
 		double conteggio = in1[1]; // #119# // pixel number over threshold
 		double integral = in1[4]; // #120# over threshold count integral
-		
+
 		double conv1 = matABC[0][0];
 		double a1 = matABC[1][0];
 		double b1 = matABC[2][0];
 		double c1 = matABC[3][0];
 
-		double MIRD_vol = conteggio * Math.pow(dimMagicPix, 3) / 1000.;
-		double MIRD_RC = a1 / (1 + Math.pow((b1 / MIRD_vol), c1));
-		double MIRD_fatCal = conv1 / MIRD_RC;
-		double MIRD_attiv = MIRD_fatCal * (conteggio / durata);
-
 		double conv1Err = matABC[0][1];
 		double a1Err = matABC[1][1];
 		double b1Err = matABC[2][1];
 		double c1Err = matABC[3][1];
+
+		MyLog.logVector(in1, "input.in1");
+		MyLog.log("input.dimMagicPix= " + dimMagicPix);
+
+		MyLog.log("input.conv1= " + conv1 + " input.conv1Err= " + conv1Err);
+		MyLog.log("input.a1= " + a1 + " input.a1Err= " + a1Err);
+		MyLog.log("input.b1= " + b1 + " input.b1Err= " + b1Err);
+		MyLog.log("input.c1= " + c1 + " input.c1Err= " + c1Err);
+
+		double MIRD_vol = conteggio * Math.pow(dimMagicPix, 3) / 1000.;
+
+		double d2 = Math.pow((b1 / MIRD_vol), c1);
+		MyLog.log("intermedio.d2= " + d2);
+
+		double MIRD_RC = a1 / d2;
+		double MIRD_fatCal = conv1 / MIRD_RC;
+		double MIRD_attiv = MIRD_fatCal * (conteggio / durata);
+
 		double conteggioErr = Math.sqrt(conteggio);
+		double MIRD_volErr = Double.NaN; // COSI' STA SCRITTO, colpa di Finocchiaro !
+		double e2 = Math.pow((a1Err / (1 + d2)), 2);
+		MyLog.log("intermedio.e2= " + e2);
 
-		double MIRD_volErr = Double.NaN; // COSI' STA SCRITTO, colpa di Finocchiaro !!!!
-		double quattro = Math.pow((b1 / MIRD_vol), c1);
-		double uno = Math.pow((a1Err / (1 + quattro)), 2);
-		double due = Math.pow((a1 * c1 * quattro * b1Err) / (b1 * Math.pow(1 + quattro, 2)), 2);
-		double tre = (a1 * quattro * Math.log(b1 / MIRD_vol) * c1Err) / Math.pow(1 + quattro, 2);
-		double MIRD_RCErr = Math.sqrt(uno + due + tre);
+		double f2 = Math.pow(((a1 * c1 * d2 * b1Err) / (b1 * Math.pow((1 + d2), 2))), 2);
+		MyLog.log("intermedio.f2= " + f2);
 
-		double MIRD_fatCalErr = Math.sqrt(Math.pow(conv1 * MIRD_RCErr, 2) + Math.pow(MIRD_RC * conv1Err, 2));
+		double g2 = (a1 * d2 * Math.log(b1 / MIRD_vol) * c1Err) / Math.pow((1 + d2), 2);
+		MyLog.log("intermedio.g2= " + g2);
+
+		double MIRD_RCErr = Math.sqrt(e2 + f2 + g2);
+
+		double MIRD_fatCalErr = Math.sqrt(Math.pow((conv1 * MIRD_RCErr), 2) + Math.pow((MIRD_RC * conv1Err), 2))
+				/ Math.pow(MIRD_RC, 2);
 		double MIRD_attivErr = Math
-				.sqrt(Math.pow(conteggio * MIRD_fatCalErr, 2) + Math.pow(MIRD_fatCal * conteggioErr, 2));
+				.sqrt(Math.pow((conteggio * MIRD_fatCalErr), 2) + Math.pow((MIRD_fatCal * conteggioErr), 2)) / durata;
 
 		double[][] MIRD_out1 = new double[4][2];
 		MIRD_out1[0][0] = MIRD_vol;
@@ -417,6 +435,8 @@ public class Utility {
 		MIRD_out1[1][1] = MIRD_fatCalErr;
 		MIRD_out1[2][1] = MIRD_attivErr;
 		MIRD_out1[3][1] = MIRD_RCErr;
+
+		MyLog.logMatrix(MIRD_out1, "out.MIRD_out1");
 
 		return MIRD_out1;
 	}
@@ -2234,7 +2254,6 @@ public class Utility {
 		return vetValori;
 	}
 
-	
 	/**
 	 * Estrae da tabellaABC i valori: Conv, a,b,c e li mette in un vettore
 	 * 
@@ -2272,12 +2291,9 @@ public class Utility {
 
 		return matValori;
 	}
-	
-	
-	
-	
+
 	/**
-	 * Estrae da tabellaDimPixel il valore: dimPixel e lo restituisce 
+	 * Estrae da tabellaDimPixel il valore: dimPixel e lo restituisce
 	 * 
 	 * @param fileName
 	 * @param intoJar
