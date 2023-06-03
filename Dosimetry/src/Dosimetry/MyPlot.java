@@ -173,7 +173,7 @@ public class MyPlot {
 		double[] a = Tools.getMinMax(xx);
 		double[] b = Tools.getMinMax(yy);
 
-		plot.setLimits(0, a[1] * 1.05, 0, b[1] * 1.05);
+		plot.setLimits( a[0] * 0.95, a[1] * 1.05,b[0] * 0.95, b[1] * 1.05);
 		plot.setColor(Color.BLUE);
 		plot.addLabel(0.05, 0.95, title);
 		plot.setWindowSize(PLOT_WIDTH, PLOT_HEIGHT);
@@ -718,10 +718,13 @@ public class MyPlot {
 		double[] minMaxX = Tools.getMinMax(vetX);
 		double[] minMaxY = Tools.getMinMax(vetY);
 		boolean[] neglected = { true, true, true };
-		double xmin = 0;
-		double xmax = minMaxX[1] * 1.1;
-		double ymin = -1.0;
-		double ymax = minMaxY[1] * 1.1;
+		double xmin = minMaxX[0] * 0.95;
+		double xmax = minMaxX[1] * 1.05;
+		double ymin = minMaxY[0] * 0.95;
+		double ymax = minMaxY[1] * 1.05;
+
+		MyLog.log("xmin= " + xmin + " xmax= " + xmax + " ymin= " + ymin + "ymax= " + ymax);
+
 		int PLOT_WIDTH = 600;
 		int PLOT_HEIGHT = 350;
 		double[] xx = new double[1];
