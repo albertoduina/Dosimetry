@@ -403,9 +403,13 @@ public class Utility {
 		double d2 = Math.pow((b1 / MIRD_vol), c1);
 		MyLog.log("intermedio.d2= " + d2);
 
-		double MIRD_RC = a1 / d2;
+		double MIRD_RC = a1 / (1 + d2);
+
 		double MIRD_fatCal = conv1 / MIRD_RC;
-		double MIRD_attiv = MIRD_fatCal * (conteggio / durata);
+
+
+		double MIRD_attiv = MIRD_fatCal * integral / durata;
+
 
 		double conteggioErr = Math.sqrt(conteggio);
 		double MIRD_volErr = Double.NaN; // COSI' STA SCRITTO, colpa di Finocchiaro !
