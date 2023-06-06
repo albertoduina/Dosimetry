@@ -404,6 +404,24 @@ public class VoxelDosimetry {
 		long pixCount2 = (long) tapata3[8];
 		double meanStackVal2 = tapata3[9];
 		double integral2 = tapata3[10];
+		
+		String aux5="";
+		int count5=750;
+		aux5 = "#" + String.format("%03d", count5++) + "#\tDVH IMMAGINE INPUT minStackVal== " + minStackVal3;
+		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tDVH IMMAGINE INPUT maxStackVal== " + maxStackVal3;
+		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tDVH MATILDE MASCHERATA minStackVal== " + minStackVal1;
+		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tDVH MATILDE MASCHERATA maxStackVal== " + maxStackVal1;
+		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tDVH PATATA MASCHERATA minStackVal== " + minStackVal2;
+		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tDVH PATATA MASCHERATA maxStackVal== " + maxStackVal2;
+		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+
+		
+		
 
 		if (MyGlobals.mostraResultsSV05) {
 			NonBlockingGenericDialog resultsDialog = new NonBlockingGenericDialog("SV05 - Results");
