@@ -390,39 +390,26 @@ public class Utility {
 		double b1Err = matABC[2][1];
 		double c1Err = matABC[3][1];
 
-		MyLog.logVector(in1, "input.in1");
-		MyLog.log("input.dimMagicPix= " + dimMagicPix);
-
-		MyLog.log("input.conv1= " + conv1 + " input.conv1Err= " + conv1Err);
-		MyLog.log("input.a1= " + a1 + " input.a1Err= " + a1Err);
-		MyLog.log("input.b1= " + b1 + " input.b1Err= " + b1Err);
-		MyLog.log("input.c1= " + c1 + " input.c1Err= " + c1Err);
 
 		double MIRD_vol = conteggio * Math.pow(dimMagicPix, 3) / 1000.;
 
 		double d2 = Math.pow((b1 / MIRD_vol), c1);
-		MyLog.log("intermedio.d2= " + d2);
 
 		double MIRD_RC = a1 / (1 + d2);
 
 		double MIRD_fatCal = conv1 / MIRD_RC;
 
-
 		double MIRD_attiv = MIRD_fatCal * integral / durata;
-
 
 		double conteggioErr = Math.sqrt(conteggio);
 		double MIRD_volErr = Double.NaN; // COSI' STA SCRITTO, colpa di Finocchiaro !
 		double e2 = Math.pow((a1Err / (1 + d2)), 2);
-		MyLog.log("intermedio.e2= " + e2);
 
 		double f2 = Math.pow(((a1 * c1 * d2 * b1Err) / (b1 * Math.pow((1 + d2), 2))), 2);
-		MyLog.log("intermedio.f2= " + f2);
 
 		double g2 = (a1 * d2 * Math.log(b1 / MIRD_vol) * c1Err) / Math.pow((1 + d2), 2);
-		MyLog.log("intermedio.g2= " + g2);
 
-		double MIRD_RCErr = Math.sqrt(e2 + f2 + g2);
+		double MIRD_RCErr = Math.sqrt(Math.abs(e2 + f2 + g2));
 
 		double MIRD_fatCalErr = Math.sqrt(Math.pow((conv1 * MIRD_RCErr), 2) + Math.pow((MIRD_RC * conv1Err), 2))
 				/ Math.pow(MIRD_RC, 2);

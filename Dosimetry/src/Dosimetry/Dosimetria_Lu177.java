@@ -442,6 +442,19 @@ public class Dosimetria_Lu177 implements PlugIn {
 		double MIRD_RC24 = Double.NaN;
 		double MIRD_RC48 = Double.NaN;
 		double MIRD_RC120 = Double.NaN;
+		
+		double MIRD_vol24_ERR = Double.NaN;
+		double MIRD_vol48_ERR = Double.NaN;
+		double MIRD_vol120_ERR = Double.NaN;
+		double MIRD_fatCal24_ERR = Double.NaN;
+		double MIRD_fatCal48_ERR = Double.NaN;
+		double MIRD_fatCal120_ERR = Double.NaN;
+		double MIRD_attiv24_ERR = Double.NaN;
+		double MIRD_attiv48_ERR = Double.NaN;
+		double MIRD_attiv120_ERR = Double.NaN;
+		double MIRD_RC24_ERR = Double.NaN;
+		double MIRD_RC48_ERR = Double.NaN;
+		double MIRD_RC120_ERR = Double.NaN;
 
 		int decis1 = -1;
 
@@ -472,9 +485,22 @@ public class Dosimetria_Lu177 implements PlugIn {
 			MIRD_attiv24 = Double.NaN;
 			MIRD_attiv48 = Double.NaN;
 			MIRD_attiv120 = Double.NaN;
-			MIRD_RC24 = Double.NaN;
-			MIRD_RC48 = Double.NaN;
-			MIRD_RC120 = Double.NaN;
+			
+			MIRD_RC24_ERR = Double.NaN;
+			MIRD_RC48_ERR = Double.NaN;
+			MIRD_RC120_ERR = Double.NaN;
+			MIRD_vol24_ERR = Double.NaN;
+			MIRD_vol48_ERR = Double.NaN;
+			MIRD_vol120_ERR = Double.NaN;
+			MIRD_fatCal24_ERR = Double.NaN;
+			MIRD_fatCal48_ERR = Double.NaN;
+			MIRD_fatCal120_ERR = Double.NaN;
+			MIRD_attiv24_ERR = Double.NaN;
+			MIRD_attiv48_ERR = Double.NaN;
+			MIRD_attiv120_ERR = Double.NaN;
+			MIRD_RC24_ERR = Double.NaN;
+			MIRD_RC48_ERR = Double.NaN;
+			MIRD_RC120_ERR = Double.NaN;
 
 			decis1 = -1;
 			out24 = null;
@@ -575,6 +601,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 			MIRD_fatCal24 = out24x[1][0];
 			MIRD_attiv24 = out24x[2][0];
 			MIRD_RC24 = out24x[3][0];
+			
+			MIRD_vol24_ERR = out24x[0][1];
+			MIRD_fatCal24_ERR = out24x[1][1];
+			MIRD_attiv24_ERR = out24x[2][1];
+			MIRD_RC24_ERR = out24x[3][1];
+
 
 			// 48h
 			// se non mi ha scritto il tag #151# di volatile vuol dire che Dosimetry_v2 non
@@ -602,6 +634,12 @@ public class Dosimetria_Lu177 implements PlugIn {
 			MIRD_fatCal48 = out48x[1][0];
 			MIRD_attiv48 = out48x[2][0];
 			MIRD_RC48 = out48x[3][0];
+			
+			MIRD_vol48_ERR = out48x[0][1];
+			MIRD_fatCal48_ERR = out48x[1][1];
+			MIRD_attiv48_ERR = out48x[2][1];
+			MIRD_RC48_ERR = out48x[3][1];
+
 
 			// 120h
 			// se non mi ha scritto il tag #181# di volatile vuol dire che Dosimetry_v2 non
@@ -629,6 +667,11 @@ public class Dosimetria_Lu177 implements PlugIn {
 			MIRD_fatCal120 = out120x[1][0];
 			MIRD_attiv120 = out120x[2][0];
 			MIRD_RC120 = out120x[3][0];
+			
+			MIRD_vol120_ERR = out120x[0][1];
+			MIRD_fatCal120_ERR = out120x[1][1];
+			MIRD_attiv120_ERR = out120x[2][1];
+			MIRD_RC120_ERR = out120x[3][1];
 
 			// scrivo TEMPORANEAMENTE dati in volatile.txt, in serguito verranno riscritti
 			// dopo approvazione "ministeriale" definitiva
@@ -636,7 +679,6 @@ public class Dosimetria_Lu177 implements PlugIn {
 			int count5 = 200;
 			aux5 = "#" + String.format("%03d", count5++) + "#\t-------- MIRD PRE-CALCULATION 24h --------";
 			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
-//			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol24= " + out24[0];
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol24= " + MIRD_vol24;
 			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal24= " + MIRD_fatCal24;
@@ -645,6 +687,16 @@ public class Dosimetria_Lu177 implements PlugIn {
 			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_RC24= " + MIRD_RC24;
 			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+			
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol24_ERR= " + MIRD_vol24_ERR;
+			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal24_ERR= " + MIRD_fatCal24_ERR;
+			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv24_ERR= " + MIRD_attiv24_ERR;
+			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_RC24_ERR= " + MIRD_RC24_ERR;
+			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+			
 			count5 = 220;
 			aux5 = "#" + String.format("%03d", count5++) + "#\t-------- MIRD PRE-CALCULATION 48h --------";
 			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
@@ -656,6 +708,16 @@ public class Dosimetria_Lu177 implements PlugIn {
 			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_RC48= " + MIRD_RC48;
 			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+			
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol48_ERR= " + MIRD_vol48_ERR;
+			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal48_ERR= " + MIRD_fatCal48_ERR;
+			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv48_ERR= " + MIRD_attiv48_ERR;
+			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_RC48_ERR= " + MIRD_RC48_ERR;
+			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+
 			count5 = 240;
 			aux5 = "#" + String.format("%03d", count5++) + "#\t------- MIRD PRE-CALCULATION 120h -------";
 			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
@@ -666,6 +728,15 @@ public class Dosimetria_Lu177 implements PlugIn {
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120= " + MIRD_attiv120;
 			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_RC120= " + MIRD_RC120;
+			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+			
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol120_ERR= " + MIRD_vol120_ERR;
+			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal120_ERR= " + MIRD_fatCal120_ERR;
+			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120_ERR= " + MIRD_attiv120_ERR;
+			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_RC120_ERR= " + MIRD_RC120_ERR;
 			MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 
 			double[] xp1 = new double[3];
@@ -1018,8 +1089,19 @@ public class Dosimetria_Lu177 implements PlugIn {
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv24= " + MIRD_attiv24;
 		else
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv24= " + Double.NaN;
-
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_RC24= " + MIRD_RC24;
+		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+		
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol24_ERRx= " + MIRD_vol24_ERR;
+		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal24_ERRx= " + MIRD_fatCal24_ERR;
+		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv24_ERRx= " + MIRD_attiv24_ERR;
+		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_RC24_ERRx= " + MIRD_RC24_ERR;
+		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+		
 		count5 = 220;
 		aux5 = "#" + String.format("%03d", count5++) + "#\t---------- MIRD CALCULATION 48h ----------";
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
@@ -1031,8 +1113,20 @@ public class Dosimetria_Lu177 implements PlugIn {
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv48= " + MIRD_attiv48;
 		else
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv48= " + Double.NaN;
-
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_RC48= " + MIRD_RC48;
+		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+
+		
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol48_ERRx= " + MIRD_vol48_ERR;
+		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal48_ERRx= " + MIRD_fatCal48_ERR;
+		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv48_ERRx= " + MIRD_attiv48_ERR;
+		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_RC48_ERRx= " + MIRD_RC48_ERR;
+		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+
 		count5 = 240;
 		aux5 = "#" + String.format("%03d", count5++) + "#\t---------- MIRD CALCULATION 120h ---------";
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
@@ -1044,8 +1138,19 @@ public class Dosimetria_Lu177 implements PlugIn {
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120= " + MIRD_attiv120;
 		else
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120= " + Double.NaN;
-
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_RC120= " + MIRD_RC120;
+		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol120_ERRx= " + MIRD_vol120_ERR;
+		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal120_ERRx= " + MIRD_fatCal120_ERR;
+		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120_ERRx= " + MIRD_attiv120_ERR;
+		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_RC120_ERRx= " + MIRD_RC120_ERR;
+		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
+
 
 		if (!flanagan) {
 			// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
