@@ -221,7 +221,7 @@ public class VoxelDosimetry {
 //					conta1++;
 					IJ.showStatus("aTilde " + z1 + " / " + (depth1));
 					voxSignal = inSlice1.getPixelValue(x1, y1);
-					aTildeVoxel = mAtildeSingleVoxel(voxSignal, acqDuration, fatCal, deltaT, par_a);
+					aTildeVoxel = mAtildeSingleVoxel110523(voxSignal, acqDuration, fatCal, deltaT, par_a);
 					outSlice1.putPixelValue(x1, y1, aTildeVoxel);
 				}
 			}
@@ -415,7 +415,7 @@ public class VoxelDosimetry {
 				+ "    y= " + minStackY3 + "    z= " + minStackZ3);
 		MyLog.log("maxStackVal= " + String.format("%.4f", maxStackVal3) + "    x= " + maxStackX3
 				+ "    y= " + maxStackY3 + "    z= " + maxStackZ3);
-
+		
 		MyLog.log(
 				"meanStackVal= " + String.format("%.4f", meanStackVal3) + "        pixCount= " + pixCount3);
 		MyLog.log("integral= " + String.format("%.4f", integral3));
@@ -921,6 +921,24 @@ public class VoxelDosimetry {
 	static double mAtildeSingleVoxel(double voxSignal, double acqDuration, double fatCal, double deltaT, double par_a) {
 
 		double ahhVoxel = voxSignal / (acqDuration * fatCal);
+		double aVoxel = ahhVoxel / Math.exp(-(par_a * deltaT));
+		double aTildeVoxel = (aVoxel / par_a) * 3600;
+		return aTildeVoxel;
+	}	
+	
+	/**
+	 * Calcolo eseguito per ogni singolo voxel
+	 * 
+	 * @param voxSignal
+	 * @param acqDuration
+	 * @param fatCal
+	 * @param deltaT
+	 * @param par_a
+	 * @return
+	 */
+	static double mAtildeSingleVoxel110523(double voxSignal, double acqDuration, double fatCal, double deltaT, double par_a) {
+
+		double ahhVoxel = fatCal * voxSignal / acqDuration ;
 		double aVoxel = ahhVoxel / Math.exp(-(par_a * deltaT));
 		double aTildeVoxel = (aVoxel / par_a) * 3600;
 		return aTildeVoxel;

@@ -70,6 +70,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		String IJversion = IJ.getVersion();
 		String JavaVersion = System.getProperty("java.version");
 		String jarName = Utility.getJarTitle();
+		double dimPixel = -1;
 
 		// ===========================================================
 		// LEGGO CARTELLA DOSIMETRY FOLDER (E SOTTOCARTELLA IMAGES FOLDER)
@@ -286,6 +287,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		String path1 = fil1.getAbsolutePath();
 		imp1 = Utility.openImage(path1);
 		imp1.show();
+
 		String meta1 = Utility.getMeta(slice1, imp1);
 
 		if (nuoveImmagini) {
@@ -296,6 +298,9 @@ public class Dosimetria_Lu177 implements PlugIn {
 		// 1.2.840.113619.2.184.31108.1067210107.1661517437.7028981
 		String petUID1 = DicomTools.getTag(imp1, "0020,000E");
 		petUID1 = petUID1.trim();
+
+		dimPixel = Double.parseDouble(Utility.readSubstring(DicomTools.getTag(imp1, "0028,0030"),1));
+		MyLog.log("dimPixel letto da dati dicom= " + dimPixel);
 
 		String startingDir2 = str1 + "24h" + File.separator + "CT";
 
@@ -564,8 +569,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// Lettura tabellaDimPixel ( file: DimPixel.txt ) 020623
 			// ==========================================================================================
 
-			String fileName2 = "DimPixel.txt";
-			double dimPixel = Utility.tabellaDimPixel(fileName2, intoJar);
+//			String fileName2 = "DimPixel.txt";
+//			double dimPixel = Utility.tabellaDimPixel(fileName2, intoJar);
 //			MyLog.waitHere("dimPixel= " + dimPixel);
 
 			// ==========================================================================================

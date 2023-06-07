@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
 import flanagan.analysis.Regression;
@@ -2529,5 +2530,27 @@ public class Utility {
 		// or "ISO-8859-1" for ISO Latin 1
 		// or StandardCharsets.US_ASCII with JDK1.7+
 	}
+	
+	/**
+	 * estrae una parte di parametro dicom costituito da una stringa multipla
+	 * 
+	 * @param s1     stringa multipla
+	 * @param number selezione parte da restituire
+	 * @return stringa con la parte selezionata
+	 */
+	public static String readSubstring(String s1, int number) {
+		StringTokenizer st = new StringTokenizer(s1, "\\ ");
+		int nTokens = st.countTokens();
+		String substring = "ERROR";
+		if (number > nTokens)
+			return substring;
+		else
+			substring = st.nextToken();
+		for (int i1 = 1; i1 < number; i1++) {
+			substring = st.nextToken();
+		}
+		return substring;
+	}
+
 
 }
