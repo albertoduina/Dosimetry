@@ -490,10 +490,10 @@ public class Dosimetria_Lu177 implements PlugIn {
 			MIRD_attiv24 = Double.NaN;
 			MIRD_attiv48 = Double.NaN;
 			MIRD_attiv120 = Double.NaN;
+			MIRD_RC24 = Double.NaN;
+			MIRD_RC48 = Double.NaN;
+			MIRD_RC120 = Double.NaN;
 
-			MIRD_RC24_ERR = Double.NaN;
-			MIRD_RC48_ERR = Double.NaN;
-			MIRD_RC120_ERR = Double.NaN;
 			MIRD_vol24_ERR = Double.NaN;
 			MIRD_vol48_ERR = Double.NaN;
 			MIRD_vol120_ERR = Double.NaN;

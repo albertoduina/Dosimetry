@@ -106,9 +106,38 @@ public class Fegato_MIRD implements PlugIn {
 		ArrayList<Integer> arrIntegrale120 = new ArrayList<Integer>();
 		double[] xp1 = new double[3];
 		double[] yp1 = new double[3];
-		double MIRD_vol24 = 0;
-		double MIRD_vol48 = 0;
-		double MIRD_vol120 = 0;
+//		double MIRD_vol24 = 0;
+//		double MIRD_vol48 = 0;
+//		double MIRD_vol120 = 0;
+		
+		double MIRD_vol24 = Double.NaN;
+		double MIRD_vol48 = Double.NaN;
+		double MIRD_vol120 = Double.NaN;
+		double MIRD_fatCal24 = Double.NaN;
+		double MIRD_fatCal48 = Double.NaN;
+		double MIRD_fatCal120 = Double.NaN;
+		double MIRD_attiv24 = Double.NaN;
+		double MIRD_attiv48 = Double.NaN;
+		double MIRD_attiv120 = Double.NaN;
+		double MIRD_RC24 = Double.NaN;
+		double MIRD_RC48 = Double.NaN;
+		double MIRD_RC120 = Double.NaN;
+
+		double MIRD_vol24_ERR = Double.NaN;
+		double MIRD_vol48_ERR = Double.NaN;
+		double MIRD_vol120_ERR = Double.NaN;
+		double MIRD_fatCal24_ERR = Double.NaN;
+		double MIRD_fatCal48_ERR = Double.NaN;
+		double MIRD_fatCal120_ERR = Double.NaN;
+		double MIRD_attiv24_ERR = Double.NaN;
+		double MIRD_attiv48_ERR = Double.NaN;
+		double MIRD_attiv120_ERR = Double.NaN;
+		double MIRD_RC24_ERR = Double.NaN;
+		double MIRD_RC48_ERR = Double.NaN;
+		double MIRD_RC120_ERR = Double.NaN;
+
+		
+		
 
 		double AA = Double.NaN;
 		double aa = Double.NaN;
@@ -139,6 +168,9 @@ public class Fegato_MIRD implements PlugIn {
 		double[] out24 = null;
 		double[] out48 = null;
 		double[] out120 = null;
+		double[][] out24x = null;
+		double[][] out48x = null;
+		double[][] out120x = null;
 
 		for (int i1 = 0; i1 < arrLesioni.size(); i1++) {
 			aux1 = arrLesioni.get(i1);
@@ -218,6 +250,27 @@ public class Fegato_MIRD implements PlugIn {
 		MyLog.log("integralePulito48=" + integralePulito48);
 		int integralePulito120 = subtractInteger(arrIntegrale120);
 		MyLog.log("integralePulito120=" + integralePulito120);
+		
+		// ==========================================================================================
+		// Lettura tabellaABC ( file: ConvABC.txt ) 020623
+		// ==========================================================================================
+
+		String fileName1 = "ConvABC.txt";
+		boolean intoJar = true;
+
+		double[][] matABC = Utility.tabellaConvABC(fileName1, intoJar);
+
+//		MyLog.logMatrix(matABC, "matABC");
+//		MyLog.waitHere();
+
+		// ==========================================================================================
+		// Lettura tabellaDimPixel ( file: DimPixel.txt ) 020623
+		// ==========================================================================================
+
+		String fileName2 = "DimPixel.txt";
+		double dimPixel = Utility.tabellaDimPixel(fileName2, intoJar);
+//		MyLog.waitHere("dimPixel= " + dimPixel);
+
 
 		// ==========================================================================================
 		// PARTE relativa alle immagini 24/48/120h
@@ -242,9 +295,24 @@ public class Fegato_MIRD implements PlugIn {
 																									// level
 		in24[4] = integralePulito24;
 		MyLog.logVector(in24, "in24");
-		out24 = Utility.MIRD_point040123(in24);
-		MIRD_vol24 = out24[0];
-		MyLog.logVector(out24, "out24");
+		
+//		out24 = Utility.MIRD_point040123(in24);
+//		MIRD_vol24 = out24[0];
+//		MyLog.logVector(out24, "out24");
+		
+		out24x = Utility.MIRD_point110523(in24, dimPixel, matABC);
+		MIRD_vol24 = out24x[0][0];
+		MIRD_fatCal24 = out24x[1][0];
+		MIRD_attiv24 = out24x[2][0];
+		MIRD_RC24 = out24x[3][0];
+
+		MIRD_vol24_ERR = out24x[0][1];
+		MIRD_fatCal24_ERR = out24x[1][1];
+		MIRD_attiv24_ERR = out24x[2][1];
+		MIRD_RC24_ERR = out24x[3][1];
+
+		
+		
 
 		// 48h
 		// se non mi ha scritto il tag #151# di volatile vuol dire che Dosimetry_v2 non
@@ -260,9 +328,22 @@ public class Fegato_MIRD implements PlugIn {
 																									// threshold
 		in48[4] = integralePulito48;
 		MyLog.logVector(in48, "in48");
-		out48 = Utility.MIRD_point040123(in48);
-		MyLog.logVector(out48, "out48");
-		MIRD_vol48 = out48[0];
+		
+//		out48 = Utility.MIRD_point040123(in48);
+//		MyLog.logVector(out48, "out48");
+//		MIRD_vol48 = out48[0];
+		
+		out48x = Utility.MIRD_point110523(in48, dimPixel, matABC);
+		MIRD_vol48 = out48x[0][0];
+		MIRD_fatCal48 = out48x[1][0];
+		MIRD_attiv48 = out48x[2][0];
+		MIRD_RC48 = out48x[3][0];
+
+		MIRD_vol48_ERR = out48x[0][1];
+		MIRD_fatCal48_ERR = out48x[1][1];
+		MIRD_attiv48_ERR = out48x[2][1];
+		MIRD_RC48_ERR = out48x[3][1];
+
 
 		// 120h
 		// se non mi ha scritto il tag #181# di volatile vuol dire che Dosimetry_v2 non
@@ -278,9 +359,23 @@ public class Fegato_MIRD implements PlugIn {
 																									// threshold
 		in120[4] = integralePulito120;
 		MyLog.logVector(in120, "in120");
-		out120 = Utility.MIRD_point040123(in120);
-		MIRD_vol120 = out120[0];
-		MyLog.logVector(out120, "out120");
+		
+		
+//		out120 = Utility.MIRD_point040123(in120);
+//		MIRD_vol120 = out120[0];
+//		MyLog.logVector(out120, "out120");
+
+		
+		out120x = Utility.MIRD_point110523(in120, dimPixel, matABC);
+		MIRD_vol120 = out120x[0][0];
+		MIRD_fatCal120 = out120x[1][0];
+		MIRD_attiv120 = out120x[2][0];
+		MIRD_RC120 = out120x[3][0];
+
+		MIRD_vol120_ERR = out120x[0][1];
+		MIRD_fatCal120_ERR = out120x[1][1];
+		MIRD_attiv120_ERR = out120x[2][1];
+		MIRD_RC120_ERR = out120x[3][1];
 
 		// Mostro i 3 volumi calcolati ed i punti, senza fit, in modo che, con LP33
 		// venga scelto l'eventuale punto da togliere
@@ -289,9 +384,9 @@ public class Fegato_MIRD implements PlugIn {
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 
-		yp1[0] = out24[2];
-		yp1[1] = out48[2];
-		yp1[2] = out120[2];
+		yp1[0] = out24x[2][0];
+		yp1[1] = out48x[2][0];
+		yp1[2] = out120x[2][0];
 
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
 		// §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§
@@ -437,16 +532,16 @@ public class Fegato_MIRD implements PlugIn {
 		count5 = 200;
 		aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD CALCULATION 24h ----";
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol24= " + out24[0];
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol24= " + MIRD_vol24;
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 		MyLog.log(aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal24= " + out24[1];
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal24= " + MIRD_fatCal24;
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 		MyLog.log(aux5);
 		
 		
 		if (puntiSelezionati[0])
-			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv24= " + out24[2];
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv24= " + MIRD_attiv24;
 		else
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv24= " + Double.NaN;
 
@@ -457,14 +552,14 @@ public class Fegato_MIRD implements PlugIn {
 		aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD CALCULATION 48h ----";
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 		MyLog.log(aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol48= " + out48[0];
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol48= " + MIRD_vol48;
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 		MyLog.log(aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal48= " + out48[1];
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal48= " + MIRD_fatCal48;
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 		MyLog.log(aux5);
 		if (puntiSelezionati[1])
-			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv48= " + out48[2];
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv48= " + MIRD_attiv48;
 		else
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv48= " + Double.NaN;
 
@@ -474,14 +569,14 @@ public class Fegato_MIRD implements PlugIn {
 		count5 = 240;
 		aux5 = "#" + String.format("%03d", count5++) + "#\t---- MIRD CALCULATION 120h ----";
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol120= " + out120[0];
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_vol120= " + MIRD_vol120;
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 		MyLog.log(aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal120= " + out120[1];
+		aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_fatCal120= " + MIRD_fatCal120;
 		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
 		MyLog.log(aux5);
 		if (puntiSelezionati[2])
-			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120= " + out120[2];
+			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120= " + MIRD_attiv120;
 		else
 			aux5 = "#" + String.format("%03d", count5++) + "#\tMIRD_attiv120= " + Double.NaN;
 
