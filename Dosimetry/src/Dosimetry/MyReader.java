@@ -97,7 +97,7 @@ public class MyReader {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		MyLog.log("<" + out1 + ">");
+		// MyLog.log("<" + out1 + ">");
 
 		String[] out3 = out1.split("\n");
 		int teoricLen = (int) Math.pow(MyGlobals.latoCubo() + 1, 3) + 2;

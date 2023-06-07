@@ -427,7 +427,7 @@ public class Utility {
 		MIRD_out1[2][1] = MIRD_attivErr;
 		MIRD_out1[3][1] = MIRD_RCErr;
 
-		MyLog.logMatrix(MIRD_out1, "out.MIRD_out1");
+		// MyLog.logMatrix(MIRD_out1, "out.MIRD_out1");
 
 		return MIRD_out1;
 	}

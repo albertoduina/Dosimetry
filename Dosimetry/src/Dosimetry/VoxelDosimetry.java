@@ -405,22 +405,42 @@ public class VoxelDosimetry {
 		double meanStackVal2 = tapata3[9];
 		double integral2 = tapata3[10];
 		
-		String aux5="";
-		int count5=750;
-		aux5 = "#" + String.format("%03d", count5++) + "#\tDVH IMMAGINE INPUT minStackVal== " + minStackVal3;
-		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tDVH IMMAGINE INPUT maxStackVal== " + maxStackVal3;
-		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tDVH MATILDE MASCHERATA minStackVal== " + minStackVal1;
-		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tDVH MATILDE MASCHERATA maxStackVal== " + maxStackVal1;
-		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tDVH PATATA MASCHERATA minStackVal== " + minStackVal2;
-		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
-		aux5 = "#" + String.format("%03d", count5++) + "#\tDVH PATATA MASCHERATA maxStackVal== " + maxStackVal2;
-		MyLog.logAppend(MyGlobals.pathVolatile, aux5);
-
 		
+		
+		MyLog.log("################################################################");
+		MyLog.log("################################################################");
+		MyLog.log("Results " + ore + "h");
+		MyLog.log("======== IMMAGINE INPUT  MASCHERATA ======");
+		MyLog.log("minStackVal= " + String.format("%.4f", minStackVal3) + "     x= " + minStackX3
+				+ "    y= " + minStackY3 + "    z= " + minStackZ3);
+		MyLog.log("maxStackVal= " + String.format("%.4f", maxStackVal3) + "    x= " + maxStackX3
+				+ "    y= " + maxStackY3 + "    z= " + maxStackZ3);
+
+		MyLog.log(
+				"meanStackVal= " + String.format("%.4f", meanStackVal3) + "        pixCount= " + pixCount3);
+		MyLog.log("integral= " + String.format("%.4f", integral3));
+		MyLog.log("======== MATILDE MASCHERATA =============");
+		MyLog.log("minStackVal= " + String.format("%.4f", minStackVal1) + "       x= " + minStackX1
+				+ "    y= " + minStackY1 + "    z= " + minStackZ1);
+		MyLog.log("maxStackVal= " + String.format("%.4f", maxStackVal1) + "    x= " + maxStackX1
+				+ "    y= " + maxStackY1 + "    z= " + maxStackZ1);
+
+		MyLog.log(
+				"meanStackVal= " + String.format("%.4f", meanStackVal1) + "        pixCount= " + pixCount1);
+		MyLog.log("integral= " + String.format("%.4f", integral1));
+
+		MyLog.log("======== PATATA MASCHERATA ==============");
+		MyLog.log("minStackVal= " + String.format("%.4f", minStackVal2) + "     x= " + minStackX2
+				+ "    y= " + minStackY2 + "    z= " + minStackZ2);
+		MyLog.log("maxStackVal= " + String.format("%.4f", maxStackVal2) + "    x= " + maxStackX2
+				+ "    y= " + maxStackY2 + "    z= " + maxStackZ2);
+
+		MyLog.log(
+				"meanStackVal= " + String.format("%.4f", meanStackVal2) + "        pixCount= " + pixCount2);
+		MyLog.log("integral= " + String.format("%.4f", integral2));
+		MyLog.log("Tempo impiegato= " + time1);
+		MyLog.log("################################################################");
+		MyLog.log("################################################################");
 		
 
 		if (MyGlobals.mostraResultsSV05) {
