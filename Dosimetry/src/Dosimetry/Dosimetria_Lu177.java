@@ -70,7 +70,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 		String IJversion = IJ.getVersion();
 		String JavaVersion = System.getProperty("java.version");
 		String jarName = Utility.getJarTitle();
-		double dimPixel = -1;
+		// double dimPixel = -1;
 
 		// ===========================================================
 		// LEGGO CARTELLA DOSIMETRY FOLDER (E SOTTOCARTELLA IMAGES FOLDER)
@@ -191,7 +191,7 @@ public class Dosimetria_Lu177 implements PlugIn {
 					MyGlobals.format1);
 			activitySomministrazione = Double.parseDouble(MyReader.readFromLog(MyGlobals.pathVolatile, "#003#", "="));
 			MyLog.log("dataOraSomministrazione= " + dataOraSomministrazione);
-			IJ.log("002");
+			// IJ.log("002");
 
 			raccoltaDati(arrayOfFile2, dataOraSomministrazione);
 			// copia da volatile a permanente i dati di IMAGE INFO 24-48-120
@@ -299,8 +299,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 		String petUID1 = DicomTools.getTag(imp1, "0020,000E");
 		petUID1 = petUID1.trim();
 
-		dimPixel = Double.parseDouble(Utility.readSubstring(DicomTools.getTag(imp1, "0028,0030"),1));
-		MyLog.log("dimPixel letto da dati dicom= " + dimPixel);
+//		dimPixel = Double.parseDouble(Utility.readSubstring(DicomTools.getTag(imp1, "0028,0030"),1));
+//		MyLog.log("dimPixel letto da dati dicom= " + dimPixel);
 
 		String startingDir2 = str1 + "24h" + File.separator + "CT";
 
@@ -569,8 +569,8 @@ public class Dosimetria_Lu177 implements PlugIn {
 			// Lettura tabellaDimPixel ( file: DimPixel.txt ) 020623
 			// ==========================================================================================
 
-//			String fileName2 = "DimPixel.txt";
-//			double dimPixel = Utility.tabellaDimPixel(fileName2, intoJar);
+			String fileName2 = "DimPixel.txt";
+			double dimPixel = Utility.tabellaDimPixel(fileName2, intoJar);
 //			MyLog.waitHere("dimPixel= " + dimPixel);
 
 			// ==========================================================================================
